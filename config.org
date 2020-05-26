@@ -1,0 +1,297 @@
+* Basic stuff to get some type of order
+#+BEGIN_SRC emacs-lisp
+;; remove gui elements
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+(menu-bar-mode -1) 
+;; remove visual bell
+(setq visible-bell       nil
+    ring-bell-function #'ignore)
+
+;; set default dir to home
+(setq default-directory "~/")
+
+;; follow symlinks
+(setq vc-follow-symlinks t)
+
+;; spaces not tabs
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+(setq indent-line-function 'insert-tab)
+
+;; no backup files
+(setq make-backup-files nil)
+(global-auto-revert-mode t)
+
+;; y/n will do
+(fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
+* Theming
+#+BEGIN_SRC emacs-lisp
+(use-package zenburn-theme
+  :ensure t
+  :defer t
+  :init
+  (load-theme 'zenburn t))
+#+END_SRC
+
+* Package dashboard
+   For that nice start menu dont know if it will be needed at all but trying
+   it out
+#+BEGIN_SRC emacs-lisp
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize)))
+
+(use-package dashboard
+    :ensure t
+    :config
+    (setq dashboard-items '((recents  . 10)
+                            (bookmarks . 10)))
+    (dashboard-setup-startup-hook))
+#+END_SRC
+
+* Package cus-edit
+   I dont want all my files being banged at by emacs 
+#+BEGIN_SRC emacs-lisp
+(use-package cus-edit
+:config
+  (setq custom-file "~/.emacs.d/custom.el")
+
+  (unless (file-exists-p custom-file)
+    (write-region "" nil custom-file))
+
+  (load custom-file))
+#+END_SRC
+
+* Package evil
+   Evil configuraton
+#+BEGIN_SRC emacs-lisp
+
+(use-package evil
+  :ensure evil
+  :init
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
+
+  (setq-default evil-symbol-word-search t)
+  (setq-default evil-shift-width 2)
+  (setq evil-jumps-cross-buffers t)
+  (setq evil-want-Y-yank-to-eol t)
+  (setq evil-want-C-u-scroll t)
+  (setq evil-search-module 'evil-search)
+  (setq evil--jumps-buffer-targets "\\(\\*\\(\\new\\|scratch\\)\\*\\|vterm\\)")
+  :config
+  (progn
+    (use-package evil-escape
+      :ensure t
+        :config
+        (progn
+            (evil-escape-mode)
+            (setq-default evil-escape-key-sequence "jk")))
+  
+    (add-hook 'evil-insert-state-entry-hook 'evil-set-jump)
+    (add-hook 'buffer-list-update-hook 'evil-set-jump)
+    
+
+    ;;; esc quits
+    (define-key evil-normal-state-map [escape] 'keyboard-quit)
+    (define-key evil-visual-state-map [escape] 'keyboard-quit)
+    (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
+    (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+    (define-key evil-normal-state-map "\C-j" 'evil-window-down)
+    (define-key evil-normal-state-map "\C-k" 'evil-window-up)
+    (define-key evil-normal-state-map "\C-h" 'evil-window-left)
+    (define-key evil-normal-state-map "\C-l" 'evil-window-right)
+
+
+    ;; Add ex commands to allow mistyping
+    (evil-ex-define-cmd "E[dit]" 'evil-edit)
+    (evil-ex-define-cmd "W[rite]" 'evil-write)
+    (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+    (evil-ex-define-cmd "WQ" 'evil-save-and-close)
+    (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+    (evil-ex-define-cmd "Qa[ll]" "quitall")
+    (evil-ex-define-cmd "qA[ll]" "quitall")
+    (evil-ex-define-cmd "QA[ll]" "quitall")
+
+    (use-package evil-leader
+      :ensure evil-leader
+      :config
+      (progn
+        (setq evil-leader/in-all-states 1)
+        (global-evil-leader-mode)
+        (evil-leader/set-leader "<SPC>")
+
+        (evil-leader/set-key "f" 'counsel-find-file
+                             "e" 'counsel-projectile-find-file
+                             "p" 'counsel-projectile-switch-project
+                             "g" 'counsel-projectile-rg
+                             "b" 'counsel-switch-buffer
+                             "t" 'vterm
+                             ":" 'counsel-M-x)))
+
+    (evil-mode 1)
+
+    (use-package evil-collection
+      :after evil
+      :ensure t
+      :config
+      (evil-collection-init))))
+
+#+END_SRC
+
+* Package company
+   Use company for packages
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    :diminish company-mode
+    ;; Use Company for completion
+    :bind (("C-<tab>" . company-complete-common)
+           :map company-mode-map
+           ([remap completion-at-point] . company-complete-common)
+           ([remap complete-symbol] . company-complete-common))
+    :init (global-company-mode 1)
+    :config
+      (use-package company-lsp :ensure t)
+
+    (setq tab-always-indent 'complete)
+    ;; some better default values
+    (setq company-idle-delay 0.2)
+    (setq company-tooltip-limit 10)
+    (setq company-minimum-prefix-length 1)
+    (setq company-selection-wrap-around t)
+    (setq company-backends '((company-files
+                              company-elisp
+                              company-lsp
+                              company-yasnippet)
+                             (company-dabbrev company-dabbrev-code)))
+
+    ;; align annotations in tooltip
+    (setq company-tooltip-align-annotations t)
+
+    ;; nicer keybindings
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous)
+    (define-key company-active-map (kbd "K") 'company-show-doc-buffer)
+
+    ;; put most often used completions at stop of list
+    (setq company-transformers '(company-sort-by-occurrence)))
+#+END_SRC
+
+* Package lsp-mode
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (prog-mode . lsp-deferred))
+
+;; TODO: make the window disappear/behave normally && hide line numbers
+(defun my/hide-frame-line-numbers (frame _window)
+  "Hides line nunmbers from a specific frame in a winow."
+  (select-frame frame)
+  (display-line-numbers-mode -1))
+
+(use-package lsp-ui
+  :requires (lsp-mode)
+  :commands lsp-ui-mode
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (setq lsp-ui-sideline-ignore-duplicate t)
+  ;; (add-hook 'lsp-ui-doc-frame-hook #'my/hide-frame-line-numbers)
+  )
+
+(use-package lsp-ivy
+  :requires (lsp-mode)
+  :commands (lsp-ivy-workspace-symbol lsp-ivy-global-workspace-symbol))
+
+(use-package company-lsp
+  :commands company-lsp
+  :config
+  (push 'company-lsp company-backends)
+  (setq company-lsp-async t
+        company-lsp-cache-candidates 'auto
+        company-lsp-enable-recompletion t))
+  #+end_src
+
+* Package counsel
+
+#+BEGIN_SRC emacs-lisp
+
+(use-package ivy-posframe
+  :custom
+  (ivy-posframe-style 'frame-center)
+  (ivy-posframe-display-functions-alist
+   '((swiper . ivy-posframe-display-at-window-bottom-left)
+     (t . ivy-posframe-display)))
+  :config
+  (ivy-posframe-mode))
+
+(use-package ivy
+  :ensure t
+  :config
+  (ivy-mode 1)
+  ;;(setq ivy-use-virtual-buffers f)
+  (setq enable-recursive-minibuffers t))
+
+(use-package swiper
+  :ensure t)
+
+(use-package counsel
+  :ensure t
+  :config
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history))
+  
+(use-package prescient
+  :ensure t
+  :config
+  (progn
+    (use-package ivy-prescient
+      :ensure t
+      :config
+      (ivy-prescient-mode))
+    (use-package company-prescient
+      :ensure t
+      :config
+      (company-prescient-mode))
+    (prescient-persist-mode)))
+
+#+END_SRC
+
+* Package projectile for project managment
+    #+begin_src emacs-lisp 
+
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode +1))
+ 
+(use-package counsel-projectile
+  :ensure t
+  :config
+  (counsel-projectile-mode))
+
+    #+end_src
+
+* Package go-mode
+
+  #+begin_src emacs-lisp
+    (use-package go-mode
+    :ensure t)
+  #+end_src
+ 
+* Package vterm
+
+  #+begin_src emacs-lisp
+    (use-package vterm
+    :ensure t)
+  #+end_src
+  
