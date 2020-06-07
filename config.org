@@ -28,6 +28,8 @@
 
 ;; stop the insessent blinking
 (blink-cursor-mode 0)
+
+(setq auto-save-default nil)
 #+END_SRC
 
 * Theming
@@ -155,10 +157,11 @@
 
   (use-package evil-escape
     :ensure t
+    :init
+    (setq evil-escape-unordered-key-sequence t)
+    (setq-default evil-escape-key-sequence "jk")
     :config
-    (progn
-      (evil-escape-mode)
-      (setq-default evil-escape-key-sequence "jk")))
+    (evil-escape-mode))
 
   (use-package evil-leader
     :ensure evil-leader
@@ -283,44 +286,45 @@
 
 * LSP 
 #+begin_src emacs-lisp
-(use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (prog-mode . lsp-deferred)
-  :config
-    (defun lsp-mode-configuration ()
-      (with-eval-after-load 'evil
-        (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
-        (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
-        (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
+  (use-package lsp-mode
+    :init (setq lsp-signature-auto-activate nil)
+    :commands (lsp lsp-deferred)
+    :hook (prog-mode . lsp-deferred)
+    :config
+      (defun lsp-mode-configuration ()
+        (with-eval-after-load 'evil
+          (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
+          (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
+          (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
 
-    (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
+      (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
 
-;; TODO: make the window disappear/behave normally && hide line numbers
-(defun my/hide-frame-line-numbers (frame _window)
-  "Hides line nunmbers from a specific frame in a winow."
-  (select-frame frame)
-  (display-line-numbers-mode -1))
+  ;; TODO: make the window disappear/behave normally && hide line numbers
+  (defun my/hide-frame-line-numbers (frame _window)
+    "Hides line nunmbers from a specific frame in a winow."
+    (select-frame frame)
+    (display-line-numbers-mode -1))
 
-(use-package lsp-ui
-  :requires (lsp-mode)
-  :commands lsp-ui-mode
-  :hook (lsp-mode . lsp-ui-mode)
-  :config
-  (setq lsp-ui-sideline-ignore-duplicate t)
-  ;; (add-hook 'lsp-ui-doc-frame-hook #'my/hide-frame-line-numbers)
-  )
+  ;(use-package lsp-ui
+  ;  :requires (lsp-mode)
+  ;  :commands lsp-ui-mode
+  ;  :hook (lsp-mode . lsp-ui-mode)
+  ;  :config
+  ;  (setq lsp-ui-sideline-ignore-duplicate t)
+  ;  ;; (add-hook 'lsp-ui-doc-frame-hook #'my/hide-frame-line-numbers)
+  ;  )
 
-(use-package lsp-ivy
-  :requires (lsp-mode)
-  :commands (lsp-ivy-workspace-symbol lsp-ivy-global-workspace-symbol))
+  (use-package lsp-ivy
+    :requires (lsp-mode)
+    :commands (lsp-ivy-workspace-symbol lsp-ivy-global-workspace-symbol))
 
-(use-package company-lsp
-  :commands company-lsp
-  :config
-  (push 'company-lsp company-backends)
-  (setq company-lsp-async t
-        company-lsp-cache-candidates 'auto
-        company-lsp-enable-recompletion t))
+  (use-package company-lsp
+    :commands company-lsp
+    :config
+    (push 'company-lsp company-backends)
+    (setq company-lsp-async t
+          company-lsp-cache-candidates 'auto
+          company-lsp-enable-recompletion t))
   #+end_src
 
 * WD managment
@@ -328,6 +332,8 @@
 
 (use-package projectile
   :ensure t
+  :init
+  (setq projectile-switch-project-action #'projectile-dired)
   :config
   (projectile-mode +1))
  
@@ -426,4 +432,20 @@
   (use-package yaml-mode
   :ensure t)
 #+end_src
- 
+
+#+begin_src emacs-lisp 
+(use-package pyenv-mode
+  :ensure t
+  :hook (python-mode . pyenv-mode))
+#+end_src
+
+* REST
+#+begin_src emacs-lisp
+(use-package restclient
+  :ensure t)
+#+end_src
+* Jupyter notebooks
+ #+begin_src emacs-lisp 
+ (use-package ein
+  :ensure t)
+ #+end_src
