@@ -36,11 +36,11 @@
 #+END_SRC
 * Theming
 #+BEGIN_SRC emacs-lisp
-(use-package zenburn-theme
+(use-package minimal-theme
   :ensure t
   :defer t
   :init
-  (load-theme 'zenburn t))
+  (load-theme 'minimal t))
   
 (use-package emacs
   :config
@@ -219,6 +219,13 @@
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 #+END_SRC
 
+* Hyperbole
+#+begin_src  emacs-lisp
+  (use-package hyperbole
+    :diminish
+    :ensure t)
+#+end_src
+
 * Package company
    Use company for packages
 
@@ -242,8 +249,7 @@
       (setq company-backends '(company-capf
                                company-files
                                company-elisp
-                               company-lsp
-                               company-yasnippet))
+                               company-lsp))
 
       ;; align annotations in tooltip
       (setq company-tooltip-align-annotations t)
@@ -361,6 +367,7 @@
         (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
 
         (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
+    (setq lsp-signature-auto-activate nil)
     (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
 
   (use-package company-lsp
