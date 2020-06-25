@@ -16,7 +16,6 @@
 
 ;; spaces not tabs
 (setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
 (setq indent-line-function 'insert-tab)
 
 ;; no backup files
@@ -30,8 +29,11 @@
 (blink-cursor-mode 0)
 
 (setq auto-save-default nil)
-#+END_SRC
 
+(set-frame-font "Hack-12" nil t)
+(set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+
+#+END_SRC
 * Theming
 #+BEGIN_SRC emacs-lisp
 (use-package zenburn-theme
@@ -39,37 +41,57 @@
   :defer t
   :init
   (load-theme 'zenburn t))
-#+END_SRC
+  
+(use-package emacs
+  :config
+  (setq mode-line-percent-position '(-3 "%p"))
+  (setq mode-line-defining-kbd-macro
+        (propertize " Macro" 'face 'mode-line-emphasis))
+  (setq-default mode-line-format
+                '("🌻"
+                  "%e"
+                  ""
+                  mode-line-front-space
+                  mode-line-mule-info
+                  mode-line-client
+                  mode-line-modified
+                  mode-line-remote
+                  mode-line-frame-identification
+                  mode-line-buffer-identification
+                  "  "
+                  mode-line-position
+                  (vc-mode vc-mode)
+                  " "
+                  mode-line-modes
+                  " "
+                  mode-line-misc-info
+                  mode-line-end-spaces)))
 
-* Package dashboard
-   For that nice start menu dont know if it will be needed at all but trying
-   it out
-#+BEGIN_SRC emacs-lisp
 (use-package exec-path-from-shell
   :ensure t
   :config
   (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize)))
 
-(use-package dashboard
+#+END_SRC
+
+* Save my mode-line
+#+begin_src emacs-lisp
+(use-package diminish
+  :ensure
+  :after use-package)
+
+#+end_src
+
+* Package dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :diminish
     :ensure t
     :config
     (setq dashboard-items '((recents  . 10)
                             (bookmarks . 10)))
     (dashboard-setup-startup-hook))
-#+END_SRC
-
-* Stop banganing at init.el
-   I dont want all my files being banged at by emacs 
-#+BEGIN_SRC emacs-lisp
-(use-package cus-edit
-:config
-  (setq custom-file "~/.emacs.d/custom.el")
-
-  (unless (file-exists-p custom-file)
-    (write-region "" nil custom-file))
-
-  (load custom-file))
 #+END_SRC
 
 * Mac stuff
@@ -79,18 +101,20 @@
 #+END_SRC
 * Relative line numbers
 #+BEGIN_SRC emacs-lisp
-(use-package linum
-  :init
-  (add-hook 'prog-mode-hook 'linum-mode))
+  (use-package linum
+    :diminish
+    :ensure t
+    :init
+    (add-hook 'prog-mode-hook 'linum-mode))
 
-(use-package linum-relative
-  :commands (linum-relative-mode linum-relative-toggle)
-  :init
-  (setq linum-relative-current-symbol "")
-  (add-hook 'prog-mode-hook 'linum-relative-mode))
+  (use-package linum-relative
+    :diminish
+    :ensure t
+    :init
+    (setq linum-relative-current-symbol "")
+    (add-hook 'prog-mode-hook 'linum-relative-mode))
 #+END_SRC
 * Global mappings
-
 #+begin_src emacs-lisp
   (defun +emacs/switch-to-next-buffer ()
     "Switch to next buffer but stop at last buffer"
@@ -153,9 +177,13 @@
     (evil-ex-define-cmd "qA[ll]" "quitall")
     (evil-ex-define-cmd "QA[ll]" "quitall")
 
+    (add-hook 'window-configuration-change-hook #'evil--jumps-push)
+    (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell: .*\\)\\*")
+
     (evil-mode 1))
 
   (use-package evil-escape
+    :diminish
     :ensure t
     :init
     (setq evil-escape-unordered-key-sequence t)
@@ -170,12 +198,19 @@
     (global-evil-leader-mode)
     (evil-leader/set-leader "<SPC>")
     (evil-leader/set-key "." 'counsel-find-file
-                         "b" 'counsel-switch-buffer
-                         "t" 'vterm
-                         ":" 'counsel-M-x
-                         "r" (lambda () (load-file user-init-file))))
-#+END_SRC
+      "b" 'counsel-switch-buffer
+      "t" 'vterm
+      ":" 'counsel-M-x
+      "r" (lambda () (load-file user-init-file))))
 
+  (use-package evil-collection
+    :after evil
+    :ensure t
+    :config
+    (setq evil-collection-mode-list (remove 'eshell evil-collection-mode-list))
+    (evil-collection-init))
+
+#+END_SRC
 * Org 
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
@@ -188,135 +223,145 @@
    Use company for packages
 
 #+BEGIN_SRC emacs-lisp
-  (use-package company
-    :ensure t
-    :diminish company-mode
-    ;; Use Company for completion
-    :bind (("C-<tab>" . company-complete-common)
-           :map company-mode-map
-           ([remap completion-at-point] . company-complete-common)
-           ([remap complete-symbol] . company-complete-common))
-    :init (global-company-mode 1)
-    :config
-      (use-package company-lsp :ensure t)
+    (use-package company
+      :diminish company-mode
+      :ensure t
+      ;; Use Company for completion
+      :bind (("C-<tab>" . company-complete-common)
+             :map company-mode-map
+             ([remap completion-at-point] . company-complete-common)
+             ([remap complete-symbol] . company-complete-common))
+      :init (global-company-mode 1)
+      :config
+      (setq tab-always-indent 'complete)
+      ;; some better default values
+      (setq company-idle-delay 0.2)
+      (setq company-tooltip-limit 10)
+      (setq company-minimum-prefix-length 1)
+      (setq company-selection-wrap-around t)
+      (setq company-backends '(company-capf
+                               company-files
+                               company-elisp
+                               company-lsp
+                               company-yasnippet))
 
-    (setq tab-always-indent 'complete)
-    ;; some better default values
-    (setq company-idle-delay 0.2)
-    (setq company-tooltip-limit 10)
-    (setq company-minimum-prefix-length 1)
-    (setq company-selection-wrap-around t)
-    (setq company-backends '((company-files
-                              company-elisp
-                              company-lsp
-                              company-yasnippet)
-                             (company-dabbrev company-dabbrev-code)))
+      ;; align annotations in tooltip
+      (setq company-tooltip-align-annotations t)
+      (setq company-dabbrev-downcase nil)
 
-    ;; align annotations in tooltip
-    (setq company-tooltip-align-annotations t)
+      ;; nicer keybindings
+      (define-key company-active-map (kbd "C-n") 'company-select-next)
+      (define-key company-active-map (kbd "C-p") 'company-select-previous)
+      (define-key company-active-map (kbd "K") 'company-show-doc-buffer)
 
-    ;; nicer keybindings
-    (define-key company-active-map (kbd "C-n") 'company-select-next)
-    (define-key company-active-map (kbd "C-p") 'company-select-previous)
-    (define-key company-active-map (kbd "K") 'company-show-doc-buffer)
+      ;; put most often used completions at stop of list
+      (setq company-transformers '(company-sort-by-occurrence)))
 
-    ;; put most often used completions at stop of list
-    (setq company-transformers '(company-sort-by-occurrence)))
+      (use-package company-posframe
+        :diminish
+        :ensure t
+        :config
+        (setq company-posframe-show-metadata nil)
+        (setq company-posframe-show-indicator nil)
+        (setq company-posframe-quickhelp-delay nil)
+        (company-posframe-mode +1))
 #+END_SRC
 
 * Package counsel
 
 #+BEGIN_SRC emacs-lisp
+  (use-package ivy-rich
+    :diminish
+    :ensure t
+    :after ivy
+    :custom
+    (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+    (ivy-rich-mode 1))
 
-(use-package ivy-posframe
-  :ensure t
-  :custom
-  (ivy-posframe-style 'frame-center)
-  (ivy-posframe-display-functions-alist
-   '((swiper . ivy-posframe-display-at-window-bottom-left)
-     (t . ivy-posframe-display)))
-  :config
-  (ivy-posframe-mode))
+  (use-package ivy-posframe
+    :diminish
+    :ensure t
+    :custom
+    (ivy-posframe-style 'frame-center)
+    (ivy-posframe-display-functions-alist
+    '((swiper . ivy-posframe-display-at-window-bottom-left)
+      (t . ivy-posframe-display)))
+    :config
+    (ivy-posframe-mode))
 
-(use-package ivy
-  :ensure t
-  :config
-  (ivy-mode 1)
-  ;;(setq ivy-use-virtual-buffers f)
-  (setq enable-recursive-minibuffers t))
+  (use-package ivy
+    :diminish
+    :hook (after-init . ivy-mode)
+    :config
+    (setq ivy-height 15)
+    (setq ivy-display-style nil)
+    (setq ivy-re-builders-alist
+          '((counsel-rg            . ivy--regex-plus)
+            (counsel-projectile-rg . ivy--regex-plus)
+            (swiper                . ivy--regex-plus)
+            (t                     . ivy--regex-fuzzy)))
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (setq ivy-initial-inputs-alist nil))
 
-(use-package swiper
-  :ensure t)
+  (use-package swiper
+    :ensure t)
 
-(use-package counsel
-  :ensure t
-  :config
-  (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
+  (use-package counsel
+    :ensure t
+    :config
+    (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
 
-  (defun +ivy/projectile-find-file ()
-    (interactive)
-    (let ((this-command 'counsel-find-file))
-      (call-interactively
-      (if (or (file-equal-p default-directory "~")
-              (file-equal-p default-directory "/"))
-              #'counsel-find-file
-              (let ((files (projectile-current-project-files)))
-                (if (<= (length files) ivy-sort-max-size)
-                    #'counsel-projectile-find-file
-                  #'projectile-find-file))))))
-                 
-  (evil-leader/set-key "SPC" '+ivy/projectile-find-file
-                       "." 'counsel-find-file))
-  
-(use-package prescient
-  :ensure t
-  :config
-  (progn
-    (use-package ivy-prescient
-      :ensure t
-      :config
-      (ivy-prescient-mode))
-    (use-package company-prescient
-      :ensure t
-      :config
-      (company-prescient-mode))
-    (prescient-persist-mode)))
+    (defun +ivy/projectile-find-file ()
+      (interactive)
+      (let ((this-command 'counsel-find-file))
+        (call-interactively
+         (if (or (file-equal-p default-directory "~")
+                 (file-equal-p default-directory "/"))
+             #'counsel-find-file
+           (let ((files (projectile-current-project-files)))
+             (if (<= (length files) ivy-sort-max-size)
+                 #'counsel-projectile-find-file
+               #'projectile-find-file))))))
+
+    (evil-leader/set-key "SPC" '+ivy/projectile-find-file
+                          "." 'counsel-find-file))
+
+  (use-package prescient
+    :ensure t
+    :config
+    (progn
+      (use-package ivy-prescient
+        :ensure t
+        :config
+        (ivy-prescient-mode))
+      (use-package company-prescient
+        :ensure t
+        :config
+        (company-prescient-mode))
+      (prescient-persist-mode)))
 
 #+END_SRC
 
 * LSP 
 #+begin_src emacs-lisp
-  (use-package lsp-mode
-    :init (setq lsp-signature-auto-activate nil)
-    :commands (lsp lsp-deferred)
-    :hook (prog-mode . lsp-deferred)
-    :config
-      (defun lsp-mode-configuration ()
-        (with-eval-after-load 'evil
-          (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
-          (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
-          (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
-
-      (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
-
-  ;; TODO: make the window disappear/behave normally && hide line numbers
-  (defun my/hide-frame-line-numbers (frame _window)
-    "Hides line nunmbers from a specific frame in a winow."
-    (select-frame frame)
-    (display-line-numbers-mode -1))
-
-  ;(use-package lsp-ui
-  ;  :requires (lsp-mode)
-  ;  :commands lsp-ui-mode
-  ;  :hook (lsp-mode . lsp-ui-mode)
-  ;  :config
-  ;  (setq lsp-ui-sideline-ignore-duplicate t)
-  ;  ;; (add-hook 'lsp-ui-doc-frame-hook #'my/hide-frame-line-numbers)
-  ;  )
-
   (use-package lsp-ivy
     :requires (lsp-mode)
     :commands (lsp-ivy-workspace-symbol lsp-ivy-global-workspace-symbol))
+
+  (use-package lsp-mode
+    :ensure t
+    :hook (prog-mode . (lambda ()
+                         (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode)
+                           (lsp-deferred))))
+    :config
+    (defun lsp-mode-configuration ()
+      (with-eval-after-load 'evil
+        (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
+        (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
+
+        (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
+    (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
 
   (use-package company-lsp
     :commands company-lsp
@@ -325,85 +370,108 @@
     (setq company-lsp-async t
           company-lsp-cache-candidates 'auto
           company-lsp-enable-recompletion t))
-  #+end_src
+ #+end_src
 
 * WD managment
 #+begin_src emacs-lisp 
 
-(use-package projectile
-  :ensure t
-  :init
-  (setq projectile-switch-project-action #'projectile-dired)
-  :config
-  (projectile-mode +1))
- 
-(use-package counsel-projectile
-  :ensure t
-  :config
-  (evil-leader/set-key "pp" 'counsel-projectile-switch-project
-                       "pi" 'projectile-invalidate-cache
-                       "pt" 'projectile-test-project
-                       "pg" 'projectile-ripgrep)
-  (counsel-projectile-mode))
+    (use-package projectile
+      :ensure t
+      :config
+      (projectile-mode +1))
+
+    (use-package counsel-projectile
+      :diminish
+      :ensure t
+      :config
+      (setcar counsel-projectile-switch-project-action 4)
+      (evil-leader/set-key "pp" 'counsel-projectile-switch-project
+                           "pi" 'projectile-invalidate-cache
+                           "pt" 'projectile-test-project
+                           "pg" 'projectile-ripgrep)
+      (counsel-projectile-mode))
+
+  (use-package org-projectile
+    :ensure t
+    :config
+    (setq org-projectile:projects-file "/Users/svaante/projects.org")
+    (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+    (push (org-projectile-project-todo-entry) org-capture-templates)
+
+    (evil-leader/set-key "pt" 'org-projectile-capture-for-current-project
+                         "pc" 'org-capture))
 
 #+end_src
 
 * Terminal
-  #+begin_src emacs-lisp
-(use-package eshell
+#+begin_src emacs-lisp
+  (use-package eshell
     :ensure t
     :config
 
-  (evil-define-key 'normal global-map (kbd "C-j")       'evil-window-down)
+    (evil-define-key 'normal global-map (kbd "C-j")       'evil-window-down)
 
-  (defun eshell-here ()
-    "Opens up a new shell in the directory associated with the current buffer's file."
-    (interactive)
-    (let* ((parent (if (buffer-file-name)
-                       (file-name-directory (buffer-file-name))
+    (defun eshell-here ()
+      "Opens up a new shell in the directory associated with the current buffer's file."
+      (interactive)
+      (let* ((parent (if (buffer-file-name)
+                         (file-name-directory (buffer-file-name))
                        default-directory))
-           (name (car (last (split-string parent "/" t))))
-           (b-name (concat "*eshell: " name "*")))
-      (if (null (get-buffer b-name))
-          (progn 
-            (eshell "new")
-            (rename-buffer b-name))
+             (name (car (last (split-string parent "/" t))))
+             (b-name (concat "*eshell: " name "*")))
+        (if (null (get-buffer b-name))
+            (progn 
+              (eshell "new")
+              (rename-buffer b-name))
           (switch-to-buffer b-name))))
 
     (evil-leader/set-key "e" 'eshell-here
-                         "pe" 'projectile-run-eshell)
+      "pe" 'projectile-run-eshell)
 
     (defun +eshell/goto-end-of-prompt ()
       "Move cursor to the prompt when switching to insert mode (if point isn't
-    already there)."
+      already there)."
       (interactive)
       (goto-char (point-max))
       (evil-append 1))
 
+    (defun +eshell/counsel-esh-history-normal ()
+      "Move cursor to the end of the buffer before calling counser-esh-history
+        and change `state` to insert"
+      (interactive)
+      (goto-char (point-max))
+      (evil-insert 0)
+      (counsel-esh-history))
+
 
     (defun eshell-mode-configuration ()
-      (with-eval-after-load 'evil
+      (with-eval-after-load 'evil-collection
         (+emacs/key-bindings)
         (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
         (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
+        (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
         (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history))
-        (define-key evil-normal-state-local-map (kbd "A") '+eshell/goto-end-of-prompt))
+      (define-key evil-normal-state-local-map (kbd "A") '+eshell/goto-end-of-prompt))
 
     (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
-  #+end_src
 
-  #+RESULTS:
-  : t
-  
+(use-package eshell-prompt-extras
+  :ensure t
+  :init
+  (setq eshell-highlight-prompt nil
+        eshell-prompt-function 'epe-theme-lambda))
+#+end_src
+ 
 * Magit
 #+begin_src emacs-lisp
-(use-package magit
-  :ensure t
-  :config
-  (evil-leader/set-key "gg" 'magit)
-  (evil-leader/set-key "gh" 'magit-log-buffer-file))
-(use-package evil-magit
-  :ensure t)
+  (use-package magit
+    :ensure t
+    :config
+    (evil-leader/set-key "gg" 'magit)
+    (evil-leader/set-key "gh" 'magit-log-buffer-file)
+    (evil-leader/set-key "gf" 'magit-fetch-all))
+  (use-package evil-magit
+    :ensure t)
  #+end_src
 * Check spelling inside git commit and markdown
 #+begin_src emacs-lisp
@@ -433,19 +501,18 @@
   :ensure t)
 #+end_src
 
-#+begin_src emacs-lisp 
-(use-package pyenv-mode
-  :ensure t
-  :hook (python-mode . pyenv-mode))
-#+end_src
-
 * REST
 #+begin_src emacs-lisp
 (use-package restclient
   :ensure t)
 #+end_src
+
 * Jupyter notebooks
  #+begin_src emacs-lisp 
- (use-package ein
-  :ensure t)
+   (use-package ein
+    :ensure t
+    :init
+    (setq ein:polymode t)
+    :config
+    (setq ein:polymode t))
  #+end_src
