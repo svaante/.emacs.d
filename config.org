@@ -58,7 +58,7 @@
                   mode-line-remote
                   mode-line-frame-identification
                   mode-line-buffer-identification
-                  "  "
+                  " "
                   mode-line-position
                   (vc-mode vc-mode)
                   " "
@@ -379,26 +379,28 @@
     (setq company-lsp-async t
           company-lsp-cache-candidates 'auto
           company-lsp-enable-recompletion t))
+
+  (use-package flycheck :ensure t)
  #+end_src
 
 * WD managment
 #+begin_src emacs-lisp 
+  (use-package projectile
+    :ensure t
+    :config
+    (projectile-mode +1))
 
-    (use-package projectile
-      :ensure t
-      :config
-      (projectile-mode +1))
-
-    (use-package counsel-projectile
-      :diminish
-      :ensure t
-      :config
-      (setcar counsel-projectile-switch-project-action 4)
-      (evil-leader/set-key "pp" 'counsel-projectile-switch-project
-                           "pi" 'projectile-invalidate-cache
-                           "pt" 'projectile-test-project
-                           "pg" 'projectile-ripgrep)
-      (counsel-projectile-mode))
+  (use-package counsel-projectile
+    :diminish
+    :ensure t
+    :config
+    (setcar counsel-projectile-switch-project-action 4)
+    (evil-leader/set-key
+      "pp" 'counsel-projectile-switch-project
+      "pi" 'projectile-invalidate-cache
+      "pt" 'projectile-test-project
+      "pg" 'projectile-ripgrep)
+    (counsel-projectile-mode))
 
   (use-package org-projectile
     :ensure t
@@ -406,10 +408,9 @@
     (setq org-projectile:projects-file "/Users/svaante/projects.org")
     (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
     (push (org-projectile-project-todo-entry) org-capture-templates)
-
-    (evil-leader/set-key "pt" 'org-projectile-capture-for-current-project
-                         "pc" 'org-capture))
-
+    (evil-leader/set-key
+      "pt" 'org-projectile-capture-for-current-project
+      "pc" 'org-capture))
 #+end_src
 
 * Terminal
@@ -470,7 +471,6 @@
   (setq eshell-highlight-prompt nil
         eshell-prompt-function 'epe-theme-lambda))
 #+end_src
- 
 * Magit
 #+begin_src emacs-lisp
   (use-package magit
@@ -495,19 +495,24 @@
  #+end_src
   
 * Language specific stuff
-#+begin_src emacs-lisp
-  (use-package flycheck
-  :ensure t)
-#+end_src
 
+** Go
 #+begin_src emacs-lisp
   (use-package go-mode
   :ensure t)
 #+end_src
 
+
+** Readable data files
 #+begin_src emacs-lisp
-  (use-package yaml-mode
-  :ensure t)
+  (use-package yaml-mode :ensure t)
+  (use-package json-mode :ensure t)
+#+end_src
+
+** Clojure
+#+begin_src emacs-lisp
+  (use-package clojure-mode :ensure t :defer t)
+  (use-package cider :ensure t :defer t)
 #+end_src
 
 * REST
@@ -525,3 +530,8 @@
     :config
     (setq ein:polymode t))
  #+end_src
+* Olivietty for writing
+#+begin_src emacs-lisp
+(use-package olivetti
+ :ensure t)
+#+end_src
