@@ -81,6 +81,8 @@
   :ensure
   :after use-package)
 
+  (use-package undo-tree
+  :diminish)
 #+end_src
 
 * Package dashboard
@@ -475,8 +477,8 @@
     :ensure t
     :config
     (evil-leader/set-key "gg" 'magit)
-    (evil-leader/set-key "gh" 'magit-log-buffer-file)
-    (evil-leader/set-key "gf" 'magit-fetch-all))
+    (evil-leader/set-key "gl" 'magit-log-branches)
+    (evil-leader/set-key "gf" 'magit-log-buffer-file))
   (use-package evil-magit
     :ensure t)
  #+end_src
