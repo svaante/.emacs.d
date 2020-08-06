@@ -28,20 +28,25 @@
 ;; stop the insessent blinking
 (blink-cursor-mode 0)
 
+;; Truncate that shit
+(use-package simple
+  :diminish visual-line-mode)
+
+;; Backup trails is worse then chem-trails, losing patches is 99% of the time my fault
 (setq auto-save-default nil)
 
-(set-frame-font "Hack-12" nil t)
-(set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji") nil 'prepend)
+(set-frame-font "Hack-12" nil t) ;; Set font
+(set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
 
 #+END_SRC
 * Theming
 #+BEGIN_SRC emacs-lisp
-(use-package minimal-theme
+(use-package zenburn-theme
   :ensure t
   :defer t
   :init
-  (load-theme 'minimal t))
-  
+  (load-theme 'zenburn t))
+
 (use-package emacs
   :config
   (setq mode-line-percent-position '(-3 "%p"))
@@ -70,8 +75,7 @@
 (use-package exec-path-from-shell
   :ensure t
   :config
-  (when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)))
+  (exec-path-from-shell-initialize))
 
 #+END_SRC
 
@@ -160,7 +164,7 @@
     (setq evil-want-keybinding nil)
     (setq-default evil-symbol-word-search t)
     (setq-default evil-shift-width 2)
-    (setq evil-jumps-cross-buffers t)
+    (setq evil-jumps-cross-buffers nil)
     (setq evil-want-Y-yank-to-eol t)
     (setq evil-want-C-u-scroll t)
     (setq evil-search-module 'evil-search)
@@ -179,7 +183,6 @@
     (evil-ex-define-cmd "qA[ll]" "quitall")
     (evil-ex-define-cmd "QA[ll]" "quitall")
 
-    (add-hook 'window-configuration-change-hook #'evil--jumps-push)
     (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell: .*\\)\\*")
 
     (evil-mode 1))
@@ -265,14 +268,14 @@
       ;; put most often used completions at stop of list
       (setq company-transformers '(company-sort-by-occurrence)))
 
-      (use-package company-posframe
-        :diminish
-        :ensure t
-        :config
-        (setq company-posframe-show-metadata nil)
-        (setq company-posframe-show-indicator nil)
-        (setq company-posframe-quickhelp-delay nil)
-        (company-posframe-mode +1))
+      ;(use-package company-posframe
+      ;  :diminish
+      ;  :ensure t
+      ;  :config
+      ;  (setq company-posframe-show-metadata nil)
+      ;  (setq company-posframe-show-indicator nil)
+      ;  (setq company-posframe-quickhelp-delay nil)
+      ;  (company-posframe-mode +1))
 #+END_SRC
 
 * Package counsel
@@ -313,7 +316,9 @@
     (setq ivy-initial-inputs-alist nil))
 
   (use-package swiper
-    :ensure t)
+    :ensure t
+    :config
+    (evil-leader/set-key "ss" 'swiper))
 
   (use-package counsel
     :ensure t
@@ -343,10 +348,10 @@
         :ensure t
         :config
         (ivy-prescient-mode))
-      (use-package company-prescient
-        :ensure t
-        :config
-        (company-prescient-mode))
+      ;(use-package company-prescient
+      ;  :ensure t
+      ;  :config
+      ;  (company-prescient-mode))
       (prescient-persist-mode)))
 
 #+END_SRC
@@ -415,61 +420,63 @@
 
 * Terminal
 #+begin_src emacs-lisp
-  (use-package eshell
+    (use-package eshell
+      :ensure t
+      :config
+
+      (evil-define-key 'normal global-map (kbd "C-j")       'evil-window-down)
+
+      (defun eshell-here ()
+        "Opens up a new shell in the directory associated with the current buffer's file."
+        (interactive)
+        (let* ((parent (if (buffer-file-name)
+                           (file-name-directory (buffer-file-name))
+                         default-directory))
+               (name (car (last (split-string parent "/" t))))
+               (b-name (concat "*eshell: " name "*")))
+          (split-window-sensibly)
+          (other-window 1)
+          (if (null (get-buffer b-name))
+              (progn 
+                (eshell "new")
+                (rename-buffer b-name))
+            (switch-to-buffer b-name))))
+
+      (evil-leader/set-key "e" 'eshell-here
+        "pe" 'projectile-run-eshell)
+
+      (defun +eshell/goto-end-of-prompt ()
+        "Move cursor to the prompt when switching to insert mode (if point isn't
+        already there)."
+        (interactive)
+        (goto-char (point-max))
+        (evil-append 1))
+
+      (defun +eshell/counsel-esh-history-normal ()
+        "Move cursor to the end of the buffer before calling counser-esh-history
+          and change `state` to insert"
+        (interactive)
+        (goto-char (point-max))
+        (evil-insert 0)
+        (counsel-esh-history))
+
+
+      (defun eshell-mode-configuration ()
+        (with-eval-after-load 'evil-collection
+          (+emacs/key-bindings)
+          (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
+          (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
+          (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
+          (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history))
+        (define-key evil-normal-state-local-map (kbd "A") '+eshell/goto-end-of-prompt))
+
+      (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
+
+  (use-package eshell-prompt-extras
     :ensure t
-    :config
-
-    (evil-define-key 'normal global-map (kbd "C-j")       'evil-window-down)
-
-    (defun eshell-here ()
-      "Opens up a new shell in the directory associated with the current buffer's file."
-      (interactive)
-      (let* ((parent (if (buffer-file-name)
-                         (file-name-directory (buffer-file-name))
-                       default-directory))
-             (name (car (last (split-string parent "/" t))))
-             (b-name (concat "*eshell: " name "*")))
-        (if (null (get-buffer b-name))
-            (progn 
-              (eshell "new")
-              (rename-buffer b-name))
-          (switch-to-buffer b-name))))
-
-    (evil-leader/set-key "e" 'eshell-here
-      "pe" 'projectile-run-eshell)
-
-    (defun +eshell/goto-end-of-prompt ()
-      "Move cursor to the prompt when switching to insert mode (if point isn't
-      already there)."
-      (interactive)
-      (goto-char (point-max))
-      (evil-append 1))
-
-    (defun +eshell/counsel-esh-history-normal ()
-      "Move cursor to the end of the buffer before calling counser-esh-history
-        and change `state` to insert"
-      (interactive)
-      (goto-char (point-max))
-      (evil-insert 0)
-      (counsel-esh-history))
-
-
-    (defun eshell-mode-configuration ()
-      (with-eval-after-load 'evil-collection
-        (+emacs/key-bindings)
-        (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
-        (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
-        (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
-        (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history))
-      (define-key evil-normal-state-local-map (kbd "A") '+eshell/goto-end-of-prompt))
-
-    (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
-
-(use-package eshell-prompt-extras
-  :ensure t
-  :init
-  (setq eshell-highlight-prompt nil
-        eshell-prompt-function 'epe-theme-lambda))
+    :init
+    (setq eshell-highlight-prompt nil
+          eshell-prompt-function 'epe-theme-lambda))
 #+end_src
 * Magit
 #+begin_src emacs-lisp
@@ -495,18 +502,15 @@
  #+end_src
   
 * Language specific stuff
-
-** Go
-#+begin_src emacs-lisp
-  (use-package go-mode
-  :ensure t)
-#+end_src
-
-
 ** Readable data files
 #+begin_src emacs-lisp
   (use-package yaml-mode :ensure t)
   (use-package json-mode :ensure t)
+#+end_src
+** Go
+#+begin_src emacs-lisp
+  (use-package go-mode
+  :ensure t)
 #+end_src
 
 ** Clojure
@@ -520,7 +524,6 @@
 (use-package restclient
   :ensure t)
 #+end_src
-
 * Jupyter notebooks
  #+begin_src emacs-lisp 
    (use-package ein
