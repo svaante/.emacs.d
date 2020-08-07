@@ -39,43 +39,44 @@
 (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
 
 #+END_SRC
+
 * Theming
 #+BEGIN_SRC emacs-lisp
-(use-package zenburn-theme
-  :ensure t
-  :defer t
-  :init
-  (load-theme 'zenburn t))
+  (use-package acme-theme
+    :ensure t
+    :defer t
+    :init
+    (load-theme 'acme t))
 
-(use-package emacs
-  :config
-  (setq mode-line-percent-position '(-3 "%p"))
-  (setq mode-line-defining-kbd-macro
-        (propertize " Macro" 'face 'mode-line-emphasis))
-  (setq-default mode-line-format
-                '("🌻"
-                  "%e"
-                  ""
-                  mode-line-front-space
-                  mode-line-mule-info
-                  mode-line-client
-                  mode-line-modified
-                  mode-line-remote
-                  mode-line-frame-identification
-                  mode-line-buffer-identification
-                  " "
-                  mode-line-position
-                  (vc-mode vc-mode)
-                  " "
-                  mode-line-modes
-                  " "
-                  mode-line-misc-info
-                  mode-line-end-spaces)))
+  (use-package emacs
+    :config
+    (setq mode-line-percent-position '(-3 "%p"))
+    (setq mode-line-defining-kbd-macro
+          (propertize " Macro" 'face 'mode-line-emphasis))
+    (setq-default mode-line-format
+                  '("🌻"
+                    "%e"
+                    ""
+                    mode-line-front-space
+                    mode-line-mule-info
+                    mode-line-client
+                    mode-line-modified
+                    mode-line-remote
+                    mode-line-frame-identification
+                    mode-line-buffer-identification
+                    " "
+                    mode-line-position
+                    (vc-mode vc-mode)
+                    " "
+                    mode-line-modes
+                    " "
+                    mode-line-misc-info
+                    mode-line-end-spaces)))
 
-(use-package exec-path-from-shell
-  :ensure t
-  :config
-  (exec-path-from-shell-initialize))
+  (use-package exec-path-from-shell
+    :ensure t
+    :config
+    (exec-path-from-shell-initialize))
 
 #+END_SRC
 
@@ -102,9 +103,14 @@
 
 * Mac stuff
 #+BEGIN_SRC  emacs-lisp
-(setq mac-option-key-is-meta t)
-(setq mac-right-option-modifier nil)
+(if (eq system-type 'darwin)
+  (progn
+    (setq mac-option-key-is-meta t)
+    (setq mac-right-option-modifier nil)
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (add-to-list 'default-frame-alist '(ns-appearance . light))))
 #+END_SRC
+
 * Relative line numbers
 #+BEGIN_SRC emacs-lisp
   (use-package linum
@@ -120,19 +126,41 @@
     (setq linum-relative-current-symbol "")
     (add-hook 'prog-mode-hook 'linum-relative-mode))
 #+END_SRC
+
 * Global mappings
 #+begin_src emacs-lisp
   (defun +emacs/switch-to-next-buffer ()
     "Switch to next buffer but stop at last buffer"
     (interactive)
     (when (window-next-buffers)
-          (switch-to-next-buffer)))
+      (switch-to-next-buffer)))
 
   (defun +emacs/switch-to-prev-buffer ()
     "Switch to prev buffer but stop at last buffer"
     (interactive)
     (when (window-prev-buffers)
-          (switch-to-prev-buffer)))
+      (switch-to-prev-buffer)))
+
+  (defun +emacs/jump-or-jump (this-jump-fn that-jump-fn)
+    "Change buffer and/or cursor position with this-fn or that-fn"
+    (interactive)
+    (let* ((p (point)))
+      (funcall this-jump-fn)
+      (when (= p (point))
+        (funcall that-jump-fn))))
+
+  (defun +emacs/evil-jump-forward-or-next-buffer ()
+    "Jump forward or goto next buffer if there is no prev jump in buffer"
+    (interactive)
+    (+emacs/jump-or-jump (lambda () (evil--jump-forward 1))
+                         '+emacs/switch-to-next-buffer))
+
+  (defun +emacs/evil-jump-backward-or-prev-buffer ()
+    "Jump backward or goto prev buffer if there is no prev jump in buffer"
+    (interactive)
+    (+emacs/jump-or-jump (lambda () (evil--jump-backward 1))
+                         '+emacs/switch-to-prev-buffer))
+
 
   (defun +emacs/key-bindings ()
     (progn
@@ -140,9 +168,12 @@
       (define-key evil-normal-state-map "\C-k" 'evil-window-up)
       (define-key evil-normal-state-map "\C-h" 'evil-window-left)
       (define-key evil-normal-state-map "\C-l" 'evil-window-right)
-      (define-key evil-normal-state-map (kbd "C-i") #'+emacs/switch-to-next-buffer)
-      (define-key evil-normal-state-map (kbd "C-o") #'+emacs/switch-to-prev-buffer)))
+      (define-key evil-normal-state-map (kbd "C-i") #'+emacs/evil-jump-forward-or-next-buffer)
+      (define-key evil-normal-state-map (kbd "C-o") #'+emacs/evil-jump-backward-or-prev-buffer)))
 #+end_src
+
+#+RESULTS:
+: +emacs/key-bindings
     
 * Evil
    Evil configuraton
@@ -216,6 +247,7 @@
     (evil-collection-init))
 
 #+END_SRC
+
 * Org 
 #+BEGIN_SRC emacs-lisp
   (use-package org-bullets
@@ -253,8 +285,8 @@
       (setq company-selection-wrap-around t)
       (setq company-backends '(company-capf
                                company-files
-                               company-elisp
-                               company-lsp))
+                               company-elisp))
+                               
 
       ;; align annotations in tooltip
       (setq company-tooltip-align-annotations t)
@@ -377,14 +409,6 @@
     (setq lsp-signature-auto-activate nil)
     (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
 
-  (use-package company-lsp
-    :commands company-lsp
-    :config
-    (push 'company-lsp company-backends)
-    (setq company-lsp-async t
-          company-lsp-cache-candidates 'auto
-          company-lsp-enable-recompletion t))
-
   (use-package flycheck :ensure t)
  #+end_src
 
@@ -418,7 +442,7 @@
       "pc" 'org-capture))
 #+end_src
 
-* Terminal
+g* Terminal
 #+begin_src emacs-lisp
     (use-package eshell
       :ensure t
@@ -489,6 +513,7 @@
   (use-package evil-magit
     :ensure t)
  #+end_src
+
 * Check spelling inside git commit and markdown
 #+begin_src emacs-lisp
 (use-package flyspell
@@ -524,6 +549,7 @@
 (use-package restclient
   :ensure t)
 #+end_src
+
 * Jupyter notebooks
  #+begin_src emacs-lisp 
    (use-package ein
@@ -533,8 +559,10 @@
     :config
     (setq ein:polymode t))
  #+end_src
+
 * Olivietty for writing
 #+begin_src emacs-lisp
 (use-package olivetti
  :ensure t)
 #+end_src
+
