@@ -71,7 +71,9 @@
                     mode-line-modes
                     " "
                     mode-line-misc-info
-                    mode-line-end-spaces)))
+                    mode-line-end-spaces))
+    :init
+    (column-number-mode 1))
 
   (use-package exec-path-from-shell
     :ensure t
@@ -171,9 +173,6 @@
       (define-key evil-normal-state-map (kbd "C-i") #'+emacs/evil-jump-forward-or-next-buffer)
       (define-key evil-normal-state-map (kbd "C-o") #'+emacs/evil-jump-backward-or-prev-buffer)))
 #+end_src
-
-#+RESULTS:
-: +emacs/key-bindings
     
 * Evil
    Evil configuraton
@@ -203,6 +202,12 @@
     (+emacs/key-bindings)
     (define-key evil-normal-state-map "\C-ws" #'+emacs/split-follow-window-vertically)
     (define-key evil-normal-state-map "\C-wv" #'+emacs/split-follow-window-horizontally)
+
+    (evil-define-key 'normal 'global
+      ;; select the previously pasted text
+      "gp" "`[v`]"
+      ;; run the macro in the q register
+      "Q" "@q")
 
     (defalias #'forward-evil-word #'forward-evil-symbol)
     (evil-ex-define-cmd "E[dit]" 'evil-edit)
@@ -250,10 +255,103 @@
 
 * Org 
 #+BEGIN_SRC emacs-lisp
+  (use-package org-agenda
+    :config
+    (evil-leader/set-key "oa" 'org-agenda)
+    (eval-after-load 'org-agenda
+      '(progn
+         (setq org-agenda-files '("~/org/todo.org"))
+         (evil-set-initial-state 'org-agenda-mode 'normal)
+         (evil-define-key 'normal org-agenda-mode-map
+           (kbd "<RET>") 'org-agenda-switch-to
+           (kbd "\t") 'org-agenda-goto
+           "q" 'org-agenda-quit
+           "r" 'org-agenda-redo
+           "S" 'org-save-all-org-buffers
+           "gj" 'org-agenda-goto-date
+           "gJ" 'org-agenda-clock-goto
+           "gm" 'org-agenda-bulk-mark
+           "go" 'org-agenda-open-link
+           "s" 'org-agenda-schedule
+           "+" 'org-agenda-priority-up
+           "," 'org-agenda-priority
+           "-" 'org-agenda-priority-down
+           "y" 'org-agenda-todo-yesterday
+           "n" 'org-agenda-add-note
+           "t" 'org-agenda-todo
+           ":" 'org-agenda-set-tags
+           ";" 'org-timer-set-timer
+           "I" 'helm-org-task-file-headings
+           "i" 'org-agenda-clock-in-avy
+           "O" 'org-agenda-clock-out-avy
+           "u" 'org-agenda-bulk-unmark
+           "x" 'org-agenda-exit
+           "j"  'org-agenda-next-line
+           "k"  'org-agenda-previous-line
+           "vt" 'org-agenda-toggle-time-grid
+           "va" 'org-agenda-archives-mode
+           "vw" 'org-agenda-week-view
+           "vl" 'org-agenda-log-mode
+           "vd" 'org-agenda-day-view
+           "vc" 'org-agenda-show-clocking-issues
+           "g/" 'org-agenda-filter-by-tag
+           "o" 'delete-other-windows
+           "gh" 'org-agenda-holiday
+           "gv" 'org-agenda-view-mode-dispatch
+           "f" 'org-agenda-later
+           "b" 'org-agenda-earlier
+           "c" 'helm-org-capture-templates
+           "e" 'org-agenda-set-effort
+           "n" nil  ; evil-search-next
+           "{" 'org-agenda-manipulate-query-add-re
+           "}" 'org-agenda-manipulate-query-subtract-re
+           "A" 'org-agenda-toggle-archive-tag
+           "." 'org-agenda-goto-today
+           "0" 'evil-digit-argument-or-evil-beginning-of-line
+           "<" 'org-agenda-filter-by-category
+           ">" 'org-agenda-date-prompt
+           "F" 'org-agenda-follow-mode
+           "D" 'org-agenda-deadline
+           "H" 'org-agenda-holidays
+           "J" 'org-agenda-next-date-line
+           "K" 'org-agenda-previous-date-line
+           "L" 'org-agenda-recenter
+           "P" 'org-agenda-show-priority
+           "R" 'org-agenda-clockreport-mode
+           "Z" 'org-agenda-sunrise-sunset
+           "T" 'org-agenda-show-tags
+           "X" 'org-agenda-clock-cancel
+           "[" 'org-agenda-manipulate-query-add
+           "g\\" 'org-agenda-filter-by-tag-refine
+           "]" 'org-agenda-manipulate-query-subtract))))
+
+  (use-package org-capture
+    :init
+    (setq org-capture-templates '(("t" "Task Entry" entry
+                                   (file+headline "~/org/todo.org" "Tasks")
+                                   "* %?\n  %t\n")
+                                  ("r" "Remember Entry" entry
+                                   (file+headline "~/org/todo.org" "Remember")
+                                   "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n")))
+    :config
+    (evil-leader/set-key "oc" 'org-capture)
+
+    (add-hook 'org-capture-mode-hook 'evil-insert-state))
+
+  (use-package org
+    :init 
+    :config
+    (defun org-mode-configuration ()
+      (with-eval-after-load 'evil-collection
+        (+emacs/key-bindings)))
+
+    (add-hook 'org-mode-hook 'org-mode-configuration))
+
   (use-package org-bullets
-  :ensure t
-  :config
-  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+    :ensure t
+    :config
+    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
 #+END_SRC
 
 * Hyperbole
@@ -345,7 +443,9 @@
             (t                     . ivy--regex-fuzzy)))
     (setq ivy-use-virtual-buffers t)
     (setq ivy-count-format "(%d/%d) ")
-    (setq ivy-initial-inputs-alist nil))
+    (setq ivy-initial-inputs-alist nil)
+
+    (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done))
 
   (use-package swiper
     :ensure t
@@ -415,6 +515,7 @@
 * WD managment
 #+begin_src emacs-lisp 
   (use-package projectile
+    :diminish projectile-mode
     :ensure t
     :config
     (projectile-mode +1))
@@ -438,11 +539,10 @@
     (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
     (push (org-projectile-project-todo-entry) org-capture-templates)
     (evil-leader/set-key
-      "pt" 'org-projectile-capture-for-current-project
-      "pc" 'org-capture))
+      "pt" 'org-projectile-capture-for-current-project))
 #+end_src
 
-g* Terminal
+* Terminal
 #+begin_src emacs-lisp
     (use-package eshell
       :ensure t
@@ -484,15 +584,17 @@ g* Terminal
         (evil-insert 0)
         (counsel-esh-history))
 
-
       (defun eshell-mode-configuration ()
         (with-eval-after-load 'evil-collection
           (+emacs/key-bindings)
           (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
           (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
           (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
-          (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history))
-        (define-key evil-normal-state-local-map (kbd "A") '+eshell/goto-end-of-prompt))
+          (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
+          (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
+
+      (defun eshell/ff (&rest args)
+        (apply #'find-file args))
 
       (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
 
@@ -502,6 +604,7 @@ g* Terminal
     (setq eshell-highlight-prompt nil
           eshell-prompt-function 'epe-theme-lambda))
 #+end_src
+
 * Magit
 #+begin_src emacs-lisp
   (use-package magit
