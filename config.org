@@ -242,7 +242,8 @@
       "b" 'counsel-switch-buffer
       "t" 'vterm
       ":" 'counsel-M-x
-      "r" (lambda () (load-file user-init-file))))
+      "r" (lambda () (load-file user-init-file))
+      "wt" (lambda () (interactive) (toggle-frame-maximized))))
 
   (use-package evil-collection
     :after evil
@@ -539,70 +540,130 @@
     (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
     (push (org-projectile-project-todo-entry) org-capture-templates)
     (evil-leader/set-key
-      "pt" 'org-projectile-capture-for-current-project))
+      "pn" 'org-projectile-capture-for-current-project))
 #+end_src
 
 * Terminal
+#+begin_src  emacs-lisp
+(use-package vterm :ensure t)
+#+end_src
+
 #+begin_src emacs-lisp
-    (use-package eshell
-      :ensure t
-      :config
+        (use-package eshell
+          :ensure t
+          :config
+  (defvar company-pcomplete-available 'unknown)
 
-      (evil-define-key 'normal global-map (kbd "C-j")       'evil-window-down)
+  (defun company-pcomplete--prefix ()
+    (with-no-warnings
+      (let* ((pcomplete-stub)
+             pcomplete-seen
+             pcomplete-norm-func
+             pcomplete-args
+             pcomplete-last pcomplete-index
+             (pcomplete-autolist pcomplete-autolist)
+             (pcomplete-suffix-list pcomplete-suffix-list))
+        (pcomplete-completions)
+        (buffer-substring (pcomplete-begin) (point)))))
 
-      (defun eshell-here ()
-        "Opens up a new shell in the directory associated with the current buffer's file."
-        (interactive)
-        (let* ((parent (if (buffer-file-name)
-                           (file-name-directory (buffer-file-name))
-                         default-directory))
-               (name (car (last (split-string parent "/" t))))
-               (b-name (concat "*eshell: " name "*")))
-          (split-window-sensibly)
-          (other-window 1)
-          (if (null (get-buffer b-name))
-              (progn 
-                (eshell "new")
-                (rename-buffer b-name))
-            (switch-to-buffer b-name))))
+  (defun company-pcomplete--candidates ()
+    (with-no-warnings
+      (let* ((pcomplete-stub)
+             (pcomplete-show-list t)
+             pcomplete-seen pcomplete-norm-func
+             pcomplete-args pcomplete-last pcomplete-index
+             (pcomplete-autolist pcomplete-autolist)
+             (pcomplete-suffix-list pcomplete-suffix-list)
+             (candidates (pcomplete-completions))
+             (prefix (buffer-substring (pcomplete-begin) (point)))
+             ;; Collect all possible completions for the current stub
+             (cnds (all-completions pcomplete-stub candidates))
+             (bnds (completion-boundaries pcomplete-stub candidates nil ""))
+             (skip (- (length pcomplete-stub) (car bnds))))
+        ;; Replace the stub at the beginning of each candidate by the prefix
+        (mapcar (lambda (cand)
+                  (concat prefix (substring cand skip)))
+                cnds))))
 
-      (evil-leader/set-key "e" 'eshell-here
-        "pe" 'projectile-run-eshell)
+  ;;;###autoload
+  (defun company-pcomplete-available ()
+    (when (eq company-pcomplete-available 'unknown)
+      (condition-case _err
+          (progn
+            (company-pcomplete--candidates)
+            (setq company-pcomplete-available t))
+        (error
+         (message "Company: pcomplete not found")
+         (setq company-pcomplete-available nil))))
+    company-pcomplete-available)
 
-      (defun +eshell/goto-end-of-prompt ()
-        "Move cursor to the prompt when switching to insert mode (if point isn't
-        already there)."
-        (interactive)
-        (goto-char (point-max))
-        (evil-append 1))
+  (defun company-pcomplete (command &optional _arg &rest ignored)
+    "`company-mode' completion backend using `pcomplete'."
+    (interactive (list 'interactive))
+    (cl-case command
+      (interactive (company-begin-backend 'company-pcomplete))
+      (prefix (when (company-pcomplete-available)
+                (company-pcomplete--prefix)))
+      (candidates (company-pcomplete--candidates))
+      (sorted t)))
 
-      (defun +eshell/counsel-esh-history-normal ()
-        "Move cursor to the end of the buffer before calling counser-esh-history
-          and change `state` to insert"
-        (interactive)
-        (goto-char (point-max))
-        (evil-insert 0)
-        (counsel-esh-history))
+    (add-hook 'eshell-mode-hook '(lambda () (set (make-local-variable 'company-idle-delay) nil)))
+    (add-hook 'eshell-mode-hook '(lambda () (set (make-local-variable 'company-backends) '(company-pcomplete company-files company-elisp))))
 
-      (defun eshell-mode-configuration ()
-        (with-eval-after-load 'evil-collection
-          (+emacs/key-bindings)
-          (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
-          (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
-          (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
-          (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
-          (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
+          (defun eshell-here ()
+            "Opens up a new shell in the directory associated with the current buffer's file."
+            (interactive)
+            (let* ((parent (if (buffer-file-name)
+                               (file-name-directory (buffer-file-name))
+                             default-directory))
+                   (name (car (last (split-string parent "/" t))))
+                   (b-name (concat "*eshell: " name "*")))
+              (split-window-sensibly)
+              (other-window 1)
+              (if (null (get-buffer b-name))
+                  (progn 
+                    (eshell "new")
+                    (rename-buffer b-name))
+                (switch-to-buffer b-name))))
 
-      (defun eshell/ff (&rest args)
-        (apply #'find-file args))
+          (evil-leader/set-key "e" 'eshell-here
+            "pe" 'projectile-run-eshell)
 
-      (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
+          (defun +eshell/goto-end-of-prompt ()
+            "Move cursor to the prompt when switching to insert mode (if point isn't
+            already there)."
+            (interactive)
+            (goto-char (point-max))
+            (evil-append 1))
 
-  (use-package eshell-prompt-extras
-    :ensure t
-    :init
-    (setq eshell-highlight-prompt nil
-          eshell-prompt-function 'epe-theme-lambda))
+          (defun +eshell/counsel-esh-history-normal ()
+            "Move cursor to the end of the buffer before calling counser-esh-history
+              and change `state` to insert"
+            (interactive)
+            (goto-char (point-max))
+            (evil-insert 0)
+            (counsel-esh-history))
+
+          (defun eshell-mode-configuration ()
+            (with-eval-after-load 'evil-collection
+              (+emacs/key-bindings)
+              (define-key evil-normal-state-local-map "I" 'eshell-bol)
+              (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
+              (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
+              (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
+              (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
+              (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
+
+          (defun eshell/ff (&rest args)
+            (apply #'find-file args))
+
+          (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
+
+      ;(use-package eshell-prompt-extras
+      ;  :ensure t
+      ;  :init
+      ;  (setq eshell-highlight-prompt nil
+      ;        eshell-prompt-function 'epe-theme-lambda))
 #+end_src
 
 * Magit
