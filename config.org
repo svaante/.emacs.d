@@ -1,5 +1,5 @@
 * Basic stuff to get some type of order
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
 ;; remove gui elements
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
@@ -38,10 +38,10 @@
 (set-frame-font "Hack-12" nil t) ;; Set font
 (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
 
-#+END_SRC
+  #+END_SRC
 
 * Theming
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
   (use-package acme-theme
     :ensure t
     :defer t
@@ -80,20 +80,20 @@
     :config
     (exec-path-from-shell-initialize))
 
-#+END_SRC
+  #+END_SRC
 
 * Save my mode-line
-#+begin_src emacs-lisp
+  #+begin_src emacs-lisp
 (use-package diminish
   :ensure
   :after use-package)
 
   (use-package undo-tree
   :diminish)
-#+end_src
+  #+end_src
 
 * Package dashboard
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
   (use-package dashboard
     :diminish
     :ensure t
@@ -101,20 +101,20 @@
     (setq dashboard-items '((recents  . 10)
                             (bookmarks . 10)))
     (dashboard-setup-startup-hook))
-#+END_SRC
+  #+END_SRC
 
 * Mac stuff
-#+BEGIN_SRC  emacs-lisp
+  #+BEGIN_SRC  emacs-lisp
 (if (eq system-type 'darwin)
   (progn
     (setq mac-option-key-is-meta t)
     (setq mac-right-option-modifier nil)
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
     (add-to-list 'default-frame-alist '(ns-appearance . light))))
-#+END_SRC
+  #+END_SRC
 
 * Relative line numbers
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
   (use-package linum
     :diminish
     :ensure t
@@ -127,10 +127,10 @@
     :init
     (setq linum-relative-current-symbol "")
     (add-hook 'prog-mode-hook 'linum-relative-mode))
-#+END_SRC
+  #+END_SRC
 
 * Global mappings
-#+begin_src emacs-lisp
+  #+begin_src emacs-lisp
   (defun +emacs/switch-to-next-buffer ()
     "Switch to next buffer but stop at last buffer"
     (interactive)
@@ -172,90 +172,97 @@
       (define-key evil-normal-state-map "\C-l" 'evil-window-right)
       (define-key evil-normal-state-map (kbd "C-i") #'+emacs/evil-jump-forward-or-next-buffer)
       (define-key evil-normal-state-map (kbd "C-o") #'+emacs/evil-jump-backward-or-prev-buffer)))
-#+end_src
+  #+end_src
     
+* Leader mappings
+  #+BEGIN_SRC emacs-lisp
+    (use-package evil-leader
+      :ensure evil-leader
+      :config
+      (setq evil-leader/in-all-states 1)
+      (global-evil-leader-mode)
+      (evil-leader/set-leader "<SPC>")
+      (evil-leader/set-key "." 'counsel-find-file
+        "hh" 'counsel-describe-function
+        "hb" 'counsel-descbinds
+        "b" 'counsel-switch-buffer
+        "t" 'vterm
+        ":" 'counsel-M-x
+        "r" (lambda () (load-file user-init-file))
+        "wt" (lambda () (interactive) (toggle-frame-maximized))))
+
+#+END_SRC 
 * Evil
-   Evil configuraton
-#+BEGIN_SRC emacs-lisp
-  (defun +emacs/split-follow-window-vertically ()
-    "Split and follow window vertically"
-    (interactive)
-    (split-window-vertically) (other-window 1))
+  Evil config
+  #+BEGIN_SRC emacs-lisp
+    (defun +emacs/split-follow-window-vertically ()
+      "Split and follow window vertically"
+      (interactive)
+      (split-window-vertically) (other-window 1))
 
-  (defun +emacs/split-follow-window-horizontally ()
-    "Split and follow window horizontally"
-    (interactive)
-    (split-window-horizontally) (other-window 1))
+    (defun +emacs/split-follow-window-horizontally ()
+      "Split and follow window horizontally"
+      (interactive)
+      (split-window-horizontally) (other-window 1))
 
-  (use-package evil
-    :ensure evil
-    :init
-    (setq evil-want-integration t)
-    (setq evil-want-keybinding nil)
-    (setq-default evil-symbol-word-search t)
-    (setq-default evil-shift-width 2)
-    (setq evil-jumps-cross-buffers nil)
-    (setq evil-want-Y-yank-to-eol t)
-    (setq evil-want-C-u-scroll t)
-    (setq evil-search-module 'evil-search)
-    :config
-    (+emacs/key-bindings)
-    (define-key evil-normal-state-map "\C-ws" #'+emacs/split-follow-window-vertically)
-    (define-key evil-normal-state-map "\C-wv" #'+emacs/split-follow-window-horizontally)
+    (use-package evil
+      :ensure evil
+      :init
+      (setq evil-want-integration t)
+      (setq evil-want-keybinding nil)
+      (setq-default evil-symbol-word-search t)
+      (setq-default evil-shift-width 2)
+      (setq evil-jumps-cross-buffers nil)
+      (setq evil-want-Y-yank-to-eol t)
+      (setq evil-want-C-u-scroll t)
+      (setq evil-search-module 'evil-search)
+      :config
+      (+emacs/key-bindings)
+      (define-key evil-normal-state-map "\C-ws" #'+emacs/split-follow-window-vertically)
+      (define-key evil-normal-state-map "\C-wv" #'+emacs/split-follow-window-horizontally)
 
-    (evil-define-key 'normal 'global
-      ;; select the previously pasted text
-      "gp" "`[v`]"
-      ;; run the macro in the q register
-      "Q" "@q")
+      (evil-define-key 'normal 'global
+        ;; select the previously pasted text
+        "gp" "`[v`]"
+        ;; run the macro in the q register
+        "Q" "@q")
 
-    (defalias #'forward-evil-word #'forward-evil-symbol)
-    (evil-ex-define-cmd "E[dit]" 'evil-edit)
-    (evil-ex-define-cmd "W[rite]" 'evil-write)
-    (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-    (evil-ex-define-cmd "WQ" 'evil-save-and-close)
-    (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-    (evil-ex-define-cmd "Qa[ll]" "quitall")
-    (evil-ex-define-cmd "qA[ll]" "quitall")
-    (evil-ex-define-cmd "QA[ll]" "quitall")
+      (defalias #'forward-evil-word #'forward-evil-symbol)
+      (evil-ex-define-cmd "E[dit]" 'evil-edit)
+      (evil-ex-define-cmd "W[rite]" 'evil-write)
+      (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+      (evil-ex-define-cmd "WQ" 'evil-save-and-close)
+      (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+      (evil-ex-define-cmd "Qa[ll]" "quitall")
+      (evil-ex-define-cmd "qA[ll]" "quitall")
+      (evil-ex-define-cmd "QA[ll]" "quitall")
 
-    (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell: .*\\)\\*")
+      (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell: .*\\)\\*")
 
-    (evil-mode 1))
+      (evil-mode 1))
 
-  (use-package evil-escape
-    :diminish
-    :ensure t
-    :init
-    (setq evil-escape-unordered-key-sequence t)
-    (setq-default evil-escape-key-sequence "jk")
-    :config
-    (evil-escape-mode))
+    (use-package evil-escape
+      :diminish
+      :ensure t
+      :init
+      (setq evil-escape-delay 0.2)
+      (setq evil-escape-unordered-key-sequence t)
+      (setq-default evil-escape-key-sequence "jk")
+      :config
+      (evil-escape-mode))
 
-  (use-package evil-leader
-    :ensure evil-leader
-    :config
-    (setq evil-leader/in-all-states 1)
-    (global-evil-leader-mode)
-    (evil-leader/set-leader "<SPC>")
-    (evil-leader/set-key "." 'counsel-find-file
-      "b" 'counsel-switch-buffer
-      "t" 'vterm
-      ":" 'counsel-M-x
-      "r" (lambda () (load-file user-init-file))
-      "wt" (lambda () (interactive) (toggle-frame-maximized))))
 
-  (use-package evil-collection
-    :after evil
-    :ensure t
-    :config
-    (setq evil-collection-mode-list (remove 'eshell evil-collection-mode-list))
-    (evil-collection-init))
+    (use-package evil-collection
+      :after evil
+      :ensure t
+      :config
+      (setq evil-collection-mode-list (remove 'eshell evil-collection-mode-list))
+      (evil-collection-init))
 
-#+END_SRC
+  #+END_SRC
 
 * Org 
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
   (use-package org-agenda
     :config
     (evil-leader/set-key "oa" 'org-agenda)
@@ -335,7 +342,7 @@
                                    (file+headline "~/org/todo.org" "Remember")
                                    "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n")))
     :config
-    (evil-leader/set-key "oc" 'org-capture)
+    (evil-leader/set-key "oc" 'counsel-org-capture)
 
     (add-hook 'org-capture-mode-hook 'evil-insert-state))
 
@@ -353,65 +360,66 @@
     :config
     (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-#+END_SRC
+  #+END_SRC
 
 * Hyperbole
-#+begin_src  emacs-lisp
+  #+begin_src  emacs-lisp
   (use-package hyperbole
     :diminish
     :ensure t)
-#+end_src
+  #+end_src
 
 * Package company
-   Use company for packages
+  Use company for packages
 
-#+BEGIN_SRC emacs-lisp
-    (use-package company
-      :diminish company-mode
-      :ensure t
-      ;; Use Company for completion
-      :bind (("C-<tab>" . company-complete-common)
-             :map company-mode-map
-             ([remap completion-at-point] . company-complete-common)
-             ([remap complete-symbol] . company-complete-common))
-      :init (global-company-mode 1)
-      :config
-      (setq tab-always-indent 'complete)
-      ;; some better default values
-      (setq company-idle-delay 0.2)
-      (setq company-tooltip-limit 10)
-      (setq company-minimum-prefix-length 1)
-      (setq company-selection-wrap-around t)
-      (setq company-backends '(company-capf
-                               company-files
-                               company-elisp))
-                               
+  #+BEGIN_SRC emacs-lisp
+  (use-package company
+    :diminish company-mode
+    :ensure t
+    ;; Use Company for completion
+    :bind (("C-<tab>" . company-complete-common)
+           :map company-mode-map
+           ([remap completion-at-point] . company-complete-common)
+           ([remap complete-symbol] . company-complete-common))
+    :init (global-company-mode 1)
+    :config
+    (setq tab-always-indent 'complete)
+    ;; some better default values
+    (setq company-idle-delay 0.2)
+    (setq company-tooltip-limit 10)
+    (setq company-minimum-prefix-length 1)
+    (setq company-selection-wrap-around t)
+    (setq company-backends '(company-capf
+                             company-files))
 
-      ;; align annotations in tooltip
-      (setq company-tooltip-align-annotations t)
-      (setq company-dabbrev-downcase nil)
+    (setq company-global-modes '(not eshell-mode))
 
-      ;; nicer keybindings
-      (define-key company-active-map (kbd "C-n") 'company-select-next)
-      (define-key company-active-map (kbd "C-p") 'company-select-previous)
-      (define-key company-active-map (kbd "K") 'company-show-doc-buffer)
 
-      ;; put most often used completions at stop of list
-      (setq company-transformers '(company-sort-by-occurrence)))
+    ;; align annotations in tooltip
+    (setq company-tooltip-align-annotations t)
+    (setq company-dabbrev-downcase nil)
 
-      ;(use-package company-posframe
-      ;  :diminish
-      ;  :ensure t
-      ;  :config
-      ;  (setq company-posframe-show-metadata nil)
-      ;  (setq company-posframe-show-indicator nil)
-      ;  (setq company-posframe-quickhelp-delay nil)
-      ;  (company-posframe-mode +1))
-#+END_SRC
+    ;; nicer keybindings
+    (define-key company-active-map (kbd "C-n") 'company-select-next)
+    (define-key company-active-map (kbd "C-p") 'company-select-previous)
+    (define-key company-active-map (kbd "K") 'company-show-doc-buffer)
+
+    ;; put most often used completions at stop of list
+    (setq company-transformers '(company-sort-by-occurrence)))
+
+    ;(use-package company-posframe
+    ;  :diminish
+    ;  :ensure t
+    ;  :config
+    ;  (setq company-posframe-show-metadata nil)
+    ;  (setq company-posframe-show-indicator nil)
+    ;  (setq company-posframe-quickhelp-delay nil)
+    ;  (company-posframe-mode +1))
+  #+END_SRC
 
 * Package counsel
 
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
     :diminish
     :ensure t
@@ -487,10 +495,20 @@
       ;  (company-prescient-mode))
       (prescient-persist-mode)))
 
-#+END_SRC
+  #+END_SRC
+
+* Dired stuff
+  #+begin_src emacs-lisp
+(use-package dired-subtree
+  :ensure t
+  :after dired
+  :bind (:map dired-mode-map
+              ("TAB" . dired-subtree-toggle)))
+
+  #+end_src
 
 * LSP 
-#+begin_src emacs-lisp
+  #+begin_src emacs-lisp
   (use-package lsp-ivy
     :requires (lsp-mode)
     :commands (lsp-ivy-workspace-symbol lsp-ivy-global-workspace-symbol))
@@ -511,10 +529,10 @@
     (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
 
   (use-package flycheck :ensure t)
- #+end_src
+  #+end_src
 
-* WD managment
-#+begin_src emacs-lisp 
+* WD management
+  #+begin_src emacs-lisp 
   (use-package projectile
     :diminish projectile-mode
     :ensure t
@@ -541,133 +559,84 @@
     (push (org-projectile-project-todo-entry) org-capture-templates)
     (evil-leader/set-key
       "pn" 'org-projectile-capture-for-current-project))
-#+end_src
+  #+end_src
 
 * Terminal
-#+begin_src  emacs-lisp
+  #+begin_src  emacs-lisp
 (use-package vterm :ensure t)
-#+end_src
+  #+end_src
 
-#+begin_src emacs-lisp
-        (use-package eshell
-          :ensure t
-          :config
-  (defvar company-pcomplete-available 'unknown)
+  #+begin_src emacs-lisp
+  (use-package eshell
+    :ensure t
+    :config
 
-  (defun company-pcomplete--prefix ()
-    (with-no-warnings
-      (let* ((pcomplete-stub)
-             pcomplete-seen
-             pcomplete-norm-func
-             pcomplete-args
-             pcomplete-last pcomplete-index
-             (pcomplete-autolist pcomplete-autolist)
-             (pcomplete-suffix-list pcomplete-suffix-list))
-        (pcomplete-completions)
-        (buffer-substring (pcomplete-begin) (point)))))
+    (defun eshell-here ()
+      "Opens up a new shell in the directory associated with the current buffer's file."
+      (interactive)
+      (let* ((parent (if (buffer-file-name)
+                         (file-name-directory (buffer-file-name))
+                       default-directory))
+             (name (car (last (split-string parent "/" t))))
+             (b-name (concat "*eshell: " name "*")))
+        (split-window-sensibly)
+        (other-window 1)
+        (if (null (get-buffer b-name))
+            (progn 
+              (eshell "new")
+              (rename-buffer b-name))
+          (switch-to-buffer b-name))))
 
-  (defun company-pcomplete--candidates ()
-    (with-no-warnings
-      (let* ((pcomplete-stub)
-             (pcomplete-show-list t)
-             pcomplete-seen pcomplete-norm-func
-             pcomplete-args pcomplete-last pcomplete-index
-             (pcomplete-autolist pcomplete-autolist)
-             (pcomplete-suffix-list pcomplete-suffix-list)
-             (candidates (pcomplete-completions))
-             (prefix (buffer-substring (pcomplete-begin) (point)))
-             ;; Collect all possible completions for the current stub
-             (cnds (all-completions pcomplete-stub candidates))
-             (bnds (completion-boundaries pcomplete-stub candidates nil ""))
-             (skip (- (length pcomplete-stub) (car bnds))))
-        ;; Replace the stub at the beginning of each candidate by the prefix
-        (mapcar (lambda (cand)
-                  (concat prefix (substring cand skip)))
-                cnds))))
+    (evil-leader/set-key "e" 'eshell-here
+                         "pe" (lambda () (interactive) (split-window-sensibly) (other-window 1) (projectile-run-eshell 1)))
 
-  ;;;###autoload
-  (defun company-pcomplete-available ()
-    (when (eq company-pcomplete-available 'unknown)
-      (condition-case _err
-          (progn
-            (company-pcomplete--candidates)
-            (setq company-pcomplete-available t))
-        (error
-         (message "Company: pcomplete not found")
-         (setq company-pcomplete-available nil))))
-    company-pcomplete-available)
-
-  (defun company-pcomplete (command &optional _arg &rest ignored)
-    "`company-mode' completion backend using `pcomplete'."
-    (interactive (list 'interactive))
-    (cl-case command
-      (interactive (company-begin-backend 'company-pcomplete))
-      (prefix (when (company-pcomplete-available)
-                (company-pcomplete--prefix)))
-      (candidates (company-pcomplete--candidates))
-      (sorted t)))
-
-    (add-hook 'eshell-mode-hook '(lambda () (set (make-local-variable 'company-idle-delay) nil)))
-    (add-hook 'eshell-mode-hook '(lambda () (set (make-local-variable 'company-backends) '(company-pcomplete company-files company-elisp))))
-
-          (defun eshell-here ()
-            "Opens up a new shell in the directory associated with the current buffer's file."
-            (interactive)
-            (let* ((parent (if (buffer-file-name)
-                               (file-name-directory (buffer-file-name))
-                             default-directory))
-                   (name (car (last (split-string parent "/" t))))
-                   (b-name (concat "*eshell: " name "*")))
-              (split-window-sensibly)
-              (other-window 1)
-              (if (null (get-buffer b-name))
-                  (progn 
-                    (eshell "new")
-                    (rename-buffer b-name))
-                (switch-to-buffer b-name))))
-
-          (evil-leader/set-key "e" 'eshell-here
-            "pe" 'projectile-run-eshell)
-
-          (defun +eshell/goto-end-of-prompt ()
-            "Move cursor to the prompt when switching to insert mode (if point isn't
+    (defun +eshell/goto-end-of-prompt ()
+      "Move cursor to the prompt when switching to insert mode (if point isn't
             already there)."
-            (interactive)
-            (goto-char (point-max))
-            (evil-append 1))
+      (interactive)
+      (goto-char (point-max))
+      (evil-append 1))
 
-          (defun +eshell/counsel-esh-history-normal ()
-            "Move cursor to the end of the buffer before calling counser-esh-history
+    (defun +eshell/counsel-esh-history-normal ()
+      "Move cursor to the end of the buffer before calling counser-esh-history
               and change `state` to insert"
-            (interactive)
-            (goto-char (point-max))
-            (evil-insert 0)
-            (counsel-esh-history))
+      (interactive)
+      (goto-char (point-max))
+      (evil-insert 0)
+      (counsel-esh-history))
 
-          (defun eshell-mode-configuration ()
-            (with-eval-after-load 'evil-collection
-              (+emacs/key-bindings)
-              (define-key evil-normal-state-local-map "I" 'eshell-bol)
-              (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
-              (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
-              (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
-              (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
-              (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
+    (defun eshell-mode-configuration ()
+      (with-eval-after-load 'evil-collection
+        (+emacs/key-bindings)
+        (define-key evil-normal-state-local-map "I" (lambda () (interactive) (eshell-bol) (evil-insert 1)))
+        (define-key evil-normal-state-local-map (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-insert 1)))
+        (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive)(split-window-vertically) (other-window 1) (eshell "new")))
+        (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive)(split-window-horizontally) (other-window 1) (eshell "new")))
+        (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
+        (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
+        (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
 
-          (defun eshell/ff (&rest args)
-            (apply #'find-file args))
+    (defun eshell/ff (&rest args)
+      (apply #'find-file args))
 
-          (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
+    (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
 
-      ;(use-package eshell-prompt-extras
-      ;  :ensure t
-      ;  :init
-      ;  (setq eshell-highlight-prompt nil
-      ;        eshell-prompt-function 'epe-theme-lambda))
-#+end_src
+  (use-package eshell-prompt-extras
+    :ensure t
+    :init
+    (setq eshell-highlight-prompt nil
+          eshell-prompt-function 'epe-theme-lambda))
+
+(use-package eshell-syntax-highlighting
+  :after esh-mode
+  :ensure t 
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
+  #+end_src
 
 * Magit
-#+begin_src emacs-lisp
+
+  #+begin_src emacs-lisp
   (use-package magit
     :ensure t
     :config
@@ -676,10 +645,10 @@
     (evil-leader/set-key "gf" 'magit-log-buffer-file))
   (use-package evil-magit
     :ensure t)
- #+end_src
+  #+end_src
 
 * Check spelling inside git commit and markdown
-#+begin_src emacs-lisp
+  #+begin_src emacs-lisp
 (use-package flyspell
   ;; Spell-checking of emacs buffers.
   :diminish (flyspell-mode)
@@ -687,46 +656,47 @@
   :init
   (progn
     (add-hook 'git-commit-mode-hook 'flyspell-mode)
+    (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
- #+end_src
+  #+end_src
   
 * Language specific stuff
 ** Readable data files
-#+begin_src emacs-lisp
+   #+begin_src emacs-lisp
   (use-package yaml-mode :ensure t)
   (use-package json-mode :ensure t)
-#+end_src
+   #+end_src
 ** Go
-#+begin_src emacs-lisp
+   #+begin_src emacs-lisp
   (use-package go-mode
   :ensure t)
-#+end_src
+   #+end_src
 
 ** Clojure
-#+begin_src emacs-lisp
+   #+begin_src emacs-lisp
   (use-package clojure-mode :ensure t :defer t)
   (use-package cider :ensure t :defer t)
-#+end_src
+   #+end_src
 
 * REST
-#+begin_src emacs-lisp
+  #+begin_src emacs-lisp
 (use-package restclient
   :ensure t)
-#+end_src
+  #+end_src
 
 * Jupyter notebooks
- #+begin_src emacs-lisp 
+  #+begin_src emacs-lisp 
    (use-package ein
     :ensure t
     :init
     (setq ein:polymode t)
     :config
     (setq ein:polymode t))
- #+end_src
+  #+end_src
 
 * Olivietty for writing
-#+begin_src emacs-lisp
+  #+begin_src emacs-lisp
 (use-package olivetti
  :ensure t)
-#+end_src
+  #+end_src
 
