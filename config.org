@@ -45,17 +45,20 @@
 
 * Theming
   #+BEGIN_SRC emacs-lisp
-  (use-package acme-theme
-    :ensure t
-    :defer t
-    :init
-    ;(load-theme 'acme t)
-    )
+  ;(use-package acme-theme
+  ;  :ensure t
+  ;  :defer t
+  ;  :init
+  ;  (custom-set-faces '(linum-relative-current-face
+  ;                    ((t :inherit linum :foreground "grey" :weight bold))))
+  ;  (load-theme 'acme t))
 
   (use-package emacs
     :ensure t
     :defer t
     :init
+     (custom-set-faces '(linum-relative-current-face
+                     ((t :inherit linum :foreground "white" :weight bold))))
     (load-theme 'modus-vivendi t)
     )
 
@@ -732,7 +735,7 @@
   :commands flyspell-mode
   :init
   (progn
-    ;(add-hook 'git-commit-mode-hook 'flyspell-mode)
+    (add-hook 'git-commit-mode-hook 'flyspell-mode)
     (add-hook 'org-mode-hook 'flyspell-mode)
     (add-hook 'markdown-mode-hook 'flyspell-mode)))
   #+end_src
@@ -748,7 +751,6 @@
   (use-package go-mode
   :ensure t)
    #+end_src
-
 ** Clojure
    #+begin_src emacs-lisp
   (use-package clojure-mode :ensure t :defer t)
@@ -806,10 +808,17 @@
     (let ((profile (getenv "AWS_PROFILE")))
       (message (if (null profile) "default" profile))))
 
+(defun slurp (f)
+  (with-temp-buffer
+    (insert-file-contents f)
+    (buffer-substring-no-properties
+       (point-min)
+       (point-max))))
+
   (defun eshell/awsprofile (&rest args)
     (require 'seq)
     (let* ((matches (seq-filter (apply-partially 'string-match "\^\[*.\]\$")
-                                (read-lines "~/.aws/credentials")))
+                                (split-string (slurp "~/.aws/credentials"))))
            (trim (seq-map (lambda (x) (string-trim x "\\[" "\\]")) matches))
            (choice (ivy-read "AWS Profile: " trim)))
       (setenv "AWS_PROFILE" choice)))
