@@ -53,13 +53,20 @@
   ;                    ((t :inherit linum :foreground "grey" :weight bold))))
   ;  (load-theme 'acme t))
 
+
+  (use-package zenburn-theme
+    :ensure t
+    :defer t
+    :init
+    (load-theme 'zenburn t))
+
   (use-package emacs
     :ensure t
     :defer t
     :init
      (custom-set-faces '(linum-relative-current-face
                      ((t :inherit linum :foreground "white" :weight bold))))
-    (load-theme 'modus-vivendi t)
+    ;(load-theme 'modus-vivendi t)
     )
 
   (use-package emacs
@@ -268,6 +275,7 @@
                            "hv" 'counsel-describe-variable
                            "b" 'counsel-switch-buffer
                            "y" 'counsel-yank-pop
+                           "os" 'counsel-org-goto
                            "i" 'ibuffer
                            "t" 'vterm
                            ":" 'counsel-M-x
@@ -280,104 +288,125 @@
 
 * Org 
   #+BEGIN_SRC emacs-lisp
-  (use-package org-agenda
-    :config
-    (evil-leader/set-key "oa" 'org-agenda)
-    (eval-after-load 'org-agenda
-      '(progn
-         (setq org-agenda-files '("~/org/todo.org"))
-         (evil-set-initial-state 'org-agenda-mode 'normal)
-         (evil-define-key 'normal org-agenda-mode-map
-           (kbd "<RET>") 'org-agenda-switch-to
-           (kbd "\t") 'org-agenda-goto
-           "q" 'org-agenda-quit
-           "r" 'org-agenda-redo
-           "S" 'org-save-all-org-buffers
-           "gj" 'org-agenda-goto-date
-           "gJ" 'org-agenda-clock-goto
-           "gm" 'org-agenda-bulk-mark
-           "go" 'org-agenda-open-link
-           "s" 'org-agenda-schedule
-           "+" 'org-agenda-priority-up
-           "," 'org-agenda-priority
-           "-" 'org-agenda-priority-down
-           "y" 'org-agenda-todo-yesterday
-           "n" 'org-agenda-add-note
-           "t" 'org-agenda-todo
-           ":" 'org-agenda-set-tags
-           ";" 'org-timer-set-timer
-           "I" 'helm-org-task-file-headings
-           "i" 'org-agenda-clock-in-avy
-           "O" 'org-agenda-clock-out-avy
-           "u" 'org-agenda-bulk-unmark
-           "x" 'org-agenda-exit
-           "j"  'org-agenda-next-line
-           "k"  'org-agenda-previous-line
-           "vt" 'org-agenda-toggle-time-grid
-           "va" 'org-agenda-archives-mode
-           "vw" 'org-agenda-week-view
-           "vl" 'org-agenda-log-mode
-           "vd" 'org-agenda-day-view
-           "vc" 'org-agenda-show-clocking-issues
-           "g/" 'org-agenda-filter-by-tag
-           "o" 'delete-other-windows
-           "gh" 'org-agenda-holiday
-           "gv" 'org-agenda-view-mode-dispatch
-           "f" 'org-agenda-later
-           "b" 'org-agenda-earlier
-           "c" 'helm-org-capture-templates
-           "e" 'org-agenda-set-effort
-           "n" nil  ; evil-search-next
-           "{" 'org-agenda-manipulate-query-add-re
-           "}" 'org-agenda-manipulate-query-subtract-re
-           "A" 'org-agenda-toggle-archive-tag
-           "." 'org-agenda-goto-today
-           "0" 'evil-digit-argument-or-evil-beginning-of-line
-           "<" 'org-agenda-filter-by-category
-           ">" 'org-agenda-date-prompt
-           "F" 'org-agenda-follow-mode
-           "D" 'org-agenda-deadline
-           "H" 'org-agenda-holidays
-           "J" 'org-agenda-next-date-line
-           "K" 'org-agenda-previous-date-line
-           "L" 'org-agenda-recenter
-           "P" 'org-agenda-show-priority
-           "R" 'org-agenda-clockreport-mode
-           "Z" 'org-agenda-sunrise-sunset
-           "T" 'org-agenda-show-tags
-           "X" 'org-agenda-clock-cancel
-           "[" 'org-agenda-manipulate-query-add
-           "g\\" 'org-agenda-filter-by-tag-refine
-           "]" 'org-agenda-manipulate-query-subtract))))
+        (use-package org-agenda
+          :init
+          (setq org-agenda-files '("~/org/todo.org"))
+          :config
+          (evil-leader/set-key "oa" 'org-agenda)
 
-  (use-package org-capture
-    :init
-    (setq org-capture-templates '(("t" "Task Entry" entry
-                                   (file+headline "~/org/todo.org" "Tasks")
-                                   "* %?\n  %t\n")
-                                  ("r" "Remember Entry" entry
-                                   (file+headline "~/org/todo.org" "Remember")
-                                   "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n")))
-    :config
+          (setq org-agenda-custom-commands
+                '(("w" "Work agenda"
+                   ((tags "+work+TODO=\"IN_PROGRESS\"" ((org-agenda-overriding-header "IN_PROGRESS")))
+                    (agenda "" ((tags "work")))
+                    (tags "+work+TODO=\"TODO\"" ((org-agenda-overriding-header "TODO")))))))
 
-    (evil-leader/set-key "oc" 'counsel-org-capture)
+          (evil-set-initial-state 'org-agenda-mode 'normal)
+          (evil-define-key 'normal org-agenda-mode-map
+            (kbd "<RET>") 'org-agenda-switch-to
+            (kbd "\t") 'org-agenda-goto
+            "q" 'org-agenda-quit
+            "r" 'org-agenda-redo
+            "S" 'org-save-all-org-buffers
+            "gj" 'org-agenda-goto-date
+            "gJ" 'org-agenda-clock-goto
+            "gm" 'org-agenda-bulk-mark
+            "go" 'org-agenda-open-link
+            "s" 'org-agenda-schedule
+            "+" 'org-agenda-priority-up
+            "," 'org-agenda-priority
+            "-" 'org-agenda-priority-down
+            "y" 'org-agenda-todo-yesterday
+            "n" 'org-agenda-add-note
+            "t" 'org-agenda-todo
+            ":" 'org-agenda-set-tags
+            ";" 'org-timer-set-timer
+            "I" 'helm-org-task-file-headings
+            "i" 'org-agenda-clock-in-avy
+            "O" 'org-agenda-clock-out-avy
+            "u" 'org-agenda-bulk-unmark
+            "dd" 'org-agenda-kill
+            "x" 'org-agenda-exit
+            "j"  'org-agenda-next-line
+            "k"  'org-agenda-previous-line
+            "vt" 'org-agenda-toggle-time-grid
+            "va" 'org-agenda-archives-mode
+            "vw" 'org-agenda-week-view
+            "vl" 'org-agenda-log-mode
+            "vd" 'org-agenda-day-view
+            "vc" 'org-agenda-show-clocking-issues
+            "g/" 'org-agenda-filter-by-tag
+            "o" 'delete-other-windows
+            "gh" 'org-agenda-holiday
+            "gv" 'org-agenda-view-mode-dispatch
+            "f" 'org-agenda-later
+            "b" 'org-agenda-earlier
+            "c" 'counsel-org-capture
+            "e" 'org-agenda-set-effort
+            "n" nil  ; evil-search-next
+            "{" 'org-agenda-manipulate-query-add-re
+            "}" 'org-agenda-manipulate-query-subtract-re
+            "A" 'org-agenda-toggle-archive-tag
+            "." 'org-agenda-goto-today
+            "0" 'evil-digit-argument-or-evil-beginning-of-line
+            "<" 'org-agenda-filter-by-category
+            ">" 'org-agenda-date-prompt
+            "F" 'org-agenda-follow-mode
+            "D" 'org-agenda-deadline
+            "H" 'org-agenda-do-date-earlier
+            "L" 'org-agenda-do-date-later
+            "J" 'org-agenda-next-date-line
+            "P" 'org-agenda-show-priority
+            "R" 'org-agenda-clockreport-mode
+            "Z" 'org-agenda-sunrise-sunset
+            "T" 'org-agenda-show-tags
+            "X" 'org-agenda-clock-cancel
+            "[" 'org-agenda-manipulate-query-add
+            "g\\" 'org-agenda-filter-by-tag-refine
+            "]" 'org-agenda-manipulate-query-subtract)
+          )
 
-    (add-hook 'org-capture-mode-hook 'evil-insert-state))
+        (use-package org-capture
+          :init
+          (setq org-capture-templates '(("t" "Task Entry" entry
+                                         (file+headline "~/org/todo.org" "Tasks")
+                                         "* %?\n  %t\n")
 
-  (use-package org
-    :init 
-    :config
-    (defun org-mode-configuration ()
-      (with-eval-after-load 'evil-collection
-        (+emacs/key-bindings)))
+                                        ("wt" "Work Todo" entry
+                                         (file+headline "~/org/todo.org" "Work")
+                                         "* TODO %? :work: \n  %t")
 
-    (add-hook 'org-mode-hook 'org-mode-configuration))
+                                        ("wn" "Work Note" entry
+                                         (file+headline "~/org/todo.org" "Work")
+                                         "* TODO %? :inbox: :work: \n  %t")
 
-  (use-package org-bullets
-    :ensure t
-    :config
-    (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+                                        ("r" "Remember Entry" entry
+                                         (file+headline "~/org/todo.org" "Remember")
+                                         "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n")))
+          :config
 
+          (evil-leader/set-key "oc" 'counsel-org-capture)
+                                                ;(add-hook 'org-capture-mode-hook #'org-align-all-tags)
+          (add-hook 'org-capture-mode-hook 'evil-insert-state))
+
+        (use-package org
+          :config
+          (defun org-mode-configuration ()
+            (with-eval-after-load 'evil-collection
+              (+emacs/key-bindings)))
+          (org-babel-do-load-languages
+           'org-babel-load-languages
+           '(
+             (shell . t)
+             (python . t)
+             ))
+          (add-hook 'org-mode-hook 'org-mode-configuration))
+
+        (use-package ob-async :ensure t)
+
+        (use-package org-bullets
+          :ensure t
+          :config
+          (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
   #+END_SRC
 
 * Hyperbole
@@ -392,42 +421,43 @@
 
   #+BEGIN_SRC emacs-lisp
 
-    (use-package company
-       :diminish company-mode
-       :ensure t
-       ;; Use Company for completion
-       :init (global-company-mode 1)
-       :config
-       ;(setq tab-always-indent 'complete)
-       ;;; some better default values
-       ;(setq company-idle-delay 0.1)
-       (setq company-minimum-prefix-length 5)
-       ;(setq company-tooltip-align-annotations t)
-       ;(setq company-selection-wrap-around t)
-       (setq company-backends '(company-capf
-                                company-files))
+        (use-package company
+           :diminish company-mode
+           :ensure t
+           ;; Use Company for completion
+           :init (global-company-mode 1)
+           :config
+           ;(setq tab-always-indent 'complete)
+           ;;; some better default values
+           (setq company-idle-delay 0.3)
+           (setq company-minimum-prefix-length 5)
+           (setq company-tooltip-align-annotations t)
+           ;(setq company-selection-wrap-around t)
+           ;(setq company-backends '(company-capf
+           ;                         company-files))
+           ;(setq company-minimum-prefix-length 1
+           ;      company-idle-delay 0.0) ;; default is 0.2
+           (setq company-global-modes '(not eshell-mode))
 
-       ;(setq company-global-modes '(not eshell-mode))
+           ;;; align annotations in tooltip
+           ;(setq company-tooltip-align-annotations t)
+           ;(setq company-dabbrev-downcase nil)
+           ;(setq company-require-match 'never)
 
-       ;;; align annotations in tooltip
-       ;(setq company-tooltip-align-annotations t)
-       ;(setq company-dabbrev-downcase nil)
-       ;(setq company-require-match 'never)
+           ;;; nicer keybindings
+           ;(define-key company-active-map (kbd "C-n") 'company-select-next)
+           ;(define-key company-active-map (kbd "C-p") 'company-select-previous)
+           ;(define-key company-active-map (kbd "K") 'company-show-doc-buffer)
+    )
 
-       ;;; nicer keybindings
-       ;(define-key company-active-map (kbd "C-n") 'company-select-next)
-       ;(define-key company-active-map (kbd "C-p") 'company-select-previous)
-       ;(define-key company-active-map (kbd "K") 'company-show-doc-buffer)
-)
-
-       ;(use-package company-posframe
-       ;  :diminish
-       ;  :ensure t
-       ;  :config
-       ;  (setq company-posframe-show-metadata nil)
-       ;  (setq company-posframe-show-indicator nil)
-       ;  (setq company-posframe-quickhelp-delay nil)
-       ;  (company-posframe-mode +1))
+           ;(use-package company-posframe
+           ;  :diminish
+           ;  :ensure t
+           ;  :config
+           ;  (setq company-posframe-show-metadata nil)
+           ;  (setq company-posframe-show-indicator nil)
+           ;  (setq company-posframe-quickhelp-delay nil)
+           ;  (company-posframe-mode +1))
   #+END_SRC
 
 * Package counsel
@@ -508,17 +538,33 @@
 
   #+END_SRC
 
+* Compilation
+#+begin_src emacs-lisp
+  (use-package emacs
+    :config
+    (defun compilation-mode-configuration ()
+      (with-eval-after-load 'evil-collection
+        (+emacs/key-bindings)))
+
+    compilation-mode-hook
+    jp
+    (add-hook 'compilation-mode-hook 'compilation-mode-configuration))
+#+end_src
 * Dired stuff
   #+begin_src emacs-lisp
-(use-package dired-subtree
-  :ensure t
-  :after dired
-  :bind (:map dired-mode-map
-              ("TAB" . dired-subtree-toggle)))
+    (defun my-dired-mode-setup ()
+      "show less information in dired buffers"
+      (dired-hide-details-mode 1))
+    (add-hook 'dired-mode-hook 'my-dired-mode-setup)
+
+    (use-package dired-subtree
+      :ensure t
+      :config
+      (define-key evil-normal-state-local-map "TAB" 'dired-subtree-toggle))
 
   #+end_src
 
-* LSP 
+* LSP
   #+begin_src emacs-lisp
         (use-package lsp-mode
           :ensure t
@@ -554,7 +600,7 @@
                     (setq flycheck-eslintrc rc-path)))))
 
           (flycheck-add-mode 'javascript-eslint 'js-mode)
-          (add-hook 'flycheck-mode-hook 'codefalling//reset-eslint-rc)
+          ;(add-hook 'flycheck-mode-hook 'codefalling//reset-eslint-rc)
           (add-hook 'flycheck-mode-hook 'add-node-modules-path))
   #+end_src
 
@@ -715,6 +761,8 @@
     (evil-leader/set-key "gd" 'magit-diff)
     (evil-leader/set-key "gb" 'magit-blame)
     (evil-leader/set-key "gl" 'magit-log-branches)
+    (evil-leader/set-key "gc" 'magit-checkout)
+    (evil-leader/set-key "gf" 'magit-fetch-all)
     (evil-leader/set-key "gf" 'magit-log-buffer-file))
   (use-package evil-magit
     :ensure t)
