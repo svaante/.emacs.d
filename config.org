@@ -4,6 +4,7 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (menu-bar-mode -1) 
+
 ;; remove visual bell
 (setq visible-bell       nil
       ring-bell-function #'ignore)
@@ -40,34 +41,21 @@
 
 (set-frame-font "Hack-12" nil t) ;; Set font
 (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
-
   #+END_SRC
 
 * Theming
   #+BEGIN_SRC emacs-lisp
-  ;(use-package acme-theme
-  ;  :ensure t
-  ;  :defer t
-  ;  :init
-  ;  (custom-set-faces '(linum-relative-current-face
-  ;                    ((t :inherit linum :foreground "grey" :weight bold))))
-  ;  (load-theme 'acme t))
-
-
-  (use-package zenburn-theme
+  (use-package acme-theme
     :ensure t
-    :defer t
-    :init
-    (load-theme 'zenburn t))
+    :config
+    (load-theme 'acme t))
 
-  (use-package emacs
+  (use-package plan9-theme
     :ensure t
-    :defer t
-    :init
-     (custom-set-faces '(linum-relative-current-face
-                     ((t :inherit linum :foreground "white" :weight bold))))
-    ;(load-theme 'modus-vivendi t)
-    )
+    :config
+    (load-theme 'plan9 t))
+
+  (use-package zenburn-theme :ensure t)
 
   (use-package emacs
     :config
@@ -102,7 +90,7 @@
     (exec-path-from-shell-initialize))
 
   #+END_SRC
-
+  
 * Save my mode-line
   #+begin_src emacs-lisp
 (use-package diminish
@@ -420,136 +408,103 @@
   Use company for packages
 
   #+BEGIN_SRC emacs-lisp
-
-        (use-package company
-           :diminish company-mode
-           :ensure t
-           ;; Use Company for completion
-           :init (global-company-mode 1)
-           :config
-           ;(setq tab-always-indent 'complete)
-           ;;; some better default values
-           (setq company-idle-delay 0.3)
-           (setq company-minimum-prefix-length 5)
-           (setq company-tooltip-align-annotations t)
-           ;(setq company-selection-wrap-around t)
-           ;(setq company-backends '(company-capf
-           ;                         company-files))
-           ;(setq company-minimum-prefix-length 1
-           ;      company-idle-delay 0.0) ;; default is 0.2
-           (setq company-global-modes '(not eshell-mode))
-
-           ;;; align annotations in tooltip
-           ;(setq company-tooltip-align-annotations t)
-           ;(setq company-dabbrev-downcase nil)
-           ;(setq company-require-match 'never)
-
-           ;;; nicer keybindings
-           ;(define-key company-active-map (kbd "C-n") 'company-select-next)
-           ;(define-key company-active-map (kbd "C-p") 'company-select-previous)
-           ;(define-key company-active-map (kbd "K") 'company-show-doc-buffer)
-    )
-
-           ;(use-package company-posframe
-           ;  :diminish
-           ;  :ensure t
-           ;  :config
-           ;  (setq company-posframe-show-metadata nil)
-           ;  (setq company-posframe-show-indicator nil)
-           ;  (setq company-posframe-quickhelp-delay nil)
-           ;  (company-posframe-mode +1))
+    (use-package company
+      :diminish company-mode
+      :ensure t
+      :init (global-company-mode 1)
+      :config
+      (setq company-idle-delay 0.3)
+      (setq company-minimum-prefix-length 5)
+      (setq company-tooltip-align-annotations t)
+      (setq company-global-modes '(not eshell-mode)))
   #+END_SRC
 
 * Package counsel
   #+BEGIN_SRC emacs-lisp
-      ;(use-package ivy-rich
-      ;  :diminish
-      ;  :ensure t
-      ;  :after ivy
-      ;  :custom
-      ;  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
-      ;  (ivy-rich-mode 1))
+    (use-package ivy
+      :diminish
+      :hook (after-init . ivy-mode)
+      :config
+      (setq ivy-wrap t)
+      (setq ivy-height 15)
+      (setq ivy-display-style nil)
+      (setq ivy-re-builders-alist
+            '((counsel-rg            . ivy--regex-plus)
+              (counsel-projectile-rg . ivy--regex-plus)
+              (swiper                . ivy--regex-plus)
+              (t                     . ivy--regex-fuzzy)))
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-count-format "(%d/%d) ")
+      (setq ivy-initial-inputs-alist nil)
 
-      ;(use-package ivy-posframe
-      ;  :diminish
-      ;  :ensure t
-      ;  :custom
-      ;  (ivy-posframe-style 'frame-center)
-      ;  (ivy-posframe-display-functions-alist
-      ;  '((swiper . ivy-posframe-display-at-window-bottom-left)
-      ;    (t . ivy-posframe-display)))
-      ;  :config
-      ;  (ivy-posframe-mode))
+      (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done))
 
-      (use-package ivy
-        :diminish
-        :hook (after-init . ivy-mode)
-        :config
-        (setq ivy-wrap t)
-        (setq ivy-height 15)
-        (setq ivy-display-style nil)
-        (setq ivy-re-builders-alist
-              '((counsel-rg            . ivy--regex-plus)
-                (counsel-projectile-rg . ivy--regex-plus)
-                (swiper                . ivy--regex-plus)
-                (t                     . ivy--regex-fuzzy)))
-        (setq ivy-use-virtual-buffers t)
-        (setq ivy-count-format "(%d/%d) ")
-        (setq ivy-initial-inputs-alist nil)
+    (use-package swiper
+      :ensure t
+      :config
+      (evil-leader/set-key "s" 'swiper))
 
-        (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done))
+    (use-package counsel
+      :ensure t
+      :config
+      (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
+      (defun +ivy-git-grep-other-window-action (x)
+        "Opens the current candidate in another window."
+        (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+          (select-window
+           (with-ivy-window
+             (let ((file-name   (match-string-no-properties 1 x))
+                   (line-number (match-string-no-properties 2 x)))
+               (find-file-other-window (expand-file-name file-name (ivy-state-directory ivy-last)))
+               (goto-char (point-min))
+               (forward-line (1- (string-to-number line-number)))
+               (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+               (run-hooks 'counsel-grep-post-action-hook)
+               (selected-window))))))
 
-      (use-package swiper
-        :ensure t
-        :config
-        (evil-leader/set-key "s" 'swiper))
+      (ivy-add-actions
+       'counsel-rg
+       '(("j" +ivy-git-grep-other-window-action "open in other window")))
 
-      (use-package counsel
-        :ensure t
-        :config
-        (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
+      (defun +ivy/projectile-find-file ()
+        (interactive)
+        (let ((this-command 'counsel-find-file))
+          (call-interactively
+           (if (or (file-equal-p default-directory "~")
+                   (file-equal-p default-directory "/"))
+               #'counsel-find-file
+             (let ((files (projectile-current-project-files)))
+               (if (<= (length files) ivy-sort-max-size)
+                   #'counsel-projectile-find-file
+                 #'projectile-find-file))))))
 
-        (defun +ivy/projectile-find-file ()
-          (interactive)
-          (let ((this-command 'counsel-find-file))
-            (call-interactively
-             (if (or (file-equal-p default-directory "~")
-                     (file-equal-p default-directory "/"))
-                 #'counsel-find-file
-               (let ((files (projectile-current-project-files)))
-                 (if (<= (length files) ivy-sort-max-size)
-                     #'counsel-projectile-find-file
-                   #'projectile-find-file))))))
+      (setq counsel-find-file-at-point t)
 
-        (setq counsel-find-file-at-point t)
+      (evil-leader/set-key "SPC" '+ivy/projectile-find-file
+        "." 'counsel-find-file))
 
-        (evil-leader/set-key "SPC" '+ivy/projectile-find-file
-                              "." 'counsel-find-file))
-
-      (use-package prescient
-        :ensure t
-        :config
-        (progn
-          (use-package ivy-prescient
-            :ensure t
-            :config
-            (ivy-prescient-mode))
-          (prescient-persist-mode)))
-
+    (use-package prescient
+      :ensure t
+      :config
+      (progn
+        (use-package ivy-prescient
+          :ensure t
+          :config
+          (ivy-prescient-mode))
+        (prescient-persist-mode)))
   #+END_SRC
 
 * Compilation
-#+begin_src emacs-lisp
-  (use-package emacs
-    :config
-    (defun compilation-mode-configuration ()
-      (with-eval-after-load 'evil-collection
-        (+emacs/key-bindings)))
 
-    compilation-mode-hook
-    jp
-    (add-hook 'compilation-mode-hook 'compilation-mode-configuration))
+#+begin_src emacs-lisp
+    (use-package emacs
+      :config
+      (defun compilation-mode-configuration ()
+        (with-eval-after-load 'evil-collection
+          (+emacs/key-bindings)))
+      (add-hook 'compilation-mode-hook 'compilation-mode-configuration))
 #+end_src
+
 * Dired stuff
   #+begin_src emacs-lisp
     (defun my-dired-mode-setup ()
@@ -561,7 +516,6 @@
       :ensure t
       :config
       (define-key evil-normal-state-local-map "TAB" 'dired-subtree-toggle))
-
   #+end_src
 
 * LSP
@@ -590,17 +544,7 @@
           (setq-default flycheck-disabled-checkers
                         (append flycheck-disabled-checkers
                                 '(javascript-jshint json-jsonlist)))
-
-          (defun codefalling//reset-eslint-rc ()
-            (let ((rc-path (if (projectile-project-p)
-                               (concat (projectile-project-root) ".eslintrc"))))
-              (if (file-exists-p rc-path)
-                  (progn
-                    (message rc-path)
-                    (setq flycheck-eslintrc rc-path)))))
-
           (flycheck-add-mode 'javascript-eslint 'js-mode)
-          ;(add-hook 'flycheck-mode-hook 'codefalling//reset-eslint-rc)
           (add-hook 'flycheck-mode-hook 'add-node-modules-path))
   #+end_src
 
@@ -609,48 +553,48 @@
         (use-package projectile
           :ensure t
           :config
-          (projectile-mode +1))
-    projectile-project-root-files #'( ".projectile" )
-    projectile-project-root-files-functions #'(projectile-root-top-down
-                                               projectile-root-top-down-recurring
-                                               projectile-root-bottom-up
-                                               projectile-root-local)
-
+          (projectile-mode +1)
+          projectile-project-root-files #'( ".projectile" )
+          projectile-project-root-files-functions #'(projectile-root-top-down
+                                                     projectile-root-top-down-recurring
+                                                     projectile-root-bottom-up
+                                                     projectile-root-local))
         (use-package counsel-projectile
           :diminish
           :ensure t
           :config
           (setcar counsel-projectile-switch-project-action 4)
+
           (evil-leader/set-key
             "pp" 'counsel-projectile-switch-project
             "pi" 'projectile-invalidate-cache
             "pt" 'projectile-test-project
-            "pg" 'projectile-ripgrep)
-
+            "pg" 'projectile-ripgrep
+            "pb" 'projectile-switch-to-buffer)
           (counsel-projectile-mode))
 
-    (use-package org-projectile
-      :ensure t
-      :config
-      (setq org-projectile:projects-file "/Users/svaante/projects.org")
-      (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
-      (push (org-projectile-project-todo-entry) org-capture-templates)
+        (use-package org-projectile
+          :ensure t
+          :config
+          (setq org-projectile:projects-file "/Users/svaante/projects.org")
+          (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
+          (push (org-projectile-project-todo-entry) org-capture-templates)
 
-      (defun +emacs/org-projectile-goto-location-for-project ()
-        (interactive)
-        (let* ((context (make-instance 'occ-context
-                                       :category (projectile-project-name)
-                                       :template org-projectile-capture-template
-                                       :strategy org-projectile-strategy
-                                       :options nil))
-               (marker (occ-get-capture-marker context))
-               (buf (marker-buffer marker)))
-          ;(switch-to-buffer (other-buffer buf))
-          (switch-to-buffer-other-window buf)
-          (goto-char (marker-position marker))))
+          (defun +emacs/org-projectile-goto-location-for-project ()
+            (interactive)
+            (let* ((context (make-instance 'occ-context
+                                           :category (projectile-project-name)
+                                           :template org-projectile-capture-template
+                                           :strategy org-projectile-strategy
+                                           :options nil))
+                   (marker (occ-get-capture-marker context))
+                   (buf (marker-buffer marker)))
+                                                ;(switch-to-buffer (other-buffer buf))
+              (switch-to-buffer-other-window buf)
+              (goto-char (marker-position marker))))
 
-      (evil-leader/set-key
-        "pn" 'org-projectile-capture-for-current-project))
+          (evil-leader/set-key
+            "pn" 'org-projectile-capture-for-current-project))
   #+end_src
 
 * Terminal
@@ -659,97 +603,100 @@
   #+end_src
 
   #+begin_src emacs-lisp
-    (use-package eshell
-      :ensure t
-      :config
+          (use-package eshell
+            :ensure t
+            :config
 
-      (setenv "PAGER" "cat")
+            (setenv "PAGER" "cat")
 
-      (defun eshell-cwd-rename (&optional i)
-        "Renames eshell buffer to *eshell: <cwd> <number of buffers with this name>*"
-        (interactive)
-        (unless i (setq i 0))
-        (let* ((buffer-cwd (if (buffer-file-name)
-                               (file-name-directory (buffer-file-name))
+      ;; Save command history when commands are entered
+      ;(add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+
+      ;(add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
+
+            (defun eshell-cwd-rename (&optional i)
+              "Renames eshell buffer to *eshell: <cwd> <number of buffers with this name>*"
+              (interactive)
+              (unless i (setq i 0))
+              (let* ((buffer-cwd (if (buffer-file-name)
+                                     (file-name-directory (buffer-file-name))
+                                     default-directory))
+                     (name (car (last (split-string buffer-cwd "/" t))))
+                     (b-name (if (zerop i)
+                                 (concat "*eshell: " name "*")
+                                 (concat "*eshell: " name " " (number-to-string i) "*"))))
+                (cond ((string= (buffer-name) b-name) nil)
+                      ((null (get-buffer b-name)) (rename-buffer b-name))
+                      (t (eshell-cwd-rename (1+ i))))))
+
+            (defun eshell-here ()
+              "Opens up a new shell in the directory associated with the current buffer's file."
+              (interactive)
+              (let* ((parent (if (buffer-file-name)
+                                 (file-name-directory (buffer-file-name))
                                default-directory))
-               (name (car (last (split-string buffer-cwd "/" t))))
-               (b-name (if (zerop i)
-                           (concat "*eshell: " name "*")
-                           (concat "*eshell: " name " " (number-to-string i) "*"))))
-          (cond ((string= (buffer-name) b-name) nil)
-                ((null (get-buffer b-name)) (rename-buffer b-name))
-                (t (eshell-cwd-rename (1+ i))))))
+                     (name (car (last (split-string parent "/" t))))
+                     (b-name (concat "*eshell: " name "*")))
+                (if (null (get-buffer b-name))
+                    (let ((buf (eshell "new")))
+                      (switch-to-buffer (other-buffer buf))
+                      (switch-to-buffer-other-window buf)
+                      (rename-buffer b-name))
+                  (switch-to-buffer-other-window (get-buffer b-name)))))
 
-      (defun eshell-here ()
-        "Opens up a new shell in the directory associated with the current buffer's file."
-        (interactive)
-        (let* ((parent (if (buffer-file-name)
-                           (file-name-directory (buffer-file-name))
-                         default-directory))
-               (name (car (last (split-string parent "/" t))))
-               (b-name (concat "*eshell: " name "*")))
-          (if (null (get-buffer b-name))
-              (let ((buf (eshell "new")))
+            (defun eshell-project-root ()
+              (interactive)
+              (let ((buf (projectile-run-eshell 1)))
                 (switch-to-buffer (other-buffer buf))
-                (switch-to-buffer-other-window buf)
-                (rename-buffer b-name))
-            (switch-to-buffer-other-window (get-buffer b-name)))))
+                (switch-to-buffer-other-window buf)))
 
-      (defun eshell-project-root ()
-        (interactive)
-        (let ((buf (projectile-run-eshell 1)))
-          (switch-to-buffer (other-buffer buf))
-          (switch-to-buffer-other-window buf)))
+            (evil-leader/set-key "e" 'eshell-here
+              "pe" 'eshell-project-root)
 
-      (evil-leader/set-key "e" 'eshell-here
-        "pe" 'eshell-project-root)
+            (defun +eshell/goto-end-of-prompt ()
+              "Move cursor to the prompt when switching to insert mode (if point isn't
+                      already there)."
+              (interactive)
+              (goto-char (point-max))
+              (evil-append 1))
 
-      (defun +eshell/goto-end-of-prompt ()
-        "Move cursor to the prompt when switching to insert mode (if point isn't
-                already there)."
-        (interactive)
-        (goto-char (point-max))
-        (evil-append 1))
+            (defun +eshell/counsel-esh-history-normal ()
+              "Move cursor to the end of the buffer before calling counsel-esh-history
+                        and change `state` to insert"
+              (interactive)
+              (goto-char (point-max))
+              (evil-insert 0)
+              (counsel-esh-history))
 
-      (defun +eshell/counsel-esh-history-normal ()
-        "Move cursor to the end of the buffer before calling counsel-esh-history
-                  and change `state` to insert"
-        (interactive)
-        (goto-char (point-max))
-        (evil-insert 0)
-        (counsel-esh-history))
+            (defun eshell-mode-configuration ()
+              (with-eval-after-load 'evil-collection
+                (+emacs/key-bindings)
+                (define-key evil-normal-state-local-map "I" (lambda () (interactive) (eshell-bol) (evil-insert 1)))
+                (define-key evil-normal-state-local-map (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1)))
+                (define-key evil-normal-state-local-map (kbd "gk") 'eshell-previous-prompt)
+                (define-key evil-normal-state-local-map (kbd "gk") 'eshell-next-prompt)
+                (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new")))
+                (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new")))
+                (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
+                (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
+                (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
 
-      (defun eshell-mode-configuration ()
-        (with-eval-after-load 'evil-collection
-          (+emacs/key-bindings)
-          (define-key evil-normal-state-local-map "I" (lambda () (interactive) (eshell-bol) (evil-insert 1)))
-          (define-key evil-normal-state-local-map (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1)))
-          (define-key evil-normal-state-local-map (kbd "gk") 'eshell-previous-prompt)
-          (define-key evil-normal-state-local-map (kbd "gk") 'eshell-next-prompt)
-          (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new")))
-          (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new")))
-          (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
-          (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
-          (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
+            (defun eshell/ff (&rest args)
+              (apply #'find-file args))
 
-      (defun eshell/ff (&rest args)
-        (apply #'find-file args))
+            (add-hook 'eshell-directory-change-hook 'eshell-cwd-rename)
+            (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
 
-      (add-hook 'eshell-directory-change-hook 'eshell-cwd-rename)
-      (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
+                                                  ;(use-package eshell-prompt-extras
+                                                  ;  :ensure t
+                                                  ;  :init
+                                                  ;  (setq eshell-highlight-prompt nil
+                                                  ;        eshell-prompt-function 'epe-theme-lambda))
 
-                                            ;(use-package eshell-prompt-extras
-                                            ;  :ensure t
-                                            ;  :init
-                                            ;  (setq eshell-highlight-prompt nil
-                                            ;        eshell-prompt-function 'epe-theme-lambda))
-
-    ;(use-package eshell-syntax-highlighting
-    ;  :after esh-mode
-    ;  :ensure t 
-    ;  :config
-    ;  (eshell-syntax-highlighting-global-mode +1))
   #+end_src
+
+  #+RESULTS:
+  : t
 
 * Magit
 
@@ -766,6 +713,14 @@
     (evil-leader/set-key "gf" 'magit-log-buffer-file))
   (use-package evil-magit
     :ensure t)
+(use-package git-link
+  :ensure t
+  :commands git-link
+  :config
+  (setq git-link-open-in-browser t)
+  (dw/leader-key-def
+    "gL"  'git-link))
+
   #+end_src
 
 * Check spelling inside git commit and markdown
