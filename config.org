@@ -1,70 +1,72 @@
 * Basic stuff to get some type of order
   #+BEGIN_SRC emacs-lisp
-    ;; remove gui elements
-    (tool-bar-mode -1)
-    (scroll-bar-mode -1)
-    (menu-bar-mode -1) 
+        ;; remove gui elements
+        (tool-bar-mode -1)
+        (scroll-bar-mode -1)
+        (menu-bar-mode -1) 
 
-    ;; remove visual bell
-    (setq visible-bell       nil
-          ring-bell-function #'ignore)
+        ;; remove visual bell
+        (setq visible-bell       nil
+              ring-bell-function #'ignore)
 
-    ;; set default dir to home
-    (setq default-directory "~/")
+        ;; set default dir to home
+        (setq default-directory "~/")
 
-    ;; follow symlinks
-    (setq vc-follow-symlinks t)
+        ;; follow symlinks
+        (setq vc-follow-symlinks t)
 
-    ;; spaces not tabs
-    (setq-default indent-tabs-mode nil)
-    (setq indent-line-function 'insert-tab)
+        ;; spaces not tabs
+        (setq-default indent-tabs-mode nil)
+        (setq indent-line-function 'insert-tab)
 
-    ;; no backup files
-    (setq make-backup-files nil)
-    (global-auto-revert-mode t)
+        ;; no backup files
+        (setq make-backup-files nil)
+        (global-auto-revert-mode t)
 
-    ;; y/n will do
-    (fset 'yes-or-no-p 'y-or-n-p)
+        ;; y/n will do
+        (fset 'yes-or-no-p 'y-or-n-p)
 
-    ;; stop the insessent blinking
-    (blink-cursor-mode 0)
+        ;; stop the insessent blinking
+        (blink-cursor-mode 0)
 
-    ;; Truncate that shit
-    (use-package simple
-      :diminish visual-line-mode)
+        ;; Truncate that shit
+        (use-package simple
+          :diminish
+          (global-visual-line-mode t))
 
-    ;; Backup trails is worse then chem-trails, losing patches is 99% of the time my fault
-    (setq auto-save-default nil)
+        ;; Backup trails is worse then chem-trails, losing patches is 99% of the time my fault
+        (setq auto-save-default nil)
 
-    ;; Back to basic on extremely long lines 
-    (global-so-long-mode 1)
+        ;; Back to basic on extremely long lines
+        (global-so-long-mode 1)
 
-    (set-frame-font "Hack-12" nil t) ;; Set font
-    (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
+        ;; Set my font
+        (set-frame-font "Hack-12" nil t)
 
-    ;; perf
-    (setq gc-cons-threshold 100000000)
-    (setq read-process-output-max (* 1024 1024))
+        ;; Get my emojis
+        (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
+
+        ;; perf
+        (setq gc-cons-threshold 100000000)
+        (setq read-process-output-max (* 1024 1024))
   #+END_SRC
-  
+
 * Theming
   #+BEGIN_SRC emacs-lisp
 
-  (load-theme 'modus-operandi)
-
-  (use-package acme-theme
-    :ensure t
-    :config
-    ;(load-theme 'acme t)
-    )
-
-  (use-package plan9-theme
-    :ensure t
-    :config
-    ;(load-theme 'plan9 t)
-    )
-    
+  ;(load-theme 'modus-vivendi)
+  (use-package acme-theme :ensure t)
+  (use-package plan9-theme :ensure t)
   (use-package zenburn-theme :ensure t)
+  (use-package dracula-theme :ensure t :config (load-theme 'dracula))
+
+  (use-package org
+    :config
+    (custom-set-faces
+      '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+      '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+      '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+      '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
 
   (use-package emacs
     :config
@@ -99,7 +101,7 @@
     (exec-path-from-shell-initialize))
 
   #+END_SRC
-  
+
 * Save my mode-line
   #+begin_src emacs-lisp
 (use-package diminish
@@ -140,7 +142,18 @@
         (add-hook 'prog-mode-hook #'display-line-numbers-mode))
     #+END_SRC
 
-* Whitespace
+* Match paren 
+  #+begin_src  emacs-lisp
+    (use-package paren
+      :config
+      (setq show-paren-style 'parenthesis)
+      (setq show-paren-when-point-in-periphery nil)
+      (setq show-paren-when-point-inside-paren nil)
+      (setq show-paren-delay 0)
+      (show-paren-mode +1))
+  #+end_src
+  
+* White space
 #+BEGIN_SRC emacs-lisp
   (use-package global-whitespace
     :defer t
@@ -265,10 +278,155 @@
       :after evil
       :ensure t
       :config
-      (setq evil-collection-mode-list (remove 'eshell evil-collection-mode-list))
+      (thread-last evil-collection-mode-list
+        (remove 'eshell)
+        (remove 'eww)
+        (setq evil-collection-mode-list))
       (evil-collection-init)))
 
   #+END_SRC
+  
+* Org
+   #+BEGIN_SRC emacs-lisp
+     (use-package evil-org
+       :defer t
+       :ensure t
+       :after org
+       :hook ((org-mode . evil-org-mode)
+              (evil-org-mode . (lambda ()
+                                 (evil-org-set-key-theme '(textobjects
+                                                           insert
+                                                           return
+                                                           additional
+                                                           shift
+                                                           todo))))))
+
+      (use-package org-agenda
+        :init
+        (setq org-agenda-files '("notes.org" "~/org/todo.org"))
+        :config
+        (evil-leader/set-key "oa" 'org-agenda)
+
+        (setq org-agenda-custom-commands
+              '(("w" "Work agenda"
+                 ((tags "+work+TODO=\"IN_PROGRESS\"" ((org-agenda-overriding-header "IN_PROGRESS")))
+                  (agenda "" ((tags "work")))
+                  (tags "+work+TODO=\"TODO\"" ((org-agenda-overriding-header "TODO")))))))
+
+        (evil-set-initial-state 'org-agenda-mode 'normal)
+        (evil-define-key 'normal org-agenda-mode-map
+          (kbd "<RET>") 'org-agenda-switch-to
+          (kbd "\t") 'org-agenda-goto
+          "q" 'org-agenda-quit
+          "r" 'org-agenda-redo
+          "S" 'org-save-all-org-buffers
+          "gj" 'org-agenda-goto-date
+          "gJ" 'org-agenda-clock-goto
+          "gm" 'org-agenda-bulk-mark
+          "go" 'org-agenda-open-link
+          "s" 'org-agenda-schedule
+          "+" 'org-agenda-priority-up
+          "," 'org-agenda-priority
+          "-" 'org-agenda-priority-down
+          "y" 'org-agenda-todo-yesterday
+          "n" 'org-agenda-add-note
+          "t" 'org-agenda-todo
+          ":" 'org-agenda-set-tags
+          ";" 'org-timer-set-timer
+          "I" 'helm-org-task-file-headings
+          "i" 'org-agenda-clock-in-avy
+          "O" 'org-agenda-clock-out-avy
+          "u" 'org-agenda-bulk-unmark
+          "dd" 'org-agenda-kill
+          "x" 'org-agenda-exit
+          "j"  'org-agenda-next-line
+          "k"  'org-agenda-previous-line
+          "vt" 'org-agenda-toggle-time-grid
+          "va" 'org-agenda-archives-mode
+          "vw" 'org-agenda-week-view
+          "vl" 'org-agenda-log-mode
+          "vd" 'org-agenda-day-view
+          "vc" 'org-agenda-show-clocking-issues
+          "g/" 'org-agenda-filter-by-tag
+          "o" 'delete-other-windows
+          "gh" 'org-agenda-holiday
+          "gv" 'org-agenda-view-mode-dispatch
+          "f" 'org-agenda-later
+          "b" 'org-agenda-earlier
+          "c" 'counsel-org-capture
+          "e" 'org-agenda-set-effort
+          "n" nil  ; evil-search-next
+          "{" 'org-agenda-manipulate-query-add-re
+          "}" 'org-agenda-manipulate-query-subtract-re
+          "A" 'org-agenda-toggle-archive-tag
+          "." 'org-agenda-goto-today
+          "0" 'evil-digit-argument-or-evil-beginning-of-line
+          "<" 'org-agenda-filter-by-category
+          ">" 'org-agenda-date-prompt
+          "F" 'org-agenda-follow-mode
+          "D" 'org-agenda-deadline
+          "H" 'org-agenda-do-date-earlier
+          "L" 'org-agenda-do-date-later
+          "J" 'org-agenda-next-date-line
+          "P" 'org-agenda-show-priority
+          "R" 'org-agenda-clockreport-mode
+          "Z" 'org-agenda-sunrise-sunset
+          "T" 'org-agenda-show-tags
+          "X" 'org-agenda-clock-cancel
+          "[" 'org-agenda-manipulate-query-add
+          "g\\" 'org-agenda-filter-by-tag-refine
+          "]" 'org-agenda-manipulate-query-subtract)
+        )
+
+      (use-package org-capture
+        :init
+        (setq org-capture-templates '(("t" "Task Entry" entry
+                                       (file+headline "~/org/todo.org" "Tasks")
+                                       "* %?  \n  %t\n  %a")
+
+                                      ("w" "Work Note" entry
+                                       (file+headline "~/org/todo.org" "Work")
+                                       "* %?  \n  %t\n  %a")
+                                       
+                                      ("n" "Note" entry
+                                       (file+headline "~/org/notes.org" "Note")
+                                       "* %?  \n  %t\n  %a")
+
+                                      ("r" "Remember Entry" entry
+                                       (file+headline "~/org/todo.org" "Remember")
+                                       "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n  %a")))
+        :config
+
+        
+        (setq org-agenda-follow-indirect t)
+        (setq org-refile-use-outline-path 'file)
+        (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+        (setq org-outline-path-complete-in-steps nil)
+
+        (add-hook 'org-capture-mode-hook 'evil-insert-state))
+
+      (use-package org
+        :config
+        (defun org-mode-configuration ()
+          (with-eval-after-load 'evil-collection
+            (+emacs/key-bindings)))
+        (org-babel-do-load-languages
+         'org-babel-load-languages
+         '(
+           (shell . t)
+           (python . t)
+           ))
+        (add-hook 'org-mode-hook 'org-mode-configuration))
+
+      (use-package ob-async :ensure t)
+
+      (use-package org-bullets
+        :ensure t
+        :hook (org-mode . org-bullets-mode))
+
+
+      (use-package orgit :ensure t)
+   #+END_SRC
 
 * Leader mappings
   #+BEGIN_SRC emacs-lisp
@@ -279,10 +437,12 @@
       (global-evil-leader-mode)
       (evil-leader/set-leader "<SPC>")
       (evil-leader/set-key "." 'counsel-find-file
+                           "f" 'counsel-find-file
                            "hh" 'counsel-describe-function
                            "hb" 'counsel-descbinds
                            "hv" 'counsel-describe-variable
                            "b" 'ivy-switch-buffer
+                           "m" 'counsel-bookmark
                            "y" 'counsel-yank-pop
                            "os" 'counsel-org-goto
                            "i" 'ibuffer
@@ -295,137 +455,6 @@
                            "pt" '+emacs/org-projectile-goto-location-for-project))
       #+END_SRC 
 
-* Org 
-   #+BEGIN_SRC emacs-lisp
-         (use-package evil-org
-           :defer t
-           :ensure t
-           :after org
-           :config
-           (add-hook 'org-mode-hook 'evil-org-mode)
-           (add-hook 'evil-org-mode-hook
-                     (lambda ()
-                       (evil-org-set-key-theme '(textobjects insert return additional shift todo)))))
-
-          (use-package org-agenda
-            :init
-            (setq org-agenda-files '("notes.org" "~/org/todo.org"))
-            :config
-            (evil-leader/set-key "oa" 'org-agenda)
-
-            (setq org-agenda-custom-commands
-                  '(("w" "Work agenda"
-                     ((tags "+work+TODO=\"IN_PROGRESS\"" ((org-agenda-overriding-header "IN_PROGRESS")))
-                      (agenda "" ((tags "work")))
-                      (tags "+work+TODO=\"TODO\"" ((org-agenda-overriding-header "TODO")))))))
-
-            (evil-set-initial-state 'org-agenda-mode 'normal)
-            (evil-define-key 'normal org-agenda-mode-map
-              (kbd "<RET>") 'org-agenda-switch-to
-              (kbd "\t") 'org-agenda-goto
-              "q" 'org-agenda-quit
-              "r" 'org-agenda-redo
-              "S" 'org-save-all-org-buffers
-              "gj" 'org-agenda-goto-date
-              "gJ" 'org-agenda-clock-goto
-              "gm" 'org-agenda-bulk-mark
-              "go" 'org-agenda-open-link
-              "s" 'org-agenda-schedule
-              "+" 'org-agenda-priority-up
-              "," 'org-agenda-priority
-              "-" 'org-agenda-priority-down
-              "y" 'org-agenda-todo-yesterday
-              "n" 'org-agenda-add-note
-              "t" 'org-agenda-todo
-              ":" 'org-agenda-set-tags
-              ";" 'org-timer-set-timer
-              "I" 'helm-org-task-file-headings
-              "i" 'org-agenda-clock-in-avy
-              "O" 'org-agenda-clock-out-avy
-              "u" 'org-agenda-bulk-unmark
-              "dd" 'org-agenda-kill
-              "x" 'org-agenda-exit
-              "j"  'org-agenda-next-line
-              "k"  'org-agenda-previous-line
-              "vt" 'org-agenda-toggle-time-grid
-              "va" 'org-agenda-archives-mode
-              "vw" 'org-agenda-week-view
-              "vl" 'org-agenda-log-mode
-              "vd" 'org-agenda-day-view
-              "vc" 'org-agenda-show-clocking-issues
-              "g/" 'org-agenda-filter-by-tag
-              "o" 'delete-other-windows
-              "gh" 'org-agenda-holiday
-              "gv" 'org-agenda-view-mode-dispatch
-              "f" 'org-agenda-later
-              "b" 'org-agenda-earlier
-              "c" 'counsel-org-capture
-              "e" 'org-agenda-set-effort
-              "n" nil  ; evil-search-next
-              "{" 'org-agenda-manipulate-query-add-re
-              "}" 'org-agenda-manipulate-query-subtract-re
-              "A" 'org-agenda-toggle-archive-tag
-              "." 'org-agenda-goto-today
-              "0" 'evil-digit-argument-or-evil-beginning-of-line
-              "<" 'org-agenda-filter-by-category
-              ">" 'org-agenda-date-prompt
-              "F" 'org-agenda-follow-mode
-              "D" 'org-agenda-deadline
-              "H" 'org-agenda-do-date-earlier
-              "L" 'org-agenda-do-date-later
-              "J" 'org-agenda-next-date-line
-              "P" 'org-agenda-show-priority
-              "R" 'org-agenda-clockreport-mode
-              "Z" 'org-agenda-sunrise-sunset
-              "T" 'org-agenda-show-tags
-              "X" 'org-agenda-clock-cancel
-              "[" 'org-agenda-manipulate-query-add
-              "g\\" 'org-agenda-filter-by-tag-refine
-              "]" 'org-agenda-manipulate-query-subtract)
-            )
-
-          (use-package org-capture
-            :init
-            (setq org-capture-templates '(("t" "Task Entry" entry
-                                           (file+headline "~/org/todo.org" "Tasks")
-                                           "* %?\n  %t\n")
-
-                                          ("wt" "Work Todo" entry
-                                           (file+headline "~/org/todo.org" "Work")
-                                           "* TODO %? :work: \n  %t")
-
-                                          ("wn" "Work Note" entry
-                                           (file+headline "~/org/todo.org" "Work")
-                                           "* TODO %? :inbox: :work: \n  %t")
-
-                                          ("r" "Remember Entry" entry
-                                           (file+headline "~/org/todo.org" "Remember")
-                                           "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n")))
-            :config
-
-            (add-hook 'org-capture-mode-hook 'evil-insert-state))
-
-          (use-package org
-            :config
-            (defun org-mode-configuration ()
-              (with-eval-after-load 'evil-collection
-                (+emacs/key-bindings)))
-            (org-babel-do-load-languages
-             'org-babel-load-languages
-             '(
-               (shell . t)
-               (python . t)
-               ))
-            (add-hook 'org-mode-hook 'org-mode-configuration))
-
-          (use-package ob-async :ensure t)
-
-          (use-package org-bullets
-            :ensure t
-            :config
-            (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-   #+END_SRC
-
 * Hyperbole
   #+begin_src  emacs-lisp
   (use-package hyperbole
@@ -433,6 +462,13 @@
     :ensure t)
   #+end_src
 
+* wgrep
+  Change stuff in the grep buffer
+  #+begin_src emacs-lisp
+    (use-package wgrep
+      :ensure t)
+  #+end_src
+  
 * Package company
   Use company for packages
 
@@ -450,79 +486,84 @@
   #+END_SRC
 
 * Package counsel
-  #+BEGIN_SRC emacs-lisp
-    (use-package ivy
-      :diminish
-      :hook (after-init . ivy-mode)
-      :config
-      (setq ivy-wrap t)
-      (setq ivy-height 15)
-      (setq ivy-display-style nil)
-      (setq ivy-re-builders-alist
-            '((counsel-rg            . ivy--regex-plus)
-              (counsel-projectile-rg . ivy--regex-plus)
-              (swiper                . ivy--regex-plus)
-              (t                     . ivy--regex-fuzzy)))
-      (setq ivy-use-virtual-buffers t)
-      (setq ivy-count-format "(%d/%d) ")
-      (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done)
-      (define-key ivy-minibuffer-map (kbd "S-C-SPC") 'ivy-occur)
-      (ivy-mode 1))
+             #+BEGIN_SRC emacs-lisp
+                   (use-package ivy
+                     :diminish
+                     :hook (after-init . ivy-mode)
+                     :config
+                     (setq ivy-wrap t)
+                     (setq ivy-height 15)
+                     (setq ivy-display-style nil)
+                     (setq ivy-re-builders-alist
+                           '((t . ivy--regex-plus)))
+                     (setq ivy-use-virtual-buffers t)
+                     (setq ivy-count-format "(%d/%d) ")
+                     (evil-leader/set-key "r" 'ivy-resume)
+                     (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done)
+                     (define-key ivy-minibuffer-map (kbd "S-C-SPC") 'ivy-occur)
+                     (ivy-mode 1))
 
-    (use-package swiper
-      :ensure t
-      :config
-      (evil-leader/set-key "s" 'swiper))
+               (use-package ivy-rich
+                 :ensure t
+                 :config
+                 (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+                 (ivy-rich-mode 1))
 
-    (use-package counsel
-      :ensure t
-      :config
-      (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
-      (defun +ivy-git-grep-other-window-action (x)
-        "Opens the current candidate in another window."
-        (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
-          (select-window
-           (with-ivy-window
-             (let ((file-name   (match-string-no-properties 1 x))
-                   (line-number (match-string-no-properties 2 x)))
-               (find-file-other-window (expand-file-name file-name (ivy-state-directory ivy-last)))
-               (goto-char (point-min))
-               (forward-line (1- (string-to-number line-number)))
-               (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-               (run-hooks 'counsel-grep-post-action-hook)
-               (selected-window))))))
 
-      (ivy-add-actions
-       'counsel-rg
-       '(("j" +ivy-git-grep-other-window-action "open in other window")))
+                   (use-package swiper
+                     :ensure t
+                     :config
+                     (evil-leader/set-key "s" 'swiper))
 
-      (defun +ivy/projectile-find-file ()
-        (interactive)
-        (let ((this-command 'counsel-find-file))
-          (call-interactively
-           (if (or (file-equal-p default-directory "~")
-                   (file-equal-p default-directory "/"))
-               #'counsel-find-file
-             (let ((files (projectile-current-project-files)))
-               (if (<= (length files) ivy-sort-max-size)
-                   #'counsel-projectile-find-file
-                 #'projectile-find-file))))))
+                   (use-package counsel
+                     :ensure t
+                     :config
+                     (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
+                     (defun +ivy-git-grep-other-window-action (x)
+                       "Opens the current candidate in another window."
+                       (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+                         (select-window
+                          (with-ivy-window
+                            (let ((file-name   (match-string-no-properties 1 x))
+                                  (line-number (match-string-no-properties 2 x)))
+                              (find-file-other-window (expand-file-name file-name (ivy-state-directory ivy-last)))
+                              (goto-char (point-min))
+                              (forward-line (1- (string-to-number line-number)))
+                              (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+                              (run-hooks 'counsel-grep-post-action-hook)
+                              (selected-window))))))
 
-      (setq counsel-find-file-at-point t)
+                     (ivy-add-actions
+                      'counsel-rg
+                      '(("j" +ivy-git-grep-other-window-action "open in other window")))
 
-      (evil-leader/set-key "SPC" '+ivy/projectile-find-file
-        "." 'counsel-find-file))
+                     (defun +ivy/projectile-find-file ()
+                       (interactive)
+                       (let ((this-command 'counsel-find-file))
+                         (call-interactively
+                          (if (or (file-equal-p default-directory "~")
+                                  (file-equal-p default-directory "/"))
+                              #'counsel-find-file
+                            (let ((files (projectile-current-project-files)))
+                              (if (<= (length files) ivy-sort-max-size)
+                                  #'counsel-projectile-find-file
+                                #'projectile-find-file))))))
 
-    (use-package prescient
-      :ensure t
-      :config
-      (progn
-        (use-package ivy-prescient
-          :ensure t
-          :config
-          (ivy-prescient-mode))
-        (prescient-persist-mode)))
-  #+END_SRC
+                     (setq counsel-find-file-at-point t)
+
+                     (evil-leader/set-key "SPC" '+ivy/projectile-find-file
+                       "." 'counsel-find-file))
+
+                   ;(use-package prescient
+                   ;  :ensure t
+                   ;  :config
+                   ;  (progn
+                   ;    (use-package ivy-prescient
+                   ;      :ensure t
+                   ;      :config
+                   ;      (ivy-prescient-mode))
+                   ;    (prescient-persist-mode)))
+             #+END_SRC
 
 * Compilation
 #+begin_src emacs-lisp
@@ -536,10 +577,13 @@
 
 * Dired stuff
   #+begin_src emacs-lisp
-    (defun my-dired-mode-setup ()
-      "show less information in dired buffers"
-      (dired-hide-details-mode 1))
-    (add-hook 'dired-mode-hook 'my-dired-mode-setup)
+      (defun dired-mode-configuration ()
+        (progn 
+          (dired-hide-details-mode 1)
+          (with-eval-after-load 'evil-collection
+            (+emacs/key-bindings))))
+
+    (add-hook 'dired-mode-hook 'dired-mode-configuration)
 
     (use-package dired-subtree
       :ensure t
@@ -549,36 +593,40 @@
 
 * LSP
   #+begin_src emacs-lisp
-        (use-package lsp-mode
-          :ensure t
-          :hook (prog-mode . (lambda ()
-                               (unless (derived-mode-p 'emacs-lisp-mode 'lisp-mode)
-                                 (lsp-deferred))))
-          :config
-          (defun lsp-mode-configuration ()
-            (with-eval-after-load 'evil
-              (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
-              (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
-              (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
-          (setq lsp-file-watch-threshold 1000)
-          (setq lsp-completion-provider :capf)
-          ;(setq lsp-idle-delay 0.500)
-          (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
+    (use-package lsp-mode
+      :ensure t
+      :hook (prog-mode . (lambda ()
+                           (unless (derived-mode-p 'clojure-mode 'emacs-lisp-mode 'lisp-mode)
+                             (lsp-deferred))))
+      :config
+      (defun lsp-mode-configuration ()
+        (with-eval-after-load 'evil
+          (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
+          (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
+          (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
+      (setq lsp-file-watch-threshold 1000)
+      (setq lsp-completion-provider :capf)
+      (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
 
-        (use-package flycheck
-          :ensure t
-          :init (add-hook 'prog-mode-hook 'flycheck-mode)
-          :config
+    (use-package lsp-ivy
+      :ensure t
+      :config
+      (evil-leader/set-key "ls" 'lsp-ivy-global-workspace-symbol))
 
-          (setq-default flycheck-disabled-checkers
-                        (append flycheck-disabled-checkers
-                                '(javascript-jshint json-jsonlist)))
-          (flycheck-add-mode 'javascript-eslint 'js-mode)
-          (add-hook 'flycheck-mode-hook 'add-node-modules-path))
+    (use-package flycheck
+      :ensure t
+      :init (add-hook 'prog-mode-hook 'flycheck-mode)
+      :config
+
+      (setq-default flycheck-disabled-checkers
+                    (append flycheck-disabled-checkers
+                            '(javascript-jshint json-jsonlist)))
+      (flycheck-add-mode 'javascript-eslint 'js-mode)
+      (add-hook 'flycheck-mode-hook 'add-node-modules-path))
   #+end_src
 
 * WD management
-  #+begin_src emacs-lisp 
+  #+begin_src emacs-lisp
         (use-package projectile
           :ensure t
           :config
@@ -604,10 +652,11 @@
             "pp" 'counsel-projectile-switch-project
             "pi" 'projectile-invalidate-cache
             "pt" 'projectile-test-project
-            "pg" 'projectile-ripgrep
+            "pg" 'counsel-projectile-rg
             "pq" 'projectile-toggle-between-implementation-and-test
             "oc" 'counsel-projectile-org-capture
             "pa" 'counsel-projectile-org-agenda
+            "pr" 'projectile-run-project
             "pb" 'projectile-switch-to-buffer)
           (counsel-projectile-mode))
   #+end_src
@@ -623,11 +672,6 @@
             :config
 
             (setenv "PAGER" "cat")
-
-      ;; Save command history when commands are entered
-      ;(add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
-
-      ;(add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
 
             (defun eshell-cwd-rename (&optional i)
               "Renames eshell buffer to *eshell <cwd> <number of buffers with this name>*"
@@ -698,10 +742,6 @@
 
             (defun eshell/ff (&rest args)
               (apply #'find-file args))
-(require 'em-smart)
-(setq eshell-where-to-jump 'begin)
-(setq eshell-review-quick-commands nil)
-(setq eshell-smart-space-goes-to-end t)
 
             (add-hook 'eshell-directory-change-hook 'eshell-cwd-rename)
             (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
@@ -714,67 +754,49 @@
 
   #+end_src
 
-  #+RESULTS:
-  : t
-
 * Magit
 
   #+begin_src emacs-lisp
-  (use-package magit
-    :ensure t
-    :config
-    (evil-leader/set-key "gg" 'magit)
-    (evil-leader/set-key "gd" 'magit-diff)
-    (evil-leader/set-key "gb" 'magit-blame)
-    (evil-leader/set-key "gl" 'magit-log-branches)
-    (evil-leader/set-key "gc" 'magit-checkout)
-    (evil-leader/set-key "gf" 'magit-fetch-all)
-    (evil-leader/set-key "gf" 'magit-log-buffer-file))
-  (use-package evil-magit
-    :ensure t)
-(use-package git-link
-  :ensure t
-  :commands git-link
-  :config
-  (setq git-link-open-in-browser t)
-  (dw/leader-key-def
-    "gL"  'git-link))
+      (use-package magit
+        :ensure t
+        :config
+        (evil-leader/set-key "gg" 'magit)
+        (evil-leader/set-key "gd" 'magit-diff)
+        (evil-leader/set-key "gb" 'magit-blame)
+        (evil-leader/set-key "gl" 'magit-log-branches)
+        (evil-leader/set-key "gc" 'magit-checkout)
+        (evil-leader/set-key "gf" 'magit-fetch-all)
+        (evil-leader/set-key "gf" 'magit-log-buffer-file))
 
   #+end_src
 
 * Check spelling inside git commit and markdown
   #+begin_src emacs-lisp
 (use-package flyspell
-  ;; Spell-checking of emacs buffers.
-  :diminish (flyspell-mode)
-  :commands flyspell-mode
-  :init
-  (progn
-    (add-hook 'git-commit-mode-hook 'flyspell-mode)
-    (add-hook 'org-mode-hook 'flyspell-mode)
-    (add-hook 'markdown-mode-hook 'flyspell-mode)))
+  :ensure t
+  :hook ((git-commit-mode org-mode markdown-mode) . flyspell-mode))
   #+end_src
-  
+
 * Language specific stuff
 ** Readable data files
    #+begin_src emacs-lisp
   (use-package yaml-mode :ensure t)
   (use-package json-mode :ensure t)
    #+end_src
-   
+ 
 ** Go
    #+begin_src emacs-lisp
   (use-package go-mode
   :ensure t)
    #+end_src
-   
+ 
 ** Clojure
    #+begin_src emacs-lisp
   (use-package clojure-mode :ensure t :defer t)
   (use-package cider :ensure t :defer t)
    #+end_src
 
-** JS and stuff 
+** JS and stuff
    #+begin_src emacs-lisp
      (use-package emacs
        :config
@@ -799,7 +821,7 @@
      (use-package gdscript-mode
        :ensure t
        :config
-       (evil-leader/set-key "pr" 'gdscript-godot-run-project)
+       (evil-leader/set-key-for-mode 'gdscript-mode "pr" 'gdscript-godot-run-project)
        (setq gdscript-use-tab-indents nil)
        (setq gdscript-indent-offset 4))
    #+end_src
@@ -820,7 +842,7 @@
     (setq ein:polymode t))
   #+end_src
 
-* Olivietty for writing
+* Olivetti for writing
   #+begin_src emacs-lisp
 (use-package olivetti
  :ensure t)
@@ -848,4 +870,93 @@
       (setenv "AWS_PROFILE" choice)))
 #+end_src
 
+* Gnys
+        
+  #+begin_src emacs-lisp
+  (use-package gnus
+  :config
+(setq user-mail-address "daniel.dpettersson.net@gmail.com"
+      user-full-name "Daniel Pettersson")
 
+(setq gnus-select-method
+      '(nnimap "gmail"
+               (nnimap-address "imap.gmail.com")
+               (nnimap-server-port "imaps")
+               (nnimap-stream ssl)))
+
+(setq smtpmail-smtp-server "smtp.gmail.com"
+      smtpmail-smtp-service 587
+      gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
+)
+  #+end_src
+
+* Axe aws stuff
+  #+begin_src emacs-lisp
+        (use-package axe
+        :ensure nil
+        :load-path "~/Workspace/axe/"
+        :config
+        (setq axe-region 'eu-central-1)
+        (setq axe-profile 'default)
+        (setq axe-logs-log-groups-prefix
+              '("/aws/lambda/"
+                "/aws/codebuild/"
+                "/aws/lambda/IkeaServices-User"
+                "/aws/lambda/IkeaServices"
+                "/aws/lambda/Environment"
+                "/aws/lambda/HealthAndMonitoring"
+                "/aws/lambda/SecretsReplication"
+                "/aws/lambda/Grafana"
+                "/aws/lambda/DeploymentInfrastructure"
+                "/aws/lambda/PipelineInfrastructure"
+                "/aws/lambda/GlobalInfrastructure"
+                "/aws/lambda/FunctionalTestUserPool"
+                "/aws/lambda/InternalInfrastructure"
+                "/aws/lambda/healthcheckroute53"
+                "/aws/lambda/Assets"
+                "/aws/lambda/SecurityHeaders"
+                "/aws/lambda/FeatureToggles"
+                "/aws/lambda/DeployDefaultValues"
+                "/aws/lambda/Clusterpool"))
+
+        (defun axe-logs-describe-log-groups-with-comp ()
+          "Describe aws logs with compleation from AXE-LOGS-LOG-GROUPS-PREFIX."
+          (interactive)
+          (let ((prefix (completing-read "Prefix: " axe-logs-log-groups-prefix)))
+            (axe-logs-describe-log-groups prefix :auto-follow nil)))
+        
+        (evil-leader/set-key "cl" 'axe-logs-describe-log-groups-with-comp))
+  #+end_src
+  
+* Mu4e
+  #+begin_src emacs-lisp
+   (use-package mu4e
+      :ensure nil
+      :load-path "/usr/local/Cellar/mu/1.4.13/share/emacs/site-lisp/mu/mu4e/"
+      :config
+      
+      ;(setq mu4e-mu-binary "/usr/local/Cellar/mu/1.4.13/mu")
+      ;; default
+      (setq mu4e-maildir (expand-file-name "~/Mail"))
+
+      (setq mu4e-drafts-folder "/[Gmail].Drafts")
+      (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
+      (setq mu4e-trash-folder  "/[Gmail].Trash")
+
+      (setq mu4e-sent-messages-behavior 'delete)
+
+      (setq mu4e-maildir-shortcuts
+            '(("/INBOX"             . ?i)
+              ("/[Gmail].Sent Mail" . ?s)
+              ("/[Gmail].Trash"     . ?t)))
+
+      ;; allow for updating mail using 'U' in the main view:
+      (setq mu4e-get-mail-command "mbsync -a")
+
+      (setq user-mail-address "daniel@dpettersson.net"
+            user-full-name "Daniel Pettersson"))
+
+  #+end_src
+
+  #+RESULTS:
+  : t
