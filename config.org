@@ -492,84 +492,74 @@
   #+END_SRC
 
 * Package counsel
-             #+BEGIN_SRC emacs-lisp
-                   (use-package ivy
-                     :diminish
-                     :hook (after-init . ivy-mode)
-                     :config
-                     (setq ivy-wrap t)
-                     (setq ivy-height 15)
-                     (setq ivy-display-style nil)
-                     (setq ivy-re-builders-alist
-                           '((t . ivy--regex-plus)))
-                     (setq ivy-use-virtual-buffers t)
-                     (setq ivy-count-format "(%d/%d) ")
-                     (evil-leader/set-key "r" 'ivy-resume)
-                     (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done)
-                     (define-key ivy-minibuffer-map (kbd "S-C-SPC") 'ivy-occur)
-                     (ivy-mode 1))
+  #+BEGIN_SRC emacs-lisp
+    (use-package ivy
+      :diminish
+      :hook (after-init . ivy-mode)
+      :config
+      (setq ivy-wrap t)
+      (setq ivy-height 15)
+      (setq ivy-display-style nil)
+      (setq ivy-re-builders-alist
+            '((t . ivy--regex-plus)))
+      (setq ivy-use-virtual-buffers t)
+      (setq ivy-count-format "(%d/%d) ")
+      (evil-leader/set-key "r" 'ivy-resume)
+      (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done)
+      (define-key ivy-minibuffer-map (kbd "S-C-SPC") 'ivy-occur)
+      (ivy-mode 1))
 
-               (use-package ivy-rich
-                 :ensure t
-                 :config
-                 (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
-                 (ivy-rich-mode 1))
+    (use-package ivy-rich
+      :ensure t
+      :config
+      (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line)
+      (ivy-rich-mode 1))
 
+    (use-package swiper
+      :ensure t
+      :config
+      (evil-leader/set-key "s" 'swiper))
 
-                   (use-package swiper
-                     :ensure t
-                     :config
-                     (evil-leader/set-key "s" 'swiper))
+    (use-package counsel
+      :ensure t
+      :config
+      (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
+      (defun +ivy-git-grep-other-window-action (x)
+        "Opens the current candidate in another window."
+        (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+          (select-window
+           (with-ivy-window
+             (let ((file-name   (match-string-no-properties 1 x))
+                   (line-number (match-string-no-properties 2 x)))
+               (find-file-other-window (expand-file-name file-name (ivy-state-directory ivy-last)))
+               (goto-char (point-min))
+               (forward-line (1- (string-to-number line-number)))
+               (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+               (run-hooks 'counsel-grep-post-action-hook)
+               (selected-window))))))
 
-                   (use-package counsel
-                     :ensure t
-                     :config
-                     (setq counsel-ag-base-command "ag --nocolor --nogroup --smart-case --column %s")
-                     (defun +ivy-git-grep-other-window-action (x)
-                       "Opens the current candidate in another window."
-                       (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
-                         (select-window
-                          (with-ivy-window
-                            (let ((file-name   (match-string-no-properties 1 x))
-                                  (line-number (match-string-no-properties 2 x)))
-                              (find-file-other-window (expand-file-name file-name (ivy-state-directory ivy-last)))
-                              (goto-char (point-min))
-                              (forward-line (1- (string-to-number line-number)))
-                              (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-                              (run-hooks 'counsel-grep-post-action-hook)
-                              (selected-window))))))
+      (ivy-add-actions
+       'counsel-rg
+       '(("j" +ivy-git-grep-other-window-action "open in other window")))
 
-                     (ivy-add-actions
-                      'counsel-rg
-                      '(("j" +ivy-git-grep-other-window-action "open in other window")))
+      (defun +ivy/projectile-find-file ()
+        (interactive)
+        (let ((this-command 'counsel-find-file))
+          (call-interactively
+           (if (or (file-equal-p default-directory "~")
+                   (file-equal-p default-directory "/"))
+               #'counsel-find-file
+             (let ((files (projectile-current-project-files)))
+               (if (<= (length files) ivy-sort-max-size)
+                   #'counsel-projectile-find-file
+                 #'projectile-find-file))))))
 
-                     (defun +ivy/projectile-find-file ()
-                       (interactive)
-                       (let ((this-command 'counsel-find-file))
-                         (call-interactively
-                          (if (or (file-equal-p default-directory "~")
-                                  (file-equal-p default-directory "/"))
-                              #'counsel-find-file
-                            (let ((files (projectile-current-project-files)))
-                              (if (<= (length files) ivy-sort-max-size)
-                                  #'counsel-projectile-find-file
-                                #'projectile-find-file))))))
+      (setq counsel-find-file-at-point t)
 
-                     (setq counsel-find-file-at-point t)
-
-                     (evil-leader/set-key "SPC" '+ivy/projectile-find-file
-                       "p" 'counsel-find-file))
-
-                   ;(use-package prescient
-                   ;  :ensure t
-                   ;  :config
-                   ;  (progn
-                   ;    (use-package ivy-prescient
-                   ;      :ensure t
-                   ;      :config
-                   ;      (ivy-prescient-mode))
-                   ;    (prescient-persist-mode)))
-             #+END_SRC
+      (evil-leader/set-key
+        "SPC" '+ivy/projectile-find-file
+        "a" '+ivy/projectile-find-file))
+  #+END_SRC
 
 * Compilation
 #+begin_src emacs-lisp
@@ -677,13 +667,13 @@
          :ensure t
          :config
 
-        (setq eshell-scroll-to-bottom-on-input 'all
-    ;           eshell-error-if-no-glob t
+        (setq ;eshell-scroll-to-bottom-on-input 'all
+    ;          eshell-error-if-no-glob t
               eshell-hist-ignoredups t
               eshell-save-history-on-exit t
     ;           eshell-prefer-lisp-functions nil
                eshell-destroy-buffer-when-process-dies t)
-          
+
 
          (setenv "PAGER" "cat")
 
@@ -738,8 +728,12 @@
                      and change `state` to insert"
            (interactive)
            (goto-char (point-max))
-           (evil-insert 0)
-           (counsel-esh-history))
+           (eshell-bol)
+           (unwind-protect
+               (kill-line)
+             (progn
+               (evil-append-line 0)
+               (counsel-esh-history))))
 
          (defun eshell-mode-configuration ()
            (with-eval-after-load 'evil-collection
