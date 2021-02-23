@@ -55,10 +55,11 @@
   #+BEGIN_SRC emacs-lisp
 
   ;(load-theme 'modus-vivendi)
+  (use-package doom-themes :ensure t :config (load-theme 'doom-rouge))
   (use-package acme-theme :ensure t)
   (use-package plan9-theme :ensure t)
   (use-package zenburn-theme :ensure t)
-  (use-package dracula-theme :ensure t :config (load-theme 'dracula))
+  (use-package dracula-theme :ensure t)
 
   (use-package org
     :config
@@ -288,145 +289,150 @@
   
 * Org
    #+BEGIN_SRC emacs-lisp
-     (use-package evil-org
-       :defer t
-       :ensure t
-       :after org
-       :hook ((org-mode . evil-org-mode)
-              (evil-org-mode . (lambda ()
-                                 (evil-org-set-key-theme '(textobjects
-                                                           insert
-                                                           return
-                                                           additional
-                                                           shift
-                                                           todo))))))
+          (use-package evil-org
+            :defer t
+            :ensure t
+            :after org
+            :hook ((org-mode . evil-org-mode)
+                   (evil-org-mode . (lambda ()
+                                      (evil-org-set-key-theme '(textobjects
+                                                                insert
+                                                                return
+                                                                additional
+                                                                shift
+                                                                todo))))))
 
-      (use-package org-agenda
-        :init
-        (setq org-agenda-files '("notes.org" "~/org/todo.org"))
-        :config
-        (evil-leader/set-key "oa" 'org-agenda)
+           (use-package org-agenda
+             :init
+             (setq org-agenda-files '("notes.org" "~/org/todo.org"))
+             :config
+             (evil-leader/set-key
+               "oa" 'org-agenda
+               "ot" 'org-todo-list
+               "ow" 'org-agenda-list)
 
-        (setq org-agenda-custom-commands
-              '(("w" "Work agenda"
-                 ((tags "+work+TODO=\"IN_PROGRESS\"" ((org-agenda-overriding-header "IN_PROGRESS")))
-                  (agenda "" ((tags "work")))
-                  (tags "+work+TODO=\"TODO\"" ((org-agenda-overriding-header "TODO")))))))
+             (setq org-agenda-custom-commands
+                   '(("w" "Work agenda"
+                      ((tags "+work+TODO=\"IN_PROGRESS\"" ((org-agenda-overriding-header "IN_PROGRESS")))
+                       (agenda "" ((tags "work")))
+                       (tags "+work+TODO=\"TODO\"" ((org-agenda-overriding-header "TODO")))))))
 
-        (evil-set-initial-state 'org-agenda-mode 'normal)
-        (evil-define-key 'normal org-agenda-mode-map
-          (kbd "<RET>") 'org-agenda-switch-to
-          (kbd "\t") 'org-agenda-goto
-          "q" 'org-agenda-quit
-          "r" 'org-agenda-redo
-          "S" 'org-save-all-org-buffers
-          "gj" 'org-agenda-goto-date
-          "gJ" 'org-agenda-clock-goto
-          "gm" 'org-agenda-bulk-mark
-          "go" 'org-agenda-open-link
-          "s" 'org-agenda-schedule
-          "+" 'org-agenda-priority-up
-          "," 'org-agenda-priority
-          "-" 'org-agenda-priority-down
-          "y" 'org-agenda-todo-yesterday
-          "n" 'org-agenda-add-note
-          "t" 'org-agenda-todo
-          ":" 'org-agenda-set-tags
-          ";" 'org-timer-set-timer
-          "I" 'helm-org-task-file-headings
-          "i" 'org-agenda-clock-in-avy
-          "O" 'org-agenda-clock-out-avy
-          "u" 'org-agenda-bulk-unmark
-          "dd" 'org-agenda-kill
-          "x" 'org-agenda-exit
-          "j"  'org-agenda-next-line
-          "k"  'org-agenda-previous-line
-          "vt" 'org-agenda-toggle-time-grid
-          "va" 'org-agenda-archives-mode
-          "vw" 'org-agenda-week-view
-          "vl" 'org-agenda-log-mode
-          "vd" 'org-agenda-day-view
-          "vc" 'org-agenda-show-clocking-issues
-          "g/" 'org-agenda-filter-by-tag
-          "o" 'delete-other-windows
-          "gh" 'org-agenda-holiday
-          "gv" 'org-agenda-view-mode-dispatch
-          "f" 'org-agenda-later
-          "b" 'org-agenda-earlier
-          "c" 'counsel-org-capture
-          "e" 'org-agenda-set-effort
-          "n" nil  ; evil-search-next
-          "{" 'org-agenda-manipulate-query-add-re
-          "}" 'org-agenda-manipulate-query-subtract-re
-          "A" 'org-agenda-toggle-archive-tag
-          "." 'org-agenda-goto-today
-          "0" 'evil-digit-argument-or-evil-beginning-of-line
-          "<" 'org-agenda-filter-by-category
-          ">" 'org-agenda-date-prompt
-          "F" 'org-agenda-follow-mode
-          "D" 'org-agenda-deadline
-          "H" 'org-agenda-do-date-earlier
-          "L" 'org-agenda-do-date-later
-          "J" 'org-agenda-next-date-line
-          "P" 'org-agenda-show-priority
-          "R" 'org-agenda-clockreport-mode
-          "Z" 'org-agenda-sunrise-sunset
-          "T" 'org-agenda-show-tags
-          "X" 'org-agenda-clock-cancel
-          "[" 'org-agenda-manipulate-query-add
-          "g\\" 'org-agenda-filter-by-tag-refine
-          "]" 'org-agenda-manipulate-query-subtract)
-        )
+             (evil-set-initial-state 'org-agenda-mode 'normal)
+             (evil-define-key 'normal org-agenda-mode-map
+               (kbd "<RET>") 'org-agenda-switch-to
+               (kbd "\t") 'org-agenda-goto
+               "q" 'org-agenda-quit
+               "r" 'org-agenda-redo
+               "S" 'org-save-all-org-buffers
+               "gj" 'org-agenda-goto-date
+               "gJ" 'org-agenda-clock-goto
+               "gm" 'org-agenda-bulk-mark
+               "go" 'org-agenda-open-link
+               "s" 'org-agenda-schedule
+               "+" 'org-agenda-priority-up
+               "," 'org-agenda-priority
+               "-" 'org-agenda-priority-down
+               "y" 'org-agenda-todo-yesterday
+               "n" 'org-agenda-add-note
+               "t" 'org-agenda-todo
+               ":" 'org-agenda-set-tags
+               ";" 'org-timer-set-timer
+               "I" 'helm-org-task-file-headings
+               "i" 'org-agenda-clock-in-avy
+               "O" 'org-agenda-clock-out-avy
+               "u" 'org-agenda-bulk-unmark
+               "dd" 'org-agenda-kill
+               "x" 'org-agenda-exit
+               "j"  'org-agenda-next-line
+               "k"  'org-agenda-previous-line
+               "vt" 'org-agenda-toggle-time-grid
+               "va" 'org-agenda-archives-mode
+               "vw" 'org-agenda-week-view
+               "vl" 'org-agenda-log-mode
+               "vd" 'org-agenda-day-view
+               "vc" 'org-agenda-show-clocking-issues
+               "g/" 'org-agenda-filter-by-tag
+               "o" 'delete-other-windows
+               "gh" 'org-agenda-holiday
+               "gv" 'org-agenda-view-mode-dispatch
+               "f" 'org-agenda-later
+               "b" 'org-agenda-earlier
+               "c" 'counsel-org-capture
+               "e" 'org-agenda-set-effort
+               "n" nil  ; evil-search-next
+               "{" 'org-agenda-manipulate-query-add-re
+               "}" 'org-agenda-manipulate-query-subtract-re
+               "A" 'org-agenda-toggle-archive-tag
+               "." 'org-agenda-goto-today
+               "0" 'evil-digit-argument-or-evil-beginning-of-line
+               "<" 'org-agenda-filter-by-category
+               ">" 'org-agenda-date-prompt
+               "F" 'org-agenda-follow-mode
+               "D" 'org-agenda-deadline
+               "H" 'org-agenda-do-date-earlier
+               "L" 'org-agenda-do-date-later
+               "J" 'org-agenda-next-date-line
+               "P" 'org-agenda-show-priority
+               "R" 'org-agenda-clockreport-mode
+               "Z" 'org-agenda-sunrise-sunset
+               "T" 'org-agenda-show-tags
+               "X" 'org-agenda-clock-cancel
+               "[" 'org-agenda-manipulate-query-add
+               "g\\" 'org-agenda-filter-by-tag-refine
+               "]" 'org-agenda-manipulate-query-subtract)
+             )
 
-      (use-package org-capture
-        :init
-        (setq org-capture-templates '(("t" "Task Entry" entry
-                                       (file+headline "~/org/todo.org" "Tasks")
-                                       "* %?  \n  %t\n  %a")
+           (use-package org-capture
+             :init
+             (setq org-capture-templates '(("t" "Task Entry" entry
+                                            (file+headline "~/org/todo.org" "Tasks")
+                                            "* %?  \n  %t\n  %a")
 
-                                      ("w" "Work Note" entry
-                                       (file+headline "~/org/todo.org" "Work")
-                                       "* %?  \n  %t\n  %a")
+                                           ("w" "Work Note" entry
+                                            (file+headline "~/org/todo.org" "Work")
+                                            "* %?  \n  %t\n  %a")
                                        
-                                      ("n" "Note" entry
-                                       (file+headline "~/org/notes.org" "Note")
-                                       "* %?  \n  %t\n  %a")
+                                           ("n" "Note" entry
+                                            (file+headline "~/org/notes.org" "Note")
+                                            "* %?  \n  %t\n  %a")
 
-                                      ("r" "Remember Entry" entry
-                                       (file+headline "~/org/todo.org" "Remember")
-                                       "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n  %a")))
-        :config
+                                           ("r" "Remember Entry" entry
+                                            (file+headline "~/org/todo.org" "Remember")
+                                            "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n  %a")))
+             :config
 
         
-        (setq org-agenda-follow-indirect t)
-        (setq org-refile-use-outline-path 'file)
-        (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
-        (setq org-outline-path-complete-in-steps nil)
+             (setq org-agenda-follow-indirect t)
+             (setq org-refile-use-outline-path 'file)
+             (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+             (setq org-outline-path-complete-in-steps nil)
 
-        (add-hook 'org-capture-mode-hook 'evil-insert-state))
+             (add-hook 'org-capture-mode-hook 'evil-insert-state))
 
-      (use-package org
-        :config
-        (defun org-mode-configuration ()
-          (with-eval-after-load 'evil-collection
-            (+emacs/key-bindings)))
-        (org-babel-do-load-languages
-         'org-babel-load-languages
-         '(
-           (shell . t)
-           (python . t)
-           ))
-        (add-hook 'org-mode-hook 'org-mode-configuration))
+           (use-package org
+             :config
+             (defun org-mode-configuration ()
+               (with-eval-after-load 'evil-collection
+                 (+emacs/key-bindings)))
+             (org-babel-do-load-languages
+              'org-babel-load-languages
+              '(
+                (shell . t)
+                (python . t)
+                ))
+             (add-hook 'org-mode-hook 'org-mode-configuration))
 
-      (use-package ob-async :ensure t)
+           (use-package ob-async :ensure t)
 
-      (use-package org-bullets
-        :ensure t
-        :hook (org-mode . org-bullets-mode))
+           (use-package org-superstar
+             :ensure t
+             :hook (org-mode . org-superstar-mode))
 
 
-      (use-package orgit :ensure t)
+           (use-package orgit :ensure t)
    #+END_SRC
+
+   #+RESULTS:
 
 * Leader mappings
   #+BEGIN_SRC emacs-lisp
@@ -552,7 +558,7 @@
                      (setq counsel-find-file-at-point t)
 
                      (evil-leader/set-key "SPC" '+ivy/projectile-find-file
-                       "." 'counsel-find-file))
+                       "p" 'counsel-find-file))
 
                    ;(use-package prescient
                    ;  :ensure t
@@ -654,7 +660,7 @@
             "pt" 'projectile-test-project
             "pg" 'counsel-projectile-rg
             "pq" 'projectile-toggle-between-implementation-and-test
-            "oc" 'counsel-projectile-org-capture
+            "oc" 'org-capture
             "pa" 'counsel-projectile-org-agenda
             "pr" 'projectile-run-project
             "pb" 'projectile-switch-to-buffer)
@@ -667,92 +673,100 @@
   #+end_src
 
   #+begin_src emacs-lisp
-          (use-package eshell
-            :ensure t
-            :config
+       (use-package eshell
+         :ensure t
+         :config
 
-            (setenv "PAGER" "cat")
+        (setq eshell-scroll-to-bottom-on-input 'all
+    ;           eshell-error-if-no-glob t
+              eshell-hist-ignoredups t
+              eshell-save-history-on-exit t
+    ;           eshell-prefer-lisp-functions nil
+               eshell-destroy-buffer-when-process-dies t)
+          
 
-            (defun eshell-cwd-rename (&optional i)
-              "Renames eshell buffer to *eshell <cwd> <number of buffers with this name>*"
-              (interactive)
-              (unless i (setq i 0))
-              (let* ((buffer-cwd (if (buffer-file-name)
-                                     (file-name-directory (buffer-file-name))
-                                     default-directory))
-                     (name (car (last (split-string buffer-cwd "/" t))))
-                     (b-name (if (zerop i)
-                                 (concat "*eshell " name "*")
-                                 (concat "*eshell " name " " (number-to-string i) "*"))))
-                (cond ((string= (buffer-name) b-name) nil)
-                      ((null (get-buffer b-name)) (rename-buffer b-name))
-                      (t (eshell-cwd-rename (1+ i))))))
+         (setenv "PAGER" "cat")
 
-            (defun eshell-here ()
-              "Opens up a new shell in the directory associated with the current buffer's file."
-              (interactive)
-              (let* ((parent (if (buffer-file-name)
-                                 (file-name-directory (buffer-file-name))
-                               default-directory))
-                     (name (car (last (split-string parent "/" t))))
-                     (b-name (concat "*eshell " name "*")))
-                (if (null (get-buffer b-name))
-                    (let ((buf (eshell "new")))
-                      (switch-to-buffer (other-buffer buf))
-                      (switch-to-buffer-other-window buf)
-                      (rename-buffer b-name))
-                  (switch-to-buffer-other-window (get-buffer b-name)))))
+         (defun eshell-cwd-rename (&optional i)
+           "Renames eshell buffer to *eshell <cwd> <number of buffers with this name>*"
+           (interactive)
+           (unless i (setq i 0))
+           (let* ((buffer-cwd (if (buffer-file-name)
+                                  (file-name-directory (buffer-file-name))
+                                  default-directory))
+                  (name (car (last (split-string buffer-cwd "/" t))))
+                  (b-name (if (zerop i)
+                              (concat "*eshell " name "*")
+                              (concat "*eshell " name " " (number-to-string i) "*"))))
+             (cond ((string= (buffer-name) b-name) nil)
+                   ((null (get-buffer b-name)) (rename-buffer b-name))
+                   (t (eshell-cwd-rename (1+ i))))))
 
-            (defun eshell-project-root ()
-              (interactive)
-              (let ((buf (projectile-run-eshell 1)))
-                (switch-to-buffer (other-buffer buf))
-                (switch-to-buffer-other-window buf)))
+         (defun eshell-here ()
+           "Opens up a new shell in the directory associated with the current buffer's file."
+           (interactive)
+           (let* ((parent (if (buffer-file-name)
+                              (file-name-directory (buffer-file-name))
+                            default-directory))
+                  (name (car (last (split-string parent "/" t))))
+                  (b-name (concat "*eshell " name "*")))
+             (if (null (get-buffer b-name))
+                 (let ((buf (eshell "new")))
+                   (switch-to-buffer (other-buffer buf))
+                   (switch-to-buffer-other-window buf)
+                   (rename-buffer b-name))
+               (switch-to-buffer-other-window (get-buffer b-name)))))
 
-            (evil-leader/set-key "e" 'eshell-here
-              "pe" 'eshell-project-root)
+         (defun eshell-project-root ()
+           (interactive)
+           (let ((buf (projectile-run-eshell 1)))
+             (switch-to-buffer (other-buffer buf))
+             (switch-to-buffer-other-window buf)))
 
-            (defun +eshell/goto-end-of-prompt ()
-              "Move cursor to the prompt when switching to insert mode (if point isn't
-                      already there)."
-              (interactive)
-              (goto-char (point-max))
-              (evil-append 1))
+         (evil-leader/set-key "e" 'eshell-here
+           "pe" 'eshell-project-root)
 
-            (defun +eshell/counsel-esh-history-normal ()
-              "Move cursor to the end of the buffer before calling counsel-esh-history
-                        and change `state` to insert"
-              (interactive)
-              (goto-char (point-max))
-              (evil-insert 0)
-              (counsel-esh-history))
+         (defun +eshell/goto-end-of-prompt ()
+           "Move cursor to the prompt when switching to insert mode (if point isn't
+                   already there)."
+           (interactive)
+           (goto-char (point-max))
+           (evil-append 1))
 
-            (defun eshell-mode-configuration ()
-              (with-eval-after-load 'evil-collection
-                (+emacs/key-bindings)
-                (define-key evil-normal-state-local-map "I" (lambda () (interactive) (eshell-bol) (evil-insert 1)))
-                (define-key evil-normal-state-local-map (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1)))
-                (define-key evil-normal-state-local-map (kbd "gk") 'eshell-previous-prompt)
-                (define-key evil-normal-state-local-map (kbd "gk") 'eshell-next-prompt)
-                (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new")))
-                (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new")))
-                (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
-                (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
-                (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
+         (defun +eshell/counsel-esh-history-normal ()
+           "Move cursor to the end of the buffer before calling counsel-esh-history
+                     and change `state` to insert"
+           (interactive)
+           (goto-char (point-max))
+           (evil-insert 0)
+           (counsel-esh-history))
 
-            (defun eshell/ff (&rest args)
-              (apply #'find-file args))
+         (defun eshell-mode-configuration ()
+           (with-eval-after-load 'evil-collection
+             (+emacs/key-bindings)
+             (define-key evil-normal-state-local-map "I" (lambda () (interactive) (eshell-bol) (evil-insert 1)))
+             (define-key evil-normal-state-local-map (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1)))
+             (define-key evil-normal-state-local-map (kbd "gk") 'eshell-previous-prompt)
+             (define-key evil-normal-state-local-map (kbd "gk") 'eshell-next-prompt)
+             (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new")))
+             (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new")))
+             (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
+             (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
+             (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
 
-            (add-hook 'eshell-directory-change-hook 'eshell-cwd-rename)
-            (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
+         (defun eshell/ff (&rest args)
+           (apply #'find-file args))
 
-                                                  ;(use-package eshell-prompt-extras
-                                                  ;  :ensure t
-                                                  ;  :init
-                                                  ;  (setq eshell-highlight-prompt nil
-                                                  ;        eshell-prompt-function 'epe-theme-lambda))
+         ;(eshell-hist-initialize)
 
+         (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+         (add-hook 'eshell-directory-change-hook 'eshell-cwd-rename)
+         (add-hook 'eshell-mode-hook 'eshell-mode-configuration)
+              )
   #+end_src
+
+  #+RESULTS:
+  : t
 
 * Magit
 
@@ -840,12 +854,6 @@
     :ensure t
     :config
     (setq ein:polymode t))
-  #+end_src
-
-* Olivetti for writing
-  #+begin_src emacs-lisp
-(use-package olivetti
- :ensure t)
   #+end_src
 
 * Eshell functions
@@ -957,6 +965,3 @@
             user-full-name "Daniel Pettersson"))
 
   #+end_src
-
-  #+RESULTS:
-  : t
