@@ -1,105 +1,108 @@
 * Basic stuff to get some type of order
   #+BEGIN_SRC emacs-lisp
-        ;; remove gui elements
-        (tool-bar-mode -1)
-        (scroll-bar-mode -1)
-        (menu-bar-mode -1) 
+    ;; this is what the man told me to do
+    (setq comp-speed 2)
 
-        ;; remove visual bell
-        (setq visible-bell       nil
-              ring-bell-function #'ignore)
+    ;; remove gui elements
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
+    (menu-bar-mode -1) 
 
-        ;; set default dir to home
-        (setq default-directory "~/")
+    ;; remove visual bell
+    (setq visible-bell       nil
+          ring-bell-function #'ignore)
 
-        ;; follow symlinks
-        (setq vc-follow-symlinks t)
+    ;; set default dir to home
+    (setq default-directory "~/")
 
-        ;; spaces not tabs
-        (setq-default indent-tabs-mode nil)
-        (setq indent-line-function 'insert-tab)
+    ;; follow symlinks
+    (setq vc-follow-symlinks t)
 
-        ;; no backup files
-        (setq make-backup-files nil)
-        (global-auto-revert-mode t)
+    ;; spaces not tabs
+    (setq-default indent-tabs-mode nil)
+                                            ;(setq indent-line-function 'insert-tab)
 
-        ;; y/n will do
-        (fset 'yes-or-no-p 'y-or-n-p)
+    ;; no backup files
+    (setq make-backup-files nil)
+    (global-auto-revert-mode t)
 
-        ;; stop the insessent blinking
-        (blink-cursor-mode 0)
+    ;; y/n will do
+    (fset 'yes-or-no-p 'y-or-n-p)
 
-        ;; Truncate that shit
-        (use-package simple
-          :diminish
-          (global-visual-line-mode t))
+    ;; stop the insessent blinking
+    (blink-cursor-mode 0)
 
-        ;; Backup trails is worse then chem-trails, losing patches is 99% of the time my fault
-        (setq auto-save-default nil)
+    ;; Truncate that shit
+    (use-package simple
+      :diminish
+      (global-visual-line-mode t))
 
-        ;; Back to basic on extremely long lines
-        (global-so-long-mode 1)
+    ;; Backup trails is worse then chem-trails, losing patches is 99% of the time my fault
+    (setq auto-save-default nil)
 
-        ;; Set my font
-        (set-frame-font "Hack-12" nil t)
+    ;; Back to basic on extremely long lines
+    (global-so-long-mode 1)
 
-        ;; Get my emojis
-        (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
+    ;; Set my font
+    (set-frame-font "Hack-12" nil t)
 
-        ;; perf
-        (setq gc-cons-threshold 100000000)
-        (setq read-process-output-max (* 1024 1024))
+    ;; Get my emojis
+    (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
+
+    ;; perf
+    (setq gc-cons-threshold 100000000)
+    (setq read-process-output-max (* 1024 1024))
   #+END_SRC
 
 * Theming
   #+BEGIN_SRC emacs-lisp
 
-  ;(load-theme 'modus-vivendi)
-  (use-package doom-themes :ensure t :config (load-theme 'doom-rouge))
-  (use-package acme-theme :ensure t)
-  (use-package plan9-theme :ensure t)
-  (use-package zenburn-theme :ensure t)
-  (use-package dracula-theme :ensure t)
+    ;(load-theme 'modus-operandi)
+    (use-package doom-themes :ensure t :config load-theme 'doom-rouge)
+    (use-package acme-theme :ensure t)
+    (use-package plan9-theme :ensure t)
+    (use-package zenburn-theme :ensure t)
+    (use-package dracula-theme :ensure t)
 
-  (use-package org
-    :config
-    (custom-set-faces
-      '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-      '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
-      '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-      '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
+    (use-package org
+      :config
+      (custom-set-faces
+        '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+        '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+        '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+        '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
 
-  (use-package emacs
-    :config
-    (setq mode-line-percent-position '(-3 "%p"))
-    (setq mode-line-defining-kbd-macro
-          (propertize " Macro" 'face 'mode-line-emphasis))
-    (setq-default mode-line-format
-                  '("🌻"
-                    "%e"
-                    ""
-                    mode-line-front-space
-                    mode-line-mule-info
-                    mode-line-client
-                    mode-line-modified
-                    mode-line-remote
-                    mode-line-frame-identification
-                    mode-line-buffer-identification
-                    " "
-                    mode-line-position
-                    (vc-mode vc-mode)
-                    " "
-                    mode-line-modes
-                    " "
-                    mode-line-misc-info
-                    mode-line-end-spaces))
-    :init
-    (column-number-mode 1))
+    (use-package emacs
+      :config
+      (setq mode-line-percent-position '(-3 "%p"))
+      (setq mode-line-defining-kbd-macro
+            (propertize " Macro" 'face 'mode-line-emphasis))
+      (setq-default mode-line-format
+                    '("🌻"
+                      "%e"
+                      ""
+                      mode-line-front-space
+                      mode-line-mule-info
+                      mode-line-client
+                      mode-line-modified
+                      mode-line-remote
+                      mode-line-frame-identification
+                      mode-line-buffer-identification
+                      " "
+                      mode-line-position
+                      (vc-mode vc-mode)
+                      " "
+                      mode-line-modes
+                      " "
+                      mode-line-misc-info
+                      mode-line-end-spaces))
+      :init
+      (column-number-mode 1))
 
-  (use-package exec-path-from-shell
-    :ensure t
-    :config
-    (exec-path-from-shell-initialize))
+    (use-package exec-path-from-shell
+      :ensure t
+      :config
+      (exec-path-from-shell-initialize))
 
   #+END_SRC
 
@@ -136,11 +139,12 @@
 
 * Relative line numbers
   #+BEGIN_SRC emacs-lisp
-      (use-package emacs
-        :init
-        (setq display-line-numbers-type 'relative)
-        (add-hook 'text-mode-hook #'display-line-numbers-mode)
-        (add-hook 'prog-mode-hook #'display-line-numbers-mode))
+          (use-package emacs
+            :init
+            ;(setq display-line-numbers-type 'relative)
+            ;(add-hook 'text-mode-hook #'display-line-numbers-mode)
+            ;(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+    )
     #+END_SRC
 
 * Match paren 
@@ -419,7 +423,10 @@
               '(
                 (shell . t)
                 (python . t)
+                (plantuml . t)
                 ))
+                
+             (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.22/libexec/plantuml.jar")
              (add-hook 'org-mode-hook 'org-mode-configuration))
 
            (use-package ob-async :ensure t)
@@ -461,18 +468,24 @@
                            "pt" '+emacs/org-projectile-goto-location-for-project))
       #+END_SRC 
 
-* Hyperbole
-  #+begin_src  emacs-lisp
-  (use-package hyperbole
-    :diminish
-    :ensure t)
-  #+end_src
-
 * wgrep
   Change stuff in the grep buffer
   #+begin_src emacs-lisp
     (use-package wgrep
       :ensure t)
+  #+end_src
+  
+* Fix color stuff
+  #+begin_src  emacs-lisp
+    (use-package xterm-color
+      :ensure t
+      :config
+      (setq compilation-environment '("TERM=xterm-256color"))
+
+      (defun +emacs/advice-compilation-filter (f proc string)
+        (funcall f proc (xterm-color-filter string)))
+
+      (advice-add 'compilation-filter :around #'+emacs/advice-compilation-filter))
   #+end_src
   
 * Package company
@@ -484,8 +497,8 @@
       :ensure t
       :config
       (setq company-backends '((company-files company-capf)))
-      ;(setq company-idle-delay 0.3)
-      ;(setq company-minimum-prefix-length 5)
+      (setq company-idle-delay 0)
+      (setq company-minimum-prefix-length 1)
       (setq company-tooltip-align-annotations t)
       (setq company-global-modes '(not eshell-mode))
       (global-company-mode 1))
@@ -602,7 +615,11 @@
           (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
       (setq lsp-file-watch-threshold 1000)
       (setq lsp-completion-provider :capf)
-      (add-hook 'lsp-mode-hook 'lsp-mode-configuration))
+      (setq lsp-headerline-breadcrumb-enable nil)
+      (add-hook 'lsp-mode-hook 'lsp-mode-configuration)
+      (evil-leader/set-key
+        "lr" 'lsp-rename
+        "lf" 'lsp-format-buffer))
 
     (use-package lsp-ivy
       :ensure t
@@ -959,3 +976,5 @@
             user-full-name "Daniel Pettersson"))
 
   #+end_src
+
+  
