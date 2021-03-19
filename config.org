@@ -139,13 +139,12 @@
 
 * Relative line numbers
   #+BEGIN_SRC emacs-lisp
-          (use-package emacs
-            :init
-            ;(setq display-line-numbers-type 'relative)
-            ;(add-hook 'text-mode-hook #'display-line-numbers-mode)
-            ;(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-    )
-    #+END_SRC
+    (use-package emacs
+      :init
+      (setq display-line-numbers-type 'relative)
+      (add-hook 'text-mode-hook #'display-line-numbers-mode)
+      (add-hook 'prog-mode-hook #'display-line-numbers-mode))
+  #+END_SRC
 
 * Match paren 
   #+begin_src  emacs-lisp
@@ -203,7 +202,6 @@
     (interactive)
     (+emacs/jump-or-jump (lambda () (evil--jump-backward 1))
                          '+emacs/switch-to-prev-buffer))
-
 
   (defun +emacs/key-bindings ()
     (progn
