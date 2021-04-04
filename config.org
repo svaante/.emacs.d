@@ -6,7 +6,7 @@
     ;; remove gui elements
     (tool-bar-mode -1)
     (scroll-bar-mode -1)
-    (menu-bar-mode -1) 
+    (menu-bar-mode -1)
 
     ;; remove visual bell
     (setq visible-bell       nil
@@ -20,7 +20,7 @@
 
     ;; spaces not tabs
     (setq-default indent-tabs-mode nil)
-                                            ;(setq indent-line-function 'insert-tab)
+    ;(setq indent-line-function 'insert-tab)
 
     ;; no backup files
     (setq make-backup-files nil)
@@ -44,7 +44,7 @@
     (global-so-long-mode 1)
 
     ;; Set my font
-    (set-frame-font "Hack-12" nil t)
+    (set-frame-font "Hack-13" nil t)
 
     ;; Get my emojis
     (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 9) nil 'prepend) ;; I want my flower
@@ -57,52 +57,52 @@
 * Theming
   #+BEGIN_SRC emacs-lisp
 
-    ;(load-theme 'modus-operandi)
-    (use-package doom-themes :ensure t :config load-theme 'doom-rouge)
-    (use-package acme-theme :ensure t)
-    (use-package plan9-theme :ensure t)
-    (use-package zenburn-theme :ensure t)
-    (use-package dracula-theme :ensure t)
+        ;(load-theme 'modus-operandi)
+        ;(use-package doom-themes :ensure t :config (load-theme 'doom-flatwhite))
+        (use-package acme-theme :ensure t :config (load-theme 'acme))
+        ;(use-package plan9-theme :ensure t)
+        ;(use-package zenburn-theme :ensure t)
+        ;(use-package dracula-theme :ensure t)
 
-    (use-package org
-      :config
-      (custom-set-faces
-        '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-        '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
-        '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-        '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
+        (use-package org
+          :config
+          (custom-set-faces
+           '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+           '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+           '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+           '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
 
-    (use-package emacs
-      :config
-      (setq mode-line-percent-position '(-3 "%p"))
-      (setq mode-line-defining-kbd-macro
-            (propertize " Macro" 'face 'mode-line-emphasis))
-      (setq-default mode-line-format
-                    '("🌻"
-                      "%e"
-                      ""
-                      mode-line-front-space
-                      mode-line-mule-info
-                      mode-line-client
-                      mode-line-modified
-                      mode-line-remote
-                      mode-line-frame-identification
-                      mode-line-buffer-identification
-                      " "
-                      mode-line-position
-                      (vc-mode vc-mode)
-                      " "
-                      mode-line-modes
-                      " "
-                      mode-line-misc-info
-                      mode-line-end-spaces))
-      :init
-      (column-number-mode 1))
+        (use-package emacs
+          :config
+          (setq mode-line-percent-position '(-3 "%p"))
+          (setq mode-line-defining-kbd-macro
+                (propertize " Macro" 'face 'mode-line-emphasis))
+          (setq-default mode-line-format
+                        '("🌻"
+                          "%e"
+                          ""
+                          mode-line-front-space
+                          mode-line-mule-info
+                          mode-line-client
+                          mode-line-modified
+                          mode-line-remote
+                          mode-line-frame-identification
+                          mode-line-buffer-identification
+                          " "
+                          mode-line-position
+                          (vc-mode vc-mode)
+                          " "
+                          mode-line-modes
+                          " "
+                          mode-line-misc-info
+                          mode-line-end-spaces))
+          :init
+          (column-number-mode 1))
 
-    (use-package exec-path-from-shell
-      :ensure t
-      :config
-      (exec-path-from-shell-initialize))
+        (use-package exec-path-from-shell
+          :ensure t
+          :config
+          (exec-path-from-shell-initialize))
 
   #+END_SRC
 
@@ -161,13 +161,14 @@
 #+BEGIN_SRC emacs-lisp
   (use-package global-whitespace
     :defer t
-    :config
-    (setq
-      whitespace-style '(tabs tab-mark)
-      whitespace-display-mappings '(
-        (tab-mark     ?\t    [?\u00BB ?\t] [?\\ ?\t])))
-    (global-whitespace-mode t))
+    :diminish
+    :hook ((prog-mode . whitespace-mode))
+           :init
+           (setq whitespace-style '(face trailing)))
 #+END_SRC
+
+#+RESULTS:
+| flycheck-mode | (lambda nil (if (derived-mode-p 'clojure-mode 'emacs-lisp-mode 'lisp-mode) nil (lsp-deferred))) | whitespace-mode | display-line-numbers-mode |
 
 * Global mappings
   #+begin_src emacs-lisp
@@ -220,78 +221,87 @@
 * Evil
   Evil config
   #+BEGIN_SRC emacs-lisp
-    (defun +emacs/split-follow-window-vertically ()
-      "Split and follow window vertically"
-      (interactive)
-      (split-window-vertically) (other-window 1))
+        (defun +emacs/split-follow-window-vertically ()
+          "Split and follow window vertically"
+          (interactive)
+          (split-window-vertically) (other-window 1))
 
-    (defun +emacs/split-follow-window-horizontally ()
-      "Split and follow window horizontally"
-      (interactive)
-      (split-window-horizontally) (other-window 1))
+        (defun +emacs/split-follow-window-horizontally ()
+          "Split and follow window horizontally"
+          (interactive)
+          (split-window-horizontally) (other-window 1))
 
-    (use-package evil
-      :ensure evil
-      :init
-      (setq evil-want-integration t)
-      (setq evil-want-keybinding nil)
-      (setq-default evil-symbol-word-search t)
-      (setq-default evil-shift-width 2)
-      (setq evil-jumps-cross-buffers nil)
-      (setq evil-want-Y-yank-to-eol t)
-      (setq evil-want-C-u-scroll t)
-      (setq evil-search-module 'evil-search)
-      :config
-      (+emacs/key-bindings)
-      (define-key evil-normal-state-map "\C-ws" #'+emacs/split-follow-window-vertically)
-      (define-key evil-normal-state-map "\C-wv" #'+emacs/split-follow-window-horizontally)
+        (use-package evil
+          :ensure evil
+          :init
+          (setq evil-want-integration t)
+          (setq evil-want-keybinding nil)
+          (setq-default evil-symbol-word-search t)
+          (setq-default evil-shift-width 2)
+          (setq evil-jumps-cross-buffers nil)
+          (setq evil-want-Y-yank-to-eol t)
+          (setq evil-want-C-u-scroll t)
+          (setq evil-search-module 'evil-search)
+          :config
+          (+emacs/key-bindings)
+          (define-key evil-normal-state-map "\C-ws" #'+emacs/split-follow-window-vertically)
+          (define-key evil-normal-state-map "\C-wv" #'+emacs/split-follow-window-horizontally)
 
-      (evil-define-key 'normal 'global
-        ;; select the previously pasted text
-        "gp" "`[v`]"
-        ;; run the macro in the q register
-        "Q" "@q")
+          (evil-define-key 'normal 'global
+            ;; select the previously pasted text
+            "gp" "`[v`]"
+            ;; run the macro in the q register
+            "Q" "@q")
 
-      (defalias #'forward-evil-word #'forward-evil-symbol)
-      (evil-ex-define-cmd "E[dit]" 'evil-edit)
-      (evil-ex-define-cmd "W[rite]" 'evil-write)
-      (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-      (evil-ex-define-cmd "WQ" 'evil-save-and-close)
-      (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-      (evil-ex-define-cmd "Qa[ll]" "quitall")
-      (evil-ex-define-cmd "qA[ll]" "quitall")
-      (evil-ex-define-cmd "QA[ll]" "quitall")
+          (defalias #'forward-evil-word #'forward-evil-symbol)
+          (evil-ex-define-cmd "E[dit]" 'evil-edit)
+          (evil-ex-define-cmd "W[rite]" 'evil-write)
+          (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+          (evil-ex-define-cmd "WQ" 'evil-save-and-close)
+          (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+          (evil-ex-define-cmd "Qa[ll]" "quitall")
+          (evil-ex-define-cmd "qA[ll]" "quitall")
+          (evil-ex-define-cmd "QA[ll]" "quitall")
 
-      (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell .*\\)\\*")
+          (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell .*\\)\\*")
 
-      (evil-mode 1)
+          (evil-mode 1)
 
-    (use-package evil-escape
-      :diminish
-      :ensure t
-      :init
-      (setq evil-escape-delay 0.2)
-      (setq evil-escape-unordered-key-sequence t)
-      (setq-default evil-escape-key-sequence "jk")
-      :config
-      (evil-escape-mode))
+          (use-package evil-surround
+            :ensure t
+            :config
+            (global-evil-surround-mode 1))
+
+        (use-package evil-escape
+          :diminish
+          :ensure t
+          :init
+          (setq evil-escape-delay 0.2)
+          (setq evil-escape-unordered-key-sequence t)
+          (setq-default evil-escape-key-sequence "jk")
+          :config
+          (evil-escape-mode))
 
 
-    (use-package evil-collection
-      :after evil
-      :ensure t
-      :config
-      (thread-last evil-collection-mode-list
-        (remove 'eshell)
-        (remove 'eww)
-        (setq evil-collection-mode-list))
-      (evil-collection-init)))
+        (use-package evil-collection
+          :after evil
+          :ensure t
+          :config
+          (thread-last evil-collection-mode-list
+            (remove 'eshell)
+            (remove 'eww)
+            (setq evil-collection-mode-list))
+          (evil-collection-init)))
 
   #+END_SRC
+
+  #+RESULTS:
+  : t
   
 * Org
    #+BEGIN_SRC emacs-lisp
           (use-package evil-org
+            :diminish
             :defer t
             :ensure t
             :after org
@@ -393,7 +403,7 @@
                                            ("w" "Work Note" entry
                                             (file+headline "~/org/todo.org" "Work")
                                             "* %?  \n  %t\n  %a")
-                                       
+
                                            ("n" "Note" entry
                                             (file+headline "~/org/notes.org" "Note")
                                             "* %?  \n  %t\n  %a")
@@ -403,7 +413,7 @@
                                             "* %?\n  %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n  %a")))
              :config
 
-        
+
              (setq org-agenda-follow-indirect t)
              (setq org-refile-use-outline-path 'file)
              (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
@@ -423,7 +433,7 @@
                 (python . t)
                 (plantuml . t)
                 ))
-                
+
              (setq org-plantuml-jar-path "/usr/local/Cellar/plantuml/1.2020.22/libexec/plantuml.jar")
              (add-hook 'org-mode-hook 'org-mode-configuration))
 
@@ -518,6 +528,7 @@
       (evil-leader/set-key "r" 'ivy-resume)
       (define-key ivy-minibuffer-map (kbd "C-SPC") 'ivy-dispatching-done)
       (define-key ivy-minibuffer-map (kbd "S-C-SPC") 'ivy-occur)
+      (define-key ivy-minibuffer-map (kbd "<C-return>") 'ivy-occur)
       (ivy-mode 1))
 
     (use-package ivy-rich
@@ -584,19 +595,21 @@
 
 * Dired stuff
   #+begin_src emacs-lisp
-      (defun dired-mode-configuration ()
-        (progn 
-          (dired-hide-details-mode 1)
-          (with-eval-after-load 'evil-collection
-            (+emacs/key-bindings))))
-
-    (add-hook 'dired-mode-hook 'dired-mode-configuration)
-
-    (use-package dired-subtree
-      :ensure t
+    (use-package dired
       :config
-      (define-key evil-normal-state-local-map "TAB" 'dired-subtree-toggle))
+      (defun dired-mode-configuration ()
+          (with-eval-after-load 'evil-collection
+            (evil-collection-define-key 'normal 'dired-mode-map (kbd "TAB") nil)
+            (evil-collection-define-key 'normal 'dired-mode-map (kbd "<tab>") 'dired-subtree-toggle)
+            (dired-hide-details-mode 1)
+            (+emacs/key-bindings)))
+
+      (add-hook 'dired-mode-hook 'dired-mode-configuration))
+
+      (use-package dired-subtree :ensure t)
   #+end_src
+
+  #+RESULTS:
 
 * LSP
   #+begin_src emacs-lisp
@@ -678,100 +691,101 @@
   #+end_src
 
   #+begin_src emacs-lisp
-       (use-package eshell
-         :ensure t
-         :config
+           (use-package eshell
+             :ensure t
+             :config
 
-        (setq ;eshell-scroll-to-bottom-on-input 'all
-    ;          eshell-error-if-no-glob t
-              eshell-hist-ignoredups t
-              eshell-save-history-on-exit t
-    ;           eshell-prefer-lisp-functions nil
-               eshell-destroy-buffer-when-process-dies t)
+            (setq ;eshell-scroll-to-bottom-on-input 'all
+        ;          eshell-error-if-no-glob t
+                  eshell-hist-ignoredups t
+                  eshell-save-history-on-exit t
+        ;           eshell-prefer-lisp-functions nil
+                   eshell-destroy-buffer-when-process-dies t)
 
 
-         (setenv "PAGER" "cat")
+             (setenv "PAGER" "cat")
 
-         (defun eshell-cwd-rename (&optional i)
-           "Renames eshell buffer to *eshell <cwd> <number of buffers with this name>*"
-           (interactive)
-           (unless i (setq i 0))
-           (let* ((buffer-cwd (if (buffer-file-name)
+             (defun eshell-cwd-rename (&optional i)
+               "Renames eshell buffer to *eshell <cwd> <number of buffers with this name>*"
+               (interactive)
+               (unless i (setq i 0))
+               (let* ((buffer-cwd (if (buffer-file-name)
+                                      (file-name-directory (buffer-file-name))
+                                      default-directory))
+                      (name (car (last (split-string buffer-cwd "/" t))))
+                      (b-name (if (zerop i)
+                                  (concat "*eshell " name "*")
+                                  (concat "*eshell " name " " (number-to-string i) "*"))))
+                 (cond ((string= (buffer-name) b-name) nil)
+                       ((null (get-buffer b-name)) (rename-buffer b-name))
+                       (t (eshell-cwd-rename (1+ i))))))
+
+             (defun eshell-here ()
+               "Opens up a new shell in the directory associated with the current buffer's file."
+               (interactive)
+               (let* ((parent (if (buffer-file-name)
                                   (file-name-directory (buffer-file-name))
-                                  default-directory))
-                  (name (car (last (split-string buffer-cwd "/" t))))
-                  (b-name (if (zerop i)
-                              (concat "*eshell " name "*")
-                              (concat "*eshell " name " " (number-to-string i) "*"))))
-             (cond ((string= (buffer-name) b-name) nil)
-                   ((null (get-buffer b-name)) (rename-buffer b-name))
-                   (t (eshell-cwd-rename (1+ i))))))
+                                default-directory))
+                      (name (car (last (split-string parent "/" t))))
+                      (b-name (concat "*eshell " name "*")))
+                 (if (null (get-buffer b-name))
+                     (let ((buf (eshell "new")))
+                       (switch-to-buffer (other-buffer buf))
+                       (switch-to-buffer-other-window buf)
+                       (rename-buffer b-name))
+                   (switch-to-buffer-other-window (get-buffer b-name)))))
 
-         (defun eshell-here ()
-           "Opens up a new shell in the directory associated with the current buffer's file."
-           (interactive)
-           (let* ((parent (if (buffer-file-name)
-                              (file-name-directory (buffer-file-name))
-                            default-directory))
-                  (name (car (last (split-string parent "/" t))))
-                  (b-name (concat "*eshell " name "*")))
-             (if (null (get-buffer b-name))
-                 (let ((buf (eshell "new")))
-                   (switch-to-buffer (other-buffer buf))
-                   (switch-to-buffer-other-window buf)
-                   (rename-buffer b-name))
-               (switch-to-buffer-other-window (get-buffer b-name)))))
+             (defun eshell-project-root ()
+               (interactive)
+               (let ((buf (projectile-run-eshell 1)))
+                 (switch-to-buffer (other-buffer buf))
+                 (switch-to-buffer-other-window buf)))
 
-         (defun eshell-project-root ()
-           (interactive)
-           (let ((buf (projectile-run-eshell 1)))
-             (switch-to-buffer (other-buffer buf))
-             (switch-to-buffer-other-window buf)))
+             (evil-leader/set-key "e" 'eshell-here
+               "pe" 'eshell-project-root)
 
-         (evil-leader/set-key "e" 'eshell-here
-           "pe" 'eshell-project-root)
+             (defun +eshell/goto-end-of-prompt ()
+               "Move cursor to the prompt when switching to insert mode (if point isn't
+                       already there)."
+               (interactive)
+               (goto-char (point-max))
+               (evil-append 1))
 
-         (defun +eshell/goto-end-of-prompt ()
-           "Move cursor to the prompt when switching to insert mode (if point isn't
-                   already there)."
-           (interactive)
-           (goto-char (point-max))
-           (evil-append 1))
+             (defun +eshell/counsel-esh-history-normal ()
+               "Move cursor to the end of the buffer before calling counsel-esh-history
+                         and change `state` to insert"
+               (interactive)
+               (goto-char (point-max))
+               (eshell-bol)
+               (unwind-protect
+                   (kill-line)
+                 (progn
+                   (evil-append-line 0)
+                   (counsel-esh-history))))
 
-         (defun +eshell/counsel-esh-history-normal ()
-           "Move cursor to the end of the buffer before calling counsel-esh-history
-                     and change `state` to insert"
-           (interactive)
-           (goto-char (point-max))
-           (eshell-bol)
-           (unwind-protect
-               (kill-line)
-             (progn
-               (evil-append-line 0)
-               (counsel-esh-history))))
+             (defun eshell-mode-configuration ()
+               (with-eval-after-load 'evil-collection
+                 (+emacs/key-bindings)
+                 (define-key evil-normal-state-local-map "I" (lambda () (interactive) (eshell-bol) (evil-insert 1)))
+                 (define-key evil-normal-state-local-map (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1)))
+                 (define-key evil-normal-state-local-map (kbd "gk") 'eshell-previous-prompt)
+                 (define-key evil-normal-state-local-map (kbd "gk") 'eshell-next-prompt)
+                 (define-key evil-visual-state-local-map (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state))))
+                 (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new")))
+                 (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new")))
+                 (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
+                 (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
+                 (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
 
-         (defun eshell-mode-configuration ()
-           (with-eval-after-load 'evil-collection
-             (+emacs/key-bindings)
-             (define-key evil-normal-state-local-map "I" (lambda () (interactive) (eshell-bol) (evil-insert 1)))
-             (define-key evil-normal-state-local-map (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1)))
-             (define-key evil-normal-state-local-map (kbd "gk") 'eshell-previous-prompt)
-             (define-key evil-normal-state-local-map (kbd "gk") 'eshell-next-prompt)
-             (define-key evil-normal-state-local-map "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new")))
-             (define-key evil-normal-state-local-map "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new")))
-             (define-key evil-normal-state-local-map (kbd "C-r") '+eshell/counsel-esh-history-normal)
-             (define-key evil-insert-state-local-map (kbd "C-r") 'counsel-esh-history)
-             (define-key evil-normal-state-local-map (kbd "<return>") '+eshell/goto-end-of-prompt)))
+             (defun eshell/ff (&rest args)
+               (apply #'find-file args))
 
-         (defun eshell/ff (&rest args)
-           (apply #'find-file args))
+             ;(eshell-hist-initialize)
 
-         ;(eshell-hist-initialize)
-
-         (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
-         (add-hook 'eshell-directory-change-hook 'eshell-cwd-rename)
-         (add-hook 'eshell-mode-hook 'eshell-mode-configuration)
-              )
+             (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+             (add-hook 'eshell-directory-change-hook 'eshell-cwd-rename)
+             (add-hook 'eshell-mode-hook 'eshell-mode-configuration)
+                  )
   #+end_src
 
   #+RESULTS:
@@ -951,7 +965,7 @@
       :ensure nil
       :load-path "/usr/local/Cellar/mu/1.4.13/share/emacs/site-lisp/mu/mu4e/"
       :config
-      
+
       ;(setq mu4e-mu-binary "/usr/local/Cellar/mu/1.4.13/mu")
       ;; default
       (setq mu4e-maildir (expand-file-name "~/Mail"))
