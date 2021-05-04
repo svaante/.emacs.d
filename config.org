@@ -564,6 +564,37 @@
        'counsel-rg
        '(("j" +ivy-git-grep-other-window-action "open in other window")))
 
+      (defun +eshell-there (file)
+        "Run eshell in directory of FILE."
+        (interactive "Directory: ")
+        (let* ((default-directory
+                 (file-name-directory
+                  (expand-file-name
+                   (substitute-in-file-name file))))
+               (name (car (last (split-string default-directory "/" t))))
+               (b-name (concat "*eshell " name "*")))
+          (if (null (get-buffer b-name))
+              (let ((buf (eshell '(4))))
+                (switch-to-buffer (other-buffer buf))
+                (switch-to-buffer-other-window buf)
+                (rename-buffer b-name))
+            (switch-to-buffer-other-window (get-buffer b-name)))))
+
+      (defun +run-async-command-there (file)
+        "Run async command in directory of FILE."
+        (interactive "Directory: ")
+        (let* ((default-directory
+                 (file-name-directory
+                  (expand-file-name
+                   (substitute-in-file-name file)))))
+               (call-interactively #'async-shell-command)))
+
+
+      (ivy-add-actions
+       'counsel-find-file
+       '(("!" +run-async-command-there "run async command here")
+         ("e" +eshell-there "open eshell here")))
+
       (defun +ivy/projectile-find-file ()
         (interactive)
         (let ((this-command 'counsel-find-file))
