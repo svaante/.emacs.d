@@ -221,77 +221,79 @@
 * Evil
   Evil config
   #+BEGIN_SRC emacs-lisp
-        (defun +emacs/split-follow-window-vertically ()
-          "Split and follow window vertically"
-          (interactive)
-          (split-window-vertically) (other-window 1))
+    (defun +emacs/split-follow-window-vertically ()
+      "Split and follow window vertically"
+      (interactive)
+      (split-window-vertically) (other-window 1))
 
-        (defun +emacs/split-follow-window-horizontally ()
-          "Split and follow window horizontally"
-          (interactive)
-          (split-window-horizontally) (other-window 1))
+    (defun +emacs/split-follow-window-horizontally ()
+      "Split and follow window horizontally"
+      (interactive)
+      (split-window-horizontally) (other-window 1))
 
-        (use-package evil
-          :ensure evil
-          :init
-          (setq evil-want-integration t)
-          (setq evil-want-keybinding nil)
-          (setq-default evil-symbol-word-search t)
-          (setq-default evil-shift-width 2)
-          (setq evil-jumps-cross-buffers nil)
-          (setq evil-want-Y-yank-to-eol t)
-          (setq evil-want-C-u-scroll t)
-          (setq evil-search-module 'evil-search)
-          :config
-          (+emacs/key-bindings)
-          (define-key evil-normal-state-map "\C-ws" #'+emacs/split-follow-window-vertically)
-          (define-key evil-normal-state-map "\C-wv" #'+emacs/split-follow-window-horizontally)
+    (use-package evil
+      :ensure evil
+      :init
+      (setq evil-want-integration t)
+      (setq evil-want-keybinding nil)
+      (setq-default evil-symbol-word-search t)
+      (setq-default evil-shift-width 2)
+      (setq evil-jumps-cross-buffers nil)
+      (setq evil-want-Y-yank-to-eol t)
+      (setq evil-want-C-u-scroll t)
+      (setq evil-search-module 'evil-search)
+      :config
+      (+emacs/key-bindings)
+      (evil-set-undo-system 'undo-tree)
 
-          (evil-define-key 'normal 'global
-            ;; select the previously pasted text
-            "gp" "`[v`]"
-            ;; run the macro in the q register
-            "Q" "@q")
+      (define-key evil-normal-state-map "\C-ws" #'+emacs/split-follow-window-vertically)
+      (define-key evil-normal-state-map "\C-wv" #'+emacs/split-follow-window-horizontally)
 
-          (defalias #'forward-evil-word #'forward-evil-symbol)
-          (evil-ex-define-cmd "E[dit]" 'evil-edit)
-          (evil-ex-define-cmd "W[rite]" 'evil-write)
-          (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-          (evil-ex-define-cmd "WQ" 'evil-save-and-close)
-          (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-          (evil-ex-define-cmd "Qa[ll]" "quitall")
-          (evil-ex-define-cmd "qA[ll]" "quitall")
-          (evil-ex-define-cmd "QA[ll]" "quitall")
+      (evil-define-key 'normal 'global
+        ;; select the previously pasted text
+        "gp" "`[v`]"
+        ;; run the macro in the q register
+        "Q" "@q")
 
-          (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell .*\\)\\*")
+      (defalias #'forward-evil-word #'forward-evil-symbol)
+      (evil-ex-define-cmd "E[dit]" 'evil-edit)
+      (evil-ex-define-cmd "W[rite]" 'evil-write)
+      (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+      (evil-ex-define-cmd "WQ" 'evil-save-and-close)
+      (evil-ex-define-cmd "Wq" 'evil-save-and-close)
+      (evil-ex-define-cmd "Qa[ll]" "quitall")
+      (evil-ex-define-cmd "qA[ll]" "quitall")
+      (evil-ex-define-cmd "QA[ll]" "quitall")
 
-          (evil-mode 1)
+      (setq evil--jumps-buffer-targets "\\*\\(new\\|scratch\\|eshell .*\\)\\*")
 
-          (use-package evil-surround
-            :ensure t
-            :config
-            (global-evil-surround-mode 1))
+      (evil-mode 1)
 
-        (use-package evil-escape
-          :diminish
-          :ensure t
-          :init
-          (setq evil-escape-delay 0.2)
-          (setq evil-escape-unordered-key-sequence t)
-          (setq-default evil-escape-key-sequence "jk")
-          :config
-          (evil-escape-mode))
+      (use-package evil-surround
+        :ensure t
+        :config
+        (global-evil-surround-mode 1))
+
+    (use-package evil-escape
+      :diminish
+      :ensure t
+      :init
+      (setq evil-escape-delay 0.2)
+      (setq evil-escape-unordered-key-sequence t)
+      (setq-default evil-escape-key-sequence "jk")
+      :config
+      (evil-escape-mode))
 
 
-        (use-package evil-collection
-          :after evil
-          :ensure t
-          :config
-          (thread-last evil-collection-mode-list
-            (remove 'eshell)
-            (remove 'eww)
-            (setq evil-collection-mode-list))
-          (evil-collection-init)))
+    (use-package evil-collection
+      :after evil
+      :ensure t
+      :config
+      (thread-last evil-collection-mode-list
+        (remove 'eshell)
+        (remove 'eww)
+        (setq evil-collection-mode-list))
+      (evil-collection-init)))
 
   #+END_SRC
 
