@@ -215,12 +215,12 @@
         "\C-k" 'evil-window-up
         "\C-h" 'evil-window-left
         "\C-l" 'evil-window-right
-        (kbd "<C-i>") 'gumshoe-backtrack-forward
+        "\C-i" 'gumshoe-backtrack-forward
         "\C-o" 'gumshoe-backtrack-back
         "\C-ws" '+emacs/split-follow-window-vertically
         "\C-wv" '+emacs/split-follow-window-horizontally))
   #+end_src
-  
+
 * Evil
   #+BEGIN_SRC emacs-lisp
     (use-package evil
@@ -886,6 +886,13 @@
       (evil-leader/set-key "q" 'elpy-shell-switch-to-shell)
       (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
       (elpy-enable))
+
+    (use-package lsp-pyright
+      :ensure t
+      :after lsp-mode
+      :custom
+      (lsp-pyright-auto-import-completions nil)
+      (lsp-pyright-typechecking-mode "off"))
    #+end_src
 
 ** Godot
@@ -1067,7 +1074,6 @@
 
       (setq user-mail-address "daniel@dpettersson.net"
             user-full-name "Daniel Pettersson"))
-
   #+end_src
 
 * Tramp
