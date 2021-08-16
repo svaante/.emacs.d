@@ -335,6 +335,16 @@
     (evil-leader/set-key "z" 'narrow-or-widen-dwim)
   #+END_SRC
 
+* Avy
+  #+begin_src emacs-lisp
+    (use-package avy
+      :config
+      (evil-leader/set-key
+        "jj" 'avy-goto-char-2
+        "jw" 'avy-goto-word-0
+        "jl" 'avy-goto-line))
+  #+end_src
+
 * Org
    #+BEGIN_SRC emacs-lisp
      (use-package org
@@ -460,11 +470,10 @@
       (global-company-mode 1))
   #+END_SRC
 
-* Package counsel
+* Package ivy, swiper and counsel
   #+BEGIN_SRC emacs-lisp
     (use-package ivy
       :diminish
-                                            ;:hook (after-init . ivy-mode)
       :config
       (setq ivy-wrap t)
       (setq ivy-height 15)
@@ -567,8 +576,6 @@
         ))
   #+END_SRC
 
-  #+RESULTS:
-  : t
 
 * Compilation
 #+begin_src emacs-lisp
@@ -674,113 +681,116 @@
 
 * Terminal
   #+begin_src emacs-lisp
-        (use-package eshell
-          :ensure t
-          :init
-          (setq eshell-hist-ignoredups t
-                eshell-save-history-on-exit t
-                eshell-destroy-buffer-when-process-dies t)
+    ;; Require file where 'eshell/pwd is defined for further usage
+    (require 'em-dirs)
 
-          ;; Require file where 'eshell/pwd is defined for further usage
-          (require 'em-dirs)
+    (defun eshell-pwd-rename (&optional i)
+      "Renames eshell buffer to *eshell <wd> <number of buffers with this name>*"
+      (interactive)
+      (unless i (setq i 0))
+      (let ((b-name (if (zerop i)
+                        (concat "*eshell " (eshell/pwd) "*")
+                      (concat "*eshell " (eshell/pwd) "*<" (number-to-string i) ">"))))
+        (cond ((string= (buffer-name) b-name) nil)
+              ((not (get-buffer b-name)) (rename-buffer b-name))
+              (t (eshell-pwd-rename (1+ i))))))
 
-          (setenv "PAGER" "cat")
-
-          (defun eshell-pwd-rename (&optional i)
-            "Renames eshell buffer to *eshell <wd> <number of buffers with this name>*"
-            (interactive)
-            (unless i (setq i 0))
-            (let ((b-name (if (zerop i)
-                              (concat "*eshell " (eshell/pwd) "*")
-                        (concat "*eshell " (eshell/pwd) "*<" (number-to-string i) ">"))))
-              (cond ((string= (buffer-name) b-name) nil)
-                    ((not (get-buffer b-name)) (rename-buffer b-name))
-                    (t (eshell-pwd-rename (1+ i))))))
-
-          (defun eshell-here ()
-            "Opens up a new shell in the directory associated with the current buffer's file."
-            (interactive)
-            (let ((b-name (concat "*eshell " (eshell/pwd) "*")))
-              (if (or (not (get-buffer b-name))
-                      (bound-and-true-p eshell-mode))
-                  (let ((buf (eshell "new")))
-                    (switch-to-buffer (other-buffer buf))
-                    (switch-to-buffer-other-window buf)
-                    (eshell-pwd-rename))
-                (switch-to-buffer-other-window (get-buffer b-name)))))
-
-          (defun eshell-project-root ()
-            (interactive)
-            (let ((buf (projectile-run-eshell 1)))
+    (defun eshell-here ()
+      "Opens up a new shell in the directory associated with the current buffer's file."
+      (interactive)
+      (let ((b-name (concat "*eshell " (eshell/pwd) "*")))
+        (if (or (not (get-buffer b-name))
+                (bound-and-true-p eshell-mode))
+            (let ((buf (eshell "new")))
               (switch-to-buffer (other-buffer buf))
-              (switch-to-buffer-other-window buf)))
+              (switch-to-buffer-other-window buf)
+              (eshell-pwd-rename))
+          (switch-to-buffer-other-window (get-buffer b-name)))))
 
-          (defun +eshell/goto-end-of-prompt ()
-            "Move cursor to the prompt when switching to insert mode (if point isn't
-                        already there)."
-            (interactive)
-            (goto-char (point-max))
-            (evil-append 1))
+    (defun eshell-project-root ()
+      (interactive)
+      (let ((buf (projectile-run-eshell 1)))
+        (switch-to-buffer (other-buffer buf))
+        (switch-to-buffer-other-window buf)))
 
-          (defun +eshell/counsel-esh-history-normal ()
-            "Move cursor to the end of the buffer before calling counsel-esh-history
-                          and change `state` to insert"
-            (interactive)
-            (goto-char (point-max))
-            (eshell-bol)
-            (unwind-protect
-                (kill-line)
-              (progn
-                (evil-append-line 0)
-                (counsel-esh-history))))
+    (defun +eshell/goto-end-of-prompt ()
+      "Move cursor to the prompt when switching to insert mode (if point isn't
+                            already there)."
+      (interactive)
+      (goto-char (point-max))
+      (evil-append 1))
+
+    (defun +eshell/counsel-esh-history-normal ()
+      "Move cursor to the end of the buffer before calling counsel-esh-history
+                              and change `state` to insert."
+      (interactive)
+      (goto-char (point-max))
+      (eshell-bol)
+      (unwind-protect
+          (kill-line)
+        (progn
+          (evil-append-line 0)
+          (counsel-esh-history))))
 
 
-          (defun eshell-mode-configuration ()
-            (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
+    (defun eshell-mode-configuration ()
+      (push 'eshell-tramp eshell-modules-list)
 
-            (evil-define-key 'normal 'local
-              "I" (lambda () (interactive) (eshell-bol) (evil-insert 1))
-              (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
-              (kbd "C-p") 'eshell-previous-prompt
-              (kbd "C-n") 'eshell-next-prompt
-              "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new"))
-              "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new"))
-              (kbd "C-r") '+eshell/counsel-esh-history-normal
-              (kbd "<return>") '+eshell/goto-end-of-prompt)
+      ;; Save command history when commands are entered
+      (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
 
-            (evil-define-key 'visual 'local
-              (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state))))
+      ;; Truncate buffer for performance
+      (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
 
-            (evil-define-key 'insert 'local
-              (kbd "C-r") 'counsel-esh-history)
+      (eshell-hist-initialize)
 
-            (define-key eshell-mode-map (kbd "<tab>") 'completion-at-point))
+      (evil-define-key 'normal 'local
+        "I" (lambda () (interactive) (eshell-bol) (evil-insert 1))
+        (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
+        (kbd "C-p") 'eshell-previous-prompt
+        (kbd "C-n") 'eshell-next-prompt
+        "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new"))
+        "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new"))
+        (kbd "C-r") '+eshell/counsel-esh-history-normal
+        (kbd "<return>") '+eshell/goto-end-of-prompt)
 
-          (defun eshell/ff (&rest args)
-            (apply #'find-file args))
+      (evil-define-key 'visual 'local
+        (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state))))
 
-          (evil-leader/set-key "e" 'eshell-here
-            "pe" 'eshell-project-root)
+      (evil-define-key 'insert 'local
+        (kbd "C-r") 'counsel-esh-history
+                                            ;(kbd "<tab>") 'completion-at-point))
+        ))
 
-          (add-hook 'eshell-directory-change-hook 'eshell-pwd-rename)
-          (add-hook 'eshell-mode-hook 'eshell-mode-configuration))
+    (use-package eshell
+      :ensure t
+      :hook ((eshell-first-time-mode . eshell-mode-configuration)
+             (eshell-directory-change-hook . eshell-pwd-rename))
+      :init
+      (setq eshell-hist-ignoredups t
+            eshell-save-history-on-exit t
+            eshell-destroy-buffer-when-process-dies t)
+
+      (setenv "PAGER" "cat")
+
+      (evil-leader/set-key "e" 'eshell-here
+        "pe" 'eshell-project-root))
   #+end_src
 
   #+RESULTS:
   
 * Magit
-
   #+begin_src emacs-lisp
-      (use-package magit
-        :ensure t
-        :config
-        (evil-leader/set-key "gg" 'magit)
-        (evil-leader/set-key "gd" 'magit-diff)
-        (evil-leader/set-key "gb" 'magit-blame)
-        (evil-leader/set-key "gl" 'magit-log-branches)
-        (evil-leader/set-key "gc" 'magit-checkout)
-        (evil-leader/set-key "gf" 'magit-fetch-all)
-        (evil-leader/set-key "gf" 'magit-log-buffer-file))
+    (use-package magit
+      :ensure t
+      :config
+      (evil-leader/set-key "gg" 'magit)
+      (evil-leader/set-key "gd" 'magit-diff)
+      (evil-leader/set-key "gb" 'magit-blame)
+      (evil-leader/set-key "gl" 'magit-log-branches)
+      (evil-leader/set-key "gc" 'magit-checkout)
+      (evil-leader/set-key "gf" 'magit-fetch-all)
+      (evil-leader/set-key "gf" 'magit-log-buffer-file))
 
   #+end_src
 
@@ -894,6 +904,9 @@
 
 * Eshell functions
 #+begin_src emacs-lisp
+  (defun eshell/ff (&rest args)
+    (apply #'find-file args))
+
   (defun eshell/awswhoami (&rest args)
     (let ((profile (getenv "AWS_PROFILE")))
       (message (if (null profile) "default" profile))))
