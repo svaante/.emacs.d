@@ -215,7 +215,7 @@
         "\C-k" 'evil-window-up
         "\C-h" 'evil-window-left
         "\C-l" 'evil-window-right
-        "\C-i" 'gumshoe-backtrack-forward
+        (kbd "<C-i>") 'gumshoe-backtrack-forward
         "\C-o" 'gumshoe-backtrack-back
         "\C-ws" '+emacs/split-follow-window-vertically
         "\C-wv" '+emacs/split-follow-window-horizontally))
@@ -445,6 +445,7 @@
 * Fix color stuff
   #+begin_src  emacs-lisp
     (use-package xterm-color
+      :disable
       :ensure t
       :config
       (setq compilation-environment '("TERM=xterm-256color"))
@@ -561,6 +562,8 @@
 
       (setq counsel-find-file-at-point t)
 
+      (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
       (evil-leader/set-key
         "." 'counsel-find-file
         "SPC" '+ivy/projectile-find-file
@@ -572,8 +575,15 @@
         "y" 'counsel-yank-pop
         "os" 'counsel-org-goto
         "i" 'counsel-imenu
-        ":" 'counsel-M-x
-        ))
+        ":" 'counsel-M-x))
+
+    (use-package prescient
+      :ensure t
+      :config
+      (ivy-prescient-mode))
+
+    (use-package ivy-prescient
+      :ensure t)
   #+END_SRC
 
 
@@ -581,9 +591,7 @@
 #+begin_src emacs-lisp
   (use-package emacs
     :init
-    (setq compilation-scroll-output t)
-    :config
-    (add-hook 'compilation-mode-hook 'compilation-mode-configuration))
+    (setq compilation-scroll-output t))
 #+end_src
 
 * Dired stuff
@@ -655,6 +663,7 @@
         "pi" 'projectile-invalidate-cache
         "pt" 'projectile-test-project
         "pr" 'projectile-run-project
+        "pc" 'projectile-compile-project
         "p!" 'projectile-run-async-shell-command-in-root
         "pq" 'projectile-toggle-between-implementation-and-test
         "pb" 'projectile-switch-to-buffer))
@@ -732,6 +741,18 @@
           (evil-append-line 0)
           (counsel-esh-history))))
 
+    (defun +eshell/pcomplete ()
+      "Use pcomplete with completion-in-region backend instead of popup window at
+    bottom. This ties pcomplete into ivy or helm, if they are enabled."
+      (interactive)
+      (require 'pcomplete)
+      (if (and (bound-and-true-p company-mode)
+               (or company-candidates
+                   (and (company-pcomplete-available)
+                        (company-pcomplete--prefix)
+                        (company-pcomplete--candidates))))
+          (call-interactively #'company-pcomplete)
+        (ignore-errors (pcomplete-std-complete))))
 
     (defun eshell-mode-configuration ()
       (push 'eshell-tramp eshell-modules-list)
@@ -759,8 +780,7 @@
 
       (evil-define-key 'insert 'local
         (kbd "C-r") 'counsel-esh-history
-                                            ;(kbd "<tab>") 'completion-at-point))
-        ))
+        (kbd "<tab>")  '+eshell/pcomplete))
 
     (use-package eshell
       :ensure t
