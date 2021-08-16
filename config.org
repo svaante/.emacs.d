@@ -599,14 +599,14 @@
     (use-package dired
       :config
       (defun dired-mode-configuration ()
-          (with-eval-after-load 'evil-collection
-            (evil-collection-define-key 'normal 'dired-mode-map (kbd "TAB") nil)
-            (evil-collection-define-key 'normal 'dired-mode-map (kbd "<tab>") 'dired-subtree-toggle)
-            (dired-hide-details-mode 1)))
+        (with-eval-after-load 'evil-collection
+          (evil-collection-define-key 'normal 'dired-mode-map (kbd "TAB") nil)
+          (evil-collection-define-key 'normal 'dired-mode-map (kbd "<tab>") 'dired-subtree-toggle)
+          (dired-hide-details-mode 1)))
 
       (add-hook 'dired-mode-hook 'dired-mode-configuration))
 
-      (use-package dired-subtree :ensure t)
+    (use-package dired-subtree :ensure t)
   #+end_src
 
 * LSP
