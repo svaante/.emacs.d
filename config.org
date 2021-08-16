@@ -830,9 +830,9 @@
         (cond
          ((string-equal ispell-local-dictionary "en_US")   (ispell-change-dictionary "swedish"))
          ((string-equal ispell-local-dictionary "swedish") (ispell-change-dictionary "en_US"))
-         (t                                                (ispell-change-dictionary "en_US"))))
+         (t                                                (ispell-change-dictionary "en_US")))))
 
-      (evil-leader/set-key "f" '+ispell/toogle-english-swedish-dictonary))
+      (evil-leader/set-key "f" '+ispell/toogle-english-swedish-dictonary)
   #+end_src
 
 
