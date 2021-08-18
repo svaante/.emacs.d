@@ -48,117 +48,6 @@
     (setq inhibit-startup-screen t)
   #+END_SRC
 
-* Looks
-** Fonts
-   #+begin_src emacs-lisp
-     ;; Set my font
-     (set-frame-font "Hack-10" nil t)
-
-     ;; Emoji support
-     (set-fontset-font t 'symbol "Apple Color Emoji")
-     (set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
-     (set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
-     (set-fontset-font t 'symbol "Symbola" nil 'append)
-   #+end_src
-  
-** Themes
-   #+BEGIN_SRC emacs-lisp
-     (use-package modus-themes
-       :ensure t
-       :config
-       (setq modus-themes-mode-line '(accented borderless 3d))
-       (setq modus-themes-org-blocks 'tinted-background)
-       (setq modus-themes-headings 
-             '((1 . section)
-               (2 . rainbow-line)
-               (t . rainbow-no-bold)))
-       (load-theme 'modus-operandi))
-
-     (use-package org
-       :config
-       (setq org-return-follows-link t)
-       (custom-set-faces
-        '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-        '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
-        '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-        '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
-   #+END_SRC
-
-** Mode-line
-   #+begin_src emacs-lisp
-     (use-package diminish
-       :ensure
-       :after use-package)
-
-     (use-package emacs
-       :config
-       (setq mode-line-percent-position '(-3 "%p"))
-       (setq mode-line-defining-kbd-macro
-             (propertize " Macro" 'face 'mode-line-emphasis))
-       (setq-default mode-line-format
-                     '("🌻"
-                       "%e"
-                       ""
-                       mode-line-front-space
-                       mode-line-mule-info
-                       mode-line-client
-                       mode-line-modified
-                       mode-line-remote
-                       mode-line-frame-identification
-                       mode-line-buffer-identification
-                       " "
-                       mode-line-position
-                       (vc-mode vc-mode)
-                       " "
-                       mode-line-modes
-                       " "
-                       mode-line-misc-info
-                       mode-line-end-spaces))
-       :init
-       (column-number-mode 1))
-   #+end_src
-
-** Relative line numbers
-   #+BEGIN_SRC emacs-lisp
-     (use-package emacs
-       :init
-       (setq display-line-numbers-type 'relative)
-       (add-hook 'text-mode-hook #'display-line-numbers-mode)
-       (add-hook 'prog-mode-hook #'display-line-numbers-mode))
-   #+END_SRC
-
-** Match paren 
-   #+begin_src  emacs-lisp
-     (use-package paren
-       :config
-       (setq show-paren-style 'parenthesis)
-       (setq show-paren-when-point-in-periphery nil)
-       (setq show-paren-when-point-inside-paren nil)
-       (setq show-paren-delay 0)
-       (show-paren-mode +1))
-   #+end_src
-  
-** White space
- #+BEGIN_SRC emacs-lisp
-   (use-package global-whitespace
-     :defer t
-     :hook (prog-mode . whitespace-mode)
-     :diminish
-     :init
-     (setq whitespace-style '(face trailing)))
- #+END_SRC
-  
-** Package dashboard
-   #+BEGIN_SRC emacs-lisp
-   (use-package dashboard
-     :diminish
-     :ensure t
-     :config
-     (setq dashboard-items '((recents  . 10)
-                             (bookmarks . 10)))
-     (dashboard-setup-startup-hook))
-   #+END_SRC
-
 * Platform
 ** Mac
    #+BEGIN_SRC  emacs-lisp
@@ -313,6 +202,117 @@
          "wt" (lambda () (interactive) (toggle-frame-maximized))))
        #+END_SRC 
 
+* Looks
+** Fonts
+   #+begin_src emacs-lisp
+     ;; Set my font
+     (set-frame-font "Hack-10" nil t)
+
+     ;; Emoji support
+     (set-fontset-font t 'symbol "Apple Color Emoji")
+     (set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
+     (set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
+     (set-fontset-font t 'symbol "Symbola" nil 'append)
+   #+end_src
+  
+** Themes
+   #+BEGIN_SRC emacs-lisp
+     (use-package modus-themes
+       :ensure t
+       :config
+       (setq modus-themes-mode-line '(accented borderless 3d))
+       (setq modus-themes-org-blocks 'tinted-background)
+       (setq modus-themes-headings 
+             '((1 . section)
+               (2 . rainbow-line)
+               (t . rainbow-no-bold)))
+       (load-theme 'modus-operandi))
+
+     (use-package org
+       :config
+       (setq org-return-follows-link t)
+       (custom-set-faces
+        '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+        '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+        '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+        '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
+   #+END_SRC
+
+** Mode-line
+   #+begin_src emacs-lisp
+     (use-package diminish
+       :ensure
+       :after use-package)
+
+     (use-package emacs
+       :config
+       (setq mode-line-percent-position '(-3 "%p"))
+       (setq mode-line-defining-kbd-macro
+             (propertize " Macro" 'face 'mode-line-emphasis))
+       (setq-default mode-line-format
+                     '("🌻"
+                       "%e"
+                       ""
+                       mode-line-front-space
+                       mode-line-mule-info
+                       mode-line-client
+                       mode-line-modified
+                       mode-line-remote
+                       mode-line-frame-identification
+                       mode-line-buffer-identification
+                       " "
+                       mode-line-position
+                       (vc-mode vc-mode)
+                       " "
+                       mode-line-modes
+                       " "
+                       mode-line-misc-info
+                       mode-line-end-spaces))
+       :init
+       (column-number-mode 1))
+   #+end_src
+
+** Relative line numbers
+   #+BEGIN_SRC emacs-lisp
+     (use-package emacs
+       :init
+       (setq display-line-numbers-type 'relative)
+       (add-hook 'text-mode-hook #'display-line-numbers-mode)
+       (add-hook 'prog-mode-hook #'display-line-numbers-mode))
+   #+END_SRC
+
+** Match paren 
+   #+begin_src  emacs-lisp
+     (use-package paren
+       :config
+       (setq show-paren-style 'parenthesis)
+       (setq show-paren-when-point-in-periphery nil)
+       (setq show-paren-when-point-inside-paren nil)
+       (setq show-paren-delay 0)
+       (show-paren-mode +1))
+   #+end_src
+  
+** White space
+ #+BEGIN_SRC emacs-lisp
+   (use-package global-whitespace
+     :defer t
+     ;:hook (prog-mode . whitespace-mode)
+     :diminish
+     :init
+     (setq whitespace-style '(face trailing)))
+ #+END_SRC
+  
+** Package dashboard
+   #+BEGIN_SRC emacs-lisp
+   (use-package dashboard
+     :diminish
+     :ensure t
+     :config
+     (setq dashboard-items '((recents  . 10)
+                             (bookmarks . 10)))
+     (dashboard-setup-startup-hook))
+   #+END_SRC
+
 * Buffer navigation
 ** Gumshoe
    #+begin_src emacs-lisp
@@ -376,6 +376,11 @@
           (python . t)))
        (evil-leader/set-key "os" 'org-store-link))
 
+     (defun +org-agenda-goto-narrow ()
+       (interactive)
+       (org-agenda-goto)
+       (org-narrow-to-element))
+
      (use-package org-agenda
        :init
        (setq org-agenda-files '("~/org/todo.org"))
@@ -388,7 +393,7 @@
        ;; been trying to use evil-org's evil-agenda only result was pain
        (evil-set-initial-state 'org-agenda-mode 'normal)
        (evil-define-key 'normal org-agenda-mode-map
-         (kbd "<RET>") 'org-agenda-switch-to
+         (kbd "<RET>") '+org-agenda-goto-narrow
          "q" 'org-agenda-quit
          "r" 'org-agenda-redo
          "K" 'org-agenda-priority-up
@@ -432,7 +437,6 @@
 
        (use-package orgit :ensure t)
    #+END_SRC
-
 * Completion
 ** Package company
    Use company for packages
@@ -450,7 +454,7 @@
    #+END_SRC
 
 ** Package ivy, swiper and counsel
-   #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp :eval no
      (use-package ivy
        :diminish
        :config
@@ -564,6 +568,112 @@
        :ensure t)
    #+END_SRC
 
+** Vertico
+   #+begin_src emacs-lisp
+     (use-package vertico
+       :disable
+       :ensure t
+       :init
+       (vertico-mode)
+       ;; Grow and shrink the Vertico minibuffer
+       ;; (setq vertico-resize t)
+
+       ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+       (setq vertico-cycle t)
+       (setq enable-recursive-minibuffers t)
+
+       (defun crm-indicator (args)
+         (cons (concat "[CRM] " (car args)) (cdr args)))
+       (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+       )
+
+     (use-package vertico-repeat
+       :disable
+       :ensure t
+       :init
+       (evil-leader/set-key "r" 'vertico-repeat))
+
+     (use-package vertico-directory
+       :disable
+       :ensure t
+       ;; More convenient directory navigation commands
+       :bind (:map vertico-map
+                   ("RET" . vertico-directory-enter)
+                   ("DEL" . vertico-directory-delete-char)
+                   ("M-DEL" . vertico-directory-delete-word))
+       ;; Tidy shadowed file names
+
+       :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+     (use-package orderless
+       :disable
+       :ensure t
+       :init
+       (setq completion-styles '(orderless)
+             completion-category-defaults nil
+             completion-category-overrides '((file (styles initials)))))
+
+     ;; Persist history over Emacs restarts. Vertico sorts by history position.
+     (use-package savehist
+       :disable
+       :ensure t
+       :init
+       (savehist-mode))
+
+     ;; Enable richer annotations using the Marginalia package
+     (use-package marginalia
+       :disable
+       :enssure t
+       :init
+       (marginalia-mode))
+
+     ;; 
+     (use-package consult
+       :disable
+       :ensure t
+       :init
+       (setq consult-project-root-function #'projectile-project-root)
+       (evil-leader/set-key
+         "." 'find-file-at-point
+         "SPC" 'projectile-find-file
+         "pg" 'consult-ripgrep
+         "b" 'consult-buffer
+         "i" 'consult-imenu
+         "hh" 'describe-function
+         "hv" 'describe-variable
+         "m" 'consult-bookmark
+         "y" 'consult-yank-pop
+         ":" 'execute-extended-command
+         "pp" 'projectile-switch-project
+         "s"  'consult-line
+         )
+
+       )
+
+     (use-package which-key
+       :disable
+       :ensure t
+       :diminish which-key-mode
+       :init
+       (which-key-mode))
+
+     (use-package embark
+       :disable
+       :ensure t
+       :bind
+       (((kbd "C-SPC") . embark-act)
+        ((kbd "<C-return>") . embark-export))
+       :init
+       ;; Optionally replace the key help with a completing-read interface
+       (setq prefix-help-command #'embark-prefix-help-command))
+
+     ;; Consult users will also want the embark-consult package.
+     (use-package embark-consult
+       :disable
+       :ensure t
+       :after (embark consult))
+   #+end_src
+
 * Project management
   #+begin_src emacs-lisp
     (use-package projectile
@@ -648,14 +758,14 @@
 
      (defun +eshell/goto-end-of-prompt ()
        "Move cursor to the prompt when switching to insert mode (if point isn't
-                             already there)."
+                                  already there)."
        (interactive)
        (goto-char (point-max))
        (evil-append 1))
 
      (defun +eshell/counsel-esh-history-normal ()
        "Move cursor to the end of the buffer before calling counsel-esh-history
-                               and change `state` to insert."
+                                    and change `state` to insert."
        (interactive)
        (goto-char (point-max))
        (eshell-bol)
@@ -667,7 +777,7 @@
 
      (defun +eshell/pcomplete ()
        "Use pcomplete with completion-in-region backend instead of popup window at
-     bottom. This ties pcomplete into ivy or helm, if they are enabled."
+          bottom. This ties pcomplete into ivy or helm, if they are enabled."
        (interactive)
        (require 'pcomplete)
        (if (and (bound-and-true-p company-mode)
@@ -720,8 +830,6 @@
        (evil-leader/set-key "e" 'eshell-here
          "pe" 'eshell-project-root))
    #+end_src
-
-   #+RESULTS:
   
 ** Eshell functions
  #+begin_src emacs-lisp
