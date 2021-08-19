@@ -91,6 +91,8 @@
           (evil-get-auxiliary-keymap global-intercept-mode-map state t t)
           state))
 
+       ;; HACK: To seperate C-i with <tab>
+       (define-key input-decode-map (kbd "C-i") (kbd "H-i"))
        (evil-define-key '(normal insert) global-intercept-mode-map
          "\C-j" 'evil-window-down
          "\C-k" 'evil-window-up
@@ -100,7 +102,7 @@
          "\C-k" 'evil-window-up
          "\C-h" 'evil-window-left
          "\C-l" 'evil-window-right
-         "\C-i" 'gumshoe-backtrack-forward
+         (kbd "H-i") 'gumshoe-backtrack-forward
          "\C-o" 'gumshoe-backtrack-back
          "\C-ws" '+emacs/split-follow-window-vertically
          "\C-wv" '+emacs/split-follow-window-horizontally))
@@ -111,6 +113,7 @@
      (use-package evil
        :ensure evil
        :init
+       (setq evil-want-C-i-jump nil)
        (setq evil-want-integration t)
        (setq evil-want-keybinding nil)
        (setq evil-jumps-cross-buffers nil)
@@ -442,7 +445,8 @@
    Use company for packages
    #+BEGIN_SRC emacs-lisp
      (use-package company
-       :diminish company-mode
+       :disable
+       ;:diminish company-mode
        :ensure t
        :config
        (setq company-backends '(company-files company-capf))
@@ -452,6 +456,43 @@
        (setq company-global-modes '(not eshell-mode))
        (global-company-mode 1))
    #+END_SRC
+   
+** Package Corfu
+   #+begin_src emacs-lisp
+     ;(use-package corfu
+     ;  :ensure t
+     ;  :bind (:map corfu-map
+     ;         ("C-n" . corfu-next)
+     ;         ("C-p" . corfu-previous)
+     ;         ("C-f" . corfu-insert))
+     ;  :custom
+     ;  (corfu-cycle t)
+     ;  (corfu-auto t)
+     ;  :config
+     ;  (corfu-global-mode))
+
+     ;(use-package orderless
+     ;  :init
+     ;  (setq completion-styles '(orderless)
+     ;        completion-category-defaults nil
+     ;        completion-category-overrides '((file (styles . (partial-completion))))))
+
+
+     ;;; A few more useful configurations...
+     ;(use-package emacs
+     ;  :init
+     ;  ;; TAB cycle if there are only few candidates
+     ;  (setq completion-cycle-threshold 3)
+
+     ;  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+     ;  ;; Corfu commands are hidden, since they are not supposed to be used via M-x.
+     ;  ;; (setq read-extended-command-predicate
+     ;  ;;       #'command-completion-default-include-p)
+
+     ;  ;; Enable indentation+completion using the TAB key.
+     ;  ;; `completion-at-point' is often bound to M-TAB.
+     ;  (setq tab-always-indent 'complete))
+   #+end_src
 
 ** Package ivy, swiper and counsel
    #+BEGIN_SRC emacs-lisp 
@@ -815,6 +856,7 @@
        (evil-define-key 'insert 'local
          (kbd "C-r") 'counsel-esh-history
          (kbd "<tab>")  '+eshell/pcomplete))
+
 
      (use-package eshell
        :ensure t
