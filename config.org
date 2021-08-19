@@ -445,7 +445,7 @@
        :diminish company-mode
        :ensure t
        :config
-       (setq company-backends '((company-files company-capf)))
+       (setq company-backends '(company-files company-capf))
        (setq company-idle-delay 0)
        (setq company-minimum-prefix-length 1)
        (setq company-tooltip-align-annotations t)
@@ -454,7 +454,7 @@
    #+END_SRC
 
 ** Package ivy, swiper and counsel
-   #+BEGIN_SRC emacs-lisp :eval no
+   #+BEGIN_SRC emacs-lisp 
      (use-package ivy
        :diminish
        :config
@@ -570,108 +570,108 @@
 
 ** Vertico
    #+begin_src emacs-lisp
-     (use-package vertico
-       :disable
-       :ensure t
-       :init
-       (vertico-mode)
-       ;; Grow and shrink the Vertico minibuffer
-       ;; (setq vertico-resize t)
-
-       ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
-       (setq vertico-cycle t)
-       (setq enable-recursive-minibuffers t)
-
-       (defun crm-indicator (args)
-         (cons (concat "[CRM] " (car args)) (cdr args)))
-       (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-       )
-
-     (use-package vertico-repeat
-       :disable
-       :ensure t
-       :init
-       (evil-leader/set-key "r" 'vertico-repeat))
-
-     (use-package vertico-directory
-       :disable
-       :ensure t
-       ;; More convenient directory navigation commands
-       :bind (:map vertico-map
-                   ("RET" . vertico-directory-enter)
-                   ("DEL" . vertico-directory-delete-char)
-                   ("M-DEL" . vertico-directory-delete-word))
-       ;; Tidy shadowed file names
-
-       :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
-
-     (use-package orderless
-       :disable
-       :ensure t
-       :init
-       (setq completion-styles '(orderless)
-             completion-category-defaults nil
-             completion-category-overrides '((file (styles initials)))))
-
-     ;; Persist history over Emacs restarts. Vertico sorts by history position.
-     (use-package savehist
-       :disable
-       :ensure t
-       :init
-       (savehist-mode))
-
-     ;; Enable richer annotations using the Marginalia package
-     (use-package marginalia
-       :disable
-       :enssure t
-       :init
-       (marginalia-mode))
-
-     ;; 
-     (use-package consult
-       :disable
-       :ensure t
-       :init
-       (setq consult-project-root-function #'projectile-project-root)
-       (evil-leader/set-key
-         "." 'find-file-at-point
-         "SPC" 'projectile-find-file
-         "pg" 'consult-ripgrep
-         "b" 'consult-buffer
-         "i" 'consult-imenu
-         "hh" 'describe-function
-         "hv" 'describe-variable
-         "m" 'consult-bookmark
-         "y" 'consult-yank-pop
-         ":" 'execute-extended-command
-         "pp" 'projectile-switch-project
-         "s"  'consult-line
-         )
-
-       )
-
-     (use-package which-key
-       :disable
-       :ensure t
-       :diminish which-key-mode
-       :init
-       (which-key-mode))
-
-     (use-package embark
-       :disable
-       :ensure t
-       :bind
-       (((kbd "C-SPC") . embark-act)
-        ((kbd "<C-return>") . embark-export))
-       :init
-       ;; Optionally replace the key help with a completing-read interface
-       (setq prefix-help-command #'embark-prefix-help-command))
-
-     ;; Consult users will also want the embark-consult package.
-     (use-package embark-consult
-       :disable
-       :ensure t
-       :after (embark consult))
+     ;(use-package vertico
+     ;  :disable
+     ;  :ensure t
+     ;  :init
+     ;  (vertico-mode)
+     ;  ;; Grow and shrink the Vertico minibuffer
+     ;  ;; (setq vertico-resize t)
+     ;
+     ;  ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
+     ;  (setq vertico-cycle t)
+     ;  (setq enable-recursive-minibuffers t)
+     ;
+     ;  (defun crm-indicator (args)
+     ;    (cons (concat "[CRM] " (car args)) (cdr args)))
+     ;  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+     ;  )
+     ;
+     ;(use-package vertico-repeat
+     ;  :disable
+     ;  :ensure t
+     ;  :init
+     ;  (evil-leader/set-key "r" 'vertico-repeat))
+     ;
+     ;(use-package vertico-directory
+     ;  :disable
+     ;  :ensure t
+     ;  ;; More convenient directory navigation commands
+     ;  :bind (:map vertico-map
+     ;              ("RET" . vertico-directory-enter)
+     ;              ("DEL" . vertico-directory-delete-char)
+     ;              ("M-DEL" . vertico-directory-delete-word))
+     ;  ;; Tidy shadowed file names
+     ;
+     ;  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+     ;
+     ;(use-package orderless
+     ;  :disable
+     ;  :ensure t
+     ;  :init
+     ;  (setq completion-styles '(orderless)
+     ;        completion-category-defaults nil
+     ;        completion-category-overrides '((file (styles initials)))))
+     ;
+     ;;; Persist history over Emacs restarts. Vertico sorts by history position.
+     ;(use-package savehist
+     ;  :disable
+     ;  :ensure t
+     ;  :init
+     ;  (savehist-mode))
+     ;
+     ;;; Enable richer annotations using the Marginalia package
+     ;(use-package marginalia
+     ;  :disable
+     ;  :enssure t
+     ;  :init
+     ;  (marginalia-mode))
+     ;
+     ;;; 
+     ;(use-package consult
+     ;  :disable
+     ;  :ensure t
+     ;  :init
+     ;  (setq consult-project-root-function #'projectile-project-root)
+     ;  (evil-leader/set-key
+     ;    "." 'find-file-at-point
+     ;    "SPC" 'projectile-find-file
+     ;    "pg" 'consult-ripgrep
+     ;    "b" 'consult-buffer
+     ;    "i" 'consult-imenu
+     ;    "hh" 'describe-function
+     ;    "hv" 'describe-variable
+     ;    "m" 'consult-bookmark
+     ;    "y" 'consult-yank-pop
+     ;    ":" 'execute-extended-command
+     ;    "pp" 'projectile-switch-project
+     ;    "s"  'consult-line
+     ;    )
+     ;
+     ;  )
+     ;
+     ;(use-package which-key
+     ;  :disable
+     ;  :ensure t
+     ;  :diminish which-key-mode
+     ;  :init
+     ;  (which-key-mode))
+     ;
+     ;(use-package embark
+     ;  :disable
+     ;  :ensure t
+     ;  :bind
+     ;  (((kbd "C-SPC") . embark-act)
+     ;   ((kbd "<C-return>") . embark-export))
+     ;  :init
+     ;  ;; Optionally replace the key help with a completing-read interface
+     ;  (setq prefix-help-command #'embark-prefix-help-command))
+     ;
+     ;;; Consult users will also want the embark-consult package.
+     ;(use-package embark-consult
+     ;  :disable
+     ;  :ensure t
+     ;  :after (embark consult))
    #+end_src
 
 * Project management
