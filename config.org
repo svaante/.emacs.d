@@ -454,6 +454,7 @@
        (setq company-tooltip-align-annotations t)
        (setq company-global-modes '(not eshell-mode))
        (global-company-mode 1))
+
    #+END_SRC
    
 ** Package Corfu
@@ -611,7 +612,7 @@
 ** Vertico, consult, embark
    #+begin_src emacs-lisp
      (use-package vertico
-                                             ;:load-path "~/.emacs.d/gits/vertico"
+       ;:load-path "~/.emacs.d/gits/vertico"
        :init
        (vertico-mode)
        ;; Grow and shrink the Vertico minibuffer
@@ -623,9 +624,7 @@
 
        (defun crm-indicator (args)
          (cons (concat "[CRM] " (car args)) (cdr args)))
-       (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-  
-       )
+       (advice-add #'completing-read-multiple :filter-args #'crm-indicator))
 
      (use-package vertico-repeat
        :load-path "~/.emacs.d/gits/vertico/extensions"
@@ -640,15 +639,15 @@
                    ("DEL" . vertico-directory-delete-char)
                    ("M-DEL" . vertico-directory-delete-word))
        ;; Tidy shadowed file names
-
        :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
      (use-package orderless
+       :disable
        :ensure t
        :init
-       (setq completion-styles '(orderless)
+       (setq completion-styles '(basic substring orderless)
              completion-category-defaults nil
-             completion-category-overrides '((file (styles initials)))))
+             completion-category-overrides '((file (styles basic partial-completion)))))
 
      ;; Persist history over Emacs restarts. Vertico sorts by history position.
      (use-package savehist
@@ -680,10 +679,12 @@
        :ensure t
        :init
        (setq consult-project-root-function #'projectile-project-root)
+       (define-key minibuffer-local-map (kbd "C-r") 'consult-history)
        (evil-leader/set-key
          "." 'find-file-at-point
-         "SPC" 'projectile-find-file
+         "SPC" 'project-find-file
          "pg" 'consult-ripgrep
+         "pl" 'consult-locate
          "b" 'consult-buffer
          "i" 'consult-imenu
          "hh" 'describe-function
@@ -691,9 +692,7 @@
          "m" 'consult-bookmark
          "y" 'consult-yank-pop
          ":" 'execute-extended-command
-         "pp" 'projectile-switch-project
-         "s"  'consult-line
-         )
+         "s"  'consult-line)
        :config
        (consult-customize consult-buffer :preview-key '())
        (setq completion-in-region-function
@@ -701,13 +700,8 @@
                (apply (if vertico-mode
                           #'consult-completion-in-region
                         #'completion--in-region)
-                      args)))
+                      args))))
 
-       (lambda
-         (&rest args)
-         (apply
-          (if vertico-mode #'consult-completion-in-region #'completion--in-region)
-          args)))
 
      (use-package which-key
        :ensure t
@@ -715,10 +709,19 @@
        :init
        (which-key-mode))
 
+     (defun +eshell-there (file)
+       "Run eshell in directory of FILE."
+       (interactive "Directory: ")
+       (let ((default-directory (file-name-directory
+                                 (expand-file-name
+                                  (substitute-in-file-name file)))))
+         (eshell-here)))
+
      (use-package embark
+       :init
        :config
        (define-key minibuffer-local-map (kbd "C-SPC") 'embark-act)
-       (define-key minibuffer-local-map (kbd "<C-return>") 'embark-export)
+       (define-key minibuffer-local-map (kbd "C-return>") 'embark-export)
 
        ;; Show Embark actions via which-key
        (setq embark-action-indicator
@@ -726,10 +729,12 @@
                (which-key--show-keymap "Embark" map nil nil 'no-paging)
                #'which-key--hide-popup-ignore-command)
              embark-become-indicator embark-action-indicator))
-     ;; Consult users will also want the embark-consult package.
+
      (use-package embark-consult
        :ensure t
        :after (embark consult))
+
+     (define-key embark-file-map "e" '+eshell-there)
    #+end_src
 
 * Project management
@@ -744,6 +749,7 @@
                                                  projectile-root-bottom-up
                                                  projectile-root-local)
 
+      (setq projectile-switch-project-action 'projectile-dired)
       (evil-leader/set-key
         "pi" 'projectile-invalidate-cache
         "pt" 'projectile-test-project
@@ -751,13 +757,15 @@
         "pc" 'projectile-compile-project
         "p!" 'projectile-run-async-shell-command-in-root
         "pq" 'projectile-toggle-between-implementation-and-test
-        "pb" 'projectile-switch-to-buffer))
+        "pb" 'projectile-switch-to-buffer
+        "pp" 'projectile-switch-project))
 
     (use-package counsel-projectile
+      :disable
       :diminish
       :ensure t
       :config
-      (setcar counsel-projectile-switch-project-action 4)
+      ;(setcar counsel-projectile-switch-project-action 4)
 
       (setq counsel-projectile-org-capture-templates
             '(("p"
@@ -780,6 +788,7 @@
        :config
        (exec-path-from-shell-initialize))
    #+end_src
+   
 ** Eshell
    #+begin_src emacs-lisp
      ;; Require file where 'eshell/pwd is defined for further usage
@@ -833,18 +842,17 @@
            (evil-append-line 0)
            (counsel-esh-history))))
 
-     (defun +eshell/pcomplete ()
-       "Use pcomplete with completion-in-region backend instead of popup window at
-          bottom. This ties pcomplete into ivy or helm, if they are enabled."
+     (defun +eshell/consult-esh-history-normal ()
+       "Move cursor to the end of the buffer before calling counsel-esh-history
+                                    and change `state` to insert."
        (interactive)
-       (require 'pcomplete)
-       (if (and (bound-and-true-p company-mode)
-                (or company-candidates
-                    (and (company-pcomplete-available)
-                         (company-pcomplete--prefix)
-                         (company-pcomplete--candidates))))
-           (call-interactively #'company-pcomplete)
-         (ignore-errors (pcomplete-std-complete))))
+       (goto-char (point-max))
+       (eshell-bol)
+       (unwind-protect
+           (kill-line)
+         (progn
+           (evil-append-line 0)
+           (consult-history))))
 
      (defun eshell-mode-configuration ()
        (push 'eshell-tramp eshell-modules-list)
@@ -864,15 +872,14 @@
          (kbd "C-n") 'eshell-next-prompt
          "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new"))
          "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new"))
-         (kbd "C-r") '+eshell/counsel-esh-history-normal
+         (kbd "C-r") '+eshell/consult-esh-history-normal
          (kbd "<return>") '+eshell/goto-end-of-prompt)
 
        (evil-define-key 'visual 'local
          (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state))))
 
        (evil-define-key 'insert 'local
-         (kbd "C-r") 'counsel-esh-history
-         (kbd "<tab>")  '+eshell/pcomplete))
+         (kbd "C-r") 'consult-history))
 
 
      (use-package eshell
