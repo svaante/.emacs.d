@@ -32,11 +32,6 @@
     ;; stop the insessent blinking
     (blink-cursor-mode 0)
 
-    ;; Truncate that shit
-    (use-package simple
-      :diminish
-      (global-visual-line-mode t))
-
     ;; Backup trails is worse then chem-trails, losing patches is 99% of the time my fault
     (setq auto-save-default nil)
 
@@ -58,6 +53,47 @@
            (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
            (add-to-list 'default-frame-alist '(ns-appearance . light))))
    #+END_SRC
+
+* Package
+  #+begin_src emacs-lisp
+    (require 'package)
+
+    (add-to-list 'package-archives
+                 '("melpa" . "https://melpa.org/packages/"))
+
+    ;; Initialise the packages, avoiding a re-initialisation.
+    (unless (bound-and-true-p package--initialized)
+      (setq package-enable-at-startup nil)
+      (package-initialize))
+
+    ;; Unless quelpa is installed install it
+    (unless (package-installed-p 'quelpa)
+      (with-temp-buffer
+        (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+        (eval-buffer)
+        (quelpa-self-upgrade)))
+
+    (eval-when-compile
+      (require 'quelpa))
+
+    ;; Configure `use-package' prior to loading it.
+    (eval-and-compile
+      (setq use-package-always-ensure nil)
+      (setq use-package-always-defer nil)
+      (setq use-package-always-demand nil)
+      (setq use-package-expand-minimally nil)
+      (setq use-package-enable-imenu-support t))
+
+    ;; Install quelpa-use-package 
+    (unless (package-installed-p 'quelpa-use-package)
+      (quelpa
+       '(quelpa-use-package
+         :fetcher git
+         :url "https://github.com/quelpa/quelpa-use-package.git")))
+
+    (eval-when-compile
+      (require 'quelpa-use-package))
+  #+end_src
 
 * Key mappings
 ** Global mappings
@@ -316,14 +352,26 @@
      (dashboard-setup-startup-hook))
    #+END_SRC
 
+** Visual lines
+   #+begin_src emacs-lisp
+    (use-package simple
+      :diminish
+      (global-visual-line-mode t))
+   #+end_src
+
 * Buffer navigation
 ** Gumshoe
    #+begin_src emacs-lisp
+     (defun consult-gumshoe-global ()
+       (interactive)
+       (consult-global-mark (ring-elements (oref gumshoe--global-backlog log))))
+
      (use-package gumshoe
        :load-path "~/.emacs.d/gits/gumshoe"
        :diminish 'global-gumshoe-mode
        :config
        (setq gumshoe-display-buffer-action '(display-buffer-same-window))
+       (evil-leader/set-key "js" 'consult-gumshoe-global)
        (global-gumshoe-mode 1))
    #+end_src
 
@@ -642,7 +690,6 @@
        :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
      (use-package orderless
-       :disable
        :ensure t
        :init
        (setq completion-styles '(basic substring orderless)
@@ -682,7 +729,7 @@
        (define-key minibuffer-local-map (kbd "C-r") 'consult-history)
        (evil-leader/set-key
          "." 'find-file-at-point
-         "SPC" 'project-find-file
+         "SPC" 'projectile-find-file
          "pg" 'consult-ripgrep
          "pl" 'consult-locate
          "b" 'consult-buffer
@@ -738,9 +785,11 @@
    #+end_src
 
 * Project management
+** Projectile
   #+begin_src emacs-lisp
     (use-package projectile
       :ensure t
+      :quelpa (projectile :fetcher github :repo "waymondo/projectile")
       :config
       (projectile-mode +1)
       projectile-project-root-files #'( ".projectile" )
@@ -778,6 +827,20 @@
         "pg" 'counsel-projectile-rg
         "pa" 'counsel-projectile-org-agenda)
       (counsel-projectile-mode))
+  #+end_src
+** Project.el
+  #+begin_src emacs-lisp
+    (defun project-find-override (dir)
+      (let ((override (locate-dominating-file dir ".project.el")))
+        (if override
+            (cons 'vc override)
+          nil)))
+
+    (use-package project
+      :disabe
+      :ensure t
+      :config
+      (add-hook 'project-find-functions #'project-find-override))
   #+end_src
 
 * Terminal
@@ -1030,10 +1093,10 @@
          "lr" 'lsp-rename
          "lf" 'lsp-format-buffer))
 
-     (use-package lsp-ivy
-       :ensure t
-       :config
-       (evil-leader/set-key "ls" 'lsp-ivy-global-workspace-symbol))
+     ;(use-package lsp-ivy
+     ;  :ensure t
+     ;  :config
+     ;  (evil-leader/set-key "ls" 'lsp-ivy-global-workspace-symbol))
 
      (use-package flycheck
        :ensure t
@@ -1051,10 +1114,12 @@
    #+begin_src emacs-lisp
      (use-package tree-sitter :ensure t)
 
-     (use-package tree-sitter-langs :ensure t)
+     (use-package tree-sitter-langs
+       :ensure t
+       :hook (prog-mode . tree-sitter-mode))
 
      (use-package evil-textobj-treesitter
-       :load-path "~/.emacs.d/gits/evil-textobj-treesitter"
+       :quelpa (evil-textobj-treesitter :fetcher github :repo "meain/evil-textobj-treesitter")
        :after tree-sitter
        :config
            (define-key evil-outer-text-objects-map "f" (evil-textobj-treesitter-get-textobj "function.outer"))
