@@ -52,8 +52,13 @@
            (setq mac-right-option-modifier nil)
            (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
            (add-to-list 'default-frame-alist '(ns-appearance . light))))
-   #+END_SRC
 
+     (if (eq system-type 'gnu/linux)
+         (progn
+           (global-set-key (kbd "C-+") 'text-scale-increase)
+           (global-set-key (kbd "C--") 'text-scale-decrease)))
+   #+END_SRC
+   
 * Package
   #+begin_src emacs-lisp
     (require 'package)
@@ -427,9 +432,31 @@
           (python . t)))
        (evil-leader/set-key "os" 'org-store-link))
 
+     (defun +org-agenda-goto (&optional highlight)
+       "Go to the entry at point in the corresponding Org file using same window."
+       (interactive)
+       (let* ((marker (or (org-get-at-bol 'org-marker)
+                          (org-agenda-error)))
+              (buffer (marker-buffer marker))
+              (pos (marker-position marker)))
+         ;; FIXME: use `org-switch-to-buffer-other-window'?
+         (switch-to-buffer buffer)
+         (widen)
+         (push-mark)
+         (goto-char pos)
+         (when (derived-mode-p 'org-mode)
+           (org-show-context 'agenda)
+           (recenter (/ (window-height) 2))
+           (org-back-to-heading t)
+           (let ((case-fold-search nil))
+             (when (re-search-forward org-complex-heading-regexp nil t)
+               (goto-char (match-beginning 4)))))
+         (run-hooks 'org-agenda-after-show-hook)
+         (and highlight (org-highlight (point-at-bol) (point-at-eol)))))
+
      (defun +org-agenda-goto-narrow ()
        (interactive)
-       (org-agenda-goto)
+       (+org-agenda-goto)
        (org-narrow-to-element))
 
      (use-package org-agenda
@@ -451,7 +478,7 @@
          "J" 'org-agenda-priority-down
          "n" 'org-agenda-add-note
          "t" 'org-agenda-todo
-         ":" 'org-agenda-set-tags
+         "#" 'org-agenda-set-tags
          "j" 'org-agenda-next-line
          "k"  'org-agenda-previous-line
          "f" 'org-agenda-later
@@ -480,14 +507,17 @@
 
        (evil-leader/set-key "oc" 'org-capture))
 
-       (use-package ob-async :ensure t)
+     (use-package ob-async :ensure t)
 
-       (use-package org-superstar
-         :ensure t
-         :hook (org-mode . org-superstar-mode))
+     (use-package org-superstar
+       :ensure t
+       :hook (org-mode . org-superstar-mode))
 
-       (use-package orgit :ensure t)
+     (use-package orgit :ensure t)
    #+END_SRC
+
+   #+RESULTS:
+
 * Completion
 ** Package company
    Use company for packages
@@ -502,7 +532,6 @@
        (setq company-tooltip-align-annotations t)
        (setq company-global-modes '(not eshell-mode))
        (global-company-mode 1))
-
    #+END_SRC
    
 ** Package Corfu
@@ -725,7 +754,7 @@
      (use-package consult
        :ensure t
        :init
-       (setq consult-project-root-function #'projectile-project-root)
+       (setq consult-project-root-function 'projectile-project-root)
        (define-key minibuffer-local-map (kbd "C-r") 'consult-history)
        (evil-leader/set-key
          "." 'find-file-at-point
@@ -733,7 +762,7 @@
          "pg" 'consult-ripgrep
          "pl" 'consult-locate
          "b" 'consult-buffer
-         "i" 'consult-imenu
+         "i" 'consult-outline
          "hh" 'describe-function
          "hv" 'describe-variable
          "m" 'consult-bookmark
@@ -956,6 +985,10 @@
        (evil-define-key 'insert 'local
          (kbd "C-r") 'consult-history))
 
+     (defun +eshell-create-and-rename ()
+       (interactive)
+       (eshell "new")
+       (eshell-pwd-rename))
 
      (use-package eshell
        :ensure t
@@ -968,9 +1001,23 @@
 
        (setenv "PAGER" "cat")
 
+       (advice-add '+emacs/split-follow-window-horizontally
+                   :after (lambda ()
+                            (interactive)
+                            (and (bound-and-true-p eshell-mode)
+                                 (+eshell-create-and-rename))))
+       (advice-add '+emacs/split-follow-window-vertically
+                   :after (lambda ()
+                            (interactive)
+                            (and (bound-and-true-p eshell-mode)
+                                 (+eshell-create-and-rename))))
+
        (evil-leader/set-key "e" 'eshell-here
          "pe" 'eshell-project-root))
    #+end_src
+
+   #+RESULTS:
+   | eshell-pwd-rename |
   
 ** Eshell functions
  #+begin_src emacs-lisp
@@ -996,7 +1043,7 @@
             (choice (ivy-read "AWS Profile: " trim)))
        (setenv "AWS_PROFILE" choice)))
 
-   (require 'cl)
+   (require 'cl-lib)
    (require 'subr-x)
 
    (defun eshell/absolut-ls (&optional path)
@@ -1039,13 +1086,6 @@
    #+end_src
 ** Spell checking spelling
    #+begin_src emacs-lisp
-     (use-package flyspell
-       :ensure t
-       ;;inside git commit and markdown
-       :hook ((git-commit-mode org-mode markdown-mode) . flyspell-mode)
-       :config
-       (setq flyspell-default-dictionary "en_US"))
-
      (defun +ispell/toogle-english-swedish-dictonary ()
        "Toggle `Ispell´ dictionary between English and Swedish."
        (interactive)
@@ -1055,7 +1095,20 @@
           ((string-equal ispell-local-dictionary "swedish") (ispell-change-dictionary "en_US"))
           (t                                                (ispell-change-dictionary "en_US")))))
 
-       (evil-leader/set-key "f" '+ispell/toogle-english-swedish-dictonary)
+     (use-package flyspell
+       :ensure t
+       ;;inside git commit and markdown
+       :hook ((git-commit-mode org-mode markdown-mode) . flyspell-mode)
+       :config
+       (setq flyspell-default-dictionary "en_US"))
+
+     (evil-leader/set-key
+       "ff" '+ispell/toogle-english-swedish-dictonary
+       "fp" (lambda ()
+              (interactive)
+              (ispell-change-dictionary "en_US")
+              (flyspell-prog-mode)))
+
    #+end_src
 
 ** Fix color stuff
@@ -1071,6 +1124,29 @@
 
        (advice-add 'compilation-filter :around #'+emacs/advice-compilation-filter))
    #+end_src
+** Scratch
+   #+begin_src emacs-lisp
+     ;; Eval code lisp in the *scratch* buffer
+     (define-key lisp-interaction-mode-map (kbd "C-c C-c") 'eval-buffer)
+
+     ;; Create text scratch buffer
+     (defun create-or-switch-text-scratch-buffer ()
+       (interactive)
+       (let ((b-name "*text-scratch*"))
+         (if (not (get-buffer b-name))
+             (let ((buf (generate-new-buffer b-name)))
+               (switch-to-buffer (other-buffer buf))
+               (switch-to-buffer-other-window buf)
+               (flyspell-mode)
+               (evil-insert-state))
+           (progn
+             (switch-to-buffer-other-window (get-buffer b-name))
+             (evil-insert-state)))))
+
+     (evil-leader/set-key "t" 'create-or-switch-text-scratch-buffer)
+   #+end_src
+
+
 * Programming
 ** LSP
    #+begin_src emacs-lisp
@@ -1098,27 +1174,32 @@
      ;  :config
      ;  (evil-leader/set-key "ls" 'lsp-ivy-global-workspace-symbol))
 
-     (use-package flycheck
-       :ensure t
-       :init (add-hook 'prog-mode-hook 'flycheck-mode)
-       :config
+     ;(use-package flycheck
+     ;  :ensure t
+     ;  :init (add-hook 'prog-mode-hook 'flycheck-mode)
+     ;  :config
 
-       (setq-default flycheck-disabled-checkers
-                     (append flycheck-disabled-checkers
-                             '(javascript-jshint json-jsonlist)))
-       (flycheck-add-mode 'javascript-eslint 'js-mode)
-       (add-hook 'flycheck-mode-hook 'add-node-modules-path))
+     ;  (setq-default flycheck-disabled-checkers
+     ;                (append flycheck-disabled-checkers
+     ;                        '(javascript-jshint json-jsonlist)))
+     ;  (flycheck-add-mode 'javascript-eslint 'js-mode)
+     ;  (add-hook 'flycheck-mode-hook 'add-node-modules-path))
    #+end_src
 
 ** Tree sitter
    #+begin_src emacs-lisp
-     (use-package tree-sitter :ensure t)
+     ;; Unfortunately tree-sitter does not work at the moment
+     (use-package tree-sitter
+       :disable
+       :ensure t)
 
      (use-package tree-sitter-langs
+       :disable
        :ensure t
        :hook (prog-mode . tree-sitter-mode))
 
      (use-package evil-textobj-treesitter
+       :disable
        :quelpa (evil-textobj-treesitter :fetcher github :repo "meain/evil-textobj-treesitter")
        :after tree-sitter
        :config
@@ -1190,6 +1271,8 @@
       (lsp-pyright-typechecking-mode "off"))
    #+end_src
 
+   #+RESULTS:
+
 ** Godot
    #+begin_src emacs-lisp
      (use-package gdscript-mode
@@ -1214,6 +1297,7 @@
      :init
      (setq compilation-scroll-output t))
  #+end_src
+ 
 * Applications
 ** Dired
    #+begin_src emacs-lisp
@@ -1247,12 +1331,6 @@
      (use-package tramp
        :init
        (setq tramp-default-method "ssh"))
-
-     (use-package counsel-tramp
-       :ensure t
-       :config
-       (evil-leader/set-key
-         "t" 'counsel-tramp))
    #+end_src
 
 ** Postman
