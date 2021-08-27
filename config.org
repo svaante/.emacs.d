@@ -372,7 +372,7 @@
        (consult-global-mark (ring-elements (oref gumshoe--global-backlog log))))
 
      (use-package gumshoe
-       :load-path "~/.emacs.d/gits/gumshoe"
+       :quelpa (gumshoe :fetcher github :repo "overdr0ne/gumshoe")
        :diminish 'global-gumshoe-mode
        :config
        (setq gumshoe-display-buffer-action '(display-buffer-same-window))
