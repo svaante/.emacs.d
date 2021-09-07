@@ -1008,7 +1008,7 @@
      (use-package eshell
        :ensure t
        :hook ((eshell-first-time-mode . eshell-mode-configuration)
-              (eshell-directory-change-hook . eshell-pwd-rename))
+              (eshell-directory-change . eshell-pwd-rename))
        :init
        (setq eshell-hist-ignoredups t
              eshell-save-history-on-exit t
