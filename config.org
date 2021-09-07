@@ -778,7 +778,27 @@
          ":" 'execute-extended-command
          "s"  'consult-line)
        :config
+       ;; Do not preview buffers in consult-buffer 
        (consult-customize consult-buffer :preview-key '())
+
+       ;; Add eshell as a buffer source
+       (defvar eshell-buffer-source
+         `(:name     "Eshell Buffer"
+                     :narrow   (?e . "Eshell")
+                     :hidden   t
+                     :category buffer
+                     :face     consult-buffer
+                     :history  buffer-name-history
+                     :state    ,#'consult--buffer-state
+                     :enabled  ,(lambda () consult-project-root-function)
+                     :items
+                     ,(lambda ()
+                        (consult--buffer-query :mode 'eshell-mode
+                                               :as #'buffer-name)))
+         "Eshell buffer candidate source for `consult-buffer'.")
+       (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
+
+       ;; Use consult as the completion-in-region
        (setq completion-in-region-function
              (lambda (&rest args)
                (apply (if vertico-mode
