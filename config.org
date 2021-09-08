@@ -206,7 +206,8 @@
        (thread-last evil-collection-mode-list
          (remove 'eshell)
          (setq evil-collection-mode-list))
-       (evil-collection-init))
+       (evil-collection-init)
+       (diminish 'evil-collection-unimpaired-mode))
 
       (use-package evil-org
         :diminish
