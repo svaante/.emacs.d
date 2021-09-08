@@ -9,6 +9,9 @@
     (scroll-bar-mode -1)
     (menu-bar-mode -1)
 
+    ;; set fringe style to minimal
+    (set-fringe-style 0)
+
     ;; remove visual bell
     (setq visible-bell       nil
           ring-bell-function #'ignore)
