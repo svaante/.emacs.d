@@ -822,7 +822,7 @@
        (let ((default-directory (file-name-directory
                                  (expand-file-name
                                   (substitute-in-file-name file)))))
-         (eshell-here)))
+         (eshell-here t)))
 
      (use-package embark
        :init
@@ -928,15 +928,17 @@
                ((not (get-buffer b-name)) (rename-buffer b-name))
                (t (eshell-pwd-rename (1+ i))))))
 
-     (defun eshell-here ()
+     (defun eshell-here (&optional same-window)
        "Opens up a new shell in the directory associated with the current buffer's file."
        (interactive)
        (let ((b-name (concat "*eshell " (eshell/pwd) "*")))
          (if (or (not (get-buffer b-name))
                  (bound-and-true-p eshell-mode))
              (let ((buf (eshell "new")))
-               (switch-to-buffer (other-buffer buf))
-               (switch-to-buffer-other-window buf)
+               (when (not same-window)
+                 (progn 
+                   (switch-to-buffer (other-buffer buf))
+                   (switch-to-buffer-other-window buf)))
                (eshell-pwd-rename))
            (switch-to-buffer-other-window (get-buffer b-name)))))
 
