@@ -711,25 +711,6 @@
         "pq" 'projectile-toggle-between-implementation-and-test
         "pb" 'projectile-switch-to-buffer
         "pp" 'projectile-switch-project))
-
-    (use-package counsel-projectile
-      :disable
-      :diminish
-      :ensure t
-      :config
-      ;(setcar counsel-projectile-switch-project-action 4)
-
-      (setq counsel-projectile-org-capture-templates
-            '(("p"
-               "[${name}] Project Task"
-               entry (file+headline "${root}/notes.org" "Tasks")
-               "* TODO %?\n  %u\n  %a")))
-
-      (evil-leader/set-key
-        "pp" 'counsel-projectile-switch-project
-        "pg" 'counsel-projectile-rg
-        "pa" 'counsel-projectile-org-agenda)
-      (counsel-projectile-mode))
   #+end_src
 ** Project.el
   #+begin_src emacs-lisp
