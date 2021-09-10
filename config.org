@@ -1169,26 +1169,15 @@
        (setq lsp-file-watch-threshold 1000)
        (setq lsp-completion-provider :capf)
        (setq lsp-headerline-breadcrumb-enable nil)
+
+       ;; enable lsp-mode inside of org babel edit src blocks
+       (defun org-babel-edit-prep:python (babel-info)
+         (setq-local buffer-file-name (->> babel-info caddr (alist-get :tangle))))
+
        (add-hook 'lsp-mode-hook 'lsp-mode-configuration)
        (evil-leader/set-key
          "lr" 'lsp-rename
          "lf" 'lsp-format-buffer))
-
-     ;(use-package lsp-ivy
-     ;  :ensure t
-     ;  :config
-     ;  (evil-leader/set-key "ls" 'lsp-ivy-global-workspace-symbol))
-
-     ;(use-package flycheck
-     ;  :ensure t
-     ;  :init (add-hook 'prog-mode-hook 'flycheck-mode)
-     ;  :config
-
-     ;  (setq-default flycheck-disabled-checkers
-     ;                (append flycheck-disabled-checkers
-     ;                        '(javascript-jshint json-jsonlist)))
-     ;  (flycheck-add-mode 'javascript-eslint 'js-mode)
-     ;  (add-hook 'flycheck-mode-hook 'add-node-modules-path))
    #+end_src
 
 ** Tree sitter
