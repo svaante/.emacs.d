@@ -538,7 +538,9 @@
        (setq company-minimum-prefix-length 1)
        (setq company-tooltip-align-annotations t)
        (setq company-global-modes '(not eshell-mode))
-       (global-company-mode 1))
+
+       (global-company-mode 1)
+       (company-tng-mode +1))
    #+END_SRC
    
 ** Vertico, consult, embark
