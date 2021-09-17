@@ -773,18 +773,6 @@
        (goto-char (point-max))
        (evil-append 1))
 
-     (defun +eshell/counsel-esh-history-normal ()
-       "Move cursor to the end of the buffer before calling counsel-esh-history
-                                    and change `state` to insert."
-       (interactive)
-       (goto-char (point-max))
-       (eshell-bol)
-       (unwind-protect
-           (kill-line)
-         (progn
-           (evil-append-line 0)
-           (counsel-esh-history))))
-
      (defun +eshell/consult-esh-history-normal ()
        "Move cursor to the end of the buffer before calling counsel-esh-history
                                     and change `state` to insert."
