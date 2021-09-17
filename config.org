@@ -854,6 +854,18 @@
            (evil-append-line 0)
            (consult-history))))
 
+     (defun +eshell/pcomplete ()
+       "Use pcomplete with completion-in-region backend instead of popup window at
+          bottom. This ties pcomplete into ivy or helm, if they are enabled."
+       (interactive)
+       (goto-char (point-max))
+       (eshell-bol)
+       (unwind-protect
+           (kill-line)
+         (progn
+           (evil-append-line 0)
+           (consult-history))))
+
      (defun eshell-mode-configuration ()
        (push 'eshell-tramp eshell-modules-list)
 
