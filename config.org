@@ -718,20 +718,6 @@
         "pb" 'projectile-switch-to-buffer
         "pp" 'projectile-switch-project))
   #+end_src
-** Project.el
-  #+begin_src emacs-lisp
-    (defun project-find-override (dir)
-      (let ((override (locate-dominating-file dir ".project.el")))
-        (if override
-            (cons 'vc override)
-          nil)))
-
-    (use-package project
-      :disabe
-      :ensure t
-      :config
-      (add-hook 'project-find-functions #'project-find-override))
-  #+end_src
 
 * Terminal
 ** Get $PATH from bash/zsh profiles
