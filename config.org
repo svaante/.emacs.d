@@ -690,6 +690,11 @@
 * Project management
 ** Projectile
   #+begin_src emacs-lisp
+    (defun +projectile/projectile-run-project-with-comint ()
+      (interactive)
+      (let ((projectile-run-use-comint-mode t))
+        (call-interactively 'projectile-run-project)))
+
     (use-package projectile
       :ensure t
       :quelpa (projectile :fetcher github :repo "waymondo/projectile")
@@ -706,6 +711,7 @@
         "pi" 'projectile-invalidate-cache
         "pt" 'projectile-test-project
         "pr" 'projectile-run-project
+        "pd" '+projectile/projectile-run-project-with-comint
         "pc" 'projectile-compile-project
         "p!" 'projectile-run-async-shell-command-in-root
         "pq" 'projectile-toggle-between-implementation-and-test
