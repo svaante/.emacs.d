@@ -785,6 +785,15 @@
            (evil-append-line 0)
            (consult-history))))
 
+     (defun +eshell-create-and-rename ()
+       (interactive)
+       (eshell "new")
+       (eshell-pwd-rename))
+
+    (defun eshell-after-split (&rest _)
+      (when (bound-and-true-p eshell-mode)
+        (eshell-here t)))
+
      (defun eshell-mode-configuration ()
        (push 'eshell-tramp eshell-modules-list)
 
@@ -812,11 +821,6 @@
        (evil-define-key 'insert 'local
          (kbd "C-r") 'consult-history))
 
-     (defun +eshell-create-and-rename ()
-       (interactive)
-       (eshell "new")
-       (eshell-pwd-rename))
-
      (use-package eshell
        :ensure t
        :hook ((eshell-first-time-mode . eshell-mode-configuration)
@@ -828,6 +832,8 @@
 
        (setenv "PAGER" "cat")
 
+       (advice-add '+emacs/split-follow-window-horizontally :after #'eshell-after-split)
+       (advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
        (evil-leader/set-key "e" 'eshell-here
          "pe" 'eshell-project-root))
    #+end_src
