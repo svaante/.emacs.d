@@ -329,8 +329,9 @@
      (use-package emacs
        :init
        (setq display-line-numbers-type 'relative)
-       (add-hook 'text-mode-hook #'display-line-numbers-mode)
-       (add-hook 'prog-mode-hook #'display-line-numbers-mode))
+       ;(add-hook 'text-mode-hook #'display-line-numbers-mode)
+       ;(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+       )
    #+END_SRC
 
 ** Match paren 
