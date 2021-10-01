@@ -721,6 +721,63 @@
         "pb" 'projectile-switch-to-buffer
         "pp" 'projectile-switch-project))
   #+end_src
+** project.el
+*** TODO Fix replace the comint command from projectile
+   #+begin_src emacs-lisp
+     ;(setq +project/cmd-history (make-hash-table))
+     ;
+     ;(defun +compilation-read-command (command)
+     ;  (read-shell-command prefix command
+     ;                      (if (equal (car compile-history) command)
+     ;                          '(compile-history . 1)
+     ;                        'compile-history)))
+     ;
+     ;(defun +project/compile (&optional type comint)
+     ;  (interactive) 
+     ;  (let* ((default-directory (project-root (project-current t)))
+     ;         (hash-key (concat type default-directory))
+     ;         (compile-command (gethash hash-key +project/cmd-history ""))
+     ;         (compilation-buffer-name-function (lambda ()
+     ;                                             (concat "*compilation" default-directory type "*")))
+     ;         (prefix type)
+     ;         (compilation-read-command #'+compilation-read-command))
+     ;    (call-interactively #'compile comint)
+     ;    (puthash hash-key (car compile-history) +project/cmd-history)))
+     ;
+     ;(+project/compile "Test: ")
+
+     ;(cl-defmethod project-root ((project (head local)))
+     ;  (cdr project))
+
+     ;(defun +project-files-in-directory (dir)
+     ;  "Use `fd' to list files in DIR."
+     ;  (let* ((default-directory dir)
+     ;         (localdir (file-local-name (expand-file-name dir)))
+     ;         (command (format "fd -t f -0 . %s" localdir)))
+     ;    (project--remote-file-names
+     ;     (sort (split-string (shell-command-to-string command) "\0" t)
+     ;           #'string<))))
+
+     ;(cl-defmethod project-files ((project (head local)) &optional dirs)
+     ;  "Override `project-files' to use `fd' in local projects."
+     ;  (mapcan #'+project-files-in-directory
+     ;          (or dirs (list (project-root project)))))
+
+     ;(defun +project-try-local (dir)
+     ;  "Determine if DIR is a non-Git project.
+     ;DIR must include a .project file to be considered a project."
+     ;  (let ((root (locate-dominating-file dir ".project")))
+     ;    (and root (cons 'local root))))
+
+     ;(use-package project
+     ;  :config
+     ;  (setq project-find-functions '(+project-try-local project-try-vc))
+     ;  (evil-leader/set-key
+     ;    "pp" 'project-switch-project
+     ;     "pe" (lambda () (interactive) (+eshell-there (project-root)))
+     ;  )
+     ;)
+   #+end_src
 
 * Terminal
 ** Get $PATH from bash/zsh profiles
