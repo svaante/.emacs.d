@@ -1055,6 +1055,13 @@
        (evil-leader/set-key
          "lr" 'lsp-rename
          "lf" 'lsp-format-buffer))
+
+     (use-package consult-lsp
+       :ensure t
+       :config
+       (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
+       (evil-leader/set-key
+         "ls" 'consult-lsp-symbols))
    #+end_src
 
 ** Tree sitter
