@@ -273,12 +273,12 @@
        (setq modus-themes-headings 
              '((1 . section)
                (2 . rainbow-line)
-               (t . rainbow-no-bold))))
+               (t . rainbow-no-bold)))
+       (load-theme 'modus-operandi t))
 
      (use-package grandshell-theme
        :ensure t
-       :config
-       (load-theme 'grandshell t))
+       :config)
 
      (use-package org
        :config
