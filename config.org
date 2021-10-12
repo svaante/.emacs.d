@@ -425,7 +425,7 @@
      (use-package avy
        :config
        (evil-leader/set-key
-         "jj" 'avy-goto-char-2
+         "jj" 'evil-avy-goto-char-timer
          "jw" 'avy-goto-word-0
          "jl" 'avy-goto-line))
    #+end_src
