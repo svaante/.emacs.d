@@ -579,7 +579,7 @@
      (use-package orderless
        :ensure t
        :init
-       (setq completion-styles '(basic partial-completion emacs22 substring orderless)
+       (setq completion-styles '(orderless basic emacs22)
              completion-category-defaults nil
              completion-category-overrides '((file (styles basic partial-completion)))))
 
