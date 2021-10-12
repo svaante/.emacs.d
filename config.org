@@ -879,10 +879,19 @@
        (evil-define-key 'insert 'local
          (kbd "C-r") 'consult-history))
 
+     (defun +eshell-make-field ()
+       "Make text in front of the point a field, useful for prompts."
+       (let ((inhibit-read-only t))
+         (add-text-properties
+          (line-beginning-position) (point)
+          (list 'field t
+                'rear-nonsticky t))))
+
      (use-package eshell
        :ensure t
        :hook ((eshell-first-time-mode . eshell-mode-configuration)
-              (eshell-directory-change . eshell-pwd-rename))
+              (eshell-directory-change . eshell-pwd-rename)
+              (eshell-after-prompt . +eshell-make-field))
        :init
        (setq eshell-hist-ignoredups t
              eshell-save-history-on-exit t
