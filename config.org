@@ -1155,25 +1155,28 @@
 
 ** Python
   #+begin_src emacs-lisp
-    (use-package elpy
-      :ensure t
-      :init
-      (setq python-shell-interpreter "ipython3"
-            python-shell-interpreter-args "-i --simple-prompt")
-      :config
-      (evil-leader/set-key "q" 'elpy-shell-switch-to-shell)
-      (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
-      (elpy-enable))
-
     (use-package lsp-pyright
       :ensure t
       :after lsp-mode
       :custom
       (lsp-pyright-auto-import-completions nil)
       (lsp-pyright-typechecking-mode "off"))
-   #+end_src
 
-   #+RESULTS:
+    (use-package python
+      :config
+
+      (defun +python-shell-send-dwm ()
+        (interactive)
+        (or (python-shell-get-process) (run-python))
+        (if (use-region-p)
+            (call-interactively 'python-shell-send-region)
+          (call-interactively 'python-shell-send-buffer)))
+
+      (setq python-shell-interpreter "ipython3"
+            python-shell-interpreter-args "-i --simple-prompt")
+
+      (define-key python-mode-map (kbd "C-c C-c") '+python-shell-send-dwm))
+   #+end_src
 
 ** Godot
    #+begin_src emacs-lisp
