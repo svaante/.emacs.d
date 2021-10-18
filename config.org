@@ -826,14 +826,14 @@
 
      (defun +eshell/goto-end-of-prompt ()
        "Move cursor to the prompt when switching to insert mode (if point isn't
-                                  already there)."
+                                   already there)."
        (interactive)
        (goto-char (point-max))
        (evil-append 1))
 
      (defun +eshell/consult-esh-history-normal ()
        "Move cursor to the end of the buffer before calling counsel-esh-history
-                                    and change `state` to insert."
+                                     and change `state` to insert."
        (interactive)
        (goto-char (point-max))
        (eshell-bol)
@@ -848,9 +848,15 @@
        (eshell "new")
        (eshell-pwd-rename))
 
-    (defun eshell-after-split (&rest _)
-      (when (bound-and-true-p eshell-mode)
-        (eshell-here t)))
+     (defun eshell-after-split (&rest _)
+       (when (bound-and-true-p eshell-mode)
+         (eshell-here t)))
+
+     (defun +eshell-previous-prompt-hack ()
+       "With prompt as field eshell-previous-prompt sets cursor at the beggining of the line and not at prompt begin"
+       (interactive)
+       (call-interactively 'eshell-previous-prompt)
+       (call-interactively 'eshell-next-prompt))
 
      (defun eshell-mode-configuration ()
        (push 'eshell-tramp eshell-modules-list)
@@ -866,7 +872,7 @@
        (evil-define-key 'normal 'local
          "I" (lambda () (interactive) (eshell-bol) (evil-insert 1))
          (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
-         (kbd "C-p") 'eshell-previous-prompt
+         (kbd "C-p") '+eshell-previous-prompt-hack
          (kbd "C-n") 'eshell-next-prompt
          "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new"))
          "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new"))
