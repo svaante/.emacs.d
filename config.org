@@ -893,6 +893,13 @@
           (list 'field t
                 'rear-nonsticky t))))
 
+      (defun +eshell-global-history-init ()
+        "Share the eshell history ring between the eshell buffers.
+     Addice add this :after `eshell-hist-initialize`"
+        (or (boundp 'eshell-global-history-ring)
+            (setq eshell-global-history-ring (ring-copy eshell-history-ring)))
+        (setq eshell-history-ring eshell-global-history-ring))
+
      (use-package eshell
        :ensure t
        :hook ((eshell-first-time-mode . eshell-mode-configuration)
@@ -907,6 +914,8 @@
 
        (advice-add '+emacs/split-follow-window-horizontally :after #'eshell-after-split)
        (advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
+       (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
+
        (defun eshell/exit ()
          (kill-current-buffer)
          (when (not (one-window-p))
