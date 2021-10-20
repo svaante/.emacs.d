@@ -157,7 +157,6 @@
      (use-package evil
        :ensure evil
        :init
-       (setq evil-want-minibuffer t)
        (setq evil-want-C-i-jump nil)
        (setq evil-want-integration t)
        (setq evil-want-keybinding nil)
@@ -234,7 +233,6 @@
        :ensure t
        :config
        (setq evil-leader/in-all-states 1)
-       (setq evil-leader/non-normal-prefix "M-")
        (global-evil-leader-mode)
        (evil-leader/set-leader "<SPC>")
        (evil-leader/set-key
@@ -561,15 +559,7 @@
 
        (defun crm-indicator (args)
          (cons (concat "[CRM] " (car args)) (cdr args)))
-       (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
-
-       (evil-define-key '(insert normal) 'vertico-map
-         (kbd "<escape>") 'abort-recursive-edit
-         (kbd "C-r") 'consult-history
-         (kbd "C-n") 'vertico-next
-         (kbd "C-p") 'vertico-previous
-         (kbd "C-SPC") 'embark-act
-         (kbd "C-<return>") 'embark-export))
+       (advice-add #'completing-read-multiple :filter-args #'crm-indicator))
 
      (use-package vertico-repeat
        :load-path "~/.emacs.d/gits/vertico/extensions"
