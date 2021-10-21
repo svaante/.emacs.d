@@ -673,7 +673,7 @@
        :init
        :config
        (define-key minibuffer-local-map (kbd "C-SPC") 'embark-act)
-       (define-key minibuffer-local-map (kbd "C-return>") 'embark-export)
+       (define-key minibuffer-local-map (kbd "C-<return>") 'embark-export)
 
        ;; Show Embark actions via which-key
        (setq embark-action-indicator
