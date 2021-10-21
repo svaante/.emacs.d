@@ -528,7 +528,6 @@
 
 * Completion
 ** Package company
-   Use company for packages
    #+BEGIN_SRC emacs-lisp
      (use-package company
        :diminish company-mode
