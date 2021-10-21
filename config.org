@@ -1193,7 +1193,7 @@
    (use-package devdocs
      :ensure t
      :config
-     (evil-leader/set-key "k" (lambda () (interactive) (devdocs-lookup t))))
+     (evil-leader/set-key "k" 'devdocs-lookup))
  #+end_src
 
 ** Compilation
