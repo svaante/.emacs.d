@@ -435,9 +435,13 @@
 
 * Org
    #+BEGIN_SRC emacs-lisp
+     (defun +org-confirm-babel-evaluate (lang body)
+       (not (member lang '("sh" "emacs-lisp" "python"))))
+
      (use-package org
        :config
        (setq org-babel-python-command "python3")
+       (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
        (org-babel-do-load-languages
         'org-babel-load-languages
         '(
@@ -505,11 +509,16 @@
        :init
        (setq org-capture-templates '(("t" "Task Entry" entry
                                       (file+headline "~/org/todo.org" "Tasks")
-                                      "* TODO %?  \n  %t\n  %a")
+                                      "* TODO %?\n  %t\n  %a")
 
                                      ("n" "Note" entry
                                       (file+headline "~/org/notes.org" "Note")
-                                      "* %?  \n  %t\n  %a")))
+                                      "* %?\n  %t\n  %a")
+
+                                     ("p" "Python Notebok" entry
+                                      (file "~/org/python-babel.org")
+                                      "* %?\n  %t\n  #+begin_src python\n  #+end_src")
+                                     ))
        :config
        (setq org-agenda-follow-indirect t)
        (setq org-refile-use-outline-path 'file)
