@@ -1303,6 +1303,24 @@
          (evil-leader/set-key "cl" 'axe-logs-describe-log-groups-with-comp))
    #+end_src
   
+** Elfeed
+   #+begin_src emacs-lisp
+     (defun elfeed-open-and-refresh ()
+       (interactive)
+       (elfeed)
+       (elfeed-update))
+
+     (use-package elfeed
+       :ensure t
+       :config
+       (evil-leader/set-key "ar" 'elfeed-open-and-refresh)
+       (setq elfeed-feeds
+             '(("https://lithub.com/feed/" kultur)
+               ("https://hnrss.org/newest?points=50" tech)
+               ("https://us-east1-ml-feeds.cloudfunctions.net/arxiv-ml-reviews" ml)
+               ("http://api.sr.se/api/rss/channel/83?format=1" nyheter))))
+   #+end_src
+
 ** Email
 *** Gnus
     #+begin_src emacs-lisp
