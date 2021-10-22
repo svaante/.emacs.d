@@ -255,7 +255,7 @@
    #+begin_src emacs-lisp
      ;; Set my font
      '(set-frame-font "Hack-10" nil t)
-     (set-frame-font "DejaVu Sans Mono 10")
+     (set-face-attribute 'default nil :font "DejaVu Sans Mono 10" :height 105)
 
      ;; Emoji support
      (set-fontset-font t 'symbol "Apple Color Emoji")
