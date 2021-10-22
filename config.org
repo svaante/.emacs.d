@@ -275,11 +275,13 @@
              '((1 . section)
                (2 . rainbow-line)
                (t . rainbow-no-bold)))
-       (load-theme 'modus-operandi t))
+       '(load-theme 'modus-operandi t)
+       '(load-theme 'modus-vivendi t))
 
      (use-package grandshell-theme
        :ensure t
-       :config)
+       :config
+       (load-theme 'grandshell t))
 
      (use-package org
        :config
