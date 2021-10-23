@@ -927,11 +927,6 @@
        (advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
        (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
 
-       (defun eshell/exit ()
-         (kill-current-buffer)
-         (when (not (one-window-p))
-           (delete-window)))
-
        (evil-leader/set-key "e" 'eshell-here
          "pe" 'eshell-project-root))
    #+end_src
