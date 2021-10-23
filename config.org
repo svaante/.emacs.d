@@ -1008,22 +1008,22 @@
        (interactive)
        (when (bound-and-true-p flyspell-mode)
          (cond
-          ((string-equal ispell-local-dictionary "en_US")   (ispell-change-dictionary "swedish"))
-          ((string-equal ispell-local-dictionary "swedish") (ispell-change-dictionary "en_US"))
-          (t                                                (ispell-change-dictionary "en_US")))))
+          ((string-equal ispell-local-dictionary flyspell-default-dictionary) (ispell-change-dictionary "swedish"))
+          ((string-equal ispell-local-dictionary "swedish")                   (ispell-change-dictionary flyspell-default-dictionary))
+          (t                                                                  (ispell-change-dictionary flyspell-default-dictionary)))))
 
      (use-package flyspell
        :ensure t
        ;;inside git commit and markdown
        :hook ((git-commit-mode org-mode markdown-mode) . flyspell-mode)
        :config
-       (setq flyspell-default-dictionary "en_US"))
+       (setq flyspell-default-dictionary "english"))
 
      (evil-leader/set-key
        "ff" '+ispell/toogle-english-swedish-dictonary
        "fp" (lambda ()
               (interactive)
-              (ispell-change-dictionary "en_US")
+              (ispell-change-dictionary flyspell-default-dictionary)
               (flyspell-prog-mode)))
 
    #+end_src
