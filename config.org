@@ -384,7 +384,7 @@
        (consult-global-mark (ring-elements (oref gumshoe--global-backlog log))))
 
      (use-package gumshoe
-       :ensure t
+       :quelpa (gumshoe :fetcher github :repo "svaante/gumshoe")
        :diminish 'global-gumshoe-mode
        :config
        (setq gumshoe-display-buffer-action '(display-buffer-same-window))
@@ -1057,7 +1057,6 @@
 
      (evil-leader/set-key "t" 'create-or-switch-text-scratch-buffer)
    #+end_src
-
 
 * Programming
 ** LSP
