@@ -590,7 +590,7 @@
      (use-package orderless
        :ensure t
        :init
-       (setq completion-styles '(orderless basic emacs22)
+       (setq completion-styles '(orderless basic)
              completion-category-defaults nil
              completion-category-overrides '((file (styles basic partial-completion)))))
 
@@ -1167,9 +1167,13 @@
       (lsp-pyright-auto-import-completions nil)
       (lsp-pyright-typechecking-mode "off"))
 
-    (use-package python
-      :config
+    (defun +inferior-python-mode-init ()
+      (make-local-variable 'completion-styles)
+      (setq completion-styles '(basic)))
 
+    (use-package python
+      :hook (inferior-python-mode . '+inferior-python-mode-init)
+      :config
       (defun +python-shell-send-dwm ()
         (interactive)
         (or (python-shell-get-process) (run-python))
