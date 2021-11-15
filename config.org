@@ -1138,7 +1138,7 @@
   (use-package cider :ensure t :defer t)
    #+end_src
 
-** JS
+** Javascript
    #+begin_src emacs-lisp
      (use-package emacs
        :config
@@ -1156,6 +1156,14 @@
        (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode)))
 
      (use-package add-node-modules-path :ensure t)
+
+     (use-package nodejs-repl
+       :config
+       ;; https://github.com/abicky/nodejs-repl.el/issues/37
+       (defun +nodejs-repl-remove-broken-filter ()
+         (remove-hook 'comint-output-filter-functions 'nodejs-repl--delete-prompt t))
+
+       (add-hook 'nodejs-repl-mode-hook #'+nodejs-repl-remove-broken-filter))
    #+end_src
 
 ** Python
