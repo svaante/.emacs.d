@@ -1195,6 +1195,11 @@
       (define-key python-mode-map (kbd "C-c C-c") '+python-shell-send-dwm))
    #+end_src
 
+** Rust
+   #+begin_src emacs-lisp
+     (use-package rust-mode :ensure t)
+   #+end_src
+
 ** Godot
    #+begin_src emacs-lisp
      (use-package gdscript-mode
