@@ -164,6 +164,7 @@
        (setq evil-want-Y-yank-to-eol t)
        (setq evil-want-C-u-scroll t)
        (setq evil-search-module 'evil-search)
+       (setq evil-want-minibuffer t)
        (setq-default evil-symbol-word-search t)
        (setq-default evil-shift-width 2)
        :config
@@ -233,20 +234,10 @@
        :ensure t
        :config
        (setq evil-leader/in-all-states 1)
+       (setq evil-leader/non-normal-prefix "M-")
        (global-evil-leader-mode)
        (evil-leader/set-leader "<SPC>")
        (evil-leader/set-key
-         ;"." 'counsel-find-file
-         ;"f" '+ispell/toogle-english-swedish-dictonary
-         ;"hh" 'counsel-describe-function
-         ;"hb" 'counsel-descbinds
-         ;"hv" 'counsel-describe-variable
-         ;"b" 'ivy-switch-buffer
-         ;"m" 'counsel-bookmark
-         ;"y" 'counsel-yank-pop
-         ;"os" 'counsel-org-goto
-         ;"i" 'counsel-imenu
-         ;":" 'counsel-M-x
          "wt" (lambda () (interactive) (toggle-frame-maximized))))
        #+END_SRC 
 
@@ -558,34 +549,37 @@
 ** Vertico, consult, embark
    #+begin_src emacs-lisp
      (use-package vertico
-       ;:load-path "~/.emacs.d/gits/vertico"
+       :quelpa (vertico :fetcher github :repo "minad/vertico")
+       :ensure t
        :init
        (vertico-mode)
-       ;; Grow and shrink the Vertico minibuffer
-       ;; (setq vertico-resize t)
 
-       ;; Optionally enable cycling for `vertico-next' and `vertico-previous'.
        (setq vertico-cycle t)
-       (setq enable-recursive-minibuffers t)
+       (setq enable-recursive-minibuffers nil)
+
+       ;; Use evil in the minibuffer
+       (evil-define-key '(insert normal) minibuffer-local-map
+         (kbd "C-n") 'vertico-next
+         (kbd "C-p") 'vertico-previous)
 
        (defun crm-indicator (args)
          (cons (concat "[CRM] " (car args)) (cdr args)))
        (advice-add #'completing-read-multiple :filter-args #'crm-indicator))
 
      (use-package vertico-repeat
-       :load-path "~/.emacs.d/gits/vertico/extensions"
+       :load-path "./quelpa/build/vertico/extensions"
        :init
        (evil-leader/set-key "r" 'vertico-repeat))
 
      (use-package vertico-directory
-       :load-path "~/.emacs.d/gits/vertico/extensions"
-       ;; More convenient directory navigation commands
-       :bind (:map vertico-map
-                   ("RET" . vertico-directory-enter)
-                   ("DEL" . vertico-directory-delete-char)
-                   ("M-DEL" . vertico-directory-delete-word))
+       :load-path "./quelpa/build/vertico/extensions"
        ;; Tidy shadowed file names
-       :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+       :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
+       :config
+       (evil-define-key '(insert normal) vertico-map
+         (kbd "RET") (lambda () (interactive) (vertico-directory-enter))
+         (kbd "DEL") (lambda () (interactive) (vertico-directory-delete-char))
+         (kbd "M-DEL") (lambda () (interactive) (vertico-directory-delete-word))))
 
      (use-package orderless
        :ensure t
@@ -624,7 +618,10 @@
        :ensure t
        :init
        (setq consult-project-root-function 'projectile-project-root)
-       (define-key minibuffer-local-map (kbd "C-r") 'consult-history)
+
+       (evil-define-key '(insert normal) minibuffer-local-map
+         (kbd "C-r") 'consult-history)
+
        (evil-leader/set-key
          "." 'find-file-at-point
          "SPC" 'projectile-find-file
@@ -684,8 +681,15 @@
      (use-package embark
        :init
        :config
-       (define-key minibuffer-local-map (kbd "C-SPC") 'embark-act)
-       (define-key minibuffer-local-map (kbd "C-<return>") 'embark-export)
+       (evil-define-key '(insert normal) minibuffer-local-map
+         (kbd "C-n") 'vertico-next
+         (kbd "C-p") 'vertico-previous
+         (kbd "RET") 'vertico-directory-enter
+         (kbd "DEL") 'vertico-directory-delete-char
+         (kbd "M-DEL") 'vertico-directory-delete-word
+         (kbd "C-r") 'consult-history
+         (kbd "C-SPC") 'embark-act
+         (kbd "C-<return>")'embark-export)
 
        ;; Show Embark actions via which-key
        (setq embark-action-indicator
