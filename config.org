@@ -550,7 +550,6 @@
    #+begin_src emacs-lisp
      (use-package vertico
        :quelpa (vertico :fetcher github :repo "minad/vertico")
-       :ensure t
        :init
        (vertico-mode)
 
@@ -577,9 +576,8 @@
        :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
        :config
        (evil-define-key '(insert normal) vertico-map
-         (kbd "RET") (lambda () (interactive) (vertico-directory-enter))
-         (kbd "DEL") (lambda () (interactive) (vertico-directory-delete-char))
-         (kbd "M-DEL") (lambda () (interactive) (vertico-directory-delete-word))))
+         (kbd "DEL") 'vertico-directory-delete-char
+         (kbd "M-DEL") 'vertico-directory-delete-word))
 
      (use-package orderless
        :ensure t
@@ -615,7 +613,7 @@
      (advice-add #'consult-line :after #'consult-line-evil-history)
 
      (use-package consult
-       :ensure t
+       :quelpa (consult :fetcher github :repo "minad/consult")
        :init
        (setq consult-project-root-function 'projectile-project-root)
 
@@ -679,15 +677,10 @@
          (eshell-here t)))
 
      (use-package embark
+       :quelpa (embark :fetcher github :repo "oantolin/embark")
        :init
        :config
        (evil-define-key '(insert normal) minibuffer-local-map
-         (kbd "C-n") 'vertico-next
-         (kbd "C-p") 'vertico-previous
-         (kbd "RET") 'vertico-directory-enter
-         (kbd "DEL") 'vertico-directory-delete-char
-         (kbd "M-DEL") 'vertico-directory-delete-word
-         (kbd "C-r") 'consult-history
          (kbd "C-SPC") 'embark-act
          (kbd "C-<return>")'embark-export)
 
@@ -699,7 +692,7 @@
              embark-become-indicator embark-action-indicator))
 
      (use-package embark-consult
-       :ensure t
+       :load-path "./quelpa/build/embark"
        :after (embark consult))
 
      (define-key embark-file-map "e" '+eshell-there)
