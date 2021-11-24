@@ -558,6 +558,7 @@
 
        ;; Use evil in the minibuffer
        (evil-define-key '(insert normal) minibuffer-local-map
+         (kbd "RET") 'vertico-exit
          (kbd "C-n") 'vertico-next
          (kbd "C-p") 'vertico-previous)
 
