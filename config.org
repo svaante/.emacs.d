@@ -503,11 +503,11 @@
      (use-package org-capture
        :init
        (setq org-capture-templates '(("t" "Task Entry" entry
-                                      (file+headline "~/org/todo.org" "Tasks")
+                                      (file "~/org/todo.org")
                                       "* TODO %?\n  %t\n  %a")
 
                                      ("n" "Note" entry
-                                      (file+headline "~/org/notes.org" "Note")
+                                      (file "~/org/notes.org")
                                       "* %?\n  %t\n  %a")
 
                                      ("p" "Python Notebok" entry
