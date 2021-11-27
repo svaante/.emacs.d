@@ -601,6 +601,7 @@
      (use-package marginalia
        :ensure t
        :init
+       (push '(projectile-find-file . project-file) 'marginalia-command-categories)
        (marginalia-mode))
 
      (defun consult-line-evil-history (&rest _)
