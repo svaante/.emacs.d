@@ -420,8 +420,8 @@
 ** Avy
    #+begin_src emacs-lisp
      (use-package avy
-       :config
        :ensure t
+       :config
        (evil-leader/set-key
          "jj" 'evil-avy-goto-char-timer
          "jw" 'avy-goto-word-0
