@@ -549,6 +549,7 @@
        (setq company-minimum-prefix-length 1)
        (setq company-tooltip-align-annotations t)
        (setq company-global-modes '(not eshell-mode))
+       (setq company-icon-size '(auto-scale . 15)) ;; bigger then line height on osx
 
        (global-company-mode 1)
        (company-tng-mode +1))
