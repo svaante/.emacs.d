@@ -698,6 +698,42 @@
          "Eshell buffer candidate source for `consult-buffer'.")
        (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
 
+       (defun +run-python ()
+         "Run start python repl if not allready created and return the buffer."
+         (run-python)
+         (get-buffer "*Python*"))
+
+       (defun +run-nodejs ()
+         "Overide all of the internal pop to buffer stuff and just return the created buffer."
+         (advice-add 'pop-to-buffer :override 'and)
+         (advice-add 'nodejs-repl-mode :override 'and)
+         (nodejs-repl)
+         (advice-remove 'pop-to-buffer 'and)
+         (advice-remove 'nodejs-repl-mode 'and)
+         (with-current-buffer (get-buffer "*nodejs*")
+           (nodejs-repl-mode))
+         (get-buffer "*nodejs*"))
+
+       (setq consult-buffer-comint-map '(("*Python*" . +run-python)
+                                         ("*nodejs*" . +run-nodejs)))
+
+       ;; Add repl buffer source for easier repl creation
+       (defvar repl-buffer-source
+         `(:name     "REPL buffers"
+                     :narrow   (?r . "REPL")
+                     :hidden   t
+                     :category buffer
+                     :face     consult-buffer
+                     :state    ,#'consult--buffer-state
+                     :history  buffer-name-history
+                     :action   ,(lambda (key)
+                                  (funcall (alist-get key consult-buffer-repl-map)))
+                     :items    ,(lambda ()
+                                  (->> consult-buffer-repl-map
+                                    (mapcar 'first)))
+                     "Repl buffer candidate source for `consult-buffer'."))
+       (add-to-list 'consult-buffer-sources 'repl-buffer-source 'append)
+
        ;; Use consult as the completion-in-region
        (setq completion-in-region-function
              (lambda (&rest args)
@@ -1386,7 +1422,11 @@
              '(("https://lithub.com/feed/" kultur)
                ("https://hnrss.org/newest?points=50" tech)
                ("https://us-east1-ml-feeds.cloudfunctions.net/arxiv-ml-reviews" ml)
-               ("http://api.sr.se/api/rss/channel/83?format=1" nyheter))))
+               ("http://api.sr.se/api/rss/channel/83?format=1" nyheter)))
+
+       (evil-define-key 'normal elfeed-show-mode-map
+         "p" 'elfeed-show-prev
+         "n" 'elfeed-show-next))
    #+end_src
 
 ** Email
