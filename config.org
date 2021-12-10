@@ -714,7 +714,7 @@
            (nodejs-repl-mode))
          (get-buffer "*nodejs*"))
 
-       (setq consult-buffer-comint-map '(("*Python*" . +run-python)
+       (setq consult-buffer-repl-map '(("*Python*" . +run-python)
                                          ("*nodejs*" . +run-nodejs)))
 
        ;; Add repl buffer source for easier repl creation
