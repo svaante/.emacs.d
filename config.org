@@ -59,13 +59,16 @@
            (setq mac-right-option-modifier nil)
            (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
            (add-to-list 'default-frame-alist '(ns-appearance . light))))
+   #+END_SRC
 
+** Linux
+  #+begin_src emacs-lisp
      (if (eq system-type 'gnu/linux)
          (progn
            (global-set-key (kbd "C-+") 'text-scale-increase)
            (global-set-key (kbd "C--") 'text-scale-decrease)))
-   #+END_SRC
-   
+  #+end_src
+
 * Package
   #+begin_src emacs-lisp
     (require 'package)
