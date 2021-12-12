@@ -560,7 +560,7 @@
 ** Package corfu
    #+BEGIN_SRC emacs-lisp
      (use-package corfu
-       :ensure t
+       :quelpa (corfu :fetcher github :repo "minad/corfu")
        :bind (:map corfu-map
                    ("C-n" . corfu-next)
                    ("C-p" . corfu-previous)
@@ -573,17 +573,15 @@
        (corfu-preselect-first nil)    ;; Disable candidate preselection
        (corfu-auto t)                 ;; Enable auto completion
        (corfu-quit-at-boundary t)     ;; Automatically quit at word boundary
-       (corfu-echo-documentation t) ;; Disable documentation in the echo area
+       (corfu-echo-documentation t)   ;; Disable documentation in the echo area
 
-       ;; You may want to enable Corfu only for certain modes.
+       ;; Disable corfu-mode for certain modes
        :hook ((prog-mode . corfu-mode))
        :init
        ;; Hackish to enable C-n/C-p bindings https://github.com/minad/corfu/issues/12#issuecomment-869037519
        (evil-make-overriding-map corfu-map)
        (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
-       (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
-
-       (corfu-global-mode))
+       (advice-add 'corfu--teardown :after 'evil-normalize-keymaps))
    #+END_SRC
 
 ** Vertico, consult, embark
