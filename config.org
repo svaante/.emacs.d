@@ -574,6 +574,7 @@
        (corfu-auto t)                 ;; Enable auto completion
        (corfu-quit-at-boundary t)     ;; Automatically quit at word boundary
        (corfu-echo-documentation t)   ;; Disable documentation in the echo area
+       (corfu-quit-no-match t)        ;; Quite corfu when there is no match
 
        ;; Disable corfu-mode for certain modes
        :hook ((prog-mode . corfu-mode))
