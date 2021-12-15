@@ -253,7 +253,7 @@
    #+begin_src emacs-lisp
      ;; Set my font
      (when (eq system-type 'darwin)
-       (set-face-attribute 'default nil :font "DejaVu Sans Mono 13"))
+       (set-face-attribute 'default nil :font "DejaVu Sans Mono 14"))
 
      (when (eq system-type 'gnu/linux)
          (set-face-attribute 'default nil :font "DejaVu Sans Mono 10" :height 105))
@@ -576,8 +576,10 @@
        (corfu-quit-at-boundary nil)   ;; Automatically quit at word boundary
        (corfu-quit-no-match t)        ;; Quite corfu when there is no match
 
-       ;; Disable corfu-mode for certain modes
-       :hook ((prog-mode . corfu-mode)
+       ;; Enable corfu-mode for certain modes
+       :hook ((evil-insert-state-exit . (lambda (&rest args)
+                                          (when corfu-mode (corfu-quit))))
+              (prog-mode . corfu-mode)
               (inferior-python-mode . corfu-mode))
        :config
        (setq tab-always-indent 'complete)
