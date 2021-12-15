@@ -703,11 +703,13 @@
        (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
 
        (setq consult-buffer-repl-map '(("*Python (new)*" . run-python)
-                                         ("*nodejs (new)*" . nodejs-repl)))
+                                       ("*nodejs (new)*" . nodejs-repl)
+                                       ("*eshell (new)*" . eshell)
+                                       ("*mysql (new)*" . sql-mysql)))
 
        ;; Add repl buffer source for easier repl creation
        (defvar repl-buffer-source
-         `(:name     "REPL buffers"
+         `(:name     "REPLis buffers"
                      :narrow   (?r . "REPL")
                      :hidden   nil
                      :category 'consult-new
