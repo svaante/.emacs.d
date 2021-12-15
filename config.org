@@ -748,6 +748,14 @@
                                   (substitute-in-file-name file)))))
          (eshell-here t)))
 
+     (defun +eshell-other-window (file)
+       "Run eshell in directory of FILE."
+       (interactive "Directory: ")
+       (let ((default-directory (file-name-directory
+                                 (expand-file-name
+                                  (substitute-in-file-name file)))))
+         (eshell-here t)))
+
      (use-package embark
        :quelpa (embark :fetcher github :repo "oantolin/embark")
        :init
@@ -761,13 +769,15 @@
              (lambda (map)
                (which-key--show-keymap "Embark" map nil nil 'no-paging)
                #'which-key--hide-popup-ignore-command)
-             embark-become-indicator embark-action-indicator))
+             embark-become-indicator embark-action-indicator)
+
+       (define-key embark-file-map "e" '+eshell-there)
+       (define-key embark-file-map "E" '+eshell-other-window))
 
      (use-package embark-consult
        :load-path "./quelpa/build/embark"
        :after (embark consult))
 
-     (define-key embark-file-map "e" '+eshell-there)
    #+end_src
 
 * Project management
