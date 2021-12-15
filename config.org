@@ -1241,11 +1241,10 @@
       (lsp-pyright-typechecking-mode "off"))
 
     (defun +inferior-python-mode-init ()
-      (make-local-variable 'completion-styles)
-      (setq completion-styles '(basic)))
+      (setq-local completion-styles '(basic)))
 
     (use-package python
-      :hook (inferior-python-mode . '+inferior-python-mode-init)
+      :hook (inferior-python-mode . +inferior-python-mode-init)
       :config
       (defun +python-shell-send-dwm ()
         (interactive)
@@ -1254,8 +1253,8 @@
             (call-interactively 'python-shell-send-region)
           (call-interactively 'python-shell-send-buffer)))
 
-      (setq python-shell-interpreter "ipython3"
-            python-shell-interpreter-args "-i --simple-prompt")
+        (setq python-shell-interpreter "ipython3"
+              python-shell-interpreter-args "-i --simple-prompt")
 
       (define-key python-mode-map (kbd "C-c C-c") '+python-shell-send-dwm))
    #+end_src
