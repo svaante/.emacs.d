@@ -702,31 +702,15 @@
          "Eshell buffer candidate source for `consult-buffer'.")
        (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
 
-       (defun +run-python ()
-         "Run start python repl if not allready created and return the buffer."
-         (run-python)
-         (get-buffer "*Python*"))
-
-       (defun +run-nodejs ()
-         "Overide all of the internal pop to buffer stuff and just return the created buffer."
-         (advice-add 'pop-to-buffer :override 'and)
-         (advice-add 'nodejs-repl-mode :override 'and)
-         (nodejs-repl)
-         (advice-remove 'pop-to-buffer 'and)
-         (advice-remove 'nodejs-repl-mode 'and)
-         (with-current-buffer (get-buffer "*nodejs*")
-           (nodejs-repl-mode))
-         (get-buffer "*nodejs*"))
-
-       (setq consult-buffer-repl-map '(("*Python*" . +run-python)
-                                         ("*nodejs*" . +run-nodejs)))
+       (setq consult-buffer-repl-map '(("*Python (new)*" . run-python)
+                                         ("*nodejs (new)*" . nodejs-repl)))
 
        ;; Add repl buffer source for easier repl creation
        (defvar repl-buffer-source
          `(:name     "REPL buffers"
                      :narrow   (?r . "REPL")
-                     :hidden   t
-                     :category buffer
+                     :hidden   nil
+                     :category 'consult-new
                      :face     consult-buffer
                      :state    ,#'consult--buffer-state
                      :history  buffer-name-history
