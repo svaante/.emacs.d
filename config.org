@@ -253,7 +253,7 @@
    #+begin_src emacs-lisp
      ;; Set my font
      (when (eq system-type 'darwin)
-       (set-face-attribute 'default nil :font "DejaVu Sans Mono 14"))
+       (set-face-attribute 'default nil :font "DejaVu Sans Mono 13"))
 
      (when (eq system-type 'gnu/linux)
          (set-face-attribute 'default nil :font "DejaVu Sans Mono 10" :height 105))
