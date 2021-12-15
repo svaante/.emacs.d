@@ -572,13 +572,16 @@
        (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
        (corfu-preselect-first nil)    ;; Disable candidate preselection
        (corfu-auto t)                 ;; Enable auto completion
-       (corfu-quit-at-boundary t)     ;; Automatically quit at word boundary
        (corfu-echo-documentation t)   ;; Disable documentation in the echo area
+       (corfu-quit-at-boundary nil)   ;; Automatically quit at word boundary
        (corfu-quit-no-match t)        ;; Quite corfu when there is no match
 
        ;; Disable corfu-mode for certain modes
-       :hook ((prog-mode . corfu-mode))
-       :init
+       :hook ((prog-mode . corfu-mode)
+              (inferior-python-mode . corfu-mode))
+       :config
+       (setq tab-always-indent 'complete)
+
        ;; Hackish to enable C-n/C-p bindings https://github.com/minad/corfu/issues/12#issuecomment-869037519
        (evil-make-overriding-map corfu-map)
        (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
