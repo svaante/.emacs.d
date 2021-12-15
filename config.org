@@ -702,10 +702,10 @@
          "Eshell buffer candidate source for `consult-buffer'.")
        (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
 
-       (setq consult-buffer-repl-map '(("*Python (new)*" . run-python)
-                                       ("*nodejs (new)*" . nodejs-repl)
-                                       ("*eshell (new)*" . eshell)
-                                       ("*mysql (new)*" . sql-mysql)))
+       (setq consult-buffer-repl-map '(("*Python*" . run-python)
+                                       ("*nodejs*" . nodejs-repl)
+                                       ("*eshell*" . eshell)
+                                       ("*mysql*" . sql-mysql)))
 
        ;; Add repl buffer source for easier repl creation
        (defvar repl-buffer-source
@@ -720,7 +720,7 @@
                                   (funcall (alist-get key consult-buffer-repl-map)))
                      :items    ,(lambda ()
                                   (->> consult-buffer-repl-map
-                                    (mapcar 'first)))
+                                    (mapcar 'car)))
                      "Repl buffer candidate source for `consult-buffer'."))
        (add-to-list 'consult-buffer-sources 'repl-buffer-source 'append)
 
@@ -1225,6 +1225,7 @@
      (use-package add-node-modules-path :ensure t)
 
      (use-package nodejs-repl
+       :ensure t
        :config
        ;; https://github.com/abicky/nodejs-repl.el/issues/37
        (defun +nodejs-repl-remove-broken-filter ()
@@ -1255,8 +1256,8 @@
             (call-interactively 'python-shell-send-region)
           (call-interactively 'python-shell-send-buffer)))
 
-        (setq python-shell-interpreter "ipython3"
-              python-shell-interpreter-args "-i --simple-prompt")
+      (setq python-shell-interpreter "ipython"
+            python-shell-interpreter-args "-i --simple-prompt")
 
       (define-key python-mode-map (kbd "C-c C-c") '+python-shell-send-dwm))
    #+end_src
