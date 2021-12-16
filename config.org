@@ -716,7 +716,7 @@
        (setq consult-buffer-repl-map '(("*Python*" . run-python)
                                        ("*nodejs*" . nodejs-repl)
                                        ("*eshell*" . eshell)
-                                       ("*mysql*" . sql-mysql)))
+                                       ("*SQL: MySQL*" . sql-mysql)))
 
        ;; Add repl buffer source for easier repl creation
        (defvar repl-buffer-source
