@@ -627,7 +627,7 @@
      (use-package orderless
        :ensure t
        :init
-       (setq completion-styles '(orderless basic)
+       (setq completion-styles '(basic orderless)
              completion-category-defaults nil
              completion-category-overrides '((file (styles basic partial-completion)))))
 
