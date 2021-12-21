@@ -544,7 +544,7 @@
 ** Package company
    #+BEGIN_SRC emacs-lisp
      (use-package company
-       :disable
+       :ensure t
        :diminish company-mode
        :config
        (setq company-backends '(company-files company-capf))
@@ -552,14 +552,23 @@
        (setq company-minimum-prefix-length 1)
        (setq company-tooltip-align-annotations t)
        (setq company-global-modes '(not eshell-mode))
-       (setq company-icon-size '(auto-scale . 15)) ;; bigger then line height on osx
 
        (global-company-mode 1)
        (company-tng-mode +1))
+
+     (use-package company-posframe
+       :ensure t
+       :diminish
+       :config
+       (setq company-posframe-show-metadata nil)
+       (setq company-posframe-show-indicator nil)
+       (setq company-posframe-quickhelp-delay nil)
+       (company-posframe-mode 1))
    #+END_SRC
 ** Package corfu
    #+BEGIN_SRC emacs-lisp
      (use-package corfu
+       :disable
        :quelpa (corfu :fetcher github :repo "minad/corfu")
        :bind (:map corfu-map
                    ("C-n" . corfu-next)
