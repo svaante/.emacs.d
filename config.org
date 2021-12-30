@@ -720,7 +720,7 @@
 
        ;; Add repl buffer source for easier repl creation
        (defvar repl-buffer-source
-         `(:name     "REPLis buffers"
+         `(:name     "REPLish buffers"
                      :narrow   (?r . "REPL")
                      :hidden   nil
                      :category 'consult-new
