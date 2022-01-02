@@ -1078,12 +1078,93 @@
         "\n")))
  #+end_src
 
+** Dtache
+ #+begin_src  emacs-lisp
+   (defun osx/dtache--add-end-of-session-notification-advice (session)
+     "Trigger an event when SESSION transition to inactive."
+     (let ((dtache-timer-configuration
+            '(:seconds 0.5 :repeat 0.5 :function run-with-idle-timer)))
+       (dtache--session-timer session)))
+
+   (defun +dtache-get-last-session ()
+     (car (seq-sort-by #'dtache--session-creation-time #'> (dtache--db-get-sessions))))
+
+   (defun +dtache-open-compile-last-session ()
+     (interactive)
+     (dtache-compile-session (+dtache-get-last-session)))
+
+   (defun +dtache-delete-all ()
+     (interactive)
+     (dolist (session (dtache--db-get-sessions))
+       (dtache-delete-session session)))
+
+   (defun +dtache-projectile-shell-command ()
+     (interactive)
+     (let ((default-directory (projectile-project-root)))
+       (call-interactively 'dtache-shell-command)))
+
+   (use-package dtache
+     :quelpa (dtache :fetcher gitlab :repo "niklaseklund/dtache")
+     :hook (after-init . dtache-initialize)
+     :config
+     (setq dtache-db-directory user-emacs-directory)
+     (setq dtache-session-directory (expand-file-name "dtache" (temporary-file-directory)))
+     (setq dtache-env "~/.emacs.d/quelpa/build/dtache/dtache-env")
+
+     (defvar embark-dtache-map (make-composed-keymap dtache-action-map embark-general-map))
+     (add-to-list 'embark-keymap-alist '(dtache . embark-dtache-map))
+
+     ;; Hack to get it to work on osx
+     (when (eq system-type 'darwin)
+       (advice-add 'dtache--add-end-of-session-notification :override #'osx/dtache--add-end-of-session-notification-advice))
+
+     (evil-define-key 'normal dtache-log-mode-map "q" 'quit-window)
+     (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
+
+     (evil-leader/set-key
+       "ds" 'dtache-shell-command
+       "dr" 'dtache-rerun-session
+       "dk" '+dtache-delete-all
+       "dc" '+dtache-open-compile-last-session
+       "pr" '+dtache-projectile-shell-command))
+
+   (defun +dtache-new-eshell-attach (session)
+     (interactive
+      (list (dtache-completing-read)))
+     (if (dtache--session-active session)
+         (let* ((default-directory (dtache--session-working-directory session))
+                (eshell-buffer-name (concat "*eshell dtache " (dtache--session-command session) "*"))
+                (buf (eshell "new")))
+           (switch-to-buffer (other-buffer buf))
+           (switch-to-buffer-other-window buf)
+           (goto-line 2)
+           (insert (concat "\n[Attached to \"" (dtache--session-command session) "\"]\n"))
+           (end-of-buffer)
+           (dtache-eshell-attach session))
+       (message "Dtache session is inactive.")))
+
+   (use-package dtache-eshell
+     :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
+     :after dtache
+     :hook (after-init . dtache-eshell-setup)
+     :config
+     (define-key dtache-action-map "e" #'+dtache-new-eshell-attach))
+
+   (use-package dtache-consult
+     :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
+     :after dtache
+     :config
+     (evil-leader/set-key "dd" 'dtache-consult-session))
+
+ #+end_src
+
 * Misc
 ** wgrep
    Change stuff in the grep buffer
    #+begin_src emacs-lisp
      (use-package wgrep :ensure t)
    #+end_src
+   
 ** Spell checking spelling
    #+begin_src emacs-lisp
      (defun +ispell/toogle-english-swedish-dictonary ()
