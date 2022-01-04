@@ -1089,10 +1089,6 @@
    (defun +dtache-get-last-session ()
      (car (seq-sort-by #'dtache--session-creation-time #'> (dtache--db-get-sessions))))
 
-   (defun +dtache-open-compile-last-session ()
-     (interactive)
-     (dtache-compile-session (+dtache-get-last-session)))
-
    (defun +dtache-delete-all ()
      (interactive)
      (dolist (session (dtache--db-get-sessions))
@@ -1101,7 +1097,38 @@
    (defun +dtache-projectile-shell-command ()
      (interactive)
      (let ((default-directory (projectile-project-root)))
-       (call-interactively 'dtache-shell-command)))
+       (call-interactively '+dtache-shell-command)))
+
+   (defun +dtache-shell-command (command)
+     "Execute COMMAND asynchronously with `dtache'.
+   If no input run the last shell command."
+     (interactive
+      (list
+       (let* ((last-dtache-session (+dtache-get-last-session))
+              (last-dtache-command (when last-dtache-session
+                                     (dtache--session-command last-dtache-session)))
+              (read-command (read-shell-command (concat "Dtache shell command"
+                                                        (when shell-command-prompt-show-cwd
+                                                          (format-message " in `%s'"
+                                                                          (abbreviate-file-name
+                                                                           default-directory)))
+                                                        (when last-dtache-command
+                                                          (format-message " (default: `%s')"
+                                                                          last-dtache-command))
+                                                        ": "
+                                                        nil nil))))
+
+           (if (string-empty-p read-command)
+               last-dtache-command
+             read-command))))
+     (let* ((inhibit-message t)
+            (dtache-session-type 'standard))
+       (dtache-start-session command)))
+
+   (defun +dtache-open-last-session-dwim ()
+     "Open last run dtache session"
+     (interactive)
+     (dtache-open-dwim (+dtache-get-last-session)))
 
    (use-package dtache
      :quelpa (dtache :fetcher gitlab :repo "niklaseklund/dtache")
@@ -1110,6 +1137,7 @@
      (setq dtache-db-directory user-emacs-directory)
      (setq dtache-session-directory (expand-file-name "dtache" (temporary-file-directory)))
      (setq dtache-env "~/.emacs.d/quelpa/build/dtache/dtache-env")
+     (setq shell-command-prompt-show-cwd t)
 
      (defvar embark-dtache-map (make-composed-keymap dtache-action-map embark-general-map))
      (add-to-list 'embark-keymap-alist '(dtache . embark-dtache-map))
@@ -1122,10 +1150,9 @@
      (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
 
      (evil-leader/set-key
-       "ds" 'dtache-shell-command
-       "dr" 'dtache-rerun-session
+       "ds" '+dtache-shell-command
+       "do" '+dtache-open-last-session-dwim
        "dk" '+dtache-delete-all
-       "dc" '+dtache-open-compile-last-session
        "pr" '+dtache-projectile-shell-command))
 
    (defun +dtache-new-eshell-attach (session)
