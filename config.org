@@ -1099,6 +1099,27 @@
      (let ((default-directory (projectile-project-root)))
        (call-interactively '+dtache-shell-command)))
 
+   (defun +dtache-eshell-attach (session)
+     "Attach to SESSION."
+     (interactive
+      (list (dtache-eshell-select-session)))
+     (cl-letf* ((dtache--dtach-mode 'attach)
+                (socket (dtache-session-file session 'socket t))
+                (log-file (dtache-session-file session 'log))
+                (input (concat (when log-file
+                                 (format "cat %s && " log-file))
+                               (format "%s %s %s" dtache-dtach-program (dtache--dtach-arg) socket)))
+                ((symbol-function #'eshell-add-to-history) #'ignore))
+       (eshell-kill-input)
+       ;; Hide the input from the user
+       (let ((begin (point))
+             (end))
+         (insert input)
+         (setq end (point))
+         (overlay-put (make-overlay begin end) 'invisible t)
+         (insert " "))
+       (call-interactively #'eshell-send-input)))
+
    (defun +dtache-shell-command (command)
      "Execute COMMAND asynchronously with `dtache'.
    If no input run the last shell command."
@@ -1167,8 +1188,11 @@
            (goto-line 2)
            (insert (concat "\n[Attached to \"" (dtache--session-command session) "\"]\n"))
            (end-of-buffer)
-           (dtache-eshell-attach session))
+           (+dtache-eshell-attach session))
        (message "Dtache session is inactive.")))
+
+   (defun eshell/dtache (&rest args)
+     (call-interactively '+dtache-eshell-attach))
 
    (use-package dtache-eshell
      :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
