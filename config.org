@@ -763,7 +763,7 @@
        (let ((default-directory (file-name-directory
                                  (expand-file-name
                                   (substitute-in-file-name file)))))
-         (eshell-here t)))
+         (eshell-here)))
 
      (use-package embark
        :quelpa (embark :fetcher github :repo "oantolin/embark")
