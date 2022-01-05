@@ -1175,7 +1175,10 @@
      :after dtache
      :hook (after-init . dtache-eshell-setup)
      :config
-     (define-key dtache-action-map "e" #'+dtache-new-eshell-attach))
+     (define-key dtache-action-map "e" #'+dtache-new-eshell-attach)
+
+     (evil-define-key 'insert eshell-mode-map
+       (kbd "S-<return>") 'dtache-eshell-create-session))
 
    (use-package dtache-consult
      :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
