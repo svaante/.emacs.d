@@ -1053,8 +1053,6 @@
             (files (split-string command-result "\n")))
        (when (not (string< "ls: cannot access" command-result)) files)))
 
-   (setq debug-on-error '())
-
    (defun eshell/ls-map (&optional maybe-path &rest maybe-command)
      (let* ((files-and-command (if-let (maybe-files (eshell/absolut-ls maybe-path))
                                    (list maybe-files maybe-command)
