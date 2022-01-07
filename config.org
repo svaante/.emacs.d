@@ -976,7 +976,8 @@
          "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new"))
          "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new"))
          (kbd "C-r") '+eshell/consult-esh-history-normal
-         (kbd "<return>") '+eshell/goto-end-of-prompt)
+         (kbd "<return>") '+eshell/goto-end-of-prompt
+         "q" (lambda () (interactive) (kill-buffer)))
 
        (evil-define-key 'visual 'local
          (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state))))
