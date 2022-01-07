@@ -636,6 +636,11 @@
      (use-package orderless
        :ensure t
        :init
+       (define-advice company-capf
+           (:around (orig-fun &rest args) set-completion-styles)
+         (let ((completion-styles '(basic partial-completion)))
+           (apply orig-fun args)))
+
        (setq completion-styles '(orderless basic)
              completion-category-defaults nil
              completion-category-overrides '((file (styles basic partial-completion)))))
