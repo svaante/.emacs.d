@@ -800,9 +800,9 @@
        "Return current project root or `DEFAULT-DIRECTORY`"
        (if-let* ((project (project-current)))
            (car (project-roots project))
-           default-directory))
+         default-directory))
 
-     (defun +project-files-in-directory (dir)
+     (defun project-files-in-directory (dir)
        "Use `fd' to list files in DIR."
        (let* ((default-directory dir)
               (localdir (file-local-name (expand-file-name dir)))
@@ -811,6 +811,9 @@
           (sort (split-string (shell-command-to-string command) "\0" t)
                 #'string<))))
 
+     (cl-defmethod project-root ((project (head local)))
+       (cdr project))
+
      (cl-defmethod project-files ((project (head local)) &optional dirs)
        "Override `project-files' to use `fd' in local projects."
        (mapcan #'+project-files-in-directory
@@ -818,7 +821,7 @@
 
      (defun +project-try-local (dir)
        "Determine if DIR is a non-Git project.
-     DIR must include a .project file to be considered a project."
+        DIR must include a .project file to be considered a project."
        (let ((root (locate-dominating-file dir ".projectile")))
          (and root (cons 'local root))))
 
