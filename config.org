@@ -679,23 +679,22 @@
      (use-package consult
        :quelpa (consult :fetcher github :repo "minad/consult")
        :init
-       (setq consult-project-root-function 'projectile-project-root)
+       (setq consult-project-root-function '+project-root-or-default-dir)
 
        (evil-define-key '(insert normal) minibuffer-local-map
          (kbd "C-r") 'consult-history)
 
        (evil-leader/set-key
-         "." 'find-file-at-point
-         "SPC" 'projectile-find-file
+         "."  'find-file-at-point
          "pg" 'consult-ripgrep
          "pl" 'consult-locate
-         "b" 'consult-buffer
-         "i" 'consult-outline
+         "b"  'consult-buffer
+         "i"  'consult-outline
          "hh" 'describe-function
          "hv" 'describe-variable
-         "m" 'consult-bookmark
-         "y" 'consult-yank-pop
-         ":" 'execute-extended-command
+         "m"  'consult-bookmark
+         "y"  'consult-yank-pop
+         ":"  'execute-extended-command
          "s"  'consult-line)
        :config
        ;; Do not preview buffers in consult-buffer 
@@ -795,92 +794,52 @@
    #+end_src
 
 * Project management
-** Projectile
-  #+begin_src emacs-lisp
-    (defun +projectile/projectile-run-project-with-comint ()
-      (interactive)
-      (let ((projectile-run-use-comint-mode t))
-        (call-interactively 'projectile-run-project)))
-
-    (use-package projectile
-      :ensure t
-      :quelpa (projectile :fetcher github :repo "waymondo/projectile")
-      :config
-      (projectile-mode +1)
-      projectile-project-root-files #'( ".projectile" )
-      projectile-project-root-files-functions #'(projectile-root-top-down
-                                                 projectile-root-top-down-recurring
-                                                 projectile-root-bottom-up
-                                                 projectile-root-local)
-
-      (setq projectile-switch-project-action 'projectile-dired)
-      (evil-leader/set-key
-        "pi" 'projectile-invalidate-cache
-        "pt" 'projectile-test-project
-        "pr" 'projectile-run-project
-        "pd" '+projectile/projectile-run-project-with-comint
-        "pc" 'projectile-compile-project
-        "p!" 'projectile-run-async-shell-command-in-root
-        "pq" 'projectile-toggle-between-implementation-and-test
-        "pb" 'projectile-switch-to-buffer
-        "pp" 'projectile-switch-project))
-  #+end_src
 ** project.el
-*** TODO Fix replace the comint command from projectile
    #+begin_src emacs-lisp
-     ;(setq +project/cmd-history (make-hash-table))
-     ;
-     ;(defun +compilation-read-command (command)
-     ;  (read-shell-command prefix command
-     ;                      (if (equal (car compile-history) command)
-     ;                          '(compile-history . 1)
-     ;                        'compile-history)))
-     ;
-     ;(defun +project/compile (&optional type comint)
-     ;  (interactive) 
-     ;  (let* ((default-directory (project-root (project-current t)))
-     ;         (hash-key (concat type default-directory))
-     ;         (compile-command (gethash hash-key +project/cmd-history ""))
-     ;         (compilation-buffer-name-function (lambda ()
-     ;                                             (concat "*compilation" default-directory type "*")))
-     ;         (prefix type)
-     ;         (compilation-read-command #'+compilation-read-command))
-     ;    (call-interactively #'compile comint)
-     ;    (puthash hash-key (car compile-history) +project/cmd-history)))
-     ;
-     ;(+project/compile "Test: ")
+     (defun +project-root-or-default-dir ()
+       "Return current project root or `DEFAULT-DIRECTORY`"
+       (if-let* ((project (project-current)))
+           (car (project-roots project))
+           default-directory))
 
-     ;(cl-defmethod project-root ((project (head local)))
-     ;  (cdr project))
+     (defun +project-files-in-directory (dir)
+       "Use `fd' to list files in DIR."
+       (let* ((default-directory dir)
+              (localdir (file-local-name (expand-file-name dir)))
+              (command (format "fd -t f -0 . %s" localdir)))
+         (project--remote-file-names
+          (sort (split-string (shell-command-to-string command) "\0" t)
+                #'string<))))
 
-     ;(defun +project-files-in-directory (dir)
-     ;  "Use `fd' to list files in DIR."
-     ;  (let* ((default-directory dir)
-     ;         (localdir (file-local-name (expand-file-name dir)))
-     ;         (command (format "fd -t f -0 . %s" localdir)))
-     ;    (project--remote-file-names
-     ;     (sort (split-string (shell-command-to-string command) "\0" t)
-     ;           #'string<))))
+     (cl-defmethod project-files ((project (head local)) &optional dirs)
+       "Override `project-files' to use `fd' in local projects."
+       (mapcan #'+project-files-in-directory
+               (or dirs (list (project-root project)))))
 
-     ;(cl-defmethod project-files ((project (head local)) &optional dirs)
-     ;  "Override `project-files' to use `fd' in local projects."
-     ;  (mapcan #'+project-files-in-directory
-     ;          (or dirs (list (project-root project)))))
+     (defun +project-try-local (dir)
+       "Determine if DIR is a non-Git project.
+     DIR must include a .project file to be considered a project."
+       (let ((root (locate-dominating-file dir ".projectile")))
+         (and root (cons 'local root))))
 
-     ;(defun +project-try-local (dir)
-     ;  "Determine if DIR is a non-Git project.
-     ;DIR must include a .project file to be considered a project."
-     ;  (let ((root (locate-dominating-file dir ".project")))
-     ;    (and root (cons 'local root))))
+     (defun +project-eshell ()
+       (interactive)
+       (+eshell-there (+project-root-or-default-dir)))
 
-     ;(use-package project
-     ;  :config
-     ;  (setq project-find-functions '(+project-try-local project-try-vc))
-     ;  (evil-leader/set-key
-     ;    "pp" 'project-switch-project
-     ;     "pe" (lambda () (interactive) (+eshell-there (project-root)))
-     ;  )
-     ;)
+     (defun +project-switch-project (dir)
+       (interactive (list (project-prompt-project-dir)))
+       (let ((default-directory dir)
+             (project-current-inhibit-prompt t))
+         (call-interactively 'project-dired)))
+
+     (use-package project
+       :config
+       (setq project-find-functions '(+project-try-local project-try-vc))
+       (add-to-list 'marginalia-command-categories '(+project-switch-project . project-file))
+       (evil-leader/set-key
+         "SPC" 'project-find-file
+         "pp" '+project-switch-project
+         "pe" '+project-eshell))
    #+end_src
 
 * Terminal
@@ -1100,7 +1059,7 @@
 
    (defun +dtache-projectile-shell-command ()
      (interactive)
-     (let ((default-directory (projectile-project-root)))
+     (let ((default-directory (+project-root-or-default-dir)))
        (call-interactively '+dtache-shell-command)))
 
    (defun +dtache-eshell-attach (session)
