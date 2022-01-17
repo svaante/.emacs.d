@@ -773,9 +773,17 @@
        :quelpa (embark :fetcher github :repo "oantolin/embark")
        :init
        :config
+
+       (defun embark-act-noquit ()
+         "Run action but don't quit the minibuffer afterwards."
+         (interactive)
+         (let ((embark-quit-after-action nil))
+           (embark-act)))
+
        (evil-define-key '(insert normal) minibuffer-local-map
          (kbd "C-SPC") 'embark-act
-         (kbd "C-<return>")'embark-export)
+         (kbd "C-S-SPC") 'embark-act-noquit
+         (kbd "C-<return>") 'embark-export)
 
        ;; Show Embark actions via which-key
        (setq embark-action-indicator
