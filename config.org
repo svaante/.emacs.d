@@ -1187,7 +1187,7 @@
      (dtache-eshell-setup))
 
    (use-package dtache-consult
-     :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
+     :quelpa (dtache-consult :fetcher gitlab :repo "niklaseklund/dtache")
      :after dtache
      :config
      (evil-leader/set-key "dd" 'dtache-consult-session))
