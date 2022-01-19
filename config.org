@@ -1178,12 +1178,13 @@
    (use-package dtache-eshell
      :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
      :after dtache
-     :hook (after-init . dtache-eshell-setup)
      :config
      (define-key embark-dtache-map "e" '+dtache-new-eshell-attach)
 
      (evil-define-key 'insert eshell-mode-map
-       (kbd "S-<return>") 'dtache-eshell-create-session))
+       (kbd "S-<return>") 'dtache-eshell-send-input)
+
+     (dtache-eshell-setup))
 
    (use-package dtache-consult
      :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
