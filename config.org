@@ -810,7 +810,7 @@
            (car (project-roots project))
          default-directory))
 
-     (defun project-files-in-directory (dir)
+     (defun +project-files-in-directory (dir)
        "Use `fd' to list files in DIR."
        (let* ((default-directory dir)
               (localdir (file-local-name (expand-file-name dir)))
