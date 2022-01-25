@@ -1259,6 +1259,11 @@
    #+end_src
 
 * Programming
+** Flycheck
+   #+begin_src emacs-lisp
+     (use-package flycheck
+       :straight t)
+   #+end_src
 ** LSP
    #+begin_src emacs-lisp
      (use-package lsp-mode
