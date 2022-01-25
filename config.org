@@ -1269,6 +1269,7 @@
                (set-buffer-modified-p nil))))))
 
      (defun load-one-theme (theme)
+       "Disable each loaded theme and load theme THEME"
        (interactive
         (list
          (intern (completing-read "Load custom theme: "
