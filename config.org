@@ -750,6 +750,15 @@
                                   (substitute-in-file-name file)))))
          (eshell-here)))
 
+     (defun +magit-there (file)
+       "Run magit in directory of FILE."
+       (interactive "Directory: ")
+       (let* ((default-directory (file-name-directory
+                                  (expand-file-name
+                                   (substitute-in-file-name file))))
+              (buf (magit-status default-directory)))
+         (switch-to-buffer buf)))
+
      (use-package embark
        :straight (embark :type git :host github :repo "oantolin/embark")
        :init
@@ -773,6 +782,8 @@
                #'which-key--hide-popup-ignore-command)
              embark-become-indicator embark-action-indicator)
 
+       (define-key embark-file-map "." 'dired)
+       (define-key embark-file-map "g" '+magit-there)
        (define-key embark-file-map "e" '+eshell-there)
        (define-key embark-file-map "E" '+eshell-other-window))
 
@@ -821,7 +832,7 @@
        (interactive (list (project-prompt-project-dir)))
        (let ((default-directory dir)
              (project-current-inhibit-prompt t))
-         (call-interactively 'project-dired)))
+         (call-interactively 'project-find-file)))
 
      (use-package project
        :config
