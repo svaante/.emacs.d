@@ -1,8 +1,10 @@
 * Basic
   #+BEGIN_SRC emacs-lisp
-    ;; this is what the man told me to do
+    ;; this is what the man told me to for native compilation
     (setq comp-speed 2)
     (setq package-native-compile t)
+    ;; HACK https://github.com/hlissner/doom-emacs/issues/4400
+    (setq native-comp-deferred-compilation-deny-list nil)
 
     ;; remove gui elements
     (tool-bar-mode -1)
@@ -71,43 +73,23 @@
 
 * Package
   #+begin_src emacs-lisp
-    (require 'package)
+    (defvar bootstrap-version)
+    (let ((bootstrap-file
+           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+          (bootstrap-version 5))
+      (unless (file-exists-p bootstrap-file)
+        (with-current-buffer
+            (url-retrieve-synchronously
+             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+             'silent 'inhibit-cookies)
+          (goto-char (point-max))
+          (eval-print-last-sexp)))
+      (load bootstrap-file nil 'nomessage))
 
-    (add-to-list 'package-archives
-                 '("melpa" . "https://melpa.org/packages/"))
+    (setq package-enable-at-startup nil)
 
-    ;; Initialise the packages, avoiding a re-initialisation.
-    (unless (bound-and-true-p package--initialized)
-      (setq package-enable-at-startup nil)
-      (package-initialize))
-
-    ;; Unless quelpa is installed install it
-    (unless (package-installed-p 'quelpa)
-      (with-temp-buffer
-        (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-        (eval-buffer)
-        (quelpa-self-upgrade)))
-
-    (eval-when-compile
-      (require 'quelpa))
-
-    ;; Configure `use-package' prior to loading it.
-    (eval-and-compile
-      (setq use-package-always-ensure nil)
-      (setq use-package-always-defer nil)
-      (setq use-package-always-demand nil)
-      (setq use-package-expand-minimally nil)
-      (setq use-package-enable-imenu-support t))
-
-    ;; Install quelpa-use-package 
-    (unless (package-installed-p 'quelpa-use-package)
-      (quelpa
-       '(quelpa-use-package
-         :fetcher git
-         :url "https://github.com/quelpa/quelpa-use-package.git")))
-
-    (eval-when-compile
-      (require 'quelpa-use-package))
+    (straight-use-package 'use-package)
+    (straight-use-package 'el-patch)
   #+end_src
 
 * Key mappings
@@ -162,7 +144,7 @@
 ** Evil
    #+BEGIN_SRC emacs-lisp
      (use-package evil
-       :ensure evil
+       :straight t
        :init
        (setq evil-want-C-i-jump nil)
        (setq evil-want-integration t)
@@ -193,13 +175,13 @@
        (evil-mode 1))
 
      (use-package evil-surround
-       :ensure t
+       :straight t
        :config
        (global-evil-surround-mode 1))
 
      (use-package evil-escape
        :diminish
-       :ensure t
+       :straight t
        :init
        (setq evil-escape-delay 0.2)
        (setq evil-escape-unordered-key-sequence t)
@@ -209,7 +191,7 @@
 
      (use-package evil-collection
        :after evil
-       :ensure t
+       :straight t
        :config
        ;; magit uses 'C-i' as tab like GUI emacs doesn't exist
        (evil-define-key 'normal magit-mode-map (kbd "<tab>") #'magit-section-cycle)
@@ -223,7 +205,7 @@
       (use-package evil-org
         :diminish
         :defer t
-        :ensure t
+        :straight t
         :after org
         :hook ((org-mode . evil-org-mode)
                (evil-org-mode . (lambda ()
@@ -238,7 +220,7 @@
 ** Leader mappings
    #+BEGIN_SRC emacs-lisp
      (use-package evil-leader
-       :ensure t
+       :straight t
        :config
        (setq evil-leader/in-all-states 1)
        (setq evil-leader/non-normal-prefix "M-")
@@ -268,7 +250,7 @@
 ** Themes
    #+BEGIN_SRC emacs-lisp
      (use-package modus-themes
-       :ensure t
+       :straight t
        :config
        (setq modus-themes-mode-line '(accented borderless 3d))
        (setq modus-themes-org-blocks 'tinted-background)
@@ -280,7 +262,7 @@
        '(load-theme 'modus-vivendi t))
 
      (use-package grandshell-theme
-       :ensure t
+       :straight t
        :config
        (load-theme 'grandshell t))
 
@@ -297,7 +279,7 @@
 ** Mode-line
    #+begin_src emacs-lisp
      (use-package diminish
-       :ensure
+       :straight
        :after use-package)
 
      (use-package emacs
@@ -363,7 +345,7 @@
    #+BEGIN_SRC emacs-lisp
    (use-package dashboard
      :diminish
-     :ensure t
+     :straight t
      :config
      (setq dashboard-items '((recents  . 10)
                              (bookmarks . 10)))
@@ -385,7 +367,7 @@
        (consult-global-mark (ring-elements (oref gumshoe--global-backlog log))))
 
      (use-package gumshoe
-       :quelpa (gumshoe :fetcher github :repo "svaante/gumshoe")
+       :straight (gumshoe :type git :host github :repo "svaante/gumshoe")
        :diminish 'global-gumshoe-mode
        :config
        (setq gumshoe-display-buffer-action '(display-buffer-same-window))
@@ -427,7 +409,7 @@
 ** Avy
    #+begin_src emacs-lisp
      (use-package avy
-       :ensure t
+       :straight t
        :config
        (evil-leader/set-key
          "jj" 'evil-avy-goto-char-timer
@@ -531,20 +513,20 @@
 
        (evil-leader/set-key "oc" 'org-capture))
 
-     (use-package ob-async :ensure t)
+     (use-package ob-async :straight t)
 
      (use-package org-superstar
-       :ensure t
+       :straight t
        :hook (org-mode . org-superstar-mode))
 
-     (use-package orgit :ensure t)
+     (use-package orgit :straight t)
    #+END_SRC
 
 * Completion
 ** Package company
    #+BEGIN_SRC emacs-lisp
      (use-package company
-       :ensure t
+       :straight t
        :diminish company-mode
        :config
        (setq company-backends '(company-files company-capf))
@@ -557,7 +539,7 @@
        (company-tng-mode +1))
 
      (use-package company-posframe
-       :ensure t
+       :straight t
        :diminish
        :config
        (setq company-posframe-show-metadata nil)
@@ -569,7 +551,7 @@
    #+BEGIN_SRC emacs-lisp
      (use-package corfu
        :disable
-       :quelpa (corfu :fetcher github :repo "minad/corfu")
+       :straight (corfu :type git :host github :repo "minad/corfu")
        :bind (:map corfu-map
                    ("C-n" . corfu-next)
                    ("C-p" . corfu-previous)
@@ -602,7 +584,13 @@
 ** Vertico, consult, embark
    #+begin_src emacs-lisp
      (use-package vertico
-       :quelpa (vertico :fetcher github :repo "minad/vertico")
+       :straight (vertico
+                  :type git
+                  :host github
+                  :repo "minad/vertico"
+                  :files (:defaults "extensions/*")
+                  :includes (vertico-repeat vertico-directory))
+       :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
        :init
        (vertico-mode)
 
@@ -617,24 +605,17 @@
 
        (defun crm-indicator (args)
          (cons (concat "[CRM] " (car args)) (cdr args)))
-       (advice-add #'completing-read-multiple :filter-args #'crm-indicator))
 
-     (use-package vertico-repeat
-       :load-path "./quelpa/build/vertico/extensions"
-       :init
-       (evil-leader/set-key "r" 'vertico-repeat))
+       (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-     (use-package vertico-directory
-       :load-path "./quelpa/build/vertico/extensions"
-       ;; Tidy shadowed file names
-       :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
-       :config
+       (evil-leader/set-key "r" 'vertico-repeat)
+
        (evil-define-key '(insert normal) vertico-map
          (kbd "DEL") 'vertico-directory-delete-char
          (kbd "M-DEL") 'vertico-directory-delete-word))
 
      (use-package orderless
-       :ensure t
+       :straight t
        :init
        (define-advice company-capf
            (:around (orig-fun &rest args) set-completion-styles)
@@ -647,13 +628,13 @@
 
      ;; Persist history over Emacs restarts. Vertico sorts by history position.
      (use-package savehist
-       :ensure t
+       :straight t
        :init
        (savehist-mode))
 
      ;; Enable richer annotations using the Marginalia package
      (use-package marginalia
-       :ensure t
+       :straight t
        :init
        (marginalia-mode)
        (setq marginalia-command-categories
@@ -677,7 +658,7 @@
      (advice-add #'consult-line :after #'consult-line-evil-history)
 
      (use-package consult
-       :quelpa (consult :fetcher github :repo "minad/consult")
+       :straight (consult :type git :host github :repo "minad/consult")
        :init
        (setq consult-project-root-function '+project-root-or-default-dir)
 
@@ -748,7 +729,7 @@
                       args))))
 
      (use-package which-key
-       :ensure t
+       :straight t
        :diminish which-key-mode
        :init
        (which-key-mode))
@@ -770,7 +751,7 @@
          (eshell-here)))
 
      (use-package embark
-       :quelpa (embark :fetcher github :repo "oantolin/embark")
+       :straight (embark :type git :host github :repo "oantolin/embark")
        :init
        :config
 
@@ -796,9 +777,8 @@
        (define-key embark-file-map "E" '+eshell-other-window))
 
      (use-package embark-consult
-       :load-path "./quelpa/build/embark"
+       :straight (embark-consult :type git :host github :repo "oantolin/embark")
        :after (embark consult))
-
    #+end_src
 
 * Project management
@@ -857,7 +837,7 @@
 ** Get $PATH from bash/zsh profiles
    #+begin_src emacs-lisp
      (use-package exec-path-from-shell
-       :ensure t
+       :straight t
        :config
        (exec-path-from-shell-initialize))
    #+end_src
@@ -976,7 +956,6 @@
         (setq eshell-history-ring eshell-global-history-ring))
 
      (use-package eshell
-       :ensure t
        :hook ((eshell-first-time-mode . eshell-mode-configuration)
               (eshell-directory-change . eshell-pwd-rename)
               (eshell-after-prompt . +eshell-make-field))
@@ -1117,7 +1096,6 @@
                                                                           last-dtache-command))
                                                         ": "
                                                         nil nil))))
-
          (if (string-empty-p read-command)
              last-dtache-command
            read-command))))
@@ -1131,7 +1109,7 @@
      (dtache-open-dwim (+dtache-get-last-session)))
 
    (use-package dtache
-     :quelpa (dtache :fetcher gitlab :repo "niklaseklund/dtache")
+     :straight (dtache :type git :host gitlab :repo "niklaseklund/dtache")
      :hook (after-init . dtache-setup)
      :bind (([remap async-shell-command] . +dtache-shell-command))
      :config
@@ -1176,7 +1154,7 @@
      (call-interactively '+dtache-eshell-attach))
 
    (use-package dtache-eshell
-     :quelpa (dtache-eshell :fetcher gitlab :repo "niklaseklund/dtache")
+     :straight (dtache-eshell :type git :host gitlab :repo "niklaseklund/dtache")
      :after dtache
      :config
      (define-key embark-dtache-map "e" '+dtache-new-eshell-attach)
@@ -1187,18 +1165,17 @@
      (dtache-eshell-setup))
 
    (use-package dtache-consult
-     :quelpa (dtache-consult :fetcher gitlab :repo "niklaseklund/dtache")
+     :straight (dtache-consult :type git :host gitlab :repo "niklaseklund/dtache")
      :after dtache
      :config
      (evil-leader/set-key "dd" 'dtache-consult-session))
-
  #+end_src
 
 * Misc
 ** wgrep
    Change stuff in the grep buffer
    #+begin_src emacs-lisp
-     (use-package wgrep :ensure t)
+     (use-package wgrep :straight t)
    #+end_src
    
 ** Spell checking spelling
@@ -1213,7 +1190,7 @@
           (t                                                                  (ispell-change-dictionary flyspell-default-dictionary)))))
 
      (use-package flyspell
-       :ensure t
+       :straight t
        ;;inside git commit and markdown
        :hook ((git-commit-mode org-mode markdown-mode) . flyspell-mode)
        :config
@@ -1232,7 +1209,7 @@
    #+begin_src  emacs-lisp
      (use-package xterm-color
        :disable
-       :ensure t
+       :straight t
        :config
        (setq compilation-environment '("TERM=xterm-256color"))
 
@@ -1281,12 +1258,11 @@
                (set-buffer-modified-p nil))))))
    #+end_src
 
-
 * Programming
 ** LSP
    #+begin_src emacs-lisp
      (use-package lsp-mode
-       :ensure t
+       :straight t
        :hook (prog-mode . (lambda ()
                             (unless (derived-mode-p 'clojure-mode 'emacs-lisp-mode 'lisp-mode)
                               (lsp-deferred))))
@@ -1310,7 +1286,7 @@
          "lf" 'lsp-format-buffer))
 
      (use-package consult-lsp
-       :ensure t
+       :straight t
        :config
        (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
        (evil-leader/set-key
@@ -1322,16 +1298,16 @@
      ;; Unfortunately tree-sitter does not work at the moment
      (use-package tree-sitter
        :disable
-       :ensure t)
+       :straight t)
 
      (use-package tree-sitter-langs
        :disable
-       :ensure t
+       :straight t
        :hook (prog-mode . tree-sitter-mode))
 
      (use-package evil-textobj-treesitter
        :disable
-       :quelpa (evil-textobj-treesitter :fetcher github :repo "meain/evil-textobj-treesitter")
+       :straight (evil-textobj-treesitter :type git :host github :repo "meain/evil-textobj-treesitter")
        :after tree-sitter
        :config
            (define-key evil-outer-text-objects-map "f" (evil-textobj-treesitter-get-textobj "function.outer"))
@@ -1346,20 +1322,19 @@
 
 ** Readable data files
    #+begin_src emacs-lisp
-  (use-package yaml-mode :ensure t)
-  (use-package json-mode :ensure t)
+  (use-package yaml-mode :straight t)
+  (use-package json-mode :straight t)
    #+end_src
  
 ** Go
    #+begin_src emacs-lisp
-  (use-package go-mode
-  :ensure t)
+  (use-package go-mode :straight t)
    #+end_src
  
 ** Clojure
    #+begin_src emacs-lisp
-  (use-package clojure-mode :ensure t :defer t)
-  (use-package cider :ensure t :defer t)
+  (use-package clojure-mode :straight t :defer t)
+  (use-package cider :straight t :defer t)
    #+end_src
 
 ** Javascript
@@ -1369,7 +1344,7 @@
        (setq js-indent-level 2))
 
      (use-package web-mode
-       :ensure t
+       :straight t
        :defer t
        :custom
        (web-mode-markup-indent-offset 2)
@@ -1379,10 +1354,10 @@
        (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
        (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode)))
 
-     (use-package add-node-modules-path :ensure t)
+     (use-package add-node-modules-path :straight t)
 
      (use-package nodejs-repl
-       :ensure t
+       :straight t
        :config
        ;; https://github.com/abicky/nodejs-repl.el/issues/37
        (defun +nodejs-repl-remove-broken-filter ()
@@ -1394,7 +1369,7 @@
 ** Python
   #+begin_src emacs-lisp
     (use-package lsp-pyright
-      :ensure t
+      :straight t
       :after lsp-mode
       :custom
       (lsp-pyright-auto-import-completions nil)
@@ -1424,20 +1399,20 @@
 ** Typescript
    #+begin_src emacs-lisp
      (use-package typescript-mode
-       :ensure t
+       :straight t
        :config
        (setq-default typescript-indent-level 2))
    #+end_src
 
 ** Rust
    #+begin_src emacs-lisp
-     (use-package rust-mode :ensure t)
+     (use-package rust-mode :straight t)
    #+end_src
 
 ** Godot
    #+begin_src emacs-lisp
      (use-package gdscript-mode
-       :ensure t
+       :straight t
        :config
        (evil-leader/set-key-for-mode 'gdscript-mode "pr" 'gdscript-godot-run-project)
        (setq gdscript-use-tab-indents nil)
@@ -1447,7 +1422,7 @@
 ** Devdocs
  #+begin_src  emacs-lisp
    (use-package devdocs
-     :ensure t
+     :straight t
      :config
      (evil-leader/set-key "k" (lambda () (interactive) (devdocs-lookup t))))
  #+end_src
@@ -1472,12 +1447,12 @@
 
        (add-hook 'dired-mode-hook 'dired-mode-configuration))
 
-     (use-package dired-subtree :ensure t)
+     (use-package dired-subtree :straight t)
    #+end_src
 ** Magit
    #+begin_src emacs-lisp
      (use-package magit
-       :ensure t
+       :straight t
        :config
        (evil-leader/set-key "gg" 'magit)
        (evil-leader/set-key "gd" 'magit-diff)
@@ -1497,7 +1472,7 @@
 ** Postman
    #+begin_src emacs-lisp
  (use-package restclient
-   :ensure t
+   :straight t
    :config
    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode)))
    #+end_src
@@ -1513,7 +1488,7 @@
 ** Jupyter notebooks
    #+begin_src emacs-lisp 
     (use-package ein
-     :ensure t
+     :straight t
      :config
      (setq ein:polymode t))
    #+end_src
@@ -1564,7 +1539,7 @@
        (elfeed-update))
 
      (use-package elfeed
-       :ensure t
+       :straight t
        :config
        (evil-leader/set-key "ar" 'elfeed-open-and-refresh)
        (setq elfeed-feeds
@@ -1627,4 +1602,3 @@
               user-full-name "Daniel Pettersson"))
     #+end_src
 
-    
