@@ -143,6 +143,13 @@
 
 ** Evil
    #+BEGIN_SRC emacs-lisp
+     (use-package undo-tree
+       :straight t
+       :diminish
+       :config
+       (setq undo-tree-auto-save-history nil)
+       (global-undo-tree-mode 1))
+
      (use-package evil
        :straight t
        :init
@@ -154,6 +161,7 @@
        (setq evil-want-C-u-scroll t)
        (setq evil-search-module 'evil-search)
        (setq evil-want-minibuffer t)
+       (setq evil-undo-system 'undo-tree)
        (setq-default evil-symbol-word-search t)
        (setq-default evil-shift-width 2)
        :config
