@@ -763,9 +763,9 @@
        (interactive "Directory: ")
        (let* ((default-directory (file-name-directory
                                   (expand-file-name
-                                   (substitute-in-file-name file))))
-              (buf (magit-status default-directory)))
-         (switch-to-buffer buf)))
+                                   (substitute-in-file-name file)))))
+         (windmove-display-same-window)
+         (magit-status default-directory)))
 
      (use-package embark
        :straight (embark :type git :host github :repo "oantolin/embark")
