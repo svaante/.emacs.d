@@ -1256,6 +1256,16 @@
                (rename-buffer new-name)
                (set-visited-file-name new-name)
                (set-buffer-modified-p nil))))))
+
+     (defun load-one-theme (theme)
+       (interactive
+        (list
+         (intern (completing-read "Load custom theme: "
+                                  (mapcar #'symbol-name
+                                          (custom-available-themes))))))
+       (dolist (theme custom-enabled-themes)
+         (disable-theme theme))
+       (load-theme theme t))
    #+end_src
 
 * Programming
