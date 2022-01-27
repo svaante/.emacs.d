@@ -782,6 +782,7 @@
 
        (evil-define-key '(insert normal) minibuffer-local-map
          (kbd "C-SPC") 'embark-act
+         (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
          (kbd "C-S-SPC") 'embark-act-noquit
          (kbd "C-<return>") 'embark-export)
 
