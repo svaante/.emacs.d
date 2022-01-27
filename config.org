@@ -124,8 +124,10 @@
           (evil-get-auxiliary-keymap global-intercept-mode-map state t t)
           state))
 
-       ;; HACK: To seperate C-i with <tab>
-       (define-key input-decode-map (kbd "C-i") (kbd "H-i"))
+       ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
+       (when (display-graphic-p)
+         (define-key input-decode-map (kbd "C-i") (kbd "H-i")))
+
        (evil-define-key '(normal insert) global-intercept-mode-map
          "\C-j" 'evil-window-down
          "\C-k" 'evil-window-up
