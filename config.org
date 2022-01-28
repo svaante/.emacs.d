@@ -1058,12 +1058,6 @@
 
 ** Dtache
  #+begin_src  emacs-lisp
-   (defun osx/dtache--add-end-of-session-notification-advice (session)
-     "Trigger an event when SESSION transition to inactive."
-     (let ((dtache-timer-configuration
-            '(:seconds 0.5 :repeat 0.5 :function run-with-idle-timer)))
-       (dtache--session-timer session)))
-
    (defun +dtache-get-last-session ()
      (car (seq-sort-by (lambda (session)
                          (-> session
@@ -1072,12 +1066,7 @@
                        #'>
                        (dtache--db-get-sessions))))
 
-   (defun +dtache-delete-all ()
-     (interactive)
-     (dolist (session (dtache--db-get-sessions))
-       (dtache-delete-session session)))
-
-   (defun +dtache-projectile-shell-command ()
+   (defun +dtache-project-shell-command ()
      (interactive)
      (let ((default-directory (+project-root-or-default-dir)))
        (call-interactively '+dtache-shell-command)))
@@ -1147,18 +1136,13 @@
 
      (add-to-list 'embark-keymap-alist '(dtache . embark-dtache-map))
 
-     ;; Hack to get it to work on osx
-     (when (eq system-type 'darwin)
-       (advice-add 'dtache--add-end-of-session-notification :override #'osx/dtache--add-end-of-session-notification-advice))
-
      (evil-define-key 'normal dtache-log-mode-map "q" 'quit-window)
      (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
 
      (evil-leader/set-key
        "ds" '+dtache-shell-command
        "do" '+dtache-open-last-session-dwim
-       "dk" '+dtache-delete-all
-       "pr" '+dtache-projectile-shell-command))
+       "pr" '+dtache-project-shell-command))
 
    (defun +dtache-new-eshell-attach (session)
      (interactive
@@ -1181,13 +1165,12 @@
    (use-package dtache-eshell
      :straight (dtache-eshell :type git :host gitlab :repo "niklaseklund/dtache")
      :after dtache
+     :hook (eshell-mode . dtache-eshell-mode)
      :config
      (define-key embark-dtache-map "e" '+dtache-new-eshell-attach)
 
      (evil-define-key 'insert eshell-mode-map
-       (kbd "S-<return>") 'dtache-eshell-send-input)
-
-     (dtache-eshell-setup))
+       (kbd "S-<return>") 'dtache-eshell-send-input))
 
    (use-package dtache-consult
      :straight (dtache-consult :type git :host gitlab :repo "niklaseklund/dtache")
