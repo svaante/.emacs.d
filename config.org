@@ -58,9 +58,7 @@
      (if (eq system-type 'darwin)
          (progn
            (setq mac-option-key-is-meta t)
-           (setq mac-right-option-modifier nil)
-           (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-           (add-to-list 'default-frame-alist '(ns-appearance . light))))
+           (setq mac-right-option-modifier nil)))
    #+END_SRC
 
 ** Linux
@@ -245,7 +243,7 @@
    #+begin_src emacs-lisp
      ;; Set my font
      (when (eq system-type 'darwin)
-       (set-face-attribute 'default nil :font "DejaVu Sans Mono 14"))
+       (set-face-attribute 'default nil :font "Monaco 13"))
 
      (when (eq system-type 'gnu/linux)
          (set-face-attribute 'default nil :font "DejaVu Sans Mono 10" :height 105))
