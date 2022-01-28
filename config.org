@@ -275,15 +275,6 @@
        :straight t
        :config
        (load-theme 'grandshell t))
-
-     (use-package org
-       :config
-       (setq org-return-follows-link t)
-       (custom-set-faces
-        '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-        '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
-        '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-        '(org-level-3 ((t (:inherit outline-3 :height 1.05))))))
    #+END_SRC
 
 ** Mode-line
@@ -427,13 +418,20 @@
          "jl" 'avy-goto-line))
    #+end_src
 
+** Tab-mode
+#+begin_src emacs-lisp
+  (use-package tab)
+#+end_src
+
 * Org
    #+BEGIN_SRC emacs-lisp
      (defun +org-confirm-babel-evaluate (lang body)
        (not (member lang '("sh" "emacs-lisp" "python"))))
 
      (use-package org
+       :straight t
        :config
+       (setq org-return-follows-link t)
        (setq org-babel-python-command "python3")
        (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
        (org-babel-do-load-languages
@@ -441,6 +439,13 @@
         '(
           (shell . t)
           (python . t)))
+
+       (custom-set-faces
+        '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
+        '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
+        '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
+        '(org-level-3 ((t (:inherit outline-3 :height 1.05)))))
+
        (evil-leader/set-key "os" 'org-store-link))
 
      (defun +org-agenda-goto (&optional highlight)
