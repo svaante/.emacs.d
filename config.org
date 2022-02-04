@@ -539,6 +539,7 @@
 ** Package company
    #+BEGIN_SRC emacs-lisp
      (use-package company
+       :disable
        :straight t
        :diminish company-mode
        :config
@@ -553,6 +554,7 @@
 
      (use-package company-posframe
        :straight t
+       :disable
        :diminish
        :config
        (setq company-posframe-show-metadata nil)
@@ -563,7 +565,6 @@
 ** Package corfu
    #+BEGIN_SRC emacs-lisp
      (use-package corfu
-       :disable
        :straight (corfu :type git :host github :repo "minad/corfu")
        :bind (:map corfu-map
                    ("C-n" . corfu-next)
@@ -588,10 +589,21 @@
        :config
        (setq tab-always-indent 'complete)
 
+       (define-key corfu-map (kbd "RET") nil)
+
        ;; Hackish to enable C-n/C-p bindings https://github.com/minad/corfu/issues/12#issuecomment-869037519
        (evil-make-overriding-map corfu-map)
        (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
        (advice-add 'corfu--teardown :after 'evil-normalize-keymaps))
+
+     (use-package cape
+       :straight t
+       :after corfu
+       :init
+       (add-to-list 'completion-at-point-functions #'cape-file)
+       (add-to-list 'completion-at-point-functions #'cape-tex)
+       (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+       (add-to-list 'completion-at-point-functions #'cape-keyword))
    #+END_SRC
 
 ** Vertico, consult, embark
@@ -1297,8 +1309,14 @@
            (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
            (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
        (setq lsp-file-watch-threshold 1000)
-       (setq lsp-completion-provider :capf)
        (setq lsp-headerline-breadcrumb-enable nil)
+
+       (setq lsp-completion-provider :none)
+
+       (defun corfu-lsp-setup ()
+         (setq-local completion-category-defaults nil))
+
+       (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
 
        ;; enable lsp-mode inside of org babel edit src blocks
        (defun org-babel-edit-prep:python (babel-info)
