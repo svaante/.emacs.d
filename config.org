@@ -1473,12 +1473,13 @@
 
      (use-package dired-subtree :straight t)
    #+end_src
+
 ** Magit
    #+begin_src emacs-lisp
      (use-package magit
        :straight t
        :config
-       (evil-leader/set-key "gg" 'magit)
+       (evil-leader/set-key "gg" 'magit-status-here)
        (evil-leader/set-key "gd" 'magit-diff)
        (evil-leader/set-key "gb" 'magit-blame)
        (evil-leader/set-key "gl" 'magit-log-branches)
