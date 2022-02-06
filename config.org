@@ -1070,74 +1070,15 @@
 
 ** Dtache
  #+begin_src  emacs-lisp
-   (defun +dtache-get-last-session ()
-     (car (seq-sort-by (lambda (session)
-                         (-> session
-                           dtache--session-time
-                           (plist-get :start)))
-                       #'>
-                       (dtache--db-get-sessions))))
-
    (defun +dtache-project-shell-command ()
      (interactive)
      (let ((default-directory (+project-root-or-default-dir)))
-       (call-interactively '+dtache-shell-command)))
-
-   (defun +dtache-eshell-attach (session)
-     "Attach to SESSION."
-     (interactive
-      (list (dtache-eshell-select-session)))
-     (cl-letf* ((dtache-session-mode 'attach)
-                (socket (dtache--session-file session 'socket t))
-                (log-file (dtache--session-file session 'log))
-                (input (concat (when log-file
-                                 (format "cat %s && " log-file))
-                               (format "%s %s %s" dtache-dtach-program (dtache--dtach-arg) socket)))
-                ((symbol-function #'eshell-add-to-history) #'ignore))
-       (eshell-kill-input)
-       ;; Hide the input from the user
-       (let ((begin (point))
-             (end))
-         (insert input)
-         (setq end (point))
-         (overlay-put (make-overlay begin end) 'invisible t)
-         (insert " "))
-       (call-interactively #'eshell-send-input)))
-
-   (defun +dtache-shell-command (command)
-     "Execute COMMAND asynchronously with `dtache'.
-   If no input run the last shell command."
-     (interactive
-      (list
-       (let* ((last-dtache-session (+dtache-get-last-session))
-              (last-dtache-command (when last-dtache-session
-                                     (dtache--session-command last-dtache-session)))
-              (read-command (read-shell-command (concat "Dtache shell command"
-                                                        (when shell-command-prompt-show-cwd
-                                                          (format-message " in `%s'"
-                                                                          (abbreviate-file-name
-                                                                           default-directory)))
-                                                        (when last-dtache-command
-                                                          (format-message " (default: `%s')"
-                                                                          last-dtache-command))
-                                                        ": "
-                                                        nil nil))))
-         (if (string-empty-p read-command)
-             last-dtache-command
-           read-command))))
-     (let* ((inhibit-message t)
-            (dtache-session-type 'standard))
-       (dtache-start-session command)))
-
-   (defun +dtache-open-last-session-dwim ()
-     "Open last run dtache session"
-     (interactive)
-     (dtache-open-dwim (+dtache-get-last-session)))
+       (call-interactively 'dtache-shell-command)))
 
    (use-package dtache
-     :straight (dtache :type git :host gitlab :repo "niklaseklund/dtache")
+     :straight (dtache :type git :host gitlab :repo "svaante/dtache")
      :hook (after-init . dtache-setup)
-     :bind (([remap async-shell-command] . +dtache-shell-command))
+     :bind (([remap async-shell-command] . dtache-shell-command))
      :config
      (setq dtache-db-directory user-emacs-directory)
      (setq dtache-session-directory (expand-file-name "dtache" (temporary-file-directory)))
@@ -1152,8 +1093,7 @@
      (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
 
      (evil-leader/set-key
-       "ds" '+dtache-shell-command
-       "do" '+dtache-open-last-session-dwim
+       "ds" 'dtache-shell-command
        "pr" '+dtache-project-shell-command))
 
    (defun +dtache-new-eshell-attach (session)
