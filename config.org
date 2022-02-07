@@ -1254,6 +1254,7 @@
        (setq lsp-completion-provider :none)
 
        (defun corfu-lsp-setup ()
+         (setq-local completion-styles '(basic partial-completion))
          (setq-local completion-category-defaults nil))
 
        (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
@@ -1370,10 +1371,12 @@
             (call-interactively 'python-shell-send-region)
           (call-interactively 'python-shell-send-buffer)))
 
-     (setq python-shell-interpreter (cond ((eq system-type 'darwin) "ipython")
-                                          ((eq system-type 'gnu/linux) "ipython3")
-                                          (t "ipython3"))
-           python-shell-interpreter-args "-i --simple-prompt")
+      (setq python-shell-interpreter (cond ((eq system-type 'darwin) "ipython")
+                                           ((eq system-type 'gnu/linux) "ipython3")
+                                           (t "ipython3"))
+            python-shell-interpreter-args "-i --simple-prompt")
+
+      (evil-define-key '(normal insert) inferior-python-mode-map (kbd "C-r") 'consult-history)
 
       (define-key python-mode-map (kbd "C-c C-c") '+python-shell-send-dwm))
    #+end_src
