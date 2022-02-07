@@ -427,7 +427,7 @@
        (not (member lang '("sh" "emacs-lisp" "python"))))
 
      (use-package org
-       :straight t
+       :straight (:type built-in)
        :config
        (setq org-return-follows-link t)
        (setq org-babel-python-command "python3")
