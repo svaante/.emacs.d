@@ -1115,7 +1115,7 @@
      (call-interactively '+dtache-eshell-attach))
 
    (use-package dtache-eshell
-     :straight (dtache-eshell :type git :host gitlab :repo "niklaseklund/dtache")
+     :straight (dtache-eshell :type git :host gitlab :repo "svaante/dtache")
      :after dtache
      :hook (eshell-mode . dtache-eshell-mode)
      :config
@@ -1125,7 +1125,7 @@
        (kbd "S-<return>") 'dtache-eshell-send-input))
 
    (use-package dtache-consult
-     :straight (dtache-consult :type git :host gitlab :repo "niklaseklund/dtache")
+     :straight (dtache-consult :type git :host gitlab :repo "svaante/dtache")
      :after dtache
      :config
      (evil-leader/set-key "dd" 'dtache-consult-session))
