@@ -1,3 +1,6 @@
+#+TITLE: Emacs package configuration file
+#+PROPERTY: header-args    :results silent
+
 * Basic
 #+BEGIN_SRC emacs-lisp
   ;; this is what the man told me to for native compilation
