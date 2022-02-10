@@ -582,13 +582,14 @@
     (corfu-preselect-first nil)    ;; Disable candidate preselection
     (corfu-auto t)                 ;; Enable auto completion
     (corfu-echo-documentation t)   ;; Disable documentation in the echo area
-    (corfu-quit-at-boundary nil)   ;; Automatically quit at word boundary
+    (corfu-quit-at-boundary t)     ;; Automatically quit at word boundary
     (corfu-quit-no-match t)        ;; Quite corfu when there is no match
 
     ;; Enable corfu-mode for certain modes
     :hook ((evil-insert-state-exit . (lambda (&rest args)
                                        (when corfu-mode (corfu-quit))))
            (prog-mode . corfu-mode)
+           (org-mode . corfu-mode)
            (inferior-python-mode . corfu-mode))
     :config
     (setq tab-always-indent 'complete)
