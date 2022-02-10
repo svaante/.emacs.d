@@ -397,8 +397,7 @@
            ;; `org-edit-src-code' is not a real narrowing
            ;; command. Remove this first conditional if
            ;; you don't want it.
-           (cond ((ignore-errors (org-edit-src-code) t)
-                  (delete-other-windows))
+           (cond ((ignore-errors (org-edit-src-code) t))
                  ((ignore-errors (org-narrow-to-block) t))
                  (t (org-narrow-to-subtree))))
           ((derived-mode-p 'latex-mode)
@@ -436,6 +435,7 @@
     (setq org-return-follows-link t)
     (setq org-babel-python-command "python3")
     (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
+    (setq org-src-window-setup 'current-window)
     (org-babel-do-load-languages
      'org-babel-load-languages
      '(
