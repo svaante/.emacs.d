@@ -947,7 +947,8 @@
        "With prompt as field eshell-previous-prompt sets cursor at the beggining of the line and not at prompt begin"
        (interactive)
        (call-interactively 'eshell-previous-prompt)
-       (call-interactively 'eshell-next-prompt))
+       (when (= (current-column) 0)
+         (call-interactively 'eshell-next-prompt)))
 
      (defun eshell-mode-configuration ()
        (push 'eshell-tramp eshell-modules-list)
