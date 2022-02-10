@@ -138,8 +138,8 @@
       "\C-k" 'evil-window-up
       "\C-h" 'evil-window-left
       "\C-l" 'evil-window-right
-      (kbd "H-i") 'gumshoe-backtrack-forward
-      "\C-o" 'gumshoe-backtrack-back
+      ;; (kbd "H-i") 'better-jumper-jump-forward
+      ;; "\C-o" 'better-jumper-jump-backward
       "\C-ws" '+emacs/split-follow-window-vertically
       "\C-wv" '+emacs/split-follow-window-horizontally))
 #+end_src
@@ -332,17 +332,17 @@
     (setq show-paren-delay 0)
     (show-paren-mode +1))
 #+end_src
-  
+
 ** White space
 #+BEGIN_SRC emacs-lisp
   (use-package global-whitespace
     :defer t
-                                          ;:hook (prog-mode . whitespace-mode)
+    ;:hook (prog-mode . whitespace-mode)
     :diminish
     :init
     (setq whitespace-style '(face trailing)))
 #+END_SRC
-  
+
 ** Package dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
@@ -369,6 +369,7 @@
     (consult-global-mark (ring-elements (oref gumshoe--global-backlog log))))
 
   (use-package gumshoe
+    :disable
     :straight (gumshoe :type git :host github :repo "svaante/gumshoe")
     :diminish 'global-gumshoe-mode
     :config
