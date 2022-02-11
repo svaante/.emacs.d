@@ -431,7 +431,8 @@
 
   (use-package org
     :straight (:type built-in)
-    :hook ((org-mode . org-indent-mode))
+    :hook ((org-mode . org-indent-mode)
+           (org-mode . visual-line-mode))
     :config
     (setq org-return-follows-link t)
     (setq org-babel-python-command "python3")
