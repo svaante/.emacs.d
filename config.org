@@ -731,27 +731,45 @@
       "Eshell buffer candidate source for `consult-buffer'.")
     (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
 
-    (setq consult-buffer-repl-map '(("*Python*" . run-python)
-                                    ("*nodejs*" . nodejs-repl)
-                                    ("*eshell*" . eshell)
-                                    ("*SQL: MySQL*" . sql-mysql)))
-
     ;; Add repl buffer source for easier repl creation
+    (setq consult-buffer-repls '(("*Python*" . run-python)
+                                 ("*nodejs*" . nodejs-repl)
+                                 ("*eshell*" . eshell)
+                                 ("*SQL: MySQL*" . sql-mysql)))
+
+    (defun open-repl-other-window (key)
+      (interactive
+       (list (completing-read "Switch to REPLish: "
+                              (->> consult-buffer-repls
+                                   (mapcar 'car))
+                              nil
+                              t)))
+      (switch-to-buffer-other-window (other-buffer))
+      (funcall (alist-get key consult-buffer-repls nil nil 'equal))
+      (switch-to-buffer key))
+
     (defvar repl-buffer-source
       `(:name     "REPLish buffers"
                   :narrow   (?r . "REPL")
                   :hidden   nil
-                  :category 'consult-new
+                  :category consult-repl
                   :face     consult-buffer
                   :state    ,#'consult--buffer-state
                   :history  buffer-name-history
                   :action   ,(lambda (key)
-                               (funcall (alist-get key consult-buffer-repl-map)))
+                               (funcall (alist-get key consult-buffer-repls)))
                   :items    ,(lambda ()
-                               (->> consult-buffer-repl-map
+                               (->> consult-buffer-repls
                                  (mapcar 'car)))
                   "Repl buffer candidate source for `consult-buffer'."))
+
     (add-to-list 'consult-buffer-sources 'repl-buffer-source 'append)
+
+    (embark-define-keymap embark-repls-actions
+      "Keymap for actions for repls"
+      ("o" open-repl-other-window))
+
+    (add-to-list 'embark-keymap-alist '(consult-repl . embark-repls-actions))
 
     ;; Use consult as the completion-in-region
     (setq completion-in-region-function
