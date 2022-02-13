@@ -698,9 +698,15 @@
     (evil-define-key '(insert normal) minibuffer-local-map
       (kbd "C-r") 'consult-history)
 
+    (defun +consult-rg-with-fallback ()
+      (interactive)
+      (if (executable-find "rg")
+          (consult-ripgrep)
+        (consult-grep)))
+
     (evil-leader/set-key
       "."  'find-file-at-point
-      "pg" 'consult-ripgrep
+      "pg" '+consult-rg-with-fallback
       "pl" 'consult-locate
       "b"  'consult-buffer
       "i"  'consult-outline
@@ -830,6 +836,7 @@
 
     (define-key embark-file-map "." 'dired)
     (define-key embark-file-map "g" '+magit-there)
+    (define-key embark-file-map "G" '+consult-rg-with-fallback)
     (define-key embark-file-map "e" '+eshell-there)
     (define-key embark-file-map "E" '+eshell-other-window)
 
