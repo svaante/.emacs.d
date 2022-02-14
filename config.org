@@ -430,6 +430,14 @@
   (defun +org-confirm-babel-evaluate (lang body)
     (not (member lang '("sh" "emacs-lisp" "python"))))
 
+  (use-package org-indent
+    :straight (:type built-in)
+    :diminish)
+
+  (use-package simple
+    :straight (:type built-in)
+    :diminish 'visual-line-mode)
+
   (use-package org
     :straight (:type built-in)
     :hook ((org-mode . org-indent-mode)
