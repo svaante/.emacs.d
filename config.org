@@ -1117,6 +1117,12 @@
     (let ((default-directory (+project-root-or-default-dir)))
       (call-interactively 'dtache-shell-command)))
 
+  (defun +dtache-shell-command-here (file)
+    (let ((default-directory (file-name-directory
+                              (expand-file-name
+                               (substitute-in-file-name file)))))
+      (call-interactively 'dtache-shell-command)))
+
   (use-package dtache
     :straight (dtache :type git :host gitlab :repo "svaante/dtache")
     :hook (after-init . dtache-setup)
@@ -1130,6 +1136,8 @@
     (define-key embark-dtache-map "e" '+dtache-new-eshell-attach)
 
     (add-to-list 'embark-keymap-alist '(dtache . embark-dtache-map))
+
+    (define-key embark-file-map "&" '+dtache-shell-command-here)
 
     (evil-define-key 'normal dtache-log-mode-map "q" 'quit-window)
     (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
