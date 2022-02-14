@@ -676,7 +676,7 @@
   ;; Enable richer annotations using the Marginalia package
   (use-package marginalia
     :straight t
-    :init
+    :config
     (marginalia-mode)
     (setq marginalia-command-categories
           (append '((projectile-find-file . project-file)
