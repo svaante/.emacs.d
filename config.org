@@ -434,7 +434,7 @@
     :straight (:type built-in)
     :diminish)
 
-  (use-package simple
+  (use-package visual-line-mode
     :straight (:type built-in)
     :diminish 'visual-line-mode)
 
