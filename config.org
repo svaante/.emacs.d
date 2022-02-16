@@ -807,6 +807,13 @@
                                (substitute-in-file-name file)))))
       (eshell-here)))
 
+  (defun find-file-at (file)
+    (interactive "Directory: ")
+    (let* ((default-directory (file-name-directory
+                               (expand-file-name
+                                (substitute-in-file-name file)))))
+      (call-interactively 'find-file)))
+
   (defun +magit-there (file)
     "Run magit in directory of FILE."
     (interactive "Directory: ")
@@ -827,6 +834,13 @@
       (let ((embark-quit-after-action nil))
         (embark-act)))
 
+    (defun +consult-rg-with-fallback-here (file)
+      (let ((default-directory (file-name-directory
+                                (expand-file-name
+                                 (substitute-in-file-name file)))))
+        (call-interactively '+consult-rg-with-fallback)))
+
+
     (evil-define-key '(insert normal) minibuffer-local-map
       (kbd "C-SPC") 'embark-act
       (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
@@ -840,9 +854,9 @@
             #'which-key--hide-popup-ignore-command)
           embark-become-indicator embark-action-indicator)
 
-    (define-key embark-file-map "." 'dired)
+    (define-key embark-file-map "." 'find-file-at)
     (define-key embark-file-map "g" '+magit-there)
-    (define-key embark-file-map "G" '+consult-rg-with-fallback)
+    (define-key embark-file-map "G" '+consult-rg-with-fallback-here)
     (define-key embark-file-map "e" '+eshell-there)
     (define-key embark-file-map "E" '+eshell-other-window)
 
