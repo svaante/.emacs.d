@@ -592,7 +592,7 @@
     (corfu-auto t)                   ;; Enable auto completion
     (corfu-echo-documentation t)     ;; Disable documentation in the echo area
     (corfu-quit-at-boundary t)       ;; Automatically quit at word boundary
-    (corfu-quit-no-match 'separator) ;; Quite corfu when there is no match
+    (corfu-quit-no-match t) ;; Quite corfu when there is no match
 
     ;; Enable corfu-mode for certain modes
     :hook ((evil-insert-state-exit . (lambda (&rest args)
@@ -610,21 +610,23 @@
     (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
     (advice-add 'corfu--teardown :after 'evil-normalize-keymaps))
 
+
   (use-package cape
     :straight t
     :after corfu
     :config
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-tex)
+    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+    (add-to-list 'completion-at-point-functions #'cape-keyword)
+
     ;; Silence the pcomplete capf, no errors or messages!
     (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
 
     ;; Ensure that pcomplete does not write to the buffer
     ;; and behaves as a pure `completion-at-point-function'.
-    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify)
+    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
 
-    (add-to-list 'completion-at-point-functions #'cape-file)
-    (add-to-list 'completion-at-point-functions #'cape-tex)
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions #'cape-keyword))
 #+END_SRC
 
 ** Vertico, consult, embark
