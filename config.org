@@ -638,7 +638,8 @@
                :repo "minad/vertico"
                :files (:defaults "extensions/*")
                :includes (vertico-repeat vertico-directory))
-    :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
+    :hook ((rfn-eshadow-update-overlay . vertico-directory-tidy)
+           (minibuffer-setup . vertico-repeat-save))
     :init
     (vertico-mode)
 
