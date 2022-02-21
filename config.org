@@ -1446,9 +1446,7 @@ Change stuff in the grep buffer
           (call-interactively 'python-shell-send-region)
         (call-interactively 'python-shell-send-buffer)))
 
-    (setq python-shell-interpreter (cond ((eq system-type 'darwin) "ipython")
-                                         ((eq system-type 'gnu/linux) "ipython3")
-                                         (t "ipython3"))
+    (setq python-shell-interpreter "ipython3"
           python-shell-interpreter-args "-i --simple-prompt")
 
     (evil-define-key '(normal insert) inferior-python-mode-map (kbd "C-r") 'consult-history)
