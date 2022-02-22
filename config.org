@@ -453,6 +453,9 @@
      '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
      '(org-level-3 ((t (:inherit outline-3 :height 1.05)))))
 
+    (evil-define-key 'normal org-mode-map
+      (kbd "<RET>") 'org-return)
+
     (evil-leader/set-key "os" 'org-store-link))
 
   (defun +org-agenda-goto (&optional highlight)
