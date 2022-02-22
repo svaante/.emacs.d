@@ -552,22 +552,31 @@
 ** Package company
 #+BEGIN_SRC emacs-lisp
   (use-package company
-    :disable
     :straight t
     :diminish company-mode
     :config
     (setq company-backends '(company-files company-capf))
     (setq company-idle-delay 0)
-    (setq company-minimum-prefix-length 1)
+    (setq company-minimum-prefix-length 2)
     (setq company-tooltip-align-annotations t)
     (setq company-global-modes '(not eshell-mode))
+    (setq company-format-margin-function #'company-text-icons-margin)
+    (setq company-selection-wrap-around t)
+    (setq company-dabbrev-ignore-case nil)
+    (setq company-dabbrev-downcase nil)
+
+    ;; Use basic completion-styles with company
+    (define-advice company-capf
+        (:around (orig-fun &rest args) set-completion-styles)
+      (let ((completion-styles '(basic partial-completion)))
+        (apply orig-fun args)))
 
     (global-company-mode 1)
     (company-tng-mode +1))
 
   (use-package company-posframe
-    :straight t
     :disable
+    :straight t
     :diminish
     :config
     (setq company-posframe-show-metadata nil)
@@ -578,6 +587,8 @@
 ** Package corfu
 #+BEGIN_SRC emacs-lisp
   (use-package corfu
+    :disable
+    :after lsp
     :straight (corfu :type git :host github :repo "minad/corfu")
     :bind (:map corfu-map
                 ("C-n" . corfu-next)
@@ -585,7 +596,8 @@
                 ("TAB" . corfu-next)
                 ([tab] . corfu-next)
                 ("S-TAB" . corfu-previous)
-                ([backtab] . corfu-previous))
+                ([backtab] . corfu-previous)
+                ((kbd "RET") nil))
     :custom
     (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
     (corfu-preselect-first nil)      ;; Disable candidate preselection
@@ -603,15 +615,21 @@
     :config
     (setq tab-always-indent 'complete)
 
-    (define-key corfu-map (kbd "RET") nil)
+    ;; Lsp settings specific to corfu
+    (setq lsp-completion-provider :none)
+
+    (defun corfu-lsp-setup ()
+      (setq-local completion-styles '(basic partial-completion))
+      (setq-local completion-category-defaults nil))
+    (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
 
     ;; Hackish to enable C-n/C-p bindings https://github.com/minad/corfu/issues/12#issuecomment-869037519
     (evil-make-overriding-map corfu-map)
     (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
     (advice-add 'corfu--teardown :after 'evil-normalize-keymaps))
 
-
   (use-package cape
+    :disable
     :straight t
     :after corfu
     :config
@@ -666,11 +684,6 @@
   (use-package orderless
     :straight t
     :init
-    (define-advice company-capf
-        (:around (orig-fun &rest args) set-completion-styles)
-      (let ((completion-styles '(basic partial-completion)))
-        (apply orig-fun args)))
-
     (setq completion-styles '(orderless basic)
           completion-category-defaults nil
           completion-category-overrides '((file (styles basic partial-completion)))))
@@ -1325,14 +1338,8 @@ Change stuff in the grep buffer
         (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
     (setq lsp-file-watch-threshold 1000)
     (setq lsp-headerline-breadcrumb-enable nil)
+    (setq lsp-modeline-code-actions-enable nil)
 
-    (setq lsp-completion-provider :none)
-
-    (defun corfu-lsp-setup ()
-      (setq-local completion-styles '(basic partial-completion))
-      (setq-local completion-category-defaults nil))
-
-    (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
 
     ;; enable lsp-mode inside of org babel edit src blocks
     (defun org-babel-edit-prep:python (babel-info)
