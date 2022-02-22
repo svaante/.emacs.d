@@ -439,6 +439,7 @@
     (diminish 'visual-line-mode)
     (diminish 'org-indent-mode)
 
+    (setq org-link-frame-setup '((file . find-file))) ;; Open Link in same window
     (setq org-return-follows-link t)
     (setq org-babel-python-command "python3")
     (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
