@@ -224,6 +224,7 @@
                               (evil-org-set-key-theme '(textobjects
                                                         insert
                                                         return
+                                                        return
                                                         additional
                                                         shift
                                                         todo))))))
