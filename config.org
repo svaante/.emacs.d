@@ -722,6 +722,15 @@
     (evil-define-key '(insert normal) minibuffer-local-map
       (kbd "C-r") 'consult-history)
 
+    (defun +consult-kill-line-insert-history ()
+      (interactive)
+      (ignore-errors (call-interactively 'move-beginning-of-line) t)
+      (ignore-errors (call-interactively 'kill-line) t)
+      (call-interactively 'consult-history))
+
+    (evil-global-set-key 'insert
+      (kbd "C-r") '+consult-kill-line-insert-history)
+
     (defun +consult-rg-with-fallback ()
       (interactive)
       (if (executable-find "rg")
@@ -1044,10 +1053,7 @@
       "q" (lambda () (interactive) (kill-buffer)))
 
     (evil-define-key 'visual 'local
-      (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state))))
-
-    (evil-define-key 'insert 'local
-      (kbd "C-r") 'consult-history))
+      (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state)))))
 
   (defun +eshell-make-field ()
     "Make text in front of the point a field, useful for prompts."
@@ -1450,8 +1456,6 @@ Change stuff in the grep buffer
 
     (setq python-shell-interpreter "ipython3"
           python-shell-interpreter-args "-i --simple-prompt")
-
-    (evil-define-key '(normal insert) inferior-python-mode-map (kbd "C-r") 'consult-history)
 
     (define-key python-mode-map (kbd "C-c C-c") '+python-shell-send-dwm))
 #+end_src
