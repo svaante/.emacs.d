@@ -547,7 +547,41 @@
 
   (use-package orgit :straight t)
 #+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (defun org-headline-link-complete-everywhere ()
+    "Complete symbol at point as a link completion to an org headline in current buffer.
+  This is a `completion-at-point' function"
+    (when (and (thing-at-point 'word)
+               (not (save-match-data (org-in-regexp org-link-any-re))))
+      (let ((bounds (bounds-of-thing-at-point 'word)))
+        (list (car bounds) (cdr bounds)
+              (list-org-headlines)
+              :exit-function
+              (lambda (str _status)
+                (delete-char (- (length str)))
+                (insert "[[" str "]]"))
+              ;; Proceed with the next completion function if the returned titles
+              ;; do not match. This allows the default Org capfs or custom capfs
+              ;; of lower priority to run.
+              :exclusive 'no))))
 
+  (defun list-org-headlines ()
+    (save-restriction
+      (and (buffer-narrowed-p) (widen))
+      (save-excursion
+        (goto-char (point-min))
+        (let (tbl)
+          (while (re-search-forward org-outline-regexp nil t)
+            ;; Remove the leading asterisk from
+            ;; `org-link-heading-search-string' result.
+            (push (nth 4 (org-heading-components)) tbl))
+          tbl))))
+
+  (defun org-headline--register-completion-functions-h ()
+    (add-hook 'completion-at-point-functions 'org-headline-link-complete-everywhere nil t))
+
+  (add-hook 'org-mode-hook #'org-headline--register-completion-functions-h)
+#+END_SRC
 * Completion
 ** Package company
 #+BEGIN_SRC emacs-lisp
