@@ -566,10 +566,11 @@
     (setq company-dabbrev-downcase nil)
 
     ;; Use basic completion-styles with company
-    (define-advice company-capf
-        (:around (orig-fun &rest args) set-completion-styles)
-      (let ((completion-styles '(basic partial-completion)))
-        (apply orig-fun args)))
+    ;; BUG: This screws with the pcomplete completion function
+    ; (define-advice company-capf
+    ;     (:around (orig-fun &rest args) set-completion-styles)
+    ;   (let ((completion-styles '(basic partial-completion)))
+    ;     (apply orig-fun args)))
 
     (global-company-mode 1)
     (company-tng-mode +1))
