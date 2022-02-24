@@ -577,10 +577,40 @@
             (push (nth 4 (org-heading-components)) tbl))
           tbl))))
 
-  (defun org-headline--register-completion-functions-h ()
-    (add-hook 'completion-at-point-functions 'org-headline-link-complete-everywhere nil t))
+  (defun org-list-all-fuzzy-links (widen-buffer)
+    (save-restriction
+      (and widen-buffer (buffer-narrowed-p) (widen))
+      (org-element-map (org-element-parse-buffer) 'link
+        (lambda (link)
+          (when (string= (org-element-property :type link) "fuzzy")
+            (org-element-property :path link))))))
 
-  (add-hook 'org-mode-hook #'org-headline--register-completion-functions-h)
+  (defun org-headline-write-backlinks ()
+    (let ((links-titles
+           (apply 'append
+                  (org-map-entries
+                   (lambda ()
+                     (save-restriction
+                       (org-narrow-to-subtree)
+                       (let ((title (nth 4 (org-heading-components)))
+                             (links (delete-dups (org-list-all-fuzzy-links nil))))
+                         (mapcar (lambda (link) (cons link title)) links))))))))
+      (org-map-entries
+       (lambda ()
+         (let* ((title (nth 4 (org-heading-components)))
+                (links-titles (seq-filter (lambda (link-title) (string= (car link-title) title)) links-titles))
+                (titles (mapcar 'cdr links-titles))
+                (uniq-headlines (delete-dups titles))
+                (org-links (mapcar (lambda (link) (concat "[[" link "]]")) uniq-headlines))
+                (joined-links (string-join org-links " ")))
+           (when uniq-headlines
+             (org-set-property "backlinks" joined-links)))))))
+
+  (defun org-headline--register-functions-h ()
+    (add-hook 'completion-at-point-functions 'org-headline-link-complete-everywhere nil t)
+    (add-hook 'before-save-hook 'org-headline-write-backlinks nil t))
+
+  (add-hook 'org-mode-hook #'org-headline--register-functions-h)
 #+END_SRC
 * Completion
 ** Package company
