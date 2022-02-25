@@ -488,7 +488,7 @@
 
   (use-package org-agenda
     :init
-    (setq org-agenda-files '("~/org/todo.org"))
+    (setq org-agenda-files '("~/org/todo.org" "~/org/notes.org"))
     :config
     (evil-leader/set-key
       "oa" 'org-agenda
@@ -519,16 +519,15 @@
     :init
     (setq org-capture-templates '(("t" "Task Entry" entry
                                    (file "~/org/todo.org")
-                                   "* TODO %?\n  %t\n  %a")
+                                   "* TODO %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
 
                                   ("n" "Note" entry
                                    (file "~/org/notes.org")
-                                   "* %?\n  %t\n  %a")
+                                   "* %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
 
                                   ("p" "Python Notebok" entry
                                    (file "~/org/python-babel.org")
-                                   "* %?\n  %t\n  #+begin_src python\n  #+end_src")
-                                  ))
+                                   "* %?\n  %t\n  #+begin_src python\n  #+end_src")))
     :config
     (setq org-agenda-follow-indirect t)
     (setq org-refile-use-outline-path 'file)
@@ -552,6 +551,7 @@
     "Complete symbol at point as a link completion to an org headline in current buffer.
   This is a `completion-at-point' function"
     (when (and (thing-at-point 'word)
+               (not (org-at-heading-p))
                (not (save-match-data (org-in-regexp org-link-any-re))))
       (let ((bounds (bounds-of-thing-at-point 'word)))
         (list (car bounds) (cdr bounds)
