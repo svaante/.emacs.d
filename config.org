@@ -1277,6 +1277,7 @@
     :config
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
     (define-key dtache-eshell-mode-map dtache-detach-key nil)
+    (define-key dtache-eshell-mode-map (kbd "C") nil)
 
     (define-key embark-dtache-map "e" '+dtache-new-eshell-attach)
 
