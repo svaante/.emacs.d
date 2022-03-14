@@ -659,6 +659,10 @@
                                  (file+function "~/org/notes.org" org-capture-template-todays-pad)
                                  "%?")
 
+                                ("l" "Pad/Journal with link" plain
+                                 (file+function "~/org/notes.org" org-capture-template-todays-pad)
+                                 "%?%l")
+
                                 ("p" "Python Notebok" entry
                                  (file "~/org/python-babel.org")
                                  "* %?\n  %t\n  #+begin_src python\n  #+end_src")))
