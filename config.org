@@ -1243,10 +1243,14 @@
 
     (add-to-list 'embark-keymap-alist '(dtache . embark-dtache-map))
 
+    ;; Ebmark file mapping
     (define-key embark-file-map "&" '+dtache-shell-command-here)
 
     (evil-define-key 'normal dtache-log-mode-map "q" 'quit-window)
     (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
+
+    ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
+    (setq dtache-detach-key "C-c C-x")
 
     (evil-leader/set-key
       "ds" 'dtache-shell-command
@@ -1275,9 +1279,6 @@
     :after dtache
     :hook (eshell-mode . dtache-eshell-mode)
     :config
-    ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
-    (define-key dtache-eshell-mode-map dtache-detach-key nil)
-    (define-key dtache-eshell-mode-map (kbd "C") nil)
 
     (define-key embark-dtache-map "e" '+dtache-new-eshell-attach)
 
