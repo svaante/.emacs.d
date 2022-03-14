@@ -549,7 +549,7 @@
 #+BEGIN_SRC emacs-lisp
   (defun org-headline-link-complete-everywhere ()
     "Complete symbol at point as a link completion to an org headline in current buffer.
-  This is a `completion-at-point' function"
+    This is a `completion-at-point' function"
     (when (and (thing-at-point 'word)
                (not (org-at-heading-p))
                (not (save-match-data (org-in-regexp org-link-any-re))))
@@ -612,45 +612,40 @@
 
   (add-hook 'org-mode-hook #'org-headline--register-functions-h)
 
-  (defun org-capture-template-todays-pad ()
-    (add-hook 'org-capture-mode-hook 'org-narrow-to-subtree t t)
+  (defun org-narrow-to-subtree-top-level ()
+    (interactive)
+    (save-excursion
+      (condition-case err
+          (outline-up-heading 9999)
+        (error nil))
+      (org-narrow-to-subtree)))
+
+  (defun org-capture-template-new-or-edit (headline)
+    (add-hook 'org-capture-mode-hook 'org-narrow-to-subtree-top-level t t)
     (org-capture-put :unnarrowed t)
     (beginning-of-buffer)
     (org-capture-put-target-region-and-position)
-    (let ((headline (format-time-string "Pad %Y-%m-%d")))
-      (if (re-search-forward (format org-complex-heading-regexp-format
-                                     (regexp-quote headline))
-                             nil t)
-          (let* ((_ (beginning-of-line))
-                (beg (point)))
-            (org-forward-heading-same-level 1 t)
-            (when (= beg (point)) (end-of-buffer)))
-        (let ((beg (point-max)))
-          (goto-char beg)
-          (unless (bolp) (insert "\n"))
-          (insert "* " headline "\n:PROPERTIES:\n:timestamp: " (format-time-string (car org-time-stamp-formats)) "\n:END:\n")
-          (goto-char (point-max))))))
+    (if (re-search-forward (format org-complex-heading-regexp-format
+                                   (regexp-quote headline))
+                           nil t)
+        (let* ((_ (beginning-of-line))
+               (beg (point)))
+          (setq-local org-narrow-to-subtree-var beg)
+          (org-forward-heading-same-level 1 t)
+          (when (= beg (point)) (end-of-buffer)))
+      (let ((beg (point-max)))
+        (goto-char beg)
+        (unless (bolp) (insert "\n"))
+        (insert "* " headline "\n:PROPERTIES:\n:timestamp: " (format-time-string (car org-time-stamp-formats)) "\n:END:\n")
+        (goto-char (point-max)))))
+
+  (defun org-capture-template-todays-pad ()
+    (org-capture-template-new-or-edit (format-time-string "Pad %Y-%m-%d")))
 
   (defun org-capture-template-note-with-completing ()
-    (add-hook 'org-capture-mode-hook 'org-narrow-to-subtree t t)
-    (org-capture-put :unnarrowed t)
-    (beginning-of-buffer)
-    (org-capture-put-target-region-and-position)
     (let* ((headlines (list-org-headlines))
            (headline (completing-read "Note: " headlines nil nil)))
-      (if (re-search-forward (format org-complex-heading-regexp-format
-                                     (regexp-quote headline))
-                             nil t)
-          (let* ((_ (beginning-of-line))
-                (beg (point)))
-            (org-forward-heading-same-level 1 t)
-            (when (= beg (point)) (end-of-buffer)))
-        (let ((beg (point-max)))
-          (goto-char beg)
-          (unless (bolp) (insert "\n"))
-          (insert "* " headline "\n:PROPERTIES:\n:timestamp: " (format-time-string (car org-time-stamp-formats)) "\n:END:\n")
-          (goto-char (point-max))))))
-
+      (org-capture-template-new-or-edit headline)))
 
   (setq org-capture-templates '(("t" "Task Entry" entry
                                  (file "~/org/todo.org")
