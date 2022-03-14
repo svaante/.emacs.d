@@ -611,6 +611,71 @@
     (add-hook 'before-save-hook 'org-headline-write-backlinks nil t))
 
   (add-hook 'org-mode-hook #'org-headline--register-functions-h)
+
+  (defun org-capture-template-todays-pad ()
+    (add-hook 'org-capture-mode-hook 'org-narrow-to-subtree t t)
+    (org-capture-put :unnarrowed t)
+    (beginning-of-buffer)
+    (org-capture-put-target-region-and-position)
+    (let ((headline (format-time-string "Pad %Y-%m-%d")))
+      (if (re-search-forward (format org-complex-heading-regexp-format
+                                     (regexp-quote headline))
+                             nil t)
+          (let* ((_ (beginning-of-line))
+                (beg (point)))
+            (org-forward-heading-same-level 1 t)
+            (when (= beg (point)) (end-of-buffer)))
+        (let ((beg (point-max)))
+          (goto-char beg)
+          (unless (bolp) (insert "\n"))
+          (insert "* " headline "\n:PROPERTIES:\n:timestamp: " (format-time-string (car org-time-stamp-formats)) "\n:END:\n")
+          (goto-char (point-max))))))
+
+  (defun org-capture-template-note-with-completing ()
+    (add-hook 'org-capture-mode-hook 'org-narrow-to-subtree t t)
+    (org-capture-put :unnarrowed t)
+    (beginning-of-buffer)
+    (org-capture-put-target-region-and-position)
+    (let* ((headlines (list-org-headlines))
+           (headline (completing-read "Note: " headlines nil nil)))
+      (if (re-search-forward (format org-complex-heading-regexp-format
+                                     (regexp-quote headline))
+                             nil t)
+          (let* ((_ (beginning-of-line))
+                (beg (point)))
+            (org-forward-heading-same-level 1 t)
+            (when (= beg (point)) (end-of-buffer)))
+        (let ((beg (point-max)))
+          (goto-char beg)
+          (unless (bolp) (insert "\n"))
+          (insert "* " headline "\n:PROPERTIES:\n:timestamp: " (format-time-string (car org-time-stamp-formats)) "\n:END:\n")
+          (goto-char (point-max))))))
+
+
+  (setq org-capture-templates '(("t" "Task Entry" entry
+                                 (file "~/org/todo.org")
+                                 "* TODO %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
+
+                                ("j" "Pad/Journal" plain
+                                 (file+function "~/org/notes.org" org-capture-template-note-with-completing)
+                                 "%?")
+
+                                ("n" "Note" entry
+                                 (file "~/org/notes.org")
+                                 "* %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
+
+                                ("p" "Python Notebok" entry
+                                 (file "~/org/python-babel.org")
+                                 "* %?\n  %t\n  #+begin_src python\n  #+end_src")))
+
+  (setq org-notes-file "~/org/notes.org")
+
+  (defun consult-org-heading-notes ()
+    (interactive)
+    (find-fileorg-notes-file)
+    (consult-org-heading))
+
+  (evil-leader/set-key "on" 'consult-org-headline-notes)
 #+END_SRC
 * Completion
 ** Package company
