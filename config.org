@@ -656,13 +656,13 @@
                                  (file "~/org/todo.org")
                                  "* TODO %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
 
-                                ("j" "Pad/Journal" plain
+                                ("n" "Note" plain
                                  (file+function "~/org/notes.org" org-capture-template-note-with-completing)
                                  "%?")
 
-                                ("n" "Note" entry
-                                 (file "~/org/notes.org")
-                                 "* %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
+                                ("j" "Pad/Journal" plain
+                                 (file+function "~/org/notes.org" org-capture-template-todays-pad)
+                                 "%?")
 
                                 ("p" "Python Notebok" entry
                                  (file "~/org/python-babel.org")
@@ -672,10 +672,10 @@
 
   (defun consult-org-heading-notes ()
     (interactive)
-    (find-fileorg-notes-file)
+    (find-file org-notes-file)
     (consult-org-heading))
 
-  (evil-leader/set-key "on" 'consult-org-headline-notes)
+  (evil-leader/set-key "on" 'consult-org-heading-notes)
 #+END_SRC
 * Completion
 ** Package company
