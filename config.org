@@ -565,17 +565,18 @@
               ;; of lower priority to run.
               :exclusive 'no))))
 
-  (defun list-org-headlines ()
+  (defun list-org-headlines (&optional headline-regexp)
+   (let ((headline-regexp (or headline-regexp org-outline-regexp)))
     (save-restriction
       (and (buffer-narrowed-p) (widen))
       (save-excursion
         (goto-char (point-min))
         (let (tbl)
-          (while (re-search-forward org-outline-regexp nil t)
+          (while (re-search-forward headline-regexp nil t)
             ;; Remove the leading asterisk from
             ;; `org-link-heading-search-string' result.
             (push (nth 4 (org-heading-components)) tbl))
-          tbl))))
+          tbl)))))
 
   (defun org-list-all-fuzzy-links (widen-buffer)
     (save-restriction
@@ -643,7 +644,7 @@
     (org-capture-template-new-or-edit (format-time-string "Pad %Y-%m-%d")))
 
   (defun org-capture-template-note-with-completing ()
-    (let* ((headlines (list-org-headlines))
+    (let* ((headlines (list-org-headlines "^\\* "))
            (headline (completing-read "Note: " headlines nil nil)))
       (org-capture-template-new-or-edit headline)))
 
