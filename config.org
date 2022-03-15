@@ -694,12 +694,14 @@
     (setq company-dabbrev-ignore-case nil)
     (setq company-dabbrev-downcase nil)
 
-    ;; Use basic completion-styles with company
+    ;; Use basic completion-styles with company in prog-mode
     ;; BUG: This screws with the pcomplete completion function
-    ; (define-advice company-capf
-    ;     (:around (orig-fun &rest args) set-completion-styles)
-    ;   (let ((completion-styles '(basic partial-completion)))
-    ;     (apply orig-fun args)))
+    (define-advice company-capf
+        (:around (orig-fun &rest args) set-completion-styles)
+      (if (bound-and-true-p prog-mode)
+          (let ((completion-styles '(basic partial-completion)))
+            (apply orig-fun args))
+        (apply orig-fun args)))
 
     (global-company-mode 1)
     (company-tng-mode +1))
