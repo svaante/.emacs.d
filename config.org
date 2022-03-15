@@ -816,10 +816,13 @@
 
   (use-package orderless
     :straight t
+    :hook (minibuffer-setup . use-orderless-in-minibuffer)
     :init
-    (setq completion-styles '(orderless basic)
-          completion-category-defaults nil
-          completion-category-overrides '((file (styles basic partial-completion)))))
+    (setq completion-category-defaults nil
+          completion-category-overrides '((file (styles basic partial-completion))))
+    :preface
+    (defun use-orderless-in-minibuffer ()
+      (setq-local completion-styles '(orderless basic))))
 
   ;; Persist history over Emacs restarts. Vertico sorts by history position.
   (use-package savehist
