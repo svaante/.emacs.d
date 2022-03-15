@@ -604,8 +604,9 @@
                 (uniq-headlines (delete-dups titles))
                 (org-links (mapcar (lambda (link) (concat "[[" link "]]")) uniq-headlines))
                 (joined-links (string-join org-links " ")))
-           (when uniq-headlines
-             (org-set-property "backlinks" joined-links)))))))
+           (if uniq-headlines
+             (org-set-property "backlinks" joined-links)
+             (org-delete-property "backlinks")))))))
 
   (defun org-headline--register-functions-h ()
     (add-hook 'completion-at-point-functions 'org-headline-link-complete-everywhere nil t)
