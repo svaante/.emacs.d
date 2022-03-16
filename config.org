@@ -1326,6 +1326,9 @@
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
     (setq dtache-detach-key "C-c C-x")
 
+    ;; Enter normal state on command attach
+    (add-hook 'dtache-shell-mode-hook 'evil-normal-state)
+
     (evil-leader/set-key
       "ds" 'dtache-shell-command
       "pr" '+dtache-project-shell-command))
