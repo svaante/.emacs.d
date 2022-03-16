@@ -697,12 +697,15 @@
 
     ;; Use basic completion-styles with company in prog-mode
     ;; BUG: This screws with the pcomplete completion function
-    (define-advice company-capf
-        (:around (orig-fun &rest args) set-completion-styles)
-      (if (bound-and-true-p prog-mode)
-          (let ((completion-styles '(basic partial-completion)))
-            (apply orig-fun args))
-        (apply orig-fun args)))
+    ;;(define-advice company-capf
+    ;;    (:around (orig-fun &rest args) set-completion-styles)
+    ;;  (let ((completion-styles '(basic partial-completion)))
+    ;;    (apply orig-fun args)))
+    (defun +company-mode-setup ()
+      (setq-local completion-ignore-case t)
+      (setq-local completion-styles '(basic substring)))
+
+    (add-hook 'company-mode-hook #'+company-mode-setup)
 
     (global-company-mode 1)
     (company-tng-mode +1))
