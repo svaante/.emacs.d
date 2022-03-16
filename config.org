@@ -1532,6 +1532,17 @@ Change stuff in the grep buffer
     (define-key evil-inner-text-objects-map "C" (evil-textobj-treesitter-get-textobj "class.inner")))
 #+end_src
 
+** Emacs lisp
+#+begin_src emacs-lisp
+  (use-package elisp-mode
+    :straight (:type built-in)
+    :config
+    (evil-define-key 'normal emacs-lisp-mode-map
+      (kbd "C-c C-c") 'eval-buffer)
+    (evil-define-key 'visual emacs-lisp-mode-map
+      (kbd "C-c C-c") 'eval-region))
+#+end_src
+
 ** Readable data files
 #+begin_src emacs-lisp
   (use-package yaml-mode :straight t)
