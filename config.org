@@ -1303,61 +1303,6 @@
                                (substitute-in-file-name file)))))
       (call-interactively 'dtache-shell-command)))
 
-  (defun generated-buffer-name-from (name)
-    (save-match-data
-      (string-match "\\(?1:.+\\)<\\(?2:[0-9]+\\)>\\|\\(?1:.+\\)" name)
-      (let* ((base-name (match-string 1 name))
-             (number (match-string 2 name))
-             (parsed-number (if number (string-to-number number) 1))
-             (new-number (number-to-string (1+ parsed-number))))
-        (concat base-name "<" new-number ">" ))))
-
-  (defun dtache-shell-command-tail-and-attach-session (session)
-    "Tail 1000 and attach to SESSION with `async-shell-command'."
-    (let* ((dtache--current-session session)
-           (dtache-session-mode 'attach)
-           (inhibit-message t))
-      (if (not (dtache--session-attachable session))
-          (dtache-tail-session session)
-        (cl-letf* (((symbol-function #'set-process-sentinel) #'ignore)
-                   (buffer (get-buffer-create dtache--shell-command-buffer))
-                   (default-directory (dtache--session-working-directory session))
-                   (dtache-log (dtache--session-file session 'log))
-                   (command-prefix (concat "tail --lines 10000 " dtache-log " ; "))
-                   (dtach-command (concat command-prefix (dtache-dtach-command session t))))
-          (while (get-buffer-process buffer)
-            (setq buffer (get-buffer-create (generated-buffer-name-from (buffer-name buffer)))))
-          (funcall #'async-shell-command dtach-command buffer)
-
-          (with-current-buffer buffer (setq dtache--buffer-session dtache--current-session))))))
-
-  (eval-after-load "dtache"
-    '(defun dtache-start-session (command &optional suppress-output)
-       "Start a `dtache' session running COMMAND.
-
-    Optionally SUPPRESS-OUTPUT."
-       (let ((inhibit-message t)
-             (dtache-enabled t)
-             (dtache--current-session
-              (or dtache--current-session
-                  (dtache-create-session command))))
-         (if-let ((run-in-background
-                   (and (or suppress-output
-                            (eq dtache-session-mode 'create)
-                            (not (dtache--session-attachable dtache--current-session)))))
-                  (dtache-session-mode 'create))
-             (progn (setq dtache-enabled nil)
-                    (apply #'start-file-process-shell-command
-                           `("dtache" nil ,(dtache-dtach-command dtache--current-session t))))
-           (cl-letf* ((dtache-session-mode 'create-and-attach)
-                      ((symbol-function #'set-process-sentinel) #'ignore)
-                      (buffer (get-buffer-create dtache--shell-command-buffer)))
-             (while (get-buffer-process buffer)
-               (setq buffer (get-buffer-create (generated-buffer-name-from (buffer-name buffer)))))
-             (setq dtache-enabled nil)
-             (funcall #'async-shell-command (dtache-dtach-command dtache--current-session t) buffer)
-             (with-current-buffer buffer (setq dtache--buffer-session dtache--current-session)))))))
-
   (use-package dtache
     :straight (dtache :type git :host gitlab :repo "svaante/dtache")
     :hook (after-init . dtache-setup)
