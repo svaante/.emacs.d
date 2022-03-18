@@ -1626,6 +1626,14 @@ Change stuff in the grep buffer
   (use-package cider :straight t :defer t)
 #+end_src
 
+** C
+#+begin_src emacs-lisp
+  (use-package cc-mode
+    :straight (:type built-in)
+    :config
+    (setq c-basic-offset 4))
+#+end_src
+
 ** Javascript
 #+begin_src emacs-lisp
   (use-package emacs
