@@ -426,6 +426,35 @@
   (use-package tab)
 #+end_src
 
+* Windows
+#+begin_src emacs-lisp
+  (use-package window
+    :straigth (:type built-in)
+    :config
+    ;; Inspiration from https://stackoverflow.com/a/7939523
+    (defun display-buffer-previous-selected-window (buffer alist)
+      (let* ((buflist (buffer-list (selected-frame)))
+             (buflist (seq-filter (lambda (b)
+                                    (not (minibufferp b)))
+                                  buflist))
+             (buflist (delq (current-buffer) buflist))
+             (winlist (mapcar 'get-buffer-window buflist))
+             (winlist (delq nil winlist))
+             (winlist (delq (selected-window) winlist)))
+        (message "display-buffer-previous-selected-window")
+        (when winlist (setq window (car winlist))
+              (window--display-buffer buffer window 'reuse alist))))
+
+    (setq display-buffer-base-action
+          '((display-buffer--maybe-same-window
+             display-buffer--maybe-pop-up-frame-or-window
+             display-buffer-reuse-window
+             display-buffer-previous-selected-window
+             display-buffer-in-previous-window
+             display-buffer-use-some-window
+             display-buffer-pop-up-frame))))
+#+end_src
+
 * Org
 #+BEGIN_SRC emacs-lisp
   (use-package org
