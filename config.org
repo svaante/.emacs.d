@@ -429,7 +429,7 @@
 * Windows
 #+begin_src emacs-lisp
   (use-package window
-    :straigth (:type built-in)
+    :straight (:type built-in)
     :config
     ;; Inspiration from https://stackoverflow.com/a/7939523
     (defun display-buffer-previous-selected-window (buffer alist)
@@ -441,7 +441,6 @@
              (winlist (mapcar 'get-buffer-window buflist))
              (winlist (delq nil winlist))
              (winlist (delq (selected-window) winlist)))
-        (message "display-buffer-previous-selected-window")
         (when winlist (setq window (car winlist))
               (window--display-buffer buffer window 'reuse alist))))
 
