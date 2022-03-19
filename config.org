@@ -1165,12 +1165,16 @@
 
   (defun +eshell-from-path (path)
     (interactive "F")
-    (let ((default-directory (file-name-directory path)))
+    (let ((default-directory (file-name-directory
+                                (expand-file-name
+                                 (substitute-in-file-name path)))))
       (switch-to-buffer (+eshell))))
 
   (defun +eshell-from-path-other-window (path)
     (interactive "F")
-    (let ((default-directory (file-name-directory path)))
+    (let ((default-directory (file-name-directory
+                                (expand-file-name
+                                 (substitute-in-file-name path)))))
       (switch-to-buffer-other-window (+eshell))))
 
   (defun +eshell/goto-end-of-prompt ()
