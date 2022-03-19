@@ -1131,7 +1131,6 @@
     (when (bound-and-true-p eshell-mode)
       (rename-buffer (generate-new-buffer-name (+eshell-name)
                                                (buffer-name)))))
-
   (defun +eshell ()
     (let* ((name (+eshell-name))
            (buffer (cond
@@ -1144,6 +1143,7 @@
       (with-current-buffer buffer
         (unless (bound-and-true-p eshell-mode)
           (eshell-mode))
+        (+eshell/goto-end-of-prompt)
       buffer)))
 
   (defun +eshell-project ()
