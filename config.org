@@ -991,22 +991,6 @@
     :init
     (which-key-mode))
 
-  (defun +eshell-there (file)
-    "Run eshell in directory of FILE."
-    (interactive "Directory: ")
-    (let ((default-directory (file-name-directory
-                              (expand-file-name
-                               (substitute-in-file-name file)))))
-      (eshell-here t)))
-
-  (defun +eshell-other-window (file)
-    "Run eshell in directory of FILE."
-    (interactive "Directory: ")
-    (let ((default-directory (file-name-directory
-                              (expand-file-name
-                               (substitute-in-file-name file)))))
-      (eshell-here)))
-
   (defun find-file-at (file)
     (interactive "Directory: ")
     (let* ((default-directory (file-name-directory
@@ -1057,8 +1041,8 @@
     (define-key embark-file-map "." 'find-file-at)
     (define-key embark-file-map "g" '+magit-there)
     (define-key embark-file-map "G" '+consult-rg-with-fallback-here)
-    (define-key embark-file-map "e" '+eshell-there)
-    (define-key embark-file-map "E" '+eshell-other-window)
+    (define-key embark-file-map "e" '+eshell-from-path)
+    (define-key embark-file-map "E" '+eshell-from-path-other-window)
 
     (embark-define-keymap embark-repls-actions
       "Keymap for actions for repls"
@@ -1103,9 +1087,6 @@
     (let ((root (locate-dominating-file dir ".projectile")))
       (and root (cons 'local root))))
 
-  (defun +project-eshell ()
-    (interactive)
-    (+eshell-there (+project-root-or-default-dir)))
 
   (defun +project-switch-project (dir)
     (interactive (list (project-prompt-project-dir)))
@@ -1119,8 +1100,7 @@
     (add-to-list 'marginalia-command-categories '(+project-switch-project . project-file))
     (evil-leader/set-key
       "SPC" 'project-find-file
-      "pp" '+project-switch-project
-      "pe" '+project-eshell))
+      "pp" '+project-switch-project))
 #+end_src
 
 * Terminal
@@ -1134,39 +1114,64 @@
    
 ** Eshell
 #+begin_src emacs-lisp
-  ;; Require file where 'eshell/pwd is defined for further usage
-  (require 'em-dirs)
+  (defun +eshell-name ()
+    (let* ((path-part (if (and (bound-and-true-p eshell-project-type-p)
+                               (project-current))
+                          (format "<%s>"
+                                  (-> (project-current)
+                                      cdr
+                                      file-name-directory
+                                      directory-file-name
+                                      file-name-nondirectory))
+                        (setq-local eshell-project-type-p nil)
+                        (abbreviate-file-name default-directory))))
+           (format "*eshell %s*" path-part)))
 
-  (defun eshell-pwd-rename (&optional i)
-    "Renames eshell buffer to *eshell <wd> <number of buffers with this name>*"
+  (defun +eshell-rename ()
     (interactive)
-    (unless i (setq i 0))
-    (let ((b-name (if (zerop i)
-                      (concat "*eshell " (eshell/pwd) "*")
-                    (concat "*eshell " (eshell/pwd) "*<" (number-to-string i) ">"))))
-      (cond ((string= (buffer-name) b-name) nil)
-            ((not (get-buffer b-name)) (rename-buffer b-name))
-            (t (eshell-pwd-rename (1+ i))))))
+    (when (bound-and-true-p eshell-mode)
+      (rename-buffer (generate-new-buffer-name (+eshell-name)
+                                               (buffer-name)))))
 
-  (defun eshell-here (&optional same-window)
-    "Opens up a new shell in the directory associated with the current buffer's file."
-    (interactive)
-    (let ((b-name (concat "*eshell " (eshell/pwd) "*")))
-      (if (or (not (get-buffer b-name))
-              (bound-and-true-p eshell-mode))
-          (let ((buf (eshell "new")))
-            (when (not same-window)
-              (progn 
-                (switch-to-buffer (other-buffer buf))
-                (switch-to-buffer-other-window buf)))
-            (eshell-pwd-rename))
-        (switch-to-buffer-other-window (get-buffer b-name)))))
+  (defun +eshell ()
+    (let* ((name (+eshell-name))
+           (buffer (cond
+                    ;; If called from eshell buffer generate new buffer
+                    ((bound-and-true-p eshell-mode) (generate-new-buffer name))
+                    ;; If eshell buffer exist grab that
+                    ((get-buffer name) (get-buffer name))
+                    ;; Otherwise generate new buffer
+                    (t (generate-new-buffer name)))))
+      (with-current-buffer buffer
+        (unless (bound-and-true-p eshell-mode)
+          (eshell-mode))
+      buffer)))
 
-  (defun eshell-project-root ()
+  (defun +eshell-project ()
+    (let* ((default-directory (cdr (project-current)))
+           (eshell-project-type-p t)
+           (buffer (+eshell)))
+      (with-current-buffer buffer
+        (setq-local eshell-project-type-p t)
+      buffer)))
+
+  (defun +eshell-other-window ()
     (interactive)
-    (let ((buf (projectile-run-eshell 1)))
-      (switch-to-buffer (other-buffer buf))
-      (switch-to-buffer-other-window buf)))
+    (switch-to-buffer-other-window (+eshell)))
+
+  (defun +eshell-project-other-window ()
+    (interactive)
+    (switch-to-buffer-other-window (+eshell-project)))
+
+  (defun +eshell-from-path (path)
+    (interactive "F")
+    (let ((default-directory (file-name-directory path)))
+      (switch-to-buffer (+eshell))))
+
+  (defun +eshell-from-path-other-window (path)
+    (interactive "F")
+    (let ((default-directory (file-name-directory path)))
+      (switch-to-buffer-other-window (+eshell))))
 
   (defun +eshell/goto-end-of-prompt ()
     "Move cursor to the prompt when switching to insert mode (if point isn't
@@ -1187,14 +1192,9 @@
         (evil-append-line 0)
         (consult-history))))
 
-  (defun +eshell-create-and-rename ()
-    (interactive)
-    (eshell "new")
-    (eshell-pwd-rename))
-
   (defun eshell-after-split (&rest _)
     (when (bound-and-true-p eshell-mode)
-      (eshell-here t)))
+      (+eshell)))
 
   (defun +eshell-previous-prompt-hack ()
     "With prompt as field eshell-previous-prompt sets cursor at the beggining of the line and not at prompt begin"
@@ -1245,7 +1245,7 @@
 
   (use-package eshell
     :hook ((eshell-first-time-mode . eshell-mode-configuration)
-           (eshell-directory-change . eshell-pwd-rename)
+           (eshell-directory-change . +eshell-rename)
            (eshell-after-prompt . +eshell-make-field))
     :init
     (setq eshell-hist-ignoredups t
@@ -1258,8 +1258,8 @@
     (advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
     (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
 
-    (evil-leader/set-key "e" 'eshell-here
-      "pe" 'eshell-project-root))
+    (evil-leader/set-key "e" '+eshell-other-window)
+    (evil-leader/set-key "pe" '+eshell-project-other-window))
 #+end_src
   
 ** Eshell functions
@@ -1356,6 +1356,7 @@
     (define-key embark-file-map "&" '+dtache-shell-command-here)
 
     ;; Dtache view bindings
+    (evil-define-key 'normal dtache-shell-mode-map "q" 'quit-window)
     (evil-define-key 'normal dtache-log-mode-map "q" 'quit-window)
     (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
 
