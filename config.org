@@ -1678,16 +1678,37 @@ Change stuff in the grep buffer
 ** Dired
 #+begin_src emacs-lisp
   (use-package dired
+    :straight (:type built-in)
+    :hook (dired-mode . dired-hide-details-mode)
     :config
     (defun dired-mode-configuration ()
       (with-eval-after-load 'evil-collection
-        (evil-collection-define-key 'normal 'dired-mode-map (kbd "TAB") nil)
-        (evil-collection-define-key 'normal 'dired-mode-map (kbd "<tab>") 'dired-subtree-toggle)
         (dired-hide-details-mode 1)))
 
     (add-hook 'dired-mode-hook 'dired-mode-configuration))
 
-  (use-package dired-subtree :straight t)
+  (use-package dired-subtree
+    :straight t
+    :after dired
+    :hook (evil-collection-setup . evil-collection-workaround-dired-subtree)
+    :preface
+    (defun evil-collection-workaround-dired-subtree (&rest _)
+      (evil-define-key 'normal 'dired-mode-map
+        (kbd "TAB") nil
+        (kbd "<tab>") 'dired-subtree-toggle)))
+
+  (use-package dired-sidebar
+    :straight t
+    :after (dired dired-subtree project)
+    :config
+    (setq dired-sidebar-one-instance-p t)
+
+    (defun +dired-sidebar-toggle-sidebar ()
+      "`dired-sidebar-toggle-sidebar` but at project.el root or default directory."
+      (interactive)
+      (dired-sidebar-toggle-sidebar (+project-root-or-default-dir)))
+
+    (evil-leader/set-key "t" '+dired-sidebar-toggle-sidebar))
 #+end_src
 
 ** Magit
