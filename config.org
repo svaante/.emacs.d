@@ -1699,7 +1699,7 @@ Change stuff in the grep buffer
 
   (use-package dired-sidebar
     :straight t
-    :after (dired dired-subtree project)
+    :after (dired dired-subtree)
     :config
     (setq dired-sidebar-one-instance-p t)
 
