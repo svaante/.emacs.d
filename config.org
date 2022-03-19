@@ -1428,22 +1428,6 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   ;; Eval code lisp in the *scratch* buffer
   (define-key lisp-interaction-mode-map (kbd "C-c C-c") 'eval-buffer)
-
-  ;; Create text scratch buffer
-  (defun create-or-switch-text-scratch-buffer ()
-    (interactive)
-    (let ((b-name "*text-scratch*"))
-      (if (not (get-buffer b-name))
-          (let ((buf (generate-new-buffer b-name)))
-            (switch-to-buffer (other-buffer buf))
-            (switch-to-buffer-other-window buf)
-            (flyspell-mode)
-            (evil-insert-state))
-        (progn
-          (switch-to-buffer-other-window (get-buffer b-name))
-          (evil-insert-state)))))
-
-  (evil-leader/set-key "t" 'create-or-switch-text-scratch-buffer)
 #+end_src
 ** Useful functions
 #+begin_src emacs-lisp
