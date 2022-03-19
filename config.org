@@ -1693,7 +1693,7 @@ Change stuff in the grep buffer
     :hook (evil-collection-setup . evil-collection-workaround-dired-subtree)
     :preface
     (defun evil-collection-workaround-dired-subtree (&rest _)
-      (evil-define-key 'normal 'dired-mode-map
+      (evil-define-key 'normal dired-mode-map
         (kbd "TAB") nil
         (kbd "<tab>") 'dired-subtree-toggle)))
 
