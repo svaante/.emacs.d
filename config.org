@@ -1713,7 +1713,7 @@ Change stuff in the grep buffer
 
   (use-package dired-sidebar
     :straight t
-    :after (dired dired-subtree)
+    :after dired
     :config
     (setq dired-sidebar-one-instance-p t)
 
