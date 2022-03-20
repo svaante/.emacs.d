@@ -433,6 +433,7 @@
 * Windows
 #+begin_src emacs-lisp
   (use-package window
+    :disable
     :straight (:type built-in)
     :config
     ;; Inspiration from https://stackoverflow.com/a/7939523
