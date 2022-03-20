@@ -480,6 +480,7 @@
     (setq org-babel-python-command "python3")
     (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
     (setq org-src-window-setup 'current-window)
+    (setq org-startup-with-inline-images t)
     (org-babel-do-load-languages 'org-babel-load-languages
      '((shell . t)
        (python . t)))
