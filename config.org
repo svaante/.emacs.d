@@ -635,17 +635,29 @@
       (org-map-entries
        (lambda ()
          (let* ((title (nth 4 (org-heading-components)))
-                (links-titles (seq-filter (lambda (link-title) (string= (car link-title) title)) links-titles))
+                (links-titles (seq-filter (lambda (link-title)
+                                            (string= (car link-title) title))
+                                          links-titles))
                 (titles (mapcar 'cdr links-titles))
                 (uniq-headlines (delete-dups titles))
-                (org-links (mapcar (lambda (link) (concat "[[" link "]]")) uniq-headlines))
+                (org-links (mapcar (lambda (link)
+                                     (concat "[[" link "]]"))
+                                   uniq-headlines))
                 (joined-links (string-join org-links " ")))
            (if uniq-headlines
-             (org-set-property "backlinks" joined-links)
+               (org-set-property "backlinks" joined-links)
              (org-delete-property "backlinks")))))))
+
+  (defun org-todos-write-timestamp ()
+    (org-map-entries
+     (lambda ()
+       (when (and (org-entry-is-todo-p)
+                  (not (plist-member (org-element--get-node-properties) :TIMESTAMP)))
+         (org-set-property "timestamp" (format-time-string (car org-time-stamp-formats)))))))
 
   (defun org-headline--register-functions-h ()
     (add-hook 'completion-at-point-functions 'org-headline-link-complete-everywhere nil t)
+    (add-hook 'before-save-hook 'org-todos-write-timestamp nil t)
     (add-hook 'before-save-hook 'org-headline-write-backlinks nil t))
 
   (add-hook 'org-mode-hook #'org-headline--register-functions-h)
@@ -674,7 +686,12 @@
       (let ((beg (point-max)))
         (goto-char beg)
         (unless (bolp) (insert "\n"))
-        (insert "* " headline "\n:PROPERTIES:\n:timestamp: " (format-time-string (car org-time-stamp-formats)) "\n:END:\n")
+        (insert "* "
+                headline "\n"
+                ":PROPERTIES:\n"
+                ":TIMESTAMP: " (format-time-string (car org-time-stamp-formats)) "\n"
+                ":CATEGORY: " headline "\n"
+                ":END:\n")
         (goto-char (point-max)))))
 
   (defun org-capture-template-todays-pad ()
