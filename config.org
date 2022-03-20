@@ -1719,6 +1719,7 @@ Change stuff in the grep buffer
     :after dired
     :config
     (setq dired-sidebar-one-instance-p t)
+    (setq dired-sidebar-should-follow-file t)
 
     (defun +dired-sidebar-toggle-sidebar ()
       "`dired-sidebar-toggle-sidebar` but at project.el root or default directory."
