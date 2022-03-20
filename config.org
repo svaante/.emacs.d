@@ -53,6 +53,9 @@
   ;; Prefer vertical splits over horizontal splits
   (setq split-width-threshold 160)
   (setq split-height-threshold 140)
+
+  ;; Resize frames based on pixels
+  (setq frame-resize-pixelwise t)
 #+END_SRC
 
 * Platform
