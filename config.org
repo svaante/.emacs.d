@@ -1432,22 +1432,14 @@ Change stuff in the grep buffer
 
 ** Window lock
 #+begin_src emacs-lisp
-  (define-minor-mode window-lock-mode
-    "Toggle window-lock mode.
-  Interactively with no argument, this command toggles the mode.
-  A positive prefix argument enables the mode, any other prefix
-  argument disables it.  From Lisp, argument omitted or nil enables
-  the mode, `toggle' toggles the state.
+  (defun set-window-buffer-lock ()
+    (interactive)
+    (setq-local mode-line-format (add-to-list 'mode-line-format
+                                              '(:eval (when (window-dedicated-p) "LOCK "))))
+    (set-window-dedicated-p (get-buffer-window) (not (window-dedicated-p)))
+    (c-update-modeline))
 
-  When window-lock mode is enabled, the current window is
-  dadicated to current buffer. When disabled remove window
-  lock."
-    :inital-value nil
-    :global nil
-    :lighter " 🔒"
-    (set-window-dedicated-p (get-buffer-window) window-lock-mode))
-
-  (evil-leader/set-key "wl" 'window-lock-mode)
+  (evil-leader/set-key "wl" 'set-window-buffer-lock)
 #+end_src
 ** Fix color stuff
 #+begin_src  emacs-lisp
