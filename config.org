@@ -137,10 +137,6 @@
       "\C-k" 'evil-window-up
       "\C-h" 'evil-window-left
       "\C-l" 'evil-window-right
-      "\C-j" 'evil-window-down
-      "\C-k" 'evil-window-up
-      "\C-h" 'evil-window-left
-      "\C-l" 'evil-window-right
       (kbd "H-i") 'evil-jump-forward
       "\C-o" 'evil-jump-backward
       "\C-ws" '+emacs/split-follow-window-vertically
