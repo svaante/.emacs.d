@@ -1505,6 +1505,20 @@ Change stuff in the grep buffer
 #+end_src
 ** Useful functions
 #+begin_src emacs-lisp
+  (defun +zoom-window ()
+    (interactive)
+    (if (and (= 1 (count-windows))
+             (bound-and-true-p zoomed-window-configuration))
+        (let ((buffer (current-buffer)))
+          (set-window-configuration zoomed-window-configuration)
+          (switch-to-buffer buffer))
+      (setq-local zoomed-window-configuration (current-window-configuration))
+      (delete-other-windows)))
+
+  (define-key evil-normal-state-map "\C-wo" '+zoom-window)
+  (define-key evil-emacs-state-map "\C-wo" '+zoom-window)
+  (define-key evil-visual-state-map "\C-wo" '+zoom-window)
+
   ;; source: http://steve.yegge.googlepages.com/my-dot-emacs-file
   (defun rename-file-and-buffer (new-name)
     "Renames both current buffer and file it's visiting to NEW-NAME."
