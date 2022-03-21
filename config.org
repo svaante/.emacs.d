@@ -1785,6 +1785,8 @@ Change stuff in the grep buffer
   (use-package magit
     :straight t
     :config
+    (setq evil-insert-state-modes (append evil-insert-state-modes '(git-commit-mode)))
+
     (evil-leader/set-key "gg" 'magit-status-here)
     (evil-leader/set-key "gd" 'magit-diff)
     (evil-leader/set-key "gb" 'magit-blame)
