@@ -1388,10 +1388,6 @@
     (setq dtache-db-directory user-emacs-directory)
     (setq dtache-session-directory (expand-file-name "dtache" (temporary-file-directory)))
     (setq shell-command-prompt-show-cwd t)
-    (setq dtache-shell-command-session-action
-          '(:attach dtache-shell-command-tail-and-attach-session
-                    :view dtache-view-dwim
-                    :run dtache-shell-command))
 
     ;; Create embark bindings
     (defvar embark-dtache-map (make-composed-keymap dtache-action-map embark-general-map))
