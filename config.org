@@ -1382,7 +1382,8 @@
 
   (use-package dtache
     :straight (dtache :type git :host gitlab :repo "svaante/dtache")
-    :hook (after-init . dtache-setup)
+    :hook ((after-init . dtache-setup)
+           (dtache-shell-mode . compilation-minor-mode))
     :bind (([remap async-shell-command] . dtache-shell-command))
     :config
     (setq dtache-db-directory user-emacs-directory)
@@ -1733,9 +1734,13 @@ Change stuff in the grep buffer
 
 ** Compilation
 #+begin_src emacs-lisp
-  (use-package emacs
+  (use-package compile
+    :straight (:type built-in)
     :init
-    (setq compilation-scroll-output t))
+    (setq compilation-scroll-output t)
+    (evil-define-key 'normal compilation-minor-mode-map
+      (kbd "<tab>") 'compilation-next-file
+      (kbd "<baktab>") 'compilation-previous-file))
 #+end_src
  
 * Applications
