@@ -568,6 +568,10 @@
     (org-link-set-parameters
      "imghttps"
      :image-data-fun #'org-image-link))
+
+  (use-package literate-calc-mode
+    :straight t
+    :hook (org-mode . literate-calc-minor-mode))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defun org-headline-link-complete-everywhere ()
