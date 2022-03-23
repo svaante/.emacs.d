@@ -1439,14 +1439,14 @@ Change stuff in the grep buffer
 
 ** Window lock
 #+begin_src emacs-lisp
-  (defun set-window-buffer-lock ()
-    (interactive)
-    (setq-local mode-line-format (add-to-list 'mode-line-format
-                                              '(:eval (when (window-dedicated-p) "LOCK "))))
-    (set-window-dedicated-p (get-buffer-window) (not (window-dedicated-p)))
-    (c-update-modeline))
+  (define-minor-mode locked-window-buffer-mode
+    "Lock the current buffer to the current window."
+    :global nil
+    :lighter " LOCKED"
+    :init-value nil
+    (set-window-dedicated-p (selected-window) sticky-buffer-mode))
 
-  (evil-leader/set-key "wl" 'set-window-buffer-lock)
+  (evil-leader/set-key "wl" 'locked-window-buffer-mode)
 #+end_src
 
 ** Fix color stuff
