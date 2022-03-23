@@ -1409,7 +1409,7 @@ Change stuff in the grep buffer
    
 ** Spell checking spelling
 #+begin_src emacs-lisp
-  (defun +ispell/toogle-english-swedish-dictonary ()
+  (defun +ispell-toogle-english-swedish-dictonary ()
     "Toggle `Ispell´ dictionary between English and Swedish."
     (interactive)
     (when (bound-and-true-p flyspell-mode)
@@ -1423,14 +1423,17 @@ Change stuff in the grep buffer
     ;;inside git commit and markdown
     :hook ((git-commit-mode org-mode markdown-mode) . flyspell-mode)
     :config
-    (setq flyspell-default-dictionary "english"))
+    (setq flyspell-default-dictionary "english")
 
-  (evil-leader/set-key
-    "ff" '+ispell/toogle-english-swedish-dictonary
-    "fp" (lambda ()
-           (interactive)
-           (ispell-change-dictionary flyspell-default-dictionary)
-           (flyspell-prog-mode)))
+    (defun +flyspell-programing-english ()
+      (interactive)
+      (ispell-change-dictionary flyspell-default-dictionary)
+      (flyspell-prog-mode))
+
+    (evil-leader/set-key
+      "ff" '+ispell-toogle-english-swedish-dictonary
+      "fp" '+flyspell-programing-english))
+
 
 #+end_src
 
@@ -1445,6 +1448,7 @@ Change stuff in the grep buffer
 
   (evil-leader/set-key "wl" 'set-window-buffer-lock)
 #+end_src
+
 ** Fix color stuff
 #+begin_src  emacs-lisp
   (use-package xterm-color
