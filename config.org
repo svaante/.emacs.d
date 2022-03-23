@@ -1552,33 +1552,6 @@ Change stuff in the grep buffer
       "ls" 'consult-lsp-symbols))
 #+end_src
 
-** Tree sitter
-#+begin_src emacs-lisp
-  ;; Unfortunately tree-sitter does not work at the moment
-  (use-package tree-sitter
-    :disable
-    :straight t)
-
-  (use-package tree-sitter-langs
-    :disable
-    :straight t
-    :hook (prog-mode . tree-sitter-mode))
-
-  (use-package evil-textobj-treesitter
-    :disable
-    :straight (evil-textobj-treesitter :type git :host github :repo "meain/evil-textobj-treesitter")
-    :after tree-sitter
-    :config
-    (define-key evil-outer-text-objects-map "f" (evil-textobj-treesitter-get-textobj "function.outer"))
-    (define-key evil-inner-text-objects-map "f" (evil-textobj-treesitter-get-textobj "function.inner"))
-    (define-key evil-outer-text-objects-map "c" (evil-textobj-treesitter-get-textobj "conditional.outer"))
-    (define-key evil-inner-text-objects-map "c" (evil-textobj-treesitter-get-textobj "conditional.inner"))
-    (define-key evil-outer-text-objects-map "p" (evil-textobj-treesitter-get-textobj "parameter.outer"))
-    (define-key evil-inner-text-objects-map "p" (evil-textobj-treesitter-get-textobj "parameter.inner"))
-    (define-key evil-outer-text-objects-map "C" (evil-textobj-treesitter-get-textobj "class.outer"))
-    (define-key evil-inner-text-objects-map "C" (evil-textobj-treesitter-get-textobj "class.inner")))
-#+end_src
-
 ** Emacs lisp
 #+begin_src emacs-lisp
   (use-package elisp-mode
