@@ -1452,7 +1452,7 @@ Change stuff in the grep buffer
     :global nil
     :lighter " LOCKED"
     :init-value nil
-    (set-window-dedicated-p (selected-window) sticky-buffer-mode))
+    (set-window-dedicated-p (selected-window) locked-window-buffer-mode))
 
   (evil-leader/set-key "wl" 'locked-window-buffer-mode)
 #+end_src
