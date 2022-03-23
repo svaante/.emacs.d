@@ -529,6 +529,13 @@
                                    (file "~/org/python-babel.org")
                                    "* %?\n  %t\n  #+begin_src python\n  #+end_src")))
     :config
+    ;; Dont touch my windows
+    (defun org-capture-well-behaved ()
+      "Does not close the other opend window before opening the capture buffer"
+      (interactive)
+      (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
+        (org-capture)))
+
     (setq org-agenda-follow-indirect t)
     (setq org-refile-use-outline-path 'file)
     (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
@@ -536,7 +543,7 @@
 
     (add-hook 'org-capture-mode-hook 'evil-insert-state)
 
-    (evil-leader/set-key "oc" 'org-capture))
+    (evil-leader/set-key "oc" 'org-capture-well-behaved))
 
   (use-package ob-async :straight t)
 
