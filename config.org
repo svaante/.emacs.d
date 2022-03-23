@@ -1767,10 +1767,29 @@ Change stuff in the grep buffer
 
 ** Calc
 #+begin_src emacs-lisp
-  (use-package emacs
+  (use-package literate-calc-mode
+    :straight t
+    :hook (org-mode . literate-calc-minor-mode)
     :config
+
+    (defun create-literate-calc-mode-buffer ()
+      (interactive)
+      (switch-to-buffer-other-window "*literate-calc*")
+      (with-current-buffer (get-buffer "*literate-calc*")
+        (setq-local literate-calc-mode-idle-time 0.1)
+        (unless (bound-and-true-p literate-calc-minor-mode)
+          (progn
+            (literate-calc-minor-mode)
+            (insert
+             "Welcome to literate calc mode!\n"
+             "# = 1 + 1\n"
+             "\n")))
+        (goto-char (point-max))
+        (insert "\n")
+        (evil-insert-state)))
+
     (evil-leader/set-key "ac"
-      'calc))
+      'create-literate-calc-mode-buffer))
 #+end_src
 
 ** Jupyter notebooks
