@@ -1769,6 +1769,8 @@ Change stuff in the grep buffer
     :hook (org-mode . literate-calc-minor-mode)
     :config
 
+    (diminish 'literate-calc-minor-mode)
+
     (defun create-literate-calc-mode-buffer ()
       (interactive)
       (switch-to-buffer-other-window "*literate-calc*")
