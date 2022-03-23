@@ -1778,9 +1778,9 @@ Change stuff in the grep buffer
           (progn
             (literate-calc-minor-mode)
             (insert
-             "Welcome to literate calc mode!\n"
-             "# = 1 + 1\n"
-             "\n")))
+             "Welcome to literate-calc-mode!\n"
+             "\n"
+             "= ")))
         (goto-char (point-max))
         (evil-insert-state)))
 
