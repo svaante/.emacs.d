@@ -1737,10 +1737,9 @@ Change stuff in the grep buffer
   (use-package compile
     :straight (:type built-in)
     :init
-    (setq compilation-scroll-output t)
     (evil-define-key 'normal compilation-minor-mode-map
       (kbd "<tab>") 'compilation-next-file
-      (kbd "<baktab>") 'compilation-previous-file))
+      (kbd "<backtab>") 'compilation-previous-file))
 #+end_src
  
 * Applications
