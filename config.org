@@ -576,9 +576,6 @@
      "imghttps"
      :image-data-fun #'org-image-link))
 
-  (use-package literate-calc-mode
-    :straight t
-    :hook (org-mode . literate-calc-minor-mode))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defun org-headline-link-complete-everywhere ()
@@ -1785,7 +1782,6 @@ Change stuff in the grep buffer
              "# = 1 + 1\n"
              "\n")))
         (goto-char (point-max))
-        (insert "\n")
         (evil-insert-state)))
 
     (evil-leader/set-key "ac"
