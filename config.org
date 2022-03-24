@@ -243,6 +243,75 @@
       "wt" (lambda () (interactive) (toggle-frame-maximized))))
 #+END_SRC 
 
+* Window
+#+begin_src emacs-lisp
+  (use-package shackle
+    :straight t
+    :config
+    (defun shackle-split-below (buffer alist plist)
+      (let* ((frame (shackle--splittable-frame))
+             (total-height (window-size (frame-root-window)))
+             (ratio (or (plist-get plist :ratio) (plist-get plist :size)))
+             (abs-size (round (* total-height ratio)))
+             (window (split-window-below)))
+        (prog1
+            (window--display-buffer buffer window 'window)
+          (when window
+            (setq shackle-last-window window
+                  shackle-last-buffer buffer)
+            (window-resize window (- abs-size (window-size window))))
+          (unless (cdr (assq 'inhibit-switch-frame alist))
+            (window--maybe-raise-frame frame)))))
+
+    (setq shackle-lighter "")
+    (setq shackle-rules
+          '((shell-mode
+             :select nil
+             :align right
+             :size 0.30
+             :popup t)
+            ("*Help*"
+             :select t
+             :align right
+             :size 0.30
+             :popup t)
+            ("*Org Select*"
+             :select t
+             :size 0.25
+             :custom shackle-split-below)
+            ("CAPTURE-.*\.org"
+             :regexp t
+             :select t
+             :size 0.25
+             :custom shackle-split-below)
+            ("\\*Agenda Commands\\*"
+             :regexp t
+             :select t
+             :size 0.25
+             :custom shackle-split-below)
+            ("\\*Org Agenda\\*" ;; this does not work for some reason
+             :regexp t
+             :select t
+             :size 0.25
+             :custom shackle-split-below)
+            ("\\*literate-calc\\*"
+             :regexp t
+             :select t
+             :size 0.25
+             :custom shackle-split-below)
+            ("\\*Python\\*"
+             :regexp t
+             :select t
+             :size 0.25
+             :custom shackle-split-below)
+            (magit-status-mode
+             :select t
+             :inhibit-window-quit t
+             :same t)))
+
+    (shackle-mode 1))
+#+end_src
+
 * Looks
 ** Fonts
 #+begin_src emacs-lisp
@@ -983,9 +1052,9 @@
                                    (mapcar 'car))
                               nil
                               t)))
-      (switch-to-buffer-other-window (other-buffer))
-      (funcall (alist-get key consult-buffer-repls nil nil 'equal))
-      (switch-to-buffer key))
+      ;;(switch-to-buffer-other-window (other-buffer))
+      (call-interactively (alist-get key consult-buffer-repls nil nil 'equal)))
+      ;;(switch-to-buffer key))
 
     (defvar repl-buffer-source
       `(:name     "REPLish buffers"
