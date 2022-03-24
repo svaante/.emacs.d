@@ -259,7 +259,8 @@
           (when window
             (setq shackle-last-window window
                   shackle-last-buffer buffer)
-            (window-resize window (- abs-size (window-size window))))
+            (window-resize window (- abs-size (window-size window)))
+            (set-window-dedicated-p window t))
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame frame)))))
 
