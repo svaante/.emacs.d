@@ -537,33 +537,6 @@
 
     (evil-leader/set-key "os" 'org-store-link))
 
-  (defun +org-agenda-goto (&optional highlight)
-    "Go to the entry at point in the corresponding Org file using same window."
-    (interactive)
-    (let* ((marker (or (org-get-at-bol 'org-marker)
-                       (org-agenda-error)))
-           (buffer (marker-buffer marker))
-           (pos (marker-position marker)))
-      ;; FIXME: use `org-switch-to-buffer-other-window'?
-      (switch-to-buffer buffer)
-      (widen)
-      (push-mark)
-      (goto-char pos)
-      (when (derived-mode-p 'org-mode)
-        (org-show-context 'agenda)
-        (recenter (/ (window-height) 2))
-        (org-back-to-heading t)
-        (let ((case-fold-search nil))
-          (when (re-search-forward org-complex-heading-regexp nil t)
-            (goto-char (match-beginning 4)))))
-      (run-hooks 'org-agenda-after-show-hook)
-      (and highlight (org-highlight (point-at-bol) (point-at-eol)))))
-
-  (defun +org-agenda-goto-narrow ()
-    (interactive)
-    (+org-agenda-goto)
-    (org-narrow-to-element))
-
   (use-package org-agenda
     :init
     (setq org-agenda-files '("~/org/todo.org" "~/org/notes.org"))
@@ -584,7 +557,7 @@
     ;; been trying to use evil-org's evil-agenda only result was pain
     (evil-set-initial-state 'org-agenda-mode 'normal)
     (evil-define-key 'normal org-agenda-mode-map
-      (kbd "<RET>") '+org-agenda-goto-narrow
+      (kbd "<RET>") 'org-agenda-goto
       "q" 'org-agenda-quit
       "r" 'org-agenda-redo
       "K" 'org-agenda-priority-up
