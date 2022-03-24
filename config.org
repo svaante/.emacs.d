@@ -1822,7 +1822,13 @@ Change stuff in the grep buffer
     :config
     (setq evil-insert-state-modes (append evil-insert-state-modes '(git-commit-mode)))
 
-    (evil-leader/set-key "gg" 'magit-status-here)
+    (defun magit-status-here-and-center ()
+      (interactive)
+      (magit-save-repository-buffers)
+      (magit-status-here)
+      (evil-scroll-line-to-center))
+
+    (evil-leader/set-key "gg" 'magit-status-here-and-center)
     (evil-leader/set-key "gd" 'magit-diff)
     (evil-leader/set-key "gb" 'magit-blame)
     (evil-leader/set-key "gl" 'magit-log-branches)
