@@ -1844,9 +1844,7 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package literate-calc-mode
     :straight t
-    :hook (org-mode . literate-calc-minor-mode)
     :config
-
     (diminish 'literate-calc-minor-mode)
 
     (defun create-literate-calc-mode-buffer ()
