@@ -281,13 +281,14 @@
              :custom shackle-split-below)
             ("*Org Select*"
              :select t
-             :size 0.25
-             :custom shackle-split-below)
+             :align bellow
+             :size 0.40
+             :popup t)
             ("CAPTURE-.*\.org"
              :regexp t
-             :select t
-             :size 0.25
-             :custom shackle-split-below)
+             :align bellow
+             :size 0.40
+             :popup t)
             ("\\*Agenda Commands\\*"
              :regexp t
              :select t
