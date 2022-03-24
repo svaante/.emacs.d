@@ -276,6 +276,11 @@
              :align right
              :size 0.30
              :popup t)
+            ("\\*Embark Export Occur\\*"
+             :regexp t
+             :select t
+             :size 0.25
+             :custom shackle-split-below)
             ("*Org Select*"
              :select t
              :size 0.25
