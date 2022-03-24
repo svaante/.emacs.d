@@ -490,8 +490,16 @@
     :init
     (setq org-agenda-files '("~/org/todo.org" "~/org/notes.org"))
     :config
+
+    ;; Dont touch my windows
+    (defun org-agenda-well-behaved ()
+      "Does not close the other opend window before opening the capture buffer"
+      (interactive)
+      (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
+        (org-agenda)))
+
     (evil-leader/set-key
-      "oa" 'org-agenda
+      "oa" 'org-agenda-well-behaved
       "ot" 'org-todo-list
       "ow" 'org-agenda-list)
 
