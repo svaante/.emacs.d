@@ -792,6 +792,29 @@
 
   (evil-leader/set-key "on" 'consult-org-heading-notes)
 #+END_SRC
+
+** Org inline
+#+begin_src emacs-lisp
+(defun org-get-inline-property (property)
+  (save-excursion
+    (org-back-to-heading t)
+    (when (search-forward (concat property ":") nil t)
+      (goto-char (match-end 0))
+      (skip-chars-forward " \t")
+      (org-trim (buffer-substring-no-properties (point) (point-at-eol))))))
+
+(defun org-set-inline-property (property value)
+  (save-excursion
+    (org-back-to-heading t)
+    (if (search-forward (concat property ":") nil t)
+        (progn
+          (goto-char (match-end 0))
+          (kill-region (point) (line-end-position)))
+      (end-of-line)
+      (newline-and-indent)
+      (insert (concat property ":")))
+    (insert " " value)))
+#+end_src
 * Completion
 ** Package company
 #+BEGIN_SRC emacs-lisp
