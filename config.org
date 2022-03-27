@@ -643,6 +643,46 @@
      :image-data-fun #'org-image-link))
 
 #+END_SRC
+
+** Org property inline
+#+begin_src emacs-lisp
+  (defconst re-org-inline-property "%s:")
+
+  (defun org-get-inline-property (property)
+    (save-excursion
+      (org-back-to-heading t)
+      (when (search-forward (format re-org-inline-property property)
+                            (save-excursion (outline-next-heading))
+                            t)
+        (goto-char (match-end 0))
+        (skip-chars-forward " \t")
+        (org-trim (buffer-substring-no-properties (point) (point-at-eol))))))
+
+  (defun org-delete-inline-property (property)
+    (save-excursion
+      (org-back-to-heading t)
+      (when (search-forward (format re-org-inline-property property)
+                            (save-excursion (outline-next-heading))
+                            t)
+        (goto-char (match-end 0))
+        (kill-whole-line))))
+
+  (defun org-set-inline-property (property value)
+    (save-excursion
+      (org-back-to-heading t)
+      (if (search-forward (format re-org-inline-property property)
+                          (save-excursion (outline-next-heading))
+                          t)
+          (progn
+            (goto-char (match-end 0))
+            (kill-region (point) (line-end-position)))
+        (end-of-line)
+        (newline-and-indent)
+        (insert (concat property ":")))
+      (insert " " value)))
+#+end_src
+
+** Org roamish
 #+BEGIN_SRC emacs-lisp
   (defun org-headline-link-complete-everywhere ()
     "Complete symbol at point as a link completion to an org headline in current buffer.
@@ -706,15 +746,15 @@
                                    uniq-headlines))
                 (joined-links (string-join org-links " ")))
            (if uniq-headlines
-               (org-set-property "backlinks" joined-links)
-             (org-delete-property "backlinks")))))))
+               (org-set-inline-property "Internal links" joined-links)
+             (org-delete-inline-property "Internal links")))))))
 
   (defun org-todos-write-timestamp ()
     (org-map-entries
      (lambda ()
        (when (and (org-entry-is-todo-p)
-                  (not (plist-member (org-element--get-node-properties) :TIMESTAMP)))
-         (org-set-property "timestamp" (format-time-string (car org-time-stamp-formats)))))))
+                  (not (org-get-inline-property "Timestamp")))
+         (org-set-inline-property "Timestamp" (format-time-string (car org-time-stamp-formats)))))))
 
   (defun org-headline--register-functions-h ()
     (add-hook 'completion-at-point-functions 'org-headline-link-complete-everywhere nil t)
@@ -747,12 +787,7 @@
       (let ((beg (point-max)))
         (goto-char beg)
         (unless (bolp) (insert "\n"))
-        (insert "* "
-                headline "\n"
-                ":PROPERTIES:\n"
-                ":TIMESTAMP: " (format-time-string (car org-time-stamp-formats)) "\n"
-                ":CATEGORY: " headline "\n"
-                ":END:\n")
+        (insert "* " headline "\n")
         (goto-char (point-max)))))
 
   (defun org-capture-template-todays-pad ()
@@ -765,7 +800,7 @@
 
   (setq org-capture-templates '(("t" "Task Entry" entry
                                  (file "~/org/todo.org")
-                                 "* TODO %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
+                                 "* TODO %?\n")
 
                                 ("n" "Note" plain
                                  (file+function "~/org/notes.org" org-capture-template-note-with-completing)
@@ -793,28 +828,6 @@
   (evil-leader/set-key "on" 'consult-org-heading-notes)
 #+END_SRC
 
-** Org inline
-#+begin_src emacs-lisp
-(defun org-get-inline-property (property)
-  (save-excursion
-    (org-back-to-heading t)
-    (when (search-forward (concat property ":") nil t)
-      (goto-char (match-end 0))
-      (skip-chars-forward " \t")
-      (org-trim (buffer-substring-no-properties (point) (point-at-eol))))))
-
-(defun org-set-inline-property (property value)
-  (save-excursion
-    (org-back-to-heading t)
-    (if (search-forward (concat property ":") nil t)
-        (progn
-          (goto-char (match-end 0))
-          (kill-region (point) (line-end-position)))
-      (end-of-line)
-      (newline-and-indent)
-      (insert (concat property ":")))
-    (insert " " value)))
-#+end_src
 * Completion
 ** Package company
 #+BEGIN_SRC emacs-lisp
