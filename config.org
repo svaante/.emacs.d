@@ -282,17 +282,17 @@
             ("\\*Embark Export Grep\\*"
              :regexp t
              :select t
-             :align bellow
+             :align below
              :size 0.25
              :popup t)
             ("*Org Select*"
              :select t
-             :align bellow
+             :align below
              :size 50
              :popup t)
             ("CAPTURE-.*\.org"
              :regexp t
-             :align bellow
+             :align below
              :size 0.40
              :popup t)
             ("\\*Agenda Commands\\*"
