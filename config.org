@@ -644,7 +644,7 @@
 
 #+END_SRC
 
-** Org property inline
+** Org inline property
 #+begin_src emacs-lisp
   (defconst re-org-inline-property "%s:")
 
@@ -742,7 +742,7 @@
                 (titles (mapcar 'cdr links-titles))
                 (uniq-headlines (delete-dups titles))
                 (org-links (mapcar (lambda (link)
-                                     (concat "[[" link "]]"))
+                                     (format "[[file:%s::%s][%s]]" (buffer-file-name) link link))
                                    uniq-headlines))
                 (joined-links (string-join org-links " ")))
            (if uniq-headlines
