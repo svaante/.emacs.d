@@ -545,10 +545,7 @@
     (evil-leader/set-key "os" 'org-store-link))
 
   (use-package org-agenda
-    :init
-    (setq org-agenda-files '("~/org/todo.org" "~/org/notes.org"))
     :config
-
     ;; Dont touch my windows
     (defun org-agenda-well-behaved ()
       "Does not close the other opend window before opening the capture buffer"
@@ -582,18 +579,6 @@
       "L" 'org-agenda-do-date-later))
 
   (use-package org-capture
-    :init
-    (setq org-capture-templates '(("t" "Task Entry" entry
-                                   (file "~/org/todo.org")
-                                   "* TODO %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
-
-                                  ("n" "Note" entry
-                                   (file "~/org/notes.org")
-                                   "* %?\n:PROPERTIES:\n:timestamp: %t\n:END:\n")
-
-                                  ("p" "Python Notebok" entry
-                                   (file "~/org/python-babel.org")
-                                   "* %?\n  %t\n  #+begin_src python\n  #+end_src")))
     :config
     ;; Dont touch my windows
     (defun org-capture-well-behaved ()
@@ -616,32 +601,6 @@
   (use-package org-superstar
     :straight t
     :hook (org-mode . org-superstar-mode))
-
-  (use-package orgit :straight t)
-
-  (use-package org-yt
-    :straight (org-yt :type git :host github :repo "TobiasZawada/org-yt")
-    :config
-    (defun org-image-link (protocol link _description)
-      "Interpret LINK as base64-encoded image data."
-      (cl-assert (string-match "\\`img" protocol) nil
-                 "Expected protocol type starting with img")
-      (let ((buf (url-retrieve-synchronously (concat (substring protocol 3) ":" link))))
-        (cl-assert buf nil
-                   "Download of image \"%s\" failed." link)
-        (with-current-buffer buf
-          (goto-char (point-min))
-          (re-search-forward "\r?\n\r?\n")
-          (buffer-substring-no-properties (point) (point-max)))))
-
-    (org-link-set-parameters
-     "imghttp"
-     :image-data-fun #'org-image-link)
-
-    (org-link-set-parameters
-     "imghttps"
-     :image-data-fun #'org-image-link))
-
 #+END_SRC
 
 ** Org inline property
@@ -773,7 +732,6 @@
 
   (defun org-capture-template-new-or-edit (headline)
     (add-hook 'org-capture-mode-hook 'org-narrow-to-subtree-top-level t t)
-    (org-capture-put :unnarrowed t)
     (beginning-of-buffer)
     (org-capture-put-target-region-and-position)
     (if (re-search-forward (format org-complex-heading-regexp-format
@@ -798,21 +756,24 @@
            (headline (completing-read "Note: " headlines nil nil)))
       (org-capture-template-new-or-edit headline)))
 
-  (setq org-capture-templates '(("t" "Task Entry" entry
-                                 (file "~/org/todo.org")
-                                 "* TODO %?\n")
+  (setq org-capture-templates '(("t" "Todo" plain
+                                 (file+function "~/org/notes.org" org-capture-template-todays-pad)
+                                 "** TODO %?\n")
 
                                 ("n" "Note" plain
                                  (file+function "~/org/notes.org" org-capture-template-note-with-completing)
-                                 "%?")
+                                 "%?"
+                                 :unnarrowed t)
 
-                                ("j" "Pad/Journal" plain
+                                ("j" "Pad" plain
                                  (file+function "~/org/notes.org" org-capture-template-todays-pad)
-                                 "%?")
+                                 "%?"
+                                 :unnarrowed t)
 
-                                ("l" "Pad/Journal with link" plain
+                                ("l" "Pad with link" plain
                                  (file+function "~/org/notes.org" org-capture-template-todays-pad)
-                                 "%?%l")
+                                 "%?%l"
+                                 :unnarrowed t)
 
                                 ("p" "Python Notebok" entry
                                  (file "~/org/python-babel.org")
@@ -824,6 +785,8 @@
     (interactive)
     (find-file org-notes-file)
     (consult-org-heading))
+
+  (setq org-agenda-files '("~/org/notes.org"))
 
   (evil-leader/set-key "on" 'consult-org-heading-notes)
 #+END_SRC
