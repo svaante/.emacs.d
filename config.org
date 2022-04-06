@@ -1003,6 +1003,7 @@
       "hh" 'describe-function
       "hv" 'describe-variable
       "m"  'consult-bookmark
+      "jm"  'consult-mark
       "y"  'consult-yank-pop
       ":"  'execute-extended-command
       "s"  'consult-line)
