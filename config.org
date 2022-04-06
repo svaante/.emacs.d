@@ -1703,7 +1703,8 @@ Change stuff in the grep buffer
     (setq-local completion-styles '(basic)))
 
   (use-package python
-    :hook (inferior-python-mode . +inferior-python-mode-init)
+    :hook ((inferior-python-mode . +inferior-python-mode-init)
+           (python-mode . hs-minor-mode))
     :config
     (defun +python-shell-send-dwm ()
       (interactive)
