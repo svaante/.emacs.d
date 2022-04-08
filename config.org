@@ -610,9 +610,10 @@
 
   (use-package ob-async :straight t)
 
-  (use-package org-superstar
-    :straight t
-    :hook (org-mode . org-superstar-mode))
+  (use-package org-modern
+    :straight (org-modern :type git :host github :repo "minad/org-modern")
+    :hook ((org-mode . org-modern-mode)
+           (org-agenda-finalize . org-modern-agenda)))
 #+END_SRC
 
 ** Org inline property
