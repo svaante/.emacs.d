@@ -284,6 +284,16 @@
                :align right
                :size 0.30
                :popup t)
+              ("*devdocs*"
+               :select t
+               :align right
+               :size 0.30
+               :popup t)
+              ("*Messages*"
+               :select t
+               :align below
+               :size 0.30
+               :popup t)
               ("\\*Embark Export Occur\\*"
                :regexp t
                :select t
