@@ -516,7 +516,6 @@
     :config
     (evil-leader/set-key
       "jj" 'evil-avy-goto-char-timer
-      "jw" 'avy-goto-word-0
       "jl" 'avy-goto-line))
 #+end_src
 
