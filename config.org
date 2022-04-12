@@ -1861,22 +1861,32 @@ Change stuff in the grep buffer
   (use-package literate-calc-mode
     :straight t
     :config
-    (diminish 'literate-calc-minor-mode)
+    (setq literate-calc-buffer-name "*literate-calc*")
+    (setq literate-calc-mode-idle-time 0.1)
 
     (defun create-literate-calc-mode-buffer ()
       (interactive)
-      (switch-to-buffer-other-window "*literate-calc*")
-      (with-current-buffer (get-buffer "*literate-calc*")
-        (setq-local literate-calc-mode-idle-time 0.1)
-        (unless (bound-and-true-p literate-calc-minor-mode)
-          (progn
-            (literate-calc-minor-mode)
-            (insert
-             "Welcome to literate-calc-mode!\n"
-             "\n"
-             "= ")))
-        (goto-char (point-max))
-        (evil-insert-state)))
+      (let ((buffer-exist (get-buffer literate-calc-buffer-name)))
+        (switch-to-buffer-other-window literate-calc-buffer-name)
+        (unless buffer-exist
+          (with-current-buffer (get-buffer literate-calc-buffer-name)
+            (unless (bound-and-true-p literate-calc-mode)
+              (progn
+                (literate-calc-mode)
+                (insert
+                 "Welcome to literate-calc-mode!\n"
+                 "\n"
+                 "= "))))))
+      (goto-char (point-max))
+      (evil-insert-state))
+
+    (defun literate-calc-buffer-quit ()
+      (interactive)
+      (delete-windows-on literate-calc-buffer-name)
+      (bury-buffer literate-calc-buffer-name))
+
+    (evil-define-key 'normal literate-calc-mode-map
+      "q" 'literate-calc-buffer-quit)
 
     (evil-leader/set-key "ac"
       'create-literate-calc-mode-buffer))
