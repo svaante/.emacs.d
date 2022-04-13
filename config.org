@@ -330,6 +330,11 @@
                :select t
                :size 0.25
                :custom shackle-split-below)
+              ("\\*restclient\\*"
+               :regexp t
+               :select t
+               :size 0.25
+               :custom shackle-split-below)
               ("\\*Python\\*"
                :regexp t
                :select t
@@ -1859,7 +1864,40 @@ Change stuff in the grep buffer
   (use-package restclient
     :straight t
     :config
-    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode)))
+    (setq restclient-buffer-name "*restclient*")
+
+    (defun create-restclient-mode-buffer ()
+      (interactive)
+      (let ((buffer-exist (get-buffer restclient-buffer-name)))
+        (switch-to-buffer-other-window restclient-buffer-name)
+        (unless buffer-exist
+          (with-current-buffer (get-buffer restclient-buffer-name)
+            (unless (bound-and-true-p restclient-mode)
+              (progn
+                (restclient-mode)
+                (insert
+                 "Welcome to restclient-mode!\n"
+                 "Execute with: C-c C-C\n"
+                 "\n"
+                 "POST https://httpbin.org/post\n"
+                 "Content-Type: application/json\n"
+                 "{\n"
+                 "   \"key\": \"value\"\n"
+                 "}\n")))))
+      (goto-char (point-max))
+      (evil-insert-state)))
+
+    (defun restclient-buffer-quit ()
+      (interactive)
+      (delete-windows-on restclient-buffer-name)
+      (bury-buffer restclient-buffer-name))
+
+    (evil-define-key 'normal restclient-mode-map
+      "q" 'restclient-buffer-quit)
+
+    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
+
+    (evil-leader/set-key "ah" 'create-restclient-mode-buffer))
 #+end_src
 
 ** Calc
