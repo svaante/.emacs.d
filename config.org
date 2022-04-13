@@ -1824,7 +1824,7 @@ Change stuff in the grep buffer
       (interactive)
       (dired-sidebar-toggle-sidebar (+project-root-or-default-dir)))
 
-    (evil-leader/set-key "at" '+dired-sidebar-toggle-sidebar))
+    (evil-leader/set-key "ad" '+dired-sidebar-toggle-sidebar))
 #+end_src
 
 ** Magit
