@@ -540,7 +540,6 @@
       "jl" 'avy-goto-line))
 #+end_src
 
-
 * Org
 #+BEGIN_SRC emacs-lisp
   (use-package org
@@ -1125,6 +1124,14 @@
       (windmove-display-same-window)
       (magit-status default-directory)))
 
+  (defun +project-find-file-here (file)
+      "Run project-find-file in directory of FILE."
+      (interactive "Directory: ")
+      (let* ((default-directory (file-name-directory
+                                 (expand-file-name
+                                  (substitute-in-file-name file)))))
+        (project-find-file)))
+
   (use-package embark
     :straight (embark :type git :host github :repo "oantolin/embark")
     :init
@@ -1156,6 +1163,7 @@
             #'which-key--hide-popup-ignore-command)
           embark-become-indicator embark-action-indicator)
 
+    (define-key embark-file-map " " '+project-find-file-here)
     (define-key embark-file-map "." 'find-file-at)
     (define-key embark-file-map "g" '+magit-there)
     (define-key embark-file-map "G" '+consult-rg-with-fallback-here)
