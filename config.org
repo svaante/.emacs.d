@@ -491,7 +491,7 @@
     (consult-global-mark (ring-elements (oref gumshoe--global-backlog log))))
 
   (use-package gumshoe
-    :disable
+    :disabled
     :straight (gumshoe :type git :host github :repo "svaante/gumshoe")
     :diminish 'global-gumshoe-mode
     :config
@@ -856,7 +856,7 @@
     (company-tng-mode +1))
 
   (use-package company-posframe
-    :disable
+    :disabled
     :straight t
     :diminish
     :config
@@ -868,7 +868,7 @@
 ** Package corfu
 #+BEGIN_SRC emacs-lisp
   (use-package corfu
-    :disable
+    :disabled
     :after lsp
     :straight (corfu :type git :host github :repo "minad/corfu")
     :bind (:map corfu-map
@@ -910,7 +910,7 @@
     (advice-add 'corfu--teardown :after 'evil-normalize-keymaps))
 
   (use-package cape
-    :disable
+    :disabled
     :straight t
     :after corfu
     :config
@@ -1572,7 +1572,7 @@ Change stuff in the grep buffer
 ** Fix color stuff
 #+begin_src  emacs-lisp
   (use-package xterm-color
-    :disable
+    :disabled
     :straight t
     :config
     (setq compilation-environment '("TERM=xterm-256color"))
