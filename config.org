@@ -232,13 +232,15 @@
 
 ** Leader mappings
 #+BEGIN_SRC emacs-lisp
-  (use-package evil-leader
+  (use-package general
     :straight t
+    :after evil
     :config
-    (setq evil-leader/in-all-states 1)
-    (setq evil-leader/non-normal-prefix "M-")
-    (global-evil-leader-mode)
-    (evil-leader/set-leader "<SPC>"))
+    (general-create-definer leader-key
+      :prefix "SPC"
+      :states '(normal emacs motion visual)
+      :keymaps 'override
+      ))
 #+END_SRC 
 
 * Window
@@ -248,7 +250,7 @@
     :straight t
     :config
     (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-    (evil-leader/set-key "jw" 'ace-window))
+    (leader-key "jw" 'ace-window))
 #+end_src
 
 ** Shackle
@@ -349,7 +351,7 @@
 #+end_src
 ** Mappings
 #+begin_src emacs-lisp
-  (evil-leader/set-key
+  (leader-key
     "wt" 'toggle-frame-maximized
     "wm" 'toggle-frame-fullscreen)
 #+end_src
@@ -496,7 +498,7 @@
     :diminish 'global-gumshoe-mode
     :config
     (setq gumshoe-display-buffer-action '(display-buffer-same-window))
-    (evil-leader/set-key "js" 'consult-gumshoe-global)
+    (leader-key "js" 'consult-gumshoe-global)
     (global-gumshoe-mode 1))
 #+end_src
 
@@ -527,7 +529,7 @@
            (LaTeX-narrow-to-environment))
           (t (narrow-to-defun))))
 
-  (evil-leader/set-key "z" 'narrow-or-widen-dwim)
+  (leader-key "z" 'narrow-or-widen-dwim)
 #+END_SRC
 
 ** Avy
@@ -535,7 +537,7 @@
   (use-package avy
     :straight t
     :config
-    (evil-leader/set-key
+    (leader-key
       "jj" 'evil-avy-goto-char-timer
       "jl" 'avy-goto-line))
 #+end_src
@@ -573,7 +575,7 @@
     (evil-define-key 'normal org-mode-map
       (kbd "<RET>") 'org-return)
 
-    (evil-leader/set-key "os" 'org-store-link))
+    (leader-key "os" 'org-store-link))
 
   (use-package org-agenda
     :config
@@ -584,7 +586,7 @@
       (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
         (org-agenda)))
 
-    (evil-leader/set-key
+    (leader-key
       "oa" 'org-agenda-well-behaved
       "ot" 'org-todo-list
       "ow" 'org-agenda-list)
@@ -625,7 +627,7 @@
 
     (add-hook 'org-capture-mode-hook 'evil-insert-state)
 
-    (evil-leader/set-key "oc" 'org-capture-well-behaved))
+    (leader-key "oc" 'org-capture-well-behaved))
 
   (use-package ob-async :straight t)
 
@@ -820,7 +822,7 @@
 
   (setq org-agenda-files '("~/org/notes.org"))
 
-  (evil-leader/set-key "on" 'consult-org-heading-notes)
+  (leader-key "on" 'consult-org-heading-notes)
 #+END_SRC
 
 * Completion
@@ -956,7 +958,7 @@
 
     (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-    (evil-leader/set-key "r" 'vertico-repeat)
+    (leader-key "r" 'vertico-repeat)
 
     (evil-define-key '(insert normal) vertico-map
       (kbd "DEL") 'vertico-directory-delete-char
@@ -1026,7 +1028,7 @@
           (consult-ripgrep)
         (consult-grep)))
 
-    (evil-leader/set-key
+    (leader-key
       "."  'find-file-at-point
       "pg" '+consult-rg-with-fallback
       "pl" 'consult-locate
@@ -1224,7 +1226,7 @@
     :config
     (setq project-find-functions '(+project-try-local project-try-vc))
     (add-to-list 'marginalia-command-categories '(+project-switch-project . project-file))
-    (evil-leader/set-key
+    (leader-key
       "SPC" 'project-find-file
       "pp" '+project-switch-project))
 #+end_src
@@ -1392,9 +1394,9 @@
     (advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
     (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
 
-    (evil-leader/set-key "e" '+eshell-same-window)
-    (evil-leader/set-key "E" '+eshell-other-window)
-    (evil-leader/set-key "pe" '+eshell-project-other-window))
+    (leader-key "e" '+eshell-same-window)
+    (leader-key "E" '+eshell-other-window)
+    (leader-key "pe" '+eshell-project-other-window))
 #+end_src
   
 ** Eshell functions
@@ -1495,7 +1497,7 @@
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
     (setq dtache-detach-key "C-c C-x")
 
-    (evil-leader/set-key
+    (leader-key
       "ds" 'dtache-shell-command
       "pr" '+dtache-project-shell-command))
 
@@ -1517,7 +1519,7 @@
     :straight (dtache-consult :type git :host gitlab :repo "svaante/dtache")
     :after dtache
     :config
-    (evil-leader/set-key "dd" 'dtache-consult-session))
+    (leader-key "dd" 'dtache-consult-session))
 #+end_src
 
 * Misc
@@ -1550,7 +1552,7 @@ Change stuff in the grep buffer
       (ispell-change-dictionary flyspell-default-dictionary)
       (flyspell-prog-mode))
 
-    (evil-leader/set-key
+    (leader-key
       "ff" '+ispell-toogle-english-swedish-dictonary
       "fp" '+flyspell-programing-english))
 
@@ -1566,7 +1568,7 @@ Change stuff in the grep buffer
     :init-value nil
     (set-window-dedicated-p (selected-window) locked-window-buffer-mode))
 
-  (evil-leader/set-key "wl" 'locked-window-buffer-mode)
+  (leader-key "wl" 'locked-window-buffer-mode)
 #+end_src
 
 ** Fix color stuff
@@ -1660,7 +1662,7 @@ Change stuff in the grep buffer
       (setq-local buffer-file-name (->> babel-info caddr (alist-get :tangle))))
 
     (add-hook 'lsp-mode-hook 'lsp-mode-configuration)
-    (evil-leader/set-key
+    (leader-key
       "lr" 'lsp-rename
       "lf" 'lsp-format-buffer))
 
@@ -1668,7 +1670,7 @@ Change stuff in the grep buffer
     :straight t
     :config
     (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
-    (evil-leader/set-key
+    (leader-key
       "ls" 'consult-lsp-symbols))
 #+end_src
 
@@ -1784,17 +1786,20 @@ Change stuff in the grep buffer
   (use-package gdscript-mode
     :straight t
     :config
-    (evil-leader/set-key-for-mode 'gdscript-mode "pr" 'gdscript-godot-run-project)
     (setq gdscript-use-tab-indents nil)
     (setq gdscript-indent-offset 4))
 #+end_src
 
 ** Devdocs
 #+begin_src  emacs-lisp
+  (defun devdocs-lookup-ask-docs ()
+    (interactive)
+    (devdocs-lookup t))
+
   (use-package devdocs
     :straight t
     :config
-    (evil-leader/set-key "k" (lambda () (interactive) (devdocs-lookup t))))
+    (leader-key "k" 'devdocs-lookup-ask-docs))
 #+end_src
 
 ** Compilation
@@ -1842,7 +1847,7 @@ Change stuff in the grep buffer
       (interactive)
       (dired-sidebar-toggle-sidebar (+project-root-or-default-dir)))
 
-    (evil-leader/set-key "ad" '+dired-sidebar-toggle-sidebar))
+    (leader-key "ad" '+dired-sidebar-toggle-sidebar))
 #+end_src
 
 ** Magit
@@ -1857,13 +1862,13 @@ Change stuff in the grep buffer
       (magit-status-here)
       (evil-scroll-line-to-center 1))
 
-    (evil-leader/set-key "gg" 'magit-status-here-and-center)
-    (evil-leader/set-key "gd" 'magit-diff)
-    (evil-leader/set-key "gb" 'magit-blame)
-    (evil-leader/set-key "gl" 'magit-log-branches)
-    (evil-leader/set-key "gc" 'magit-checkout)
-    (evil-leader/set-key "gf" 'magit-fetch-all)
-    (evil-leader/set-key "gf" 'magit-log-buffer-file))
+    (leader-key "gg" 'magit-status-here-and-center)
+    (leader-key "gd" 'magit-diff)
+    (leader-key "gb" 'magit-blame)
+    (leader-key "gl" 'magit-log-branches)
+    (leader-key "gc" 'magit-checkout)
+    (leader-key "gf" 'magit-fetch-all)
+    (leader-key "gf" 'magit-log-buffer-file))
 #+end_src
 ** Tramp
 #+begin_src emacs-lisp
@@ -1910,7 +1915,7 @@ Change stuff in the grep buffer
 
     (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
 
-    (evil-leader/set-key "ah" 'create-restclient-mode-buffer))
+    (leader-key "ah" 'create-restclient-mode-buffer))
 #+end_src
 
 ** Calc
@@ -1945,7 +1950,7 @@ Change stuff in the grep buffer
     (evil-define-key 'normal literate-calc-mode-map
       "q" 'literate-calc-buffer-quit)
 
-    (evil-leader/set-key "ac"
+    (leader-key "ac"
       'create-literate-calc-mode-buffer))
 #+end_src
 
@@ -1992,7 +1997,7 @@ Change stuff in the grep buffer
       (let ((prefix (completing-read "Prefix: " axe-logs-log-groups-prefix)))
         (axe-logs-describe-log-groups prefix :auto-follow nil)))
 
-    (evil-leader/set-key "cl" 'axe-logs-describe-log-groups-with-comp))
+    (leader-key "cl" 'axe-logs-describe-log-groups-with-comp))
 #+end_src
   
 ** Elfeed
@@ -2005,7 +2010,7 @@ Change stuff in the grep buffer
   (use-package elfeed
     :straight t
     :config
-    (evil-leader/set-key "ar" 'elfeed-open-and-refresh)
+    (leader-key "ar" 'elfeed-open-and-refresh)
     (setq elfeed-feeds
           '(("https://lithub.com/feed/" kultur)
             ("https://hnrss.org/newest?points=50" tech)
