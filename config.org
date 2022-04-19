@@ -1273,6 +1273,10 @@
         (+eshell/goto-end-of-prompt)
       buffer)))
 
+  (defun +eshell-same-window ()
+    (interactive)
+    (switch-to-buffer (+eshell)))
+
   (defun +eshell-project ()
     (let* ((default-directory (cdr (project-current)))
            (eshell-project-type-p t)
@@ -1388,7 +1392,8 @@
     (advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
     (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
 
-    (evil-leader/set-key "e" '+eshell-other-window)
+    (evil-leader/set-key "e" '+eshell-same-window)
+    (evil-leader/set-key "E" '+eshell-other-window)
     (evil-leader/set-key "pe" '+eshell-project-other-window))
 #+end_src
   
