@@ -239,8 +239,7 @@
     (general-create-definer leader-key
       :prefix "SPC"
       :states '(normal emacs motion visual)
-      :keymaps 'override
-      ))
+      :keymaps 'override))
 #+END_SRC 
 
 * Window
