@@ -1183,6 +1183,25 @@
     :after (embark consult))
 #+end_src
 
+** Minibuffer
+#+BEGIN_SRC emacs-lisp
+  (setq minibuffer-insert-commands '(consult-line
+                                     +consult-rg-with-fallback))
+
+  (defun minibuffer-insert-selection ()
+    (when-let* ((_ (find this-command minibuffer-insert-commands))
+                (minibuffer-buffer (current-buffer))
+                (buffers (buffer-list))
+                (last-used-buffer (cadr buffers)))
+      (with-current-buffer last-used-buffer
+        (when (use-region-p)
+          (let ((selection (buffer-substring-no-properties (region-beginning) (region-end))))
+            (with-current-buffer minibuffer-buffer
+              (insert selection)))))))
+
+  (add-hook 'minibuffer-setup-hook 'minibuffer-insert-selection)
+#+end_src
+
 * Project management
 ** project.el
 #+begin_src emacs-lisp
