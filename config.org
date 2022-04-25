@@ -1196,6 +1196,7 @@
       (with-current-buffer last-used-buffer
         (when (use-region-p)
           (let ((selection (buffer-substring-no-properties (region-beginning) (region-end))))
+            (deactivate-mark)
             (with-current-buffer minibuffer-buffer
               (insert selection)))))))
 
