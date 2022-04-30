@@ -1879,7 +1879,7 @@ Change stuff in the grep buffer
     (defun magit-status-here-and-center ()
       (interactive)
       (magit-status-here)
-      (evil-scroll-line-to-center 1))
+      (recenter))
 
     (leader-key "gg" 'magit-status-here-and-center)
     (leader-key "gd" 'magit-diff)
