@@ -360,16 +360,12 @@
 #+begin_src emacs-lisp
   ;; Set my font
   (when (eq system-type 'darwin)
-    (set-face-attribute 'default nil :font "Monaco 13"))
+    (set-face-attribute 'default nil :font "Monaco 13")
+    (set-fontset-font t '(#x1f300 . #x1f5ff)
+                      (font-spec :family "Apple Color Emoji" :size 12)))
 
   (when (eq system-type 'gnu/linux)
     (set-face-attribute 'default nil :font "DejaVu Sans Mono 10" :height 105))
-
-  ;; Emoji support
-  (set-fontset-font t 'symbol "Apple Color Emoji")
-  (set-fontset-font t 'symbol "Noto Color Emoji" nil 'append)
-  (set-fontset-font t 'symbol "Segoe UI Emoji" nil 'append)
-  (set-fontset-font t 'symbol "Symbola" nil 'append)
 #+end_src
   
 ** Themes
