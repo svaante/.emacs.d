@@ -1188,7 +1188,7 @@
                                      +consult-rg-with-fallback))
 
   (defun minibuffer-insert-selection ()
-    (when-let* ((_ (find this-command minibuffer-insert-commands))
+    (when-let* ((_ (member this-command minibuffer-insert-commands))
                 (minibuffer-buffer (current-buffer))
                 (buffers (buffer-list))
                 (last-used-buffer (cadr buffers)))
