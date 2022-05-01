@@ -1512,9 +1512,7 @@
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
     (setq dtache-detach-key "C-c C-x")
 
-    (leader-key
-      "ds" 'dtache-shell-command
-      "pr" '+dtache-project-shell-command))
+    (leader-key "pr" '+dtache-project-shell-command))
 
   (defun eshell/dtache (&rest args)
     (call-interactively '+dtache-eshell-attach))
@@ -1534,7 +1532,7 @@
     :straight (dtache-consult :type git :host gitlab :repo "svaante/dtache")
     :after dtache
     :config
-    (leader-key "dd" 'dtache-consult-session))
+    (leader-key "d" 'dtache-consult-session))
 #+end_src
 
 * Misc
