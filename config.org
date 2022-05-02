@@ -355,6 +355,16 @@
     "wm" 'toggle-frame-fullscreen)
 #+end_src
 
+** Tabs
+#+begin_src emacs-lisp
+  (use-package tab-bar
+    :straight (:type built-in)
+    :config
+    (setq tab-bar-show 1)
+    (tab-bar-mode +1)
+    (tab-bar-rename-tab "main"))
+#+end_src
+
 * Looks
 ** Fonts
 #+begin_src emacs-lisp
