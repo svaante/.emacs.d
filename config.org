@@ -1297,12 +1297,12 @@
       (with-current-buffer buffer
         (unless (bound-and-true-p eshell-mode)
           (eshell-mode))
-        (+eshell/goto-end-of-prompt)
       buffer)))
 
   (defun +eshell-same-window ()
     (interactive)
-    (switch-to-buffer (+eshell)))
+    (switch-to-buffer (+eshell))
+    (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project ()
     (let* ((default-directory (cdr (project-current)))
@@ -1314,25 +1314,29 @@
 
   (defun +eshell-other-window ()
     (interactive)
-    (switch-to-buffer-other-window (+eshell)))
+    (switch-to-buffer-other-window (+eshell))
+    (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project-other-window ()
     (interactive)
-    (switch-to-buffer-other-window (+eshell-project)))
+    (switch-to-buffer-other-window (+eshell-project))
+    (+eshell/goto-end-of-prompt))
 
   (defun +eshell-from-path (path)
     (interactive "F")
     (let ((default-directory (file-name-directory
                                 (expand-file-name
                                  (substitute-in-file-name path)))))
-      (switch-to-buffer (+eshell))))
+      (switch-to-buffer (+eshell))
+      (+eshell/goto-end-of-prompt)))
 
   (defun +eshell-from-path-other-window (path)
     (interactive "F")
     (let ((default-directory (file-name-directory
                                 (expand-file-name
                                  (substitute-in-file-name path)))))
-      (switch-to-buffer-other-window (+eshell))))
+      (switch-to-buffer-other-window (+eshell))
+      (+eshell/goto-end-of-prompt)))
 
   (defun +eshell/goto-end-of-prompt ()
     "Move cursor to the prompt when switching to insert mode (if point isn't
