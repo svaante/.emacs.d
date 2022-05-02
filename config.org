@@ -311,7 +311,7 @@
                :align below
                :size 50
                :popup t)
-              ("CAPTURE-.*\.org"
+              ("CAPTURE-.*\\.org"
                :regexp t
                :align below
                :size 0.40
