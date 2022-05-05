@@ -1196,7 +1196,8 @@
 ** Minibuffer
 #+BEGIN_SRC emacs-lisp
   (setq minibuffer-insert-commands '(consult-line
-                                     +consult-rg-with-fallback))
+                                     +consult-rg-with-fallback
+                                     consult-lsp-symbols))
 
   (defun minibuffer-insert-selection ()
     (when-let* ((_ (member this-command minibuffer-insert-commands))
