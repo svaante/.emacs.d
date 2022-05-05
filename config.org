@@ -300,6 +300,11 @@
                :select t
                :size 0.25
                :custom shackle-split-below)
+              ("*xref*"
+               :select t
+               :align below
+               :size 0.25
+               :popup t)
               ("\\*Embark Export Grep\\*"
                :regexp t
                :select t
