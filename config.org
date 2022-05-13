@@ -362,10 +362,38 @@
 
 ** Tabs
 #+begin_src emacs-lisp
+  ;; Embark setup stolen from https://github.com/oantolin/embark/blob/master/README.org
+  (defun select-tab-by-name-dwim (tab)
+    (interactive
+     (list
+      (let ((tab-list (or (mapcar (lambda (tab) (cdr (assq 'name tab)))
+                                  (tab-bar-tabs))
+                          (user-error "No tabs found"))))
+        (consult--read tab-list
+                       :prompt "Tabs: "
+                       :category 'tab))))
+    (if (member tab (mapcar (lambda (tab) (cdr (assq 'name tab))) (tab-bar-tabs)))
+        (tab-bar-select-tab-by-name tab)
+      ;; If tab doesn't exist create and swithc
+      (tab-bar-new-tab)
+      (tab-bar-rename-tab tab)))
+
   (use-package tab-bar
     :straight (:type built-in)
-    :config
+    :after (embark consult)
+    :init
     (setq tab-bar-show 1)
+
+    (embark-define-keymap embark-tab-actions
+      "Keymap for actions for tab-bar tabs (when mentioned by name)."
+      ("r" tab-bar-rename-tab-by-name)
+      ("k" tab-bar-close-tab-by-name))
+
+    (add-to-list 'embark-keymap-alist '(tab . embark-tab-actions))
+
+    (leader-key "t"
+      'select-tab-by-name-dwim)
+
     (tab-bar-mode +1)
     (tab-bar-rename-tab "main"))
 #+end_src
