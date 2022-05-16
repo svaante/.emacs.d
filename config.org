@@ -1006,6 +1006,16 @@
     :straight t
     :hook (minibuffer-setup . use-orderless-in-minibuffer)
     :init
+    (defun without-if-bang (pattern _index _total)
+      (cond
+       ((equal "!" pattern)
+        '(orderless-literal . ""))
+       ((string-prefix-p "!" pattern)
+        `(orderless-without-literal . ,(substring pattern 1)))))
+
+    (setq orderless-style-dispatchers
+          '(without-if-bang))
+
     (setq completion-category-defaults nil
           completion-category-overrides '((file (styles basic partial-completion))))
     :preface
