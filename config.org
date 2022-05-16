@@ -449,7 +449,9 @@
     (setq mode-line-defining-kbd-macro
           (propertize " Macro" 'face 'mode-line-emphasis))
     (setq-default mode-line-format
-                  '("🌻"
+                  '((:eval (when (window-dedicated-p)
+                             (propertize "LOCK " 'face 'mode-line-emphasis)))
+                    "🌻"
                     "%e"
                     ""
                     mode-line-front-space
@@ -1632,14 +1634,12 @@ Change stuff in the grep buffer
 
 ** Window lock
 #+begin_src emacs-lisp
-  (define-minor-mode locked-window-buffer-mode
-    "Lock the current buffer to the current window."
-    :global nil
-    :lighter " LOCKED"
-    :init-value nil
-    (set-window-dedicated-p (selected-window) locked-window-buffer-mode))
+  (defun toggle-window-dedicated ()
+    (interactive)
+    (set-window-dedicated-p (selected-window)
+                            (not (window-dedicated-p))))
 
-  (leader-key "wl" 'locked-window-buffer-mode)
+  (leader-key "wl" 'toggle-window-dedicated)
 #+end_src
 
 ** Fix color stuff
