@@ -298,8 +298,9 @@
               ("\\*Embark Export Occur\\*"
                :regexp t
                :select t
+               :align below
                :size 0.25
-               :custom shackle-split-below)
+               :popup t)
               ("*xref*"
                :select t
                :align below
