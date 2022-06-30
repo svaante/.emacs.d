@@ -1294,6 +1294,11 @@
           (project-current-inhibit-prompt t))
       (call-interactively 'project-find-file)))
 
+  (defun +project-gud-gdb ()
+    (interactive)
+    (let ((default-directory (+project-root-or-default-dir)))
+      (call-interactively 'gud-gdb)))
+
   (use-package project
     :config
     (setq project-find-functions '(+project-try-local project-try-vc))
