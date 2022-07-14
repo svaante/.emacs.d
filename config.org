@@ -964,7 +964,7 @@
 
   (defun consult-line-evil-history (&rest _)
     "Add latest `consult-line' search pattern to the evil search history ring.
-                 This only works with orderless and for the first component of the search."
+                   This only works with orderless and for the first component of the search."
     (when (and (bound-and-true-p evil-mode)
                (eq evil-search-module 'evil-search))
       (let ((pattern (car (orderless-pattern-compiler (car consult--line-history)))))
@@ -991,7 +991,7 @@
       (call-interactively 'consult-history))
 
     (evil-global-set-key 'insert
-      (kbd "C-r") '+consult-kill-line-insert-history)
+                         (kbd "C-r") '+consult-kill-line-insert-history)
 
     (defun +consult-rg-with-fallback ()
       (interactive)
@@ -1043,12 +1043,12 @@
       (interactive
        (list (completing-read "Switch to REPLish: "
                               (->> consult-buffer-repls
-                                   (mapcar 'car))
+                                (mapcar 'car))
                               nil
                               t)))
       ;;(switch-to-buffer-other-window (other-buffer))
       (call-interactively (alist-get key consult-buffer-repls nil nil 'equal)))
-      ;;(switch-to-buffer key))
+    ;;(switch-to-buffer key))
 
     (defvar repl-buffer-source
       `(:name     "REPLish buffers"
@@ -1098,12 +1098,12 @@
       (magit-status default-directory)))
 
   (defun +project-find-file-here (file)
-      "Run project-find-file in directory of FILE."
-      (interactive "Directory: ")
-      (let* ((default-directory (file-name-directory
-                                 (expand-file-name
-                                  (substitute-in-file-name file)))))
-        (project-find-file)))
+    "Run project-find-file in directory of FILE."
+    (interactive "Directory: ")
+    (let* ((default-directory (file-name-directory
+                               (expand-file-name
+                                (substitute-in-file-name file)))))
+      (project-find-file)))
 
   (use-package embark
     :straight (embark :type git :host github :repo "oantolin/embark")
@@ -1213,6 +1213,11 @@
     (let ((default-directory dir)
           (project-current-inhibit-prompt t))
       (call-interactively 'project-find-file)))
+
+  (defun +project-gud-gdb ()
+    (interactive)
+    (let ((default-directory (+project-root-or-default-dir)))
+      (call-interactively 'gud-gdb)))
 
   (use-package project
     :config
@@ -1644,14 +1649,25 @@ Change stuff in the grep buffer
         (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
         (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
         (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
+
     (setq lsp-file-watch-threshold 1000)
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-modeline-code-actions-enable nil)
 
-
     ;; enable lsp-mode inside of org babel edit src blocks
     (defun org-babel-edit-prep:python (babel-info)
       (setq-local buffer-file-name (->> babel-info caddr (alist-get :tangle))))
+
+    ;; c mode configurations
+    (setq lsp-clients-clangd-args
+          '("-j=2"
+            "--background-index"
+            "--clang-tidy"
+            "--completion-style=bundled"
+            "--pch-storage=memory"
+            "--header-insertion=never"
+            "--header-insertion-decorators=0"))
+
 
     (add-hook 'lsp-mode-hook 'lsp-mode-configuration)
     (leader-key
