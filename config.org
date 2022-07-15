@@ -745,15 +745,13 @@
     :diminish
     :straight (org-mono :type git :host github :repo "svaante/org-mono")
     :config
-
-
     (setq org-mono-files '("~/org/notes.org"
                            "~/org/todo.org"
                            "~/org/books.org"))
 
     (setq org-mono-capture-default '(entry
                                      (file "~/org/notes.org")
-                                     "* %(org-mono-dwim-headline)\n  %?"))
+                                     "* %(org-mono-dwim-headline)\n%?"))
     (setq org-mono-capture-templates '(("t" "Todo" "** TODO %?")
                                        ("n" "Sub note" "** %?")
                                        ("l" "Link" "%l %?")))
