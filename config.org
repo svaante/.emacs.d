@@ -1526,7 +1526,7 @@ Change stuff in the grep buffer
   (use-package wgrep :straight t)
 #+end_src
    
-** Spell checking spelling
+** Writing
 #+begin_src emacs-lisp
   (defun +ispell-toogle-english-swedish-dictonary ()
     "Toggle `Ispell´ dictionary between English and Swedish."
@@ -1553,7 +1553,11 @@ Change stuff in the grep buffer
       "ff" '+ispell-toogle-english-swedish-dictonary
       "fp" '+flyspell-programing-english))
 
-
+  (use-package define-word
+    :straight t
+    :config
+    (leader-key "fd"
+      'define-word-at-point))
 #+end_src
 
 ** Window lock
