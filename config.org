@@ -1980,44 +1980,6 @@ Change stuff in the grep buffer
     (setq ein:polymode t))
 #+end_src
 
-** Axe aws
-#+begin_src emacs-lisp
-  (use-package axe
-    :ensure nil
-    :load-path "~/Workspace/axe/"
-    :config
-    (setq axe-region 'eu-central-1)
-    (setq axe-profile 'default)
-    (setq axe-logs-log-groups-prefix
-          '("/aws/lambda/"
-            "/aws/codebuild/"
-            "/aws/lambda/IkeaServices-User"
-            "/aws/lambda/IkeaServices"
-            "/aws/lambda/Environment"
-            "/aws/lambda/HealthAndMonitoring"
-            "/aws/lambda/SecretsReplication"
-            "/aws/lambda/Grafana"
-            "/aws/lambda/DeploymentInfrastructure"
-            "/aws/lambda/PipelineInfrastructure"
-            "/aws/lambda/GlobalInfrastructure"
-            "/aws/lambda/FunctionalTestUserPool"
-            "/aws/lambda/InternalInfrastructure"
-            "/aws/lambda/healthcheckroute53"
-            "/aws/lambda/Assets"
-            "/aws/lambda/SecurityHeaders"
-            "/aws/lambda/FeatureToggles"
-            "/aws/lambda/DeployDefaultValues"
-            "/aws/lambda/Clusterpool"))
-
-    (defun axe-logs-describe-log-groups-with-comp ()
-      "Describe aws logs with compleation from AXE-LOGS-LOG-GROUPS-PREFIX."
-      (interactive)
-      (let ((prefix (completing-read "Prefix: " axe-logs-log-groups-prefix)))
-        (axe-logs-describe-log-groups prefix :auto-follow nil)))
-
-    (leader-key "cl" 'axe-logs-describe-log-groups-with-comp))
-#+end_src
-  
 ** Elfeed
 #+begin_src emacs-lisp
   (defun elfeed-open-and-refresh ()
@@ -2058,33 +2020,4 @@ Change stuff in the grep buffer
           smtpmail-smtp-service 587
           gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
     )
-#+end_src
-
-*** Mu4e
-#+begin_src emacs-lisp
-  (use-package mu4e
-    :ensure nil
-    :load-path "/usr/local/Cellar/mu/1.4.13/share/emacs/site-lisp/mu/mu4e/"
-    :config
-
-                                          ;(setq mu4e-mu-binary "/usr/local/Cellar/mu/1.4.13/mu")
-    ;; default
-    (setq mu4e-maildir (expand-file-name "~/Mail"))
-
-    (setq mu4e-drafts-folder "/[Gmail].Drafts")
-    (setq mu4e-sent-folder   "/[Gmail].Sent Mail")
-    (setq mu4e-trash-folder  "/[Gmail].Trash")
-
-    (setq mu4e-sent-messages-behavior 'delete)
-
-    (setq mu4e-maildir-shortcuts
-          '(("/INBOX"             . ?i)
-            ("/[Gmail].Sent Mail" . ?s)
-            ("/[Gmail].Trash"     . ?t)))
-
-    ;; allow for updating mail using 'U' in the main view:
-    (setq mu4e-get-mail-command "mbsync -a")
-
-    (setq user-mail-address "daniel@dpettersson.net"
-          user-full-name "Daniel Pettersson"))
 #+end_src
