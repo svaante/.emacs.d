@@ -755,24 +755,29 @@
     :config
     (setq org-mono-files '("~/org/notes.org"
                            "~/org/todo.org"
+                           "~/org/thoughts.org"
                            "~/org/books.org"))
 
-    (setq org-mono-capture-default '(entry
-                                     (file "~/org/notes.org")
-                                     "* %(org-mono-dwim-headline)\n%?"))
-    (setq org-mono-capture-templates '(("t" "Todo" "** TODO %?")
-                                       ("n" "Sub note" "** %?")
-                                       ("l" "Link" "%l %?")))
+    (setq org-mono-capture-dwim-template '(entry
+                                           (file "~/org/notes.org")
+                                           "* %(org-mono-dwim-headline)\n%?"))
 
-    (setq org-mono-narrow-after-goto t)
+    (setq org-mono-narrow-after-goto 'parent)
     (setq org-mono-capture-narrow t)
+    (setq org-mono-candidate-with-path t)
+    (setq org-mono-annotations-enabled '(:file :level :timestamp :todo :back-links))
 
     (leader-key "on" 'org-mono-dwim)
     (embark-define-keymap embark-org-mono-actions
       "Keymap for actions for org-mono."
+      ("o" org-mono-goto-other-window)
       ("t" org-mono-todo)
+      ("r" org-mono-rename)
+      ("w" org-mono-refile-from)
+      ("a" org-mono-archive)
       ("k" org-mono-delete-headline)
-      ("c" org-mono-capture-under-headline)
+      ("c" org-mono-goto-headline-child)
+      ("d" org-mono-time-stamp)
       ("b" org-mono-goto-back-links))
 
     (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions))
@@ -782,10 +787,22 @@
     :after consult
     :straight (org-mono-consult :type git :host github :repo "svaante/org-mono")
     :config
-    (setq org-mono-consult--source-top-level (plist-put org-mono-consult--source-top-level
-                                                        :hidden nil))
-    (setq org-mono-consult--source-headline (plist-put org-mono-consult--source-headline
-                                                       :hidden t))
+    ;; Show only top level headlines with no todos
+    (setq org-mono-consult--source-headline
+          (plist-put org-mono-consult--source-headline :hidden t))
+    (setq org-mono-consult--source-top-level-no-todos
+          (plist-put org-mono-consult--source-top-level-no-todos :hidden nil))
+
+    (setq org-mono-consult-special-entries-fn
+          (lambda ()
+            (append
+             (list (format-time-string "Pad %Y-%m-%d"))
+             (when (project-current)
+               (list
+                (file-name-nondirectory
+                 (directory-file-name
+                  (project-root (project-current)))))))))
+
     (add-to-list 'org-mono-consult-sources
                  org-mono-consult--source-special)
 
