@@ -605,8 +605,8 @@
     (setq org-src-window-setup 'current-window)
     (setq org-startup-with-inline-images t)
     (org-babel-do-load-languages 'org-babel-load-languages
-     '((shell . t)
-       (python . t)))
+                                 '((shell . t)
+                                   (python . t)))
 
     (custom-set-faces
      '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
@@ -633,7 +633,10 @@
       "ot" 'org-todo-list
       "ow" 'org-agenda-list)
 
-    (setq org-agenda-files '("~/org/notes.org" "~/org/todo.org" "~/org/books.org"))
+    (setq org-agenda-files '("~/org/notes.org"
+                             "~/org/clipboard.org"
+                             "~/org/todo.org"
+                             "~/org/books.org"))
 
     ;; been trying to use evil-org's evil-agenda only result was pain
     (evil-set-initial-state 'org-agenda-mode 'normal)
@@ -647,7 +650,7 @@
       "t" 'org-agenda-todo
       "#" 'org-agenda-set-tags
       "j" 'org-agenda-next-line
-      "k"  'org-agenda-previous-line
+      "k" 'org-agenda-previous-line
       "f" 'org-agenda-later
       "b" 'org-agenda-earlier
       "e" 'org-agenda-set-effort
@@ -674,7 +677,8 @@
        (lambda ()
          (when (and (org-entry-is-todo-p)
                     (not (org-get-inline-property "Timestamp")))
-           (org-set-inline-property "Timestamp" (format-time-string (car org-time-stamp-formats)))))))
+           (org-set-inline-property "Timestamp"
+                                    (format-time-string (car org-time-stamp-formats)))))))
 
     (defun org-headline--register-functions-h ()
       (add-hook 'before-save-hook 'org-todos-write-timestamp nil t))
