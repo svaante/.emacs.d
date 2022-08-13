@@ -687,10 +687,13 @@
 
     (setq org-capture-templates '(("t" "Todo" entry
                                    (file "~/org/todo.org")
-                                   "* TODO %?\n  %i\n  %a")
+                                   "* TODO %?\nTimestamp: %t\nContext: %a")
+                                  ("c" "Clipboard" entry
+                                   (file "~/org/clipboard.org")
+                                   "* %?\nTimestamp: %t\nContext: %(x-get-clipboard)")
                                   ("p" "Python Notebok" entry
                                    (file "~/org/python-babel.org")
-                                   "* %?\n  %t\n  #+begin_src python\n  #+end_src")))
+                                   "* %?\n%t\n#+begin_src python\n#+end_src")))
 
     (add-hook 'org-capture-mode-hook 'evil-insert-state)
 
