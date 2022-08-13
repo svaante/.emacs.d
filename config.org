@@ -276,19 +276,19 @@
       (setq shackle-lighter "")
       (setq shackle-rules
             '((shell-mode
-               :select nil
+               :noselect nil
                :align right
-               :size 0.30
+               :size 80
                :popup t)
               ("*Help*"
                :select t
                :align right
-               :size 0.30
+               :size 75
                :popup t)
               ("*devdocs*"
                :select t
                :align right
-               :size 0.30
+               :size 85
                :popup t)
               ("*Messages*"
                :select t
@@ -315,7 +315,6 @@
               ("*Org Select*"
                :select t
                :align below
-               :size 50
                :popup t)
               ("CAPTURE-.*\\.org"
                :regexp t
