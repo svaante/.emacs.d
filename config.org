@@ -1834,7 +1834,8 @@ Change stuff in the grep buffer
   (use-package devdocs
     :straight t
     :config
-    (leader-key "k" 'devdocs-lookup-ask-docs))
+    (leader-key "k" 'devdocs-lookup)
+    (leader-key "K" 'devdocs-lookup-ask-docs))
 #+end_src
 
 ** Compilation
