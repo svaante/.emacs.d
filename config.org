@@ -1680,6 +1680,7 @@ Change stuff in the grep buffer
     (setq lsp-file-watch-threshold 1000)
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-modeline-code-actions-enable nil)
+    (setq lsp-modeline-diagnostics-enable nil)
 
     ;; enable lsp-mode inside of org babel edit src blocks
     (defun org-babel-edit-prep:python (babel-info)
