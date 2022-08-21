@@ -1851,7 +1851,61 @@ Change stuff in the grep buffer
       (kbd "<tab>") 'compilation-next-file
       (kbd "<backtab>") 'compilation-previous-file))
 #+end_src
- 
+
+** Debugging
+#+begin_src emacs-lisp
+  (use-package dap-mode
+    :straight t
+    :ensure t
+    :config
+    (dap-ui-mode)
+
+    (dap-register-debug-provider
+     "lldb-code"
+     (lambda (conf)
+       (let ((lldb-vscode-binary "lldb-vscode")
+             (debug-port (dap--find-available-port))
+             (project-root-current (-> (project-current)
+                                       (project-root)
+                                       (expand-file-name)))
+             (bin-name (alist-get 'name
+                                  (rustic-flycheck-find-cargo-target
+                                   buffer-file-name))))
+         (unless (executable-find lldb-vscode-binary)
+           (user-error "Unable to locate lldb-vscode binary"))
+         (unless bin-name
+           (user-error "Run `dap-debug' in rust buffer."))
+         (unless project-root-current
+           (user-error "Run `dap-debug' in project.el buffer."))
+         (-> conf
+             (plist-put :program-to-start
+                        (format "%s --port %s"
+                                lldb-vscode-binary
+                                debug-port))
+             (plist-put :debugServer debug-port)
+             (plist-put :type "lldb-code")
+             (plist-put :host "localhost")
+             (dap--put-if-absent :dap-compilation
+                                 (format
+                                  "cargo build --bin %s"
+                                  bin-name))
+             (dap--put-if-absent :dap-compilation-dir
+                                 project-root-current)
+             (dap--put-if-absent :program
+                                 (format
+                                  "%starget/debug/%s"
+                                  project-root-current
+                                  bin-name))
+             (dap--put-if-absent :cwd project-root-current)))))
+
+    (dap-register-debug-template "LLDB-vscode rust :: Run Configuration"
+                                 (list :type "lldb-code"
+                                       :request "launch"
+                                       :name "LLDB::Run"))
+    (leader-key "pd"
+      'dap-hydra))
+#+end_src
+
 * Applications
 ** Dired
 #+begin_src emacs-lisp
