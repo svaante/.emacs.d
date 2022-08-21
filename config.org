@@ -415,6 +415,9 @@
   
 ** Themes
 #+BEGIN_SRC emacs-lisp
+  (use-package ef-themes
+    :straight (ef-themes :type git :host github :repo "protesilaos/ef-themes"))
+
   (use-package modus-themes
     :straight t
     :config
