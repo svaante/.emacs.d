@@ -1814,7 +1814,7 @@ Change stuff in the grep buffer
 
 ** Rust
 #+begin_src emacs-lisp
-  (use-package rust-mode :straight t)
+  (use-package rustic :straight t)
 #+end_src
 
 ** Godot
