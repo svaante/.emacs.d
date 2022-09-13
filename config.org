@@ -823,6 +823,11 @@
 #+END_SRC
 
 * Completion
+** Basics
+#+begin_src emacs-lisp
+  (delete ".bin" completion-ignored-extensions)
+#+end_src
+
 ** Package company
 #+BEGIN_SRC emacs-lisp
   (use-package company
@@ -1863,6 +1868,9 @@ Change stuff in the grep buffer
 #+end_src
 
 ** Debugging
+#+begin_src emacs-lisp
+  (use-package realgud :straight t)
+#+end_src
 #+begin_src emacs-lisp
   (use-package dap-mode
     :straight t
