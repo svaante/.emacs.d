@@ -1919,6 +1919,10 @@ Change stuff in the grep buffer
 
     (add-hook 'dired-mode-hook 'dired-mode-configuration))
 
+  (use-package diredfl
+    :straight t
+    :hook (dired-mode . diredfl-mode))
+
   (use-package dired-subtree
     :straight t
     :after dired
