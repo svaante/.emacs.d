@@ -1330,6 +1330,11 @@
     (switch-to-buffer-other-window (+eshell))
     (+eshell/goto-end-of-prompt))
 
+  (defun +eshell-project-same-window ()
+    (interactive)
+    (switch-to-buffer (+eshell-project))
+    (+eshell/goto-end-of-prompt))
+
   (defun +eshell-project-other-window ()
     (interactive)
     (switch-to-buffer-other-window (+eshell-project))
@@ -1438,7 +1443,8 @@
 
     (leader-key "e" '+eshell-same-window)
     (leader-key "E" '+eshell-other-window)
-    (leader-key "pe" '+eshell-project-other-window))
+    (leader-key "pe" '+eshell-project-same-window)
+    (leader-key "pE" '+eshell-project-other-window))
 #+end_src
   
 ** Eshell functions
