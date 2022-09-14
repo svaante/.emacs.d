@@ -443,7 +443,7 @@
   (use-package grandshell-theme
     :straight t
     :config
-    (load-theme 'grandshell t))
+    '(load-theme 'grandshell t))
 
   (use-package inkpot-theme
     :straight t)
