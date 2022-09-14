@@ -1879,6 +1879,7 @@ Change stuff in the grep buffer
 #+end_src
 #+begin_src emacs-lisp
   (use-package dap-mode
+    :disabled
     :straight t
     :ensure t
     :config
