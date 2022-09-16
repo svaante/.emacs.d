@@ -1986,6 +1986,7 @@ Change stuff in the grep buffer
       (recenter))
 
     (leader-key "gg" 'magit-status-here-and-center)
+    (leader-key "g." 'magit-find-file)
     (leader-key "gd" 'magit-diff)
     (leader-key "gb" 'magit-blame)
     (leader-key "gl" 'magit-log-branches)
