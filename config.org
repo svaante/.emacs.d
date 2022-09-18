@@ -1445,6 +1445,12 @@
     (leader-key "E" '+eshell-other-window)
     (leader-key "pe" '+eshell-project-same-window)
     (leader-key "pE" '+eshell-project-other-window))
+
+  (use-package em-cmpl-fix
+    :after eshell
+    :load-path "lisp"
+    :straight nil
+    :hook (eshell-first-time-mode . (lambda () (load "em-cmpl-fix.el"))))
 #+end_src
   
 ** Eshell functions
