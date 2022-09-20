@@ -1132,11 +1132,13 @@
   (defun +magit-there (file)
     "Run magit in directory of FILE."
     (interactive "Directory: ")
-    (let* ((default-directory (file-name-directory
-                               (expand-file-name
-                                (substitute-in-file-name file)))))
-      (windmove-display-same-window)
-      (magit-status default-directory)))
+    (let ((default-directory (if (f-dir-p file)
+                                 file
+                               (file-name-directory
+                                (expand-file-name
+                                 (substitute-in-file-name file))))))
+          (windmove-display-same-window)
+          (magit-status default-directory)))
 
   (defun +project-find-file-here (file)
     "Run project-find-file in directory of FILE."
