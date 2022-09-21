@@ -244,6 +244,12 @@
       :keymaps 'override))
 #+END_SRC 
 
+** Hydra
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra
+    :straight t)
+#+end_src
+
 * Window
 ** Ace window
 #+begin_src emacs-lisp
@@ -1886,8 +1892,60 @@ Change stuff in the grep buffer
 
 ** Debugging
 #+begin_src emacs-lisp
+  (defun +gdb-kill-all ()
+    (interactive)
+    (seq-do (lambda (buffer)
+              (with-current-buffer buffer
+                (when (bound-and-true-p gud-minor-mode)
+                  (kill-buffer buffer))))
+            (buffer-list)))
+
+  (defun +gdb-project ()
+    (interactive)
+    (when +gdb-project-hook)
+    (let ((buf (current-buffer))
+          (default-directory (-> (project-current t)
+                               (project-root)
+                               (expand-file-name))))
+      (message default-directory)
+      (call-interactively 'gdb)
+      (switch-to-buffer buf)))
+
+
+  (defhydra hydra-gdb (:exit nil :foreign-keys run :hint nil)
+    "
+  _o_pen (_O_: inst)    _R_un        _b_reak      _n_ext (_N_: inst)
+  _K_ill  ^ ^           _c_ontinue   _t_break     _i_n   (_I_: inst)
+  ^ ^     ^ ^           ^ ^          _r_emove     _f_inish
+  ^ ^     ^ ^           ^ ^          ^ ^          _u_ntil"
+    ("o" +gdb-project)
+    ("O" gdb)
+    ("K" +gdb-kill-all :exit t)
+    ("R" gud-run :exit t)
+    ("c" gud-cont)
+    ("b" gud-break)
+    ("t" gud-tbreak)
+    ("r" gud-remove)
+    ("n" gud-next)
+    ("N" gud-nexti)
+    ("i" gud-step)
+    ("I" gud-stepi)
+    ("f" gud-finish)
+    ("u" gud-until)
+    ("q" ignore :exit t)
+    ("C-g" ignore :exit t))
+
+  (use-package gud
+    :straight (:type built-in)
+    :config
+    (leader-key "pdc" 'hydra-gdb/body)
+    (setq gdb-show-main t))
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package realgud :straight t)
 #+end_src
+
 #+begin_src emacs-lisp
   (use-package dap-mode
     :disabled
