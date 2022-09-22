@@ -638,14 +638,15 @@
   (use-package org-agenda
     :config
     ;; Dont touch my windows
-    (defun org-agenda-well-behaved ()
+    (defun org-agenda-well-behaved (old-org-agenda &rest args)
       "Does not close the other opend window before opening the capture buffer"
       (interactive)
       (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
-        (org-agenda)))
+        (funcall old-org-agenda args)))
+    (advice-add 'org-agenda :around 'org-agenda-well-behaved)
 
     (leader-key
-      "oa" 'org-agenda-well-behaved
+      "oa" 'org-agenda
       "ot" 'org-todo-list
       "ow" 'org-agenda-list)
 
@@ -677,11 +678,12 @@
   (use-package org-capture
     :config
     ;; Dont touch my windows
-    (defun org-capture-well-behaved ()
+    (defun org-capture-well-behaved (old-org-capture &rest args)
       "Does not close the other opend window before opening the capture buffer"
       (interactive)
       (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
-        (org-capture)))
+        (funcall old-org-capture args)))
+    (advice-add 'org-capture :around 'org-capture-well-behaved)
 
     (setq org-agenda-follow-indirect t)
     (setq org-refile-use-outline-path 'file)
@@ -710,10 +712,7 @@
                                   ("p" "Python Notebok" entry
                                    (file "~/org/python-babel.org")
                                    "* %?\n%t\n#+begin_src python\n#+end_src")))
-
-    (add-hook 'org-capture-mode-hook 'evil-insert-state)
-
-    (leader-key "oc" 'org-capture-well-behaved))
+    (leader-key "oc" 'org-capture))
 
   (use-package ob-async :straight t)
 
