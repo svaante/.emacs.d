@@ -560,22 +560,6 @@
 #+end_src
 
 * Buffer navigation
-** Gumshoe
-#+begin_src emacs-lisp
-  (defun consult-gumshoe-global ()
-    (interactive)
-    (consult-global-mark (ring-elements (oref gumshoe--global-backlog log))))
-
-  (use-package gumshoe
-    :disabled
-    :straight (gumshoe :type git :host github :repo "svaante/gumshoe")
-    :diminish 'global-gumshoe-mode
-    :config
-    (setq gumshoe-display-buffer-action '(display-buffer-same-window))
-    (leader-key "js" 'consult-gumshoe-global)
-    (global-gumshoe-mode 1))
-#+end_src
-
 ** Narrow
 #+BEGIN_SRC emacs-lisp
   (defun narrow-or-widen-dwim (p)
