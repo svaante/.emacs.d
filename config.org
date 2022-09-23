@@ -2089,7 +2089,7 @@ Change stuff in the grep buffer
     (leader-key "g." 'magit-find-file)
     (leader-key "gd" 'magit-diff)
     (leader-key "gb" 'magit-blame)
-    (leader-key "gl" 'magit-log-branches)
+    (leader-key "gl" 'magit-log)
     (leader-key "gc" 'magit-checkout)
     (leader-key "gf" 'magit-fetch-all)
     (leader-key "gf" 'magit-log-buffer-file))
