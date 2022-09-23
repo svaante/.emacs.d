@@ -1339,7 +1339,7 @@
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project ()
-    (let* ((default-directory (cdr (project-current)))
+    (let* ((default-directory (cdr (project-current t)))
            (eshell-project-type-p t)
            (buffer (+eshell)))
       (with-current-buffer buffer
