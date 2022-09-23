@@ -1545,10 +1545,15 @@
 
 ** Dtache
 #+begin_src  emacs-lisp
-  (defun +dtache-project-shell-command ()
+  (defun +dtache-project-shell-command (&optional set-prefix-arg)
     (interactive)
-    (let ((default-directory (+project-root-or-default-dir)))
+    (let ((default-directory (+project-root-or-default-dir))
+          (current-prefix-arg set-prefix-arg))
       (call-interactively 'dtache-shell-command)))
+
+  (defun +dtache-project-shell-command-silent ()
+    (interactive)
+    (+dtache-project-shell-command t))
 
   (defun +dtache-shell-command-here (file)
     (let ((default-directory (file-name-directory
@@ -1584,7 +1589,8 @@
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
     (setq dtache-detach-key "C-c C-x")
 
-    (leader-key "pr" '+dtache-project-shell-command))
+    (leader-key "pr" '+dtache-project-shell-command)
+    (leader-key "pR" '+dtache-project-shell-command-silent))
 
   (defun eshell/dtache (&rest args)
     (call-interactively '+dtache-eshell-attach))
