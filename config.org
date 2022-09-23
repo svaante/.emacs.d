@@ -1282,7 +1282,19 @@
       (call-interactively 'gud-gdb)))
 
   (use-package project
+    :straight (:type built-in)
     :config
+    (defmacro project-with-directory (force &rest body)
+      "Try to set `default-dirctory' by using project.el.
+
+  If READ is non nil prompt user for project if not already inside of
+  project else use `default-directory'"
+      (declare (indent 1) (debug t))
+      `(let ((default-directory (or
+                                 (cdr-safe (project-current ,force))
+                                 default-directory)))
+         ,@body))
+
     (setq project-find-functions '(+project-try-local project-try-vc))
     (add-to-list 'marginalia-command-categories '(+project-switch-project . project-file))
     (leader-key
