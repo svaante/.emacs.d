@@ -1218,12 +1218,6 @@
 * Project management
 ** project.el
 #+begin_src emacs-lisp
-  (defun +project-root-or-default-dir ()
-    "Return current project root or `DEFAULT-DIRECTORY`"
-    (if-let* ((project (project-current)))
-        (car (project-roots project))
-      default-directory))
-
   (defun +project-files-in-directory (dir)
     "Use `fd' to list files in DIR."
     (let* ((default-directory dir)
@@ -1247,37 +1241,36 @@
     (let ((root (locate-dominating-file dir ".projectile")))
       (and root (cons 'local root))))
 
-
   (defun +project-switch-project (dir)
     (interactive (list (project-prompt-project-dir)))
     (let ((default-directory dir)
           (project-current-inhibit-prompt t))
       (call-interactively 'project-find-file)))
 
-  (defun +project-gud-gdb ()
-    (interactive)
-    (let ((default-directory (+project-root-or-default-dir)))
-      (call-interactively 'gud-gdb)))
+  (defmacro project-with-directory (force &rest body)
+    "Try to set `default-dirctory' by using project.el.
+
+  If READ is non nil prompt user for project if not already inside of
+  project else use `default-directory'"
+    (declare (indent 1) (debug t))
+    `(let ((default-directory (or
+                               (cdr-safe (project-current ,force))
+                               default-directory)))
+       ,@body))
 
   (use-package project
     :straight (:type built-in)
     :config
-    (defmacro project-with-directory (force &rest body)
-      "Try to set `default-dirctory' by using project.el.
-
-  If READ is non nil prompt user for project if not already inside of
-  project else use `default-directory'"
-      (declare (indent 1) (debug t))
-      `(let ((default-directory (or
-                                 (cdr-safe (project-current ,force))
-                                 default-directory)))
-         ,@body))
 
     (setq project-find-functions '(+project-try-local project-try-vc))
+
     (add-to-list 'marginalia-command-categories '(+project-switch-project . project-file))
+
     (leader-key
       "SPC" 'project-find-file
-      "pp" '+project-switch-project))
+      "pp" '+project-switch-project
+      "pr" 'project-shell-command
+      "pc" 'project-compile))
 #+end_src
 
 * Terminal
@@ -1911,15 +1904,10 @@ Change stuff in the grep buffer
 
   (defun +gdb-project ()
     (interactive)
-    (when +gdb-project-hook)
-    (let ((buf (current-buffer))
-          (default-directory (-> (project-current t)
-                               (project-root)
-                               (expand-file-name))))
-      (message default-directory)
-      (call-interactively 'gdb)
-      (switch-to-buffer buf)))
-
+    (let ((buf (current-buffer)))
+      (project-with-directory t
+        (call-interactively 'gdb)
+        (switch-to-buffer buf))))
 
   (defhydra hydra-gdb (:exit nil :foreign-keys run :hint nil)
     "
@@ -2043,10 +2031,10 @@ Change stuff in the grep buffer
     (setq dired-sidebar-one-instance-p t)
     (setq dired-sidebar-should-follow-file t)
 
-    (defun +dired-sidebar-toggle-sidebar ()
-      "`dired-sidebar-toggle-sidebar` but at project.el root or default directory."
+    (defun +dired-sidebar-toggle-sidebar()
       (interactive)
-      (dired-sidebar-toggle-sidebar (+project-root-or-default-dir)))
+      (project-with-directory nil
+        (dired-sidebar-toggle-sidebar)))
 
     (leader-key "ad" '+dired-sidebar-toggle-sidebar))
 #+end_src
