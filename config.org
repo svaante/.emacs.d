@@ -594,7 +594,7 @@
       "Does not close the other opend window before opening the capture buffer"
       (interactive)
       (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
-        (funcall old-org-agenda args)))
+        (apply old-org-agenda args)))
     (advice-add 'org-agenda :around 'org-agenda-well-behaved)
 
     (leader-key
@@ -634,7 +634,7 @@
       "Does not close the other opend window before opening the capture buffer"
       (interactive)
       (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
-        (funcall old-org-capture args)))
+        (apply old-org-capture args)))
     (advice-add 'org-capture :around 'org-capture-well-behaved)
 
     (setq org-agenda-follow-indirect t)
