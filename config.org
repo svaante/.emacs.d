@@ -998,12 +998,7 @@
   (use-package marginalia
     :straight t
     :config
-    (marginalia-mode)
-    (setq marginalia-command-categories
-          (append '((projectile-find-file . project-file)
-                    (projectile-find-dir . project-file)
-                    (projectile-switch-project . file))
-                  marginalia-command-categories)))
+    (marginalia-mode))
 
   (defun consult-line-evil-history (&rest _)
     "Add latest `consult-line' search pattern to the evil search history ring.
