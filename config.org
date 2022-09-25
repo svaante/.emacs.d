@@ -1514,74 +1514,50 @@
        "\n")))
 #+end_src
 
-** Dtache
+** Detached
 #+begin_src  emacs-lisp
-  (defun +dtache-project-shell-command (&optional set-prefix-arg)
+  (defun +detache-project-compile ()
     (interactive)
-    (let ((default-directory (+project-root-or-default-dir))
-          (current-prefix-arg set-prefix-arg))
-      (call-interactively 'dtache-shell-command)))
+    (project-with-directory t
+      (call-interactively 'detached-compile)))
 
-  (defun +dtache-project-shell-command-silent ()
+  (defun +detache-project-shell-command ()
     (interactive)
-    (+dtache-project-shell-command t))
+    (project-with-directory t
+      (call-interactively 'detached-shell-command)))
 
-  (defun +dtache-shell-command-here (file)
-    (let ((default-directory (file-name-directory
-                              (expand-file-name
-                               (substitute-in-file-name file)))))
-      (call-interactively 'dtache-shell-command)))
-
-  (use-package dtache
-    :straight (dtache :type git :host gitlab :repo "svaante/dtache")
-    :hook ((after-init . dtache-setup)
-           (dtache-shell-mode . compilation-minor-mode))
-    :bind (([remap async-shell-command] . dtache-shell-command))
+  (use-package detached
+    :straight t
+    :init
+    (detached-init)
+    :bind (;; Replace `async-shell-command' with `detached-shell-command'
+           ([remap shell-command] . detached-shell-command)
+           ([remap async-shell-command] . detached-shell-command)
+           ;; Replace `compile' with `detached-compile'
+           ([remap compile] . detached-compile)
+           ([remap recompile] . detached-compile-recompile)
+           ;; Replace `compile' with `detached-compile'
+           ([remap project-compile] . +detache-project-compile)
+           ([remap project-shell-command] . +detache-project-shell-command)
+           ;; Replace built in completion of sessions with `consult'
+           ([remap detached-open-session] . detached-consult-session))
+    :custom ((detached-show-output-on-attach t)
+             (detached-terminal-data-command system-type))
     :config
-    (setq dtache-db-directory user-emacs-directory)
-    (setq dtache-session-directory (expand-file-name "dtache" (temporary-file-directory)))
-    (setq shell-command-prompt-show-cwd t)
-
-    ;; Create embark bindings
-    (defvar embark-dtache-map (make-composed-keymap dtache-action-map embark-general-map))
-    (add-to-list 'embark-keymap-alist '(dtache . embark-dtache-map))
-
     ;; Enter normal state on command attach
-    (setq evil-normal-state-modes (append evil-normal-state-modes '(dtache-shell-mode)))
-
-    ;; Ebmark file mapping
-    (define-key embark-file-map "&" '+dtache-shell-command-here)
+    (setq evil-normal-state-modes (append evil-normal-state-modes '(detached-shell-mode)))
 
     ;; Dtache view bindings
-    (evil-define-key 'normal dtache-shell-mode-map "q" 'quit-window)
-    (evil-define-key 'normal dtache-log-mode-map "q" 'quit-window)
-    (evil-define-key 'normal dtache-tail-mode-map "q" 'quit-window)
+    (evil-define-key 'normal detached-shell-mode-map "q" 'quit-window)
+    (evil-define-key 'normal detached-log-mode-map "q" 'quit-window)
+    (evil-define-key 'normal detached-tail-mode-map "q" 'quit-window)
 
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
-    (setq dtache-detach-key "C-c C-x")
+    (setq detached-detach-key "C-c C-x")
 
-    (leader-key "pr" '+dtache-project-shell-command)
-    (leader-key "pR" '+dtache-project-shell-command-silent))
-
-  (defun eshell/dtache (&rest args)
-    (call-interactively '+dtache-eshell-attach))
-
-  (use-package dtache-eshell
-    :straight (dtache-eshell :type git :host gitlab :repo "svaante/dtache")
-    :after dtache
-    :hook (eshell-mode . dtache-eshell-mode)
-    :config
-
-    (define-key embark-dtache-map "e" '+dtache-new-eshell-attach)
-
-    (evil-define-key 'insert eshell-mode-map
-      (kbd "S-<return>") 'dtache-eshell-send-input))
-
-  (use-package dtache-consult
-    :straight (dtache-consult :type git :host gitlab :repo "svaante/dtache")
-    :after dtache
-    :config
-    (leader-key "d" 'dtache-consult-session))
+    (leader-key
+      "!" 'detached-shell-command
+      "d" 'detached-open-session))
 #+end_src
 
 * Misc
