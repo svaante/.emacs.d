@@ -1482,6 +1482,10 @@
     :straight t
     :init
     (detached-init)
+
+    (leader-key
+      "!" 'detached-shell-command
+      "d" 'detached-open-session)
     :bind (;; Replace `async-shell-command' with `detached-shell-command'
            ([remap shell-command] . detached-shell-command)
            ([remap async-shell-command] . detached-shell-command)
@@ -1505,11 +1509,8 @@
     (evil-define-key 'normal detached-tail-mode-map "q" 'quit-window)
 
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
-    (setq detached-detach-key "C-c C-x")
+    (setq detached-detach-key "C-c C-x"))
 
-    (leader-key
-      "!" 'detached-shell-command
-      "d" 'detached-open-session))
 #+end_src
 
 * Misc
