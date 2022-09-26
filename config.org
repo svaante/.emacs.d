@@ -1569,7 +1569,6 @@ Change stuff in the grep buffer
 ** Fix color stuff
 #+begin_src  emacs-lisp
   (use-package xterm-color
-    :disabled
     :straight t
     :config
     (setq compilation-environment '("TERM=xterm-256color"))
