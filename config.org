@@ -383,7 +383,7 @@
 #+begin_src emacs-lisp
   ;; Set my font
   (when (eq system-type 'darwin)
-    (set-face-attribute 'default nil :font "Monaco 13")
+    (set-face-attribute 'default nil :font "Monaco 14")
     (set-fontset-font t '(#x1f300 . #x1f5ff)
                       (font-spec :family "Apple Color Emoji" :size 12)))
 
