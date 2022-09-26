@@ -282,7 +282,7 @@
             (window--maybe-raise-frame frame)))))
 
     (defun +shackle-dedicate-popup (buffer alist plist)
-      (when (and (plist-get plist :popup)
+      (when (and (plist-get plist :locked)
                  (not (window-dedicated-p shackle-last-window)))
         (set-window-dedicated-p shackle-last-window t)))
 
@@ -297,43 +297,51 @@
              :noselect nil
              :align right
              :size 80
+             :dedicated t
              :popup t)
             (detached-compilation-mode
              :noselect nil
              :align right
              :size 80
+             :dedicated t
              :popup t)
             ("*Help*"
              :select t
              :align right
              :size 75
+             :dedicated t
              :popup t)
             ("*devdocs*"
              :select t
              :align right
              :size 85
+             :dedicated t
              :popup t)
             ("*Messages*"
              :select t
              :align below
              :size 0.30
+             :dedicated t
              :popup t)
             ("\\*Embark Export Occur\\*"
              :regexp t
              :select t
              :align below
              :size 0.25
+             :dedicated t
              :popup t)
             ("*xref*"
              :select t
              :align below
              :size 0.25
+             :dedicated t
              :popup t)
             ("\\*Embark Export Grep\\*"
              :regexp t
              :select t
              :align below
              :size 0.25
+             :dedicated t
              :popup t)
             ("*Org Select*"
              :select t
@@ -358,6 +366,7 @@
              :regexp t
              :select t
              :size 0.25
+             :dedicated t
              :custom shackle-split-below)
             ("\\*restclient\\*"
              :regexp t
