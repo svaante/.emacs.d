@@ -1786,8 +1786,24 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package rustic
     :straight t
-    :init
-    (advice-remove 'save-some-buffers 'rustic-save-some-buffers-advice))
+    :config
+    ;; Remove auto formating which caused isses with trying to save all buffers
+    (advice-remove 'save-some-buffers 'rustic-save-some-buffers-advice)
+
+    ;; Use rustic compilation mode stuff outside of rustic-compilation mode
+    (add-hook 'compilation-filter-hook #'rustic-insert-errno-button nil)
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 (cons 'rustic-error rustic-compilation-error))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 (cons 'rustic-warning rustic-compilation-warning))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 (cons 'rustic-info rustic-compilation-info))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 (cons 'rustic-panic rustic-compilation-panic))
+    (add-to-list 'compilation-error-regexp-alist 'rustic-error)
+    (add-to-list 'compilation-error-regexp-alist 'rustic-warning)
+    (add-to-list 'compilation-error-regexp-alist 'rustic-info)
+    (add-to-list 'compilation-error-regexp-alist 'rustic-panic))
 #+end_src
 
 ** Godot
