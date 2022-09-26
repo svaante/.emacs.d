@@ -1990,6 +1990,7 @@ Change stuff in the grep buffer
     (leader-key "gf" 'magit-fetch-all)
     (leader-key "gf" 'magit-log-buffer-file))
 #+end_src
+
 ** Tramp
 #+begin_src emacs-lisp
   (use-package tramp
