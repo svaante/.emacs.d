@@ -735,6 +735,7 @@
     :straight (org-mono :type git :host github :repo "svaante/org-mono")
     :config
     (setq org-mono-files '("~/org/notes.org"
+                           "~/org/pad.org"
                            "~/org/todo.org"
                            "~/org/thoughts.org"
                            "~/org/books.org"))
