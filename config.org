@@ -1817,6 +1817,11 @@ Change stuff in the grep buffer
   (use-package compile
     :straight (:type built-in)
     :init
+    ;; Use last history as the compile command
+    (setq compile-command (or (car-safe compile-history) ""))
+    ;; Always scroll
+    (setq compilation-scroll-output t)
+
     (evil-define-key 'normal compilation-minor-mode-map
       (kbd "<tab>") 'compilation-next-file
       (kbd "<backtab>") 'compilation-previous-file))
