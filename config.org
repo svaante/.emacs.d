@@ -281,6 +281,16 @@
           (unless (cdr (assq 'inhibit-switch-frame alist))
             (window--maybe-raise-frame frame)))))
 
+    (defun +shackle-dedicate-popup (buffer alist plist)
+      (when (and (plist-get plist :popup)
+                 (not (window-dedicated-p shackle-last-window)))
+        (set-window-dedicated-p shackle-last-window t)))
+
+    ;; shackle--display-buffer-aligned-window will be non nil on success
+    (advice-add 'shackle--display-buffer-aligned-window
+                :after-while
+                '+shackle-dedicate-popup)
+
     (setq shackle-lighter "")
     (setq shackle-rules
           '((shell-mode
