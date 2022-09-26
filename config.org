@@ -1930,16 +1930,6 @@ Change stuff in the grep buffer
 * Applications
 ** Dired
 #+begin_src emacs-lisp
-  (use-package dired
-    :straight (:type built-in)
-    :hook (dired-mode . dired-hide-details-mode)
-    :config
-    (defun dired-mode-configuration ()
-      (with-eval-after-load 'evil-collection
-        (dired-hide-details-mode 1)))
-
-    (add-hook 'dired-mode-hook 'dired-mode-configuration))
-
   (use-package diredfl
     :straight t
     :hook (dired-mode . diredfl-mode))
