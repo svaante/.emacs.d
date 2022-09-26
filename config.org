@@ -603,9 +603,17 @@
       "ow" 'org-agenda-list)
 
     (setq org-agenda-files '("~/org/notes.org"
+                             "~/org/pad.org"
                              "~/org/clipboard.org"
                              "~/org/todo.org"
                              "~/org/books.org"))
+
+    ;; Create files if they do not exist
+    (seq-do (lambda (file)
+              (unless (file-exists-p file)
+                (message "File %s created at startup" file)
+                (make-empty-file file)))
+            org-agenda-files)
 
     ;; been trying to use evil-org's evil-agenda only result was pain
     (evil-set-initial-state 'org-agenda-mode 'normal)
@@ -657,7 +665,11 @@
 
     (add-hook 'org-mode-hook #'org-headline--register-functions-h)
 
-    (setq org-capture-templates '(("t" "Todo" entry
+    (setq org-capture-templates '(("p" "Pad" plain
+                                   (file+olp+datetree "~/org/pad.org")
+                                   "Context: %a\n%?\n"
+                                   :unnarrowed t)
+                                  ("t" "Todo" entry
                                    (file "~/org/todo.org")
                                    "* TODO %?\nTimestamp: %t\nContext: %a")
                                   ("c" "Clipboard" entry
