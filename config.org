@@ -637,6 +637,8 @@
         (apply old-org-capture args)))
     (advice-add 'org-capture :around 'org-capture-well-behaved)
 
+    (add-hook 'org-capture-mode-hook (lambda (&rest _) (evil-insert 1)))
+
     (setq org-agenda-follow-indirect t)
     (setq org-refile-use-outline-path 'file)
     (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
