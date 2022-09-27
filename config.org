@@ -282,7 +282,7 @@
             (window--maybe-raise-frame frame)))))
 
     (defun +shackle-dedicate-popup (buffer alist plist)
-      (when (and (plist-get plist :locked)
+      (when (and (plist-get plist :dedicated)
                  (not (window-dedicated-p shackle-last-window)))
         (set-window-dedicated-p shackle-last-window t)))
 
