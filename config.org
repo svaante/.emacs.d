@@ -1550,6 +1550,13 @@
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
     (setq detached-detach-key "C-c C-x"))
 
+  (use-package detached-fix
+    :after detached
+    :load-path "lisp"
+    :straight nil
+    :config
+    (load "detached-fix.el"))
+
 #+end_src
 
 * Misc
