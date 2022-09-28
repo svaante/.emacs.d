@@ -1507,14 +1507,20 @@
 
 ** Detached
 #+begin_src  emacs-lisp
-  (defun +detache-project-compile ()
+  (defun +detached-project-compile ()
     (interactive)
     (project-with-directory t
       (call-interactively 'detached-compile)))
 
-  (defun +detache-project-shell-command ()
+  (defun +detached-project-shell-command ()
     (interactive)
     (project-with-directory t
+      (call-interactively 'detached-shell-command)))
+
+  (defun +detached-project-shell-command-here (file)
+    (let ((default-directory (file-name-directory
+                              (expand-file-name
+                               (substitute-in-file-name file)))))
       (call-interactively 'detached-shell-command)))
 
   (use-package detached
@@ -1532,8 +1538,8 @@
            ([remap compile] . detached-compile)
            ([remap recompile] . detached-compile-recompile)
            ;; Replace `compile' with `detached-compile'
-           ([remap project-compile] . +detache-project-compile)
-           ([remap project-shell-command] . +detache-project-shell-command)
+           ([remap project-compile] . +detached-project-compile)
+           ([remap project-shell-command] . +detached-project-shell-command)
            ;; Replace built in completion of sessions with `consult'
            ([remap detached-open-session] . detached-consult-session))
     :custom ((detached-show-output-on-attach t)
@@ -1541,6 +1547,9 @@
     :config
     ;; Enter normal state on command attach
     (setq evil-normal-state-modes (append evil-normal-state-modes '(detached-shell-mode)))
+
+    ;; Ebmark file mapping
+    (define-key embark-file-map "&" '+detached-project-shell-command-here)
 
     ;; Dtache view bindings
     (evil-define-key 'normal detached-shell-mode-map "q" 'quit-window)
