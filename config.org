@@ -1521,7 +1521,9 @@
     (let ((default-directory (file-name-directory
                               (expand-file-name
                                (substitute-in-file-name file)))))
-      (call-interactively 'detached-shell-command)))
+      ;; Remove injeciton hooks here as thats not what we want
+      (let ((embark-target-injection-hooks))
+        (call-interactively 'detached-shell-command))))
 
   (use-package detached
     :straight t
@@ -1548,8 +1550,12 @@
     ;; Enter normal state on command attach
     (setq evil-normal-state-modes (append evil-normal-state-modes '(detached-shell-mode)))
 
-    ;; Ebmark file mapping
+    ;; Embark file mapping
     (define-key embark-file-map "&" '+detached-project-shell-command-here)
+
+    ;; Embark add hook for injecting file into shell command
+    (add-to-list 'embark-target-injection-hooks
+                 '(detached-shell-command embark--allow-edit embark--shell-prep))
 
     ;; Dtache view bindings
     (evil-define-key 'normal detached-shell-mode-map "q" 'quit-window)
@@ -1565,7 +1571,6 @@
     :straight nil
     :config
     (load "detached-fix.el"))
-
 #+end_src
 
 * Misc
