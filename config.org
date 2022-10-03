@@ -1204,6 +1204,20 @@
               (insert selection)))))))
 
   (add-hook 'minibuffer-setup-hook 'minibuffer-insert-selection)
+
+  (setq minibuffer-insert-symbol-at-point-commands '(devdocs-lookup))
+
+  (defun minibuffer-insert-symbol-at-point ()
+    (when-let* ((_ (member this-command minibuffer-insert-symbol-at-point-commands))
+                (minibuffer-buffer (current-buffer))
+                (buffers (buffer-list))
+                (last-used-buffer (cadr buffers)))
+      (with-current-buffer last-used-buffer
+        (when-let ((selection (thing-at-point 'symbol)))
+          (with-current-buffer minibuffer-buffer
+            (insert selection))))))
+
+  (add-hook 'minibuffer-setup-hook 'minibuffer-insert-symbol-at-point)
 #+end_src
 
 * Project management
