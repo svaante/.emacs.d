@@ -772,6 +772,7 @@
     (setq org-mono-capture-narrow t)
     (setq org-mono-candidate-with-path t)
     (setq org-mono-annotations-enabled '(:file :level :timestamp :todo :back-links))
+    (setq org-mono-advice-org-refile t)
 
     (leader-key "on" 'org-mono-dwim)
     (embark-define-keymap embark-org-mono-actions
