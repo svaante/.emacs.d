@@ -2080,6 +2080,17 @@ Change stuff in the grep buffer
       (magit-status-here)
       (recenter))
 
+    ;; Fix for slow magit
+    ;; https://github.com/magit/magit/issues/2982#issuecomment-1081204026
+    (defun +magit-rev-format (format &optional rev args)
+      (let ((str (magit-git-string "log" "-1" "--no-patch"
+                                   (concat "--format=" format) args
+                                   (if rev (concat rev "^{commit}") "HEAD") "--")))
+        (unless (string-equal str "")
+          str)))
+    (advice-add 'magit-rev-format :override '+magit-rev-format)
+
+
     (leader-key "gg" 'magit-status-here-and-center)
     (leader-key "g." 'magit-find-file)
     (leader-key "gd" 'magit-diff)
