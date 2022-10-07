@@ -1221,6 +1221,22 @@
   (add-hook 'minibuffer-setup-hook 'minibuffer-insert-symbol-at-point)
 #+end_src
 
+* Snippets
+** YASnippets
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :straight t
+    :diminish yas-minor-mode
+    :bind (:map yas-minor-mode-map
+           ("C-c C-e" . yas-expand)
+           ([(tab)] . nil))
+    :config
+    (yas-global-mode 1))
+
+  (use-package yasnippet-snippets
+    :straight t)
+#+END_SRC
+
 * Project management
 ** project.el
 #+begin_src emacs-lisp
