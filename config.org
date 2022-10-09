@@ -1719,16 +1719,28 @@ Change stuff in the grep buffer
             (set-visited-file-name new-name)
             (set-buffer-modified-p nil))))))
 
+  (defvar load-one-theme-hist nil)
   (defun load-one-theme (theme)
     "Disable each loaded theme and load theme THEME"
     (interactive
      (list
       (intern (completing-read "Load custom theme: "
                                (mapcar #'symbol-name
-                                       (custom-available-themes))))))
+                                       (custom-available-themes))
+                               nil
+                               nil
+                               nil
+                               'load-one-theme-hist))))
     (dolist (theme custom-enabled-themes)
       (disable-theme theme))
     (load-theme theme t))
+
+  (defun load-last-theme ()
+    (when (and load-one-theme-hist)
+      (load-one-theme (intern (car load-one-theme-hist)))))
+
+  (eval-after-load "savehist"
+    (add-hook 'savehist-mode-hook 'load-last-theme))
 #+end_src
 
 * Programming
