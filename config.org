@@ -794,25 +794,6 @@
     :after consult
     :straight (org-mono-consult :type git :host github :repo "svaante/org-mono")
     :config
-    ;; Show only top level headlines with no todos
-    (setq org-mono-consult--source-headline
-          (plist-put org-mono-consult--source-headline :hidden t))
-    (setq org-mono-consult--source-top-level-no-todos
-          (plist-put org-mono-consult--source-top-level-no-todos :hidden nil))
-
-    (setq org-mono-consult-special-entries-fn
-          (lambda ()
-            (append
-             (list (format-time-string "Pad %Y-%m-%d"))
-             (when (project-current)
-               (list
-                (file-name-nondirectory
-                 (directory-file-name
-                  (project-root (project-current)))))))))
-
-    (add-to-list 'org-mono-consult-sources
-                 org-mono-consult--source-special)
-
     (setq org-mono-completing-read-fn 'org-mono-consult-completing-read))
 #+END_SRC
 
