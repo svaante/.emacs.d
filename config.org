@@ -785,7 +785,7 @@
       ("k" org-mono-delete-headline)
       ("c" org-mono-goto-headline-child)
       ("d" org-mono-time-stamp)
-      ("b" org-mono-goto-back-links))
+      ("b" org-mono-goto-backlinks))
 
     (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions))
     (global-org-mono-mode))
