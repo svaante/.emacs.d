@@ -1015,11 +1015,12 @@
       "pg" '+consult-rg-with-fallback
       "pl" 'consult-locate
       "b"  'consult-buffer
-      "i"  'consult-outline
+      "i"  'consult-imenu-multi
       "hh" 'describe-function
       "hv" 'describe-variable
       "m"  'consult-bookmark
       "jm"  'consult-mark
+      "jc"  'consult-compile-error
       "y"  'consult-yank-pop
       ":"  'execute-extended-command
       "s"  'consult-line)
