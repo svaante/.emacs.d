@@ -827,7 +827,7 @@
     ;;    (apply orig-fun args)))
     (defun +company-mode-setup ()
       (setq-local completion-ignore-case t)
-      (setq-local completion-styles '(basic substring)))
+      (setq-local completion-styles '(basic substring orderless)))
 
     (add-hook 'company-mode-hook #'+company-mode-setup)
 
