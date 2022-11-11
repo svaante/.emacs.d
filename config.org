@@ -801,6 +801,7 @@
 ** Basics
 #+begin_src emacs-lisp
   (delete ".bin" completion-ignored-extensions)
+  (setq completion-ignore-case t)
 #+end_src
 
 ** Package company
@@ -819,20 +820,10 @@
     (setq company-dabbrev-ignore-case nil)
     (setq company-dabbrev-downcase nil)
 
-    ;; Use basic completion-styles with company in prog-mode
-    ;; BUG: This screws with the pcomplete completion function
-    ;;(define-advice company-capf
-    ;;    (:around (orig-fun &rest args) set-completion-styles)
-    ;;  (let ((completion-styles '(basic partial-completion)))
-    ;;    (apply orig-fun args)))
-    (defun +company-mode-setup ()
-      (setq-local completion-ignore-case t)
-      (setq-local completion-styles '(basic substring orderless)))
-
     (add-hook 'company-mode-hook #'+company-mode-setup)
 
     (global-company-mode 1)
-    (company-tng-mode +1))
+    (company-tng-mode 1))
 
   (use-package company-posframe
     :disabled
@@ -954,6 +945,8 @@
 
     (setq orderless-style-dispatchers
           '(without-if-bang))
+
+    (setq completion-styles '(basic partial-completion orderless emacs22))
 
     (setq completion-category-defaults nil
           completion-category-overrides '((file (styles basic partial-completion))))
