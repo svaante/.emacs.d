@@ -63,7 +63,7 @@
 * Platform
 ** Mac
 #+BEGIN_SRC  emacs-lisp
-  (if (eq system-type 'darwin)
+  (when (eq system-type 'darwin)
       (progn
         (setq mac-option-key-is-meta t)
         (setq mac-right-option-modifier nil)))
@@ -71,7 +71,7 @@
 
 ** Linux
 #+begin_src emacs-lisp
-  (if (eq system-type 'gnu/linux)
+  (when (eq system-type 'gnu/linux)
       (progn
         (global-set-key (kbd "C-+") 'text-scale-increase)
         (global-set-key (kbd "C--") 'text-scale-decrease)))
