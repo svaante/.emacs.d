@@ -1721,6 +1721,13 @@ Change stuff in the grep buffer
   (eval-after-load "savehist"
     (add-hook 'savehist-mode-hook 'load-last-theme))
 #+end_src
+** Remove white spaces
+#+begin_src emacs-lisp
+  (use-package ws-butler
+    :straight t
+    :config
+    (ws-butler-global-mode))
+#+end_src
 
 * Programming
 ** Flycheck
