@@ -1728,6 +1728,7 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package ws-butler
     :straight t
+    :diminish
     :config
     (ws-butler-global-mode))
 #+end_src
