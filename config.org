@@ -820,8 +820,6 @@
     (setq company-dabbrev-ignore-case nil)
     (setq company-dabbrev-downcase nil)
 
-    (add-hook 'company-mode-hook #'+company-mode-setup)
-
     (global-company-mode 1)
     (company-tng-mode 1))
 
