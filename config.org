@@ -1737,6 +1737,7 @@ Change stuff in the grep buffer
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-modeline-code-actions-enable nil)
     (setq lsp-modeline-diagnostics-enable nil)
+    (setq lsp-completion-provider :none)
 
     ;; enable lsp-mode inside of org babel edit src blocks
     (defun org-babel-edit-prep:python (babel-info)
