@@ -802,7 +802,7 @@
 #+end_src
 
 ** Auto complete pairs
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp
   (use-package electric-pair-mode
     :straight (:type built-in)
     :hook (prog-mode . electric-pair-mode))
