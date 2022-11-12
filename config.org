@@ -817,8 +817,10 @@
     (setq company-dabbrev-ignore-case nil)
     (setq company-dabbrev-downcase nil)
 
-    (global-company-mode 1)
-    (company-tng-mode 1))
+    (define-key company-active-map (kbd "TAB") 'company-complete)
+    (define-key company-active-map (kbd "<tab>") 'company-complete)
+
+    (global-company-mode 1))
 
   (use-package company-posframe
     :disabled
