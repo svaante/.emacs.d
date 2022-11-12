@@ -400,6 +400,7 @@
 ** Mappings
 #+begin_src emacs-lisp
   (leader-key
+    "w" '(:ignore t :which-key "Manage windows")
     "wt" 'toggle-frame-maximized
     "wm" 'toggle-frame-fullscreen)
 #+end_src
