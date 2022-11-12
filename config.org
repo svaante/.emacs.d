@@ -168,6 +168,8 @@
     (setq evil-undo-system 'undo-tree)
     (setq evil-jumps-cross-buffers t)
     (setq evil--jumps-buffer-targets  "\\*\\(.+\\)\\*")
+    (setq evil-insert-state-message nil)
+    (setq evil-normal-state-message nil)
     (setq-default evil-symbol-word-search t)
     (setq-default evil-shift-width 2)
     :config
