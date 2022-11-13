@@ -1483,38 +1483,6 @@
            (trim (seq-map (lambda (x) (string-trim x "\\[" "\\]")) matches))
            (choice (ivy-read "AWS Profile: " trim)))
       (setenv "AWS_PROFILE" choice)))
-
-  (require 'cl-lib)
-  (require 'subr-x)
-
-  (defun eshell/absolut-ls (&optional path)
-    (let* ((fixed-path (if path path "./"))
-           (files-command (concat "cd " fixed-path "ls " fixed-path " | xargs -I {} readlink -f -- {}"))
-           (command-result (shell-command-to-string files-command))
-           (files (split-string command-result "\n")))
-      (when (not (string< "ls: cannot access" command-result)) files)))
-
-  (defun eshell/ls-map (&optional maybe-path &rest maybe-command)
-    (let* ((files-and-command (if-let (maybe-files (eshell/absolut-ls maybe-path))
-                                  (list maybe-files maybe-command)
-                                (list (eshell/absolut-ls) (cons maybe-path maybe-command))))
-           (files (car files-and-command))
-           (command (car (cdr files-and-command)))
-           (fixed-command (if (member "$" command) command (append command '("$")))))
-      (string-join
-       (cl-map 'list
-               (lambda (file)
-                 (let* ((command-with-inserted-file (string-join
-                                                     (cl-map 'list
-                                                             (lambda (s)
-                                                               ()
-                                                               (if (string= s "$") file s))
-                                                             fixed-command)
-                                                     " "))
-                        (result (shell-command-to-string command-with-inserted-file)))
-                   (concat file ":\n" result)))
-               files)
-       "\n")))
 #+end_src
 
 ** Detached
