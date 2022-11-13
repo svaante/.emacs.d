@@ -1926,17 +1926,42 @@ Change stuff in the grep buffer
 #+end_src
 
 ** Debugging
+*** C
 #+begin_src emacs-lisp
-  (defun +gdb-kill-all ()
+  (defun gud-kill-buffers ()
     (interactive)
-    (seq-do (lambda (buffer)
-              (with-current-buffer buffer
-                (when (bound-and-true-p gud-minor-mode)
-                  (kill-buffer buffer))))
-            (buffer-list)))
+    (seq-do
+     (lambda (buffer)
+       (when (string-match-p "\\\*gud-.*\\\*" (or (buffer-name buffer) ""))
+         (kill-buffer buffer)))
+     (buffer-list)))
+
+  (defvar gud-co--process-command nil)
+
+  (defun gud-co-set-process-command (command)
+    (interactive (list
+                  (read-shell-command "gud-co process: "
+                                      gud-co--process-command)))
+    (setq gud-co--process-command command))
+
+  (defun gud-start-co--command ()
+    (interactive)
+    (when (and gud-co--process-command
+               (not (string-empty-p gud-co--process-command)))
+      (let ((args (split-string-shell-command gud-co--process-command)))
+        (apply
+         'make-comint
+         `(,(format "gud-co-%s" gud-co--process-command)
+           ,(car args)
+           nil . ,(cdr args))))))
+
+  (defun +gud-basic-call (command)
+    (interactive (list (read-string "gud basic call: ")))
+    (gud-basic-call command))
 
   (defun +gdb-project ()
     (interactive)
+    (gud-start-co--command)
     (let ((buf (current-buffer)))
       (project-with-directory t
         (call-interactively 'gdb)
@@ -1944,36 +1969,30 @@ Change stuff in the grep buffer
 
   (defhydra hydra-gdb (:exit nil :foreign-keys run :hint nil)
     "
-  _o_pen (_O_: inst)    _R_un        _b_reak      _n_ext (_N_: inst)
-  _K_ill  ^ ^           _c_ontinue   _t_break     _i_n   (_I_: inst)
-  ^ ^     ^ ^           ^ ^          _r_emove     _f_inish
-  ^ ^     ^ ^           ^ ^          ^ ^          _u_ntil"
+    _o_pen              (_O_: gdb)     _R_un        _b_reak      _n_ext (_N_: inst)
+    _K_ill               ^ ^           _c_ontinue   _t_break     _s_tep (_S_: inst)
+    _C_all               ^ ^           ^ ^          _r_emove     _f_inish
+    set co-_p_rocess     ^ ^           ^ ^          ^ ^          _u_ntil"
     ("o" +gdb-project)
     ("O" gdb)
-    ("K" +gdb-kill-all :exit t)
-    ("R" gud-run :exit t)
+    ("K" gud-kill-buffers :exit t)
+    ("C" +gud-basic-call)
+    ("p" gud-co-set-process-command)
+    ("R" gud-run)
     ("c" gud-cont)
     ("b" gud-break)
     ("t" gud-tbreak)
     ("r" gud-remove)
     ("n" gud-next)
     ("N" gud-nexti)
-    ("i" gud-step)
-    ("I" gud-stepi)
+    ("s" gud-step)
+    ("S" gud-stepi)
     ("f" gud-finish)
     ("u" gud-until)
     ("q" ignore :exit t)
     ("C-g" ignore :exit t))
 
-  (use-package gud
-    :straight (:type built-in)
-    :config
-    (leader-key "pdc" 'hydra-gdb/body)
-    (setq gdb-show-main t))
-#+end_src
-
-#+begin_src emacs-lisp
-  (use-package realgud :straight t)
+    (leader-key "pd" 'hydra-gdb/body)
 #+end_src
 
 #+begin_src emacs-lisp
