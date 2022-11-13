@@ -1992,7 +1992,11 @@ Change stuff in the grep buffer
     ("q" ignore :exit t)
     ("C-g" ignore :exit t))
 
-    (leader-key "pd" 'hydra-gdb/body)
+    (general-define-key
+     :prefix "SPC"
+     :states 'normal
+     :keymaps 'c-mode-map
+     "pd" 'hydra-gdb/body)
 #+end_src
 
 #+begin_src emacs-lisp
@@ -2045,8 +2049,11 @@ Change stuff in the grep buffer
                                  (list :type "lldb-code"
                                        :request "launch"
                                        :name "LLDB::Run"))
-    (leader-key "pd"
-      'dap-hydra))
+    (general-define-key
+     :prefix "SPC"
+     :states 'normal
+     :keymaps 'rustic-mode-map
+     "pd" 'dap-hydra))
 #+end_src
 
 * Applications
