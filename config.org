@@ -1570,6 +1570,11 @@
     ;; Embark file mapping
     (define-key embark-file-map "&" '+detached-project-shell-command-here)
 
+    ;; Eshell bindings
+    (evil-define-key* 'insert eshell-mode-map
+      (kbd "<S-return>") 'detached-eshell-send-input
+      (kbd "<C-return>") 'detached-eshell-attach-session)
+
     ;; Embark add hook for injecting file into shell command
     (add-to-list 'embark-target-injection-hooks
                  '(detached-shell-command embark--allow-edit embark--shell-prep))
