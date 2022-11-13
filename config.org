@@ -937,6 +937,9 @@
       (kbd "DEL") 'vertico-directory-delete-char
       (kbd "M-DEL") 'vertico-directory-delete-word))
 
+  (defun use-orderless-in-minibuffer ()
+    (setq-local completion-styles '(orderless basic)))
+
   (use-package orderless
     :straight t
     :hook (minibuffer-setup . use-orderless-in-minibuffer)
@@ -954,10 +957,7 @@
     (setq completion-styles '(basic partial-completion orderless emacs22))
 
     (setq completion-category-defaults nil
-          completion-category-overrides '((file (styles basic partial-completion))))
-    :preface
-    (defun use-orderless-in-minibuffer ()
-      (setq-local completion-styles '(orderless basic))))
+          completion-category-overrides '((file (styles basic partial-completion)))))
 
   ;; Persist history over Emacs restarts. Vertico sorts by history position.
   (use-package savehist
