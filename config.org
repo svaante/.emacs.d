@@ -802,13 +802,6 @@
   (setq completion-ignore-case t)
 #+end_src
 
-** Auto complete pairs
-#+begin_src emacs-lisp
-  (use-package electric-pair-mode
-    :straight (:type built-in)
-    :hook (prog-mode . electric-pair-mode))
-#+end_src
-
 ** Package company
 #+BEGIN_SRC emacs-lisp
   (use-package company
