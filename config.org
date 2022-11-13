@@ -1411,8 +1411,6 @@
       (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
       (kbd "C-p") '+eshell-previous-prompt-hack
       (kbd "C-n") 'eshell-next-prompt
-      "\C-ws" (lambda () (interactive) (split-window-vertically) (other-window 1) (eshell "new"))
-      "\C-wv" (lambda () (interactive) (split-window-horizontally) (other-window 1) (eshell "new"))
       (kbd "C-r") '+eshell/consult-esh-history-normal
       (kbd "<return>") '+eshell/goto-end-of-prompt
       "q" (lambda () (interactive) (kill-buffer)))
