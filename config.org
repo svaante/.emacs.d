@@ -950,7 +950,9 @@
     (setq completion-styles '(basic partial-completion orderless emacs22))
 
     (setq completion-category-defaults nil
-          completion-category-overrides '((file (styles basic partial-completion)))))
+          completion-category-overrides
+          '((file (styles basic partial-completion))
+            (lsp-capf (styles basic)))))
 
   ;; Persist history over Emacs restarts. Vertico sorts by history position.
   (use-package savehist
