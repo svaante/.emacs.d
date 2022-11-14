@@ -1951,8 +1951,12 @@ Change stuff in the grep buffer
            ,(car args)
            nil . ,(cdr args))))))
 
+  (defvar +gud-basic-call-hist nil)
+
   (defun +gud-basic-call (command)
-    (interactive (list (read-string "gud basic call: ")))
+    (interactive (list (read-string "gud basic call: "
+                                    (car +gud-basic-call-hist)
+                                    '+gud-basic-call-hist)))
     (gud-basic-call command))
 
   (defun +gdb-project ()
@@ -1965,10 +1969,10 @@ Change stuff in the grep buffer
 
   (defhydra hydra-gdb (:exit nil :foreign-keys run :hint nil)
     "
-    _o_pen              (_O_: gdb)     _R_un        _b_reak      _n_ext (_N_: inst)
-    _K_ill               ^ ^           _c_ontinue   _t_break     _s_tep (_S_: inst)
-    _C_all               ^ ^           ^ ^          _r_emove     _f_inish
-    set co-_p_rocess     ^ ^           ^ ^          ^ ^          _u_ntil"
+    _o_pen (_O_: gdb)     _R_un        _b_reak      _n_ext (_N_: inst)
+    _K_ill  ^ ^           _c_ontinue   _t_break     _s_tep (_S_: inst)
+    _C_all  ^ ^           ^ ^          _r_emove     _f_inish
+    set co-_p_rocess ^ ^  ^ ^          ^ ^          _u_ntil"
     ("o" +gdb-project)
     ("O" gdb)
     ("K" gud-kill-buffers :exit t)
