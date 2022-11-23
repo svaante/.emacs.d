@@ -818,6 +818,8 @@
     (setq company-dabbrev-ignore-case nil)
     (setq company-dabbrev-downcase nil)
 
+    (define-key company-active-map (kbd "RET") nil)
+    (define-key company-active-map (kbd "<return>") nil)
     (define-key company-active-map (kbd "TAB") 'company-complete)
     (define-key company-active-map (kbd "<tab>") 'company-complete)
 
