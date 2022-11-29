@@ -1002,11 +1002,13 @@
     (evil-global-set-key 'insert
                          (kbd "C-r") '+consult-kill-line-insert-history)
 
-    (defun +consult-rg-with-fallback ()
+    (defun +consult-ripgrep-fallback-advice (old-fn &rest args)
       (interactive)
       (if (executable-find "rg")
-          (consult-ripgrep)
+          (funcall old-fn)
         (consult-grep)))
+
+    (advice-add 'consult-ripgrep :around #'+consult-ripgrep-fallback-advice)
 
     (leader-key
       "."  'find-file-at-point
@@ -1169,7 +1171,7 @@
 ** Minibuffer
 #+BEGIN_SRC emacs-lisp
   (setq minibuffer-insert-commands '(consult-line
-                                     +consult-rg-with-fallback
+                                     consult-ripgrep
                                      consult-lsp-symbols))
 
   (defun minibuffer-insert-selection ()
