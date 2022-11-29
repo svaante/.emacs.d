@@ -696,6 +696,9 @@
                                    (file+olp+datetree "~/org/pad.org")
                                    "Context: %a\n%?\n"
                                    :unnarrowed t)
+                                  ("n" "Note" entry
+                                   (file "~/org/notes.org")
+                                   "* %?\n")
                                   ("t" "Todo" entry
                                    (file "~/org/todo.org")
                                    "* TODO %?\nTimestamp: %t\nContext: %a")
