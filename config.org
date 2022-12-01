@@ -1563,7 +1563,15 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package wgrep :straight t)
 #+end_src
-   
+
+** ediff
+#+begin_src emacs-lisp
+  (use-package ediff
+    :straight (:type built-in)
+    :config
+    (setq ediff-window-setup-function 'ediff-setup-windows-plain))
+#+end_src
+
 ** Writing
 #+begin_src emacs-lisp
   (defun +ispell-toogle-english-swedish-dictonary ()
