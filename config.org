@@ -1716,6 +1716,16 @@ Change stuff in the grep buffer
   (use-package flycheck
     :straight t)
 #+end_src
+
+** 80 Columns please
+#+begin_src emacs-lisp
+  (use-package display-fill-column-indicator
+    :straight (:type built-in)
+    :hook (prog-mode-hook . display-fill-column-indicator-mode)
+    :config
+    (setq display-fill-column-indicator-column 80))
+#+end_src
+
 ** LSP
 #+begin_src emacs-lisp
   (use-package lsp-mode
