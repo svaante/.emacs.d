@@ -767,6 +767,7 @@
     (setq org-mono-files '("~/org/notes.org"
                            "~/org/pad.org"
                            "~/org/todo.org"
+                           "~/org/clipboard.org"
                            "~/org/thoughts.org"
                            "~/org/books.org"))
 
@@ -1012,20 +1013,20 @@
 
     (leader-key
       "."  'find-file-at-point
-      "pg" '+consult-rg-with-fallback
+      "pg"  'consult-ripgrep
       "pl" 'consult-locate
       "b"  'consult-buffer
-      "i"  'consult-imenu-multi
+      "i"  'consult-imenu
       "hh" 'describe-function
       "hv" 'describe-variable
       "m"  'consult-bookmark
-      "jm"  'consult-mark
-      "jc"  'consult-compile-error
+      "jm" 'consult-mark
+      "jc" 'consult-compile-error
       "y"  'consult-yank-pop
       ":"  'execute-extended-command
       "s"  'consult-line)
     :config
-    ;; Do not preview buffers in consult-buffer 
+    ;; Do not preview buffers in consult-buffer
     (consult-customize consult-buffer :preview-key '())
 
     ;; Add eshell as a buffer source
