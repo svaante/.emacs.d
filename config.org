@@ -78,6 +78,7 @@
 #+end_src
 
 * Package
+
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (let ((bootstrap-file
@@ -98,7 +99,14 @@
   (straight-use-package 'el-patch)
 #+end_src
 
+#+begin_src emacs-lisp
+  (use-package diminish
+    :straight t
+    :after use-package)
+#+end_src
+
 * Key mappings
+
 ** Global mappings
 #+begin_src emacs-lisp
   (use-package emacs
@@ -206,7 +214,7 @@
     (evil-escape-mode))
 
   (use-package evil-collection
-    :after evil
+    :after evil diminish
     :straight t
     :config
     ;; magit uses 'C-i' as tab like GUI emacs doesn't exist
@@ -244,7 +252,7 @@
       :prefix "SPC"
       :states '(normal emacs motion visual)
       :keymaps 'override))
-#+END_SRC 
+#+END_SRC
 
 ** Hydra
 #+BEGIN_SRC emacs-lisp
@@ -417,7 +425,7 @@
   (when (eq system-type 'gnu/linux)
     (set-face-attribute 'default nil :font "DejaVu Sans Mono 9"))
 #+end_src
-  
+
 ** Themes
 #+BEGIN_SRC emacs-lisp
   (use-package ef-themes
@@ -428,7 +436,7 @@
     :config
     (setq modus-themes-mode-line '(accented borderless 3d))
     (setq modus-themes-org-blocks 'tinted-background)
-    (setq modus-themes-headings 
+    (setq modus-themes-headings
           '((1 . section)
             (2 . rainbow-line)
             (t . rainbow-no-bold)))
@@ -445,21 +453,19 @@
 
   (use-package zenburn-theme
     :straight t)
+
+  (use-package doom-themes :straight t)
 #+END_SRC
 
 ** Mode-line
 #+begin_src emacs-lisp
-  (use-package diminish
-    :straight
-    :after use-package)
-
   (use-package emacs
     :config
     (defun mode-line-file-path ()
       (when (buffer-file-name)
         (abbreviate-file-name
          (or
-          (when-let* ((prj (cdr-safe (project-current)))
+          (when-let* ((prj (car (last (project-current))))
                       (prj-parent (file-name-directory
                                    (directory-file-name
                                     (expand-file-name prj)))))
@@ -499,7 +505,7 @@
     (column-number-mode 1))
 #+end_src
 
-** Match paren 
+** Match paren
 #+begin_src  emacs-lisp
   (use-package paren
     :config
@@ -591,7 +597,7 @@
       (not (member lang '("sh" "emacs-lisp" "python"))))
 
     (diminish 'visual-line-mode)
-    (diminish 'org-indent-mode)
+    (eval-after-load 'org-indent '(diminish 'org-indent-mode))
 
     (setq org-link-frame-setup '((file . find-file))) ;; Open Link in same window
     (setq org-return-follows-link t)
@@ -704,10 +710,7 @@
                                    "* TODO %?\nTimestamp: %t\nContext: %a")
                                   ("c" "Clipboard" entry
                                    (file "~/org/clipboard.org")
-                                   "* %?\nTimestamp: %t\nContext: %(x-get-clipboard)")
-                                  ("p" "Python Notebok" entry
-                                   (file "~/org/python-babel.org")
-                                   "* %?\n%t\n#+begin_src python\n#+end_src")))
+                                   "* %?\nTimestamp: %t\nContext: %(x-get-clipboard)")))
     (leader-key "oc" 'org-capture))
 
   (use-package ob-async :straight t)
@@ -757,8 +760,8 @@
 #+end_src
 
 ** Org roamish
-#+BEGIN_SRC emacs-lisp
 
+#+BEGIN_SRC emacs-lisp
   (use-package org-mono
     :after embark
     :diminish
@@ -769,7 +772,9 @@
                            "~/org/todo.org"
                            "~/org/clipboard.org"
                            "~/org/thoughts.org"
-                           "~/org/books.org"))
+                           "~/org/books.org"
+                           "~/org/shared.org"
+                           ))
 
     (setq org-mono-capture-dwim-template '(entry
                                            (file "~/org/notes.org")
@@ -838,68 +843,6 @@
     (setq company-posframe-show-indicator nil)
     (setq company-posframe-quickhelp-delay nil)
     (company-posframe-mode 1))
-#+END_SRC
-** Package corfu
-#+BEGIN_SRC emacs-lisp
-  (use-package corfu
-    :disabled
-    :after lsp
-    :straight (corfu :type git :host github :repo "minad/corfu")
-    :bind (:map corfu-map
-                ("C-n" . corfu-next)
-                ("C-p" . corfu-previous)
-                ("TAB" . corfu-next)
-                ([tab] . corfu-next)
-                ("S-TAB" . corfu-previous)
-                ([backtab] . corfu-previous)
-                ((kbd "RET") nil))
-    :custom
-    (corfu-cycle t)                  ;; Enable cycling for `corfu-next/previous'
-    (corfu-preselect-first nil)      ;; Disable candidate preselection
-    (corfu-auto t)                   ;; Enable auto completion
-    (corfu-echo-documentation t)     ;; Disable documentation in the echo area
-    (corfu-quit-at-boundary t)       ;; Automatically quit at word boundary
-    (corfu-quit-no-match t) ;; Quite corfu when there is no match
-
-    ;; Enable corfu-mode for certain modes
-    :hook ((evil-insert-state-exit . (lambda (&rest args)
-                                       (when corfu-mode (corfu-quit))))
-           (prog-mode . corfu-mode)
-           (org-mode . corfu-mode)
-           (inferior-python-mode . corfu-mode))
-    :config
-    (setq tab-always-indent 'complete)
-
-    ;; Lsp settings specific to corfu
-    (setq lsp-completion-provider :none)
-
-    (defun corfu-lsp-setup ()
-      (setq-local completion-styles '(basic partial-completion))
-      (setq-local completion-category-defaults nil))
-    (add-hook 'lsp-mode-hook #'corfu-lsp-setup)
-
-    ;; Hackish to enable C-n/C-p bindings https://github.com/minad/corfu/issues/12#issuecomment-869037519
-    (evil-make-overriding-map corfu-map)
-    (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
-    (advice-add 'corfu--teardown :after 'evil-normalize-keymaps))
-
-  (use-package cape
-    :disabled
-    :straight t
-    :after corfu
-    :config
-    (add-to-list 'completion-at-point-functions #'cape-file)
-    (add-to-list 'completion-at-point-functions #'cape-tex)
-    (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-    (add-to-list 'completion-at-point-functions #'cape-keyword)
-
-    ;; Silence the pcomplete capf, no errors or messages!
-    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-silent)
-
-    ;; Ensure that pcomplete does not write to the buffer
-    ;; and behaves as a pure `completion-at-point-function'.
-    (advice-add 'pcomplete-completions-at-point :around #'cape-wrap-purify))
-
 #+END_SRC
 
 ** Vertico, consult, embark
@@ -1104,13 +1047,11 @@
   (defun +magit-there (file)
     "Run magit in directory of FILE."
     (interactive "Directory: ")
-    (let ((default-directory (if (f-dir-p file)
-                                 file
-                               (file-name-directory
-                                (expand-file-name
-                                 (substitute-in-file-name file))))))
-          (windmove-display-same-window)
-          (magit-status default-directory)))
+    (let ((default-directory (file-name-directory
+                              (expand-file-name
+                               (substitute-in-file-name file)))))
+      (windmove-display-same-window)
+      (magit-status default-directory)))
 
   (defun +project-find-file-here (file)
     "Run project-find-file in directory of FILE."
@@ -1120,9 +1061,12 @@
                                 (substitute-in-file-name file)))))
       (project-find-file)))
 
+  (use-package embark-consult
+    :straight (embark-consult :type git :host github :repo "oantolin/embark"))
+
   (use-package embark
     :straight (embark :type git :host github :repo "oantolin/embark")
-    :init
+    :after embark-consult
     :config
 
     (defun embark-act-noquit ()
@@ -1156,10 +1100,6 @@
       ("o" open-repl-other-window))
 
     (add-to-list 'embark-keymap-alist '(consult-repl . embark-repls-actions)))
-
-  (use-package embark-consult
-    :straight (embark-consult :type git :host github :repo "oantolin/embark")
-    :after (embark consult))
 #+end_src
 
 ** Minibuffer
@@ -1181,20 +1121,6 @@
               (insert selection)))))))
 
   (add-hook 'minibuffer-setup-hook 'minibuffer-insert-selection)
-
-  (setq minibuffer-insert-symbol-at-point-commands '(devdocs-lookup))
-
-  (defun minibuffer-insert-symbol-at-point ()
-    (when-let* ((_ (member this-command minibuffer-insert-symbol-at-point-commands))
-                (minibuffer-buffer (current-buffer))
-                (buffers (buffer-list))
-                (last-used-buffer (cadr buffers)))
-      (with-current-buffer last-used-buffer
-        (when-let ((selection (thing-at-point 'symbol)))
-          (with-current-buffer minibuffer-buffer
-            (insert selection))))))
-
-  (add-hook 'minibuffer-setup-hook 'minibuffer-insert-symbol-at-point)
 #+end_src
 
 * Snippets
@@ -1228,34 +1154,19 @@
        (sort (split-string (shell-command-to-string command) "\0" t)
              #'string<))))
 
-  (cl-defmethod project-root ((project (head local)))
-    (cdr project))
-
-  (cl-defmethod project-files ((project (head local)) &optional dirs)
-    "Override `project-files' to use `fd' in local projects."
-    (mapcan #'+project-files-in-directory
-            (or dirs (list (project-root project)))))
-
-  (defun +project-try-local (dir)
-    "Determine if DIR is a non-Git project.
-     DIR must include a .project file to be considered a project."
-    (let ((root (locate-dominating-file dir ".projectile")))
-      (and root (cons 'local root))))
-
   (defun +project-switch-project (dir)
     (interactive (list (project-prompt-project-dir)))
-    (let ((default-directory dir)
-          (project-current-inhibit-prompt t))
+    (let ((project-current-directory-override dir))
       (call-interactively 'project-find-file)))
 
   (defmacro project-with-directory (force &rest body)
     "Try to set `default-dirctory' by using project.el.
 
-  If READ is non nil prompt user for project if not already inside of
+  If FORCE is non nil prompt user for project if not already inside of
   project else use `default-directory'"
     (declare (indent 1) (debug t))
     `(let ((default-directory (or
-                               (cdr-safe (project-current ,force))
+                               (car (last (project-current ,force)))
                                default-directory)))
        ,@body))
 
@@ -1263,7 +1174,7 @@
     :straight (:type built-in)
     :config
 
-    (setq project-find-functions '(+project-try-local project-try-vc))
+    (setq project-vc-extra-root-markers '(".project" ".projectile"))
 
     (add-to-list 'marginalia-command-categories '(+project-switch-project . project-file))
 
@@ -1282,7 +1193,7 @@
     :config
     (exec-path-from-shell-initialize))
 #+end_src
-   
+
 ** Eshell
 #+begin_src emacs-lisp
   (defun +eshell-name ()
@@ -1290,7 +1201,7 @@
                                (project-current))
                           (format "<%s>"
                                   (-> (project-current)
-                                      cdr
+                                      project-root
                                       file-name-directory
                                       directory-file-name
                                       file-name-nondirectory))
@@ -1323,7 +1234,7 @@
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project ()
-    (let* ((default-directory (cdr (project-current t)))
+    (let* ((default-directory (project-root (project-current t)))
            (eshell-project-type-p t)
            (buffer (+eshell)))
       (with-current-buffer buffer
@@ -1448,14 +1359,8 @@
     (leader-key "E" '+eshell-other-window)
     (leader-key "pe" '+eshell-project-same-window)
     (leader-key "pE" '+eshell-project-other-window))
-
-  (use-package em-cmpl-fix
-    :after eshell
-    :load-path "lisp"
-    :straight nil
-    :hook (eshell-first-time-mode . (lambda () (load "em-cmpl-fix.el"))))
 #+end_src
-  
+
 ** Eshell functions
 #+begin_src emacs-lisp
   (defun eshell/ff (&rest args)
@@ -1483,11 +1388,6 @@
 
 ** Detached
 #+begin_src  emacs-lisp
-  (defun +detached-project-compile ()
-    (interactive)
-    (project-with-directory t
-      (call-interactively 'detached-compile)))
-
   (defun +detached-project-shell-command ()
     (interactive)
     (project-with-directory t
@@ -1502,7 +1402,10 @@
         (call-interactively 'detached-shell-command))))
 
   (use-package detached
-    :straight t
+    :straight (:type git
+               :host nil
+               :repo "https://git.sr.ht/~dpettersson/detached.el"
+               :branch "bug/consult-not-working")
     :init
     (detached-init)
 
@@ -1516,7 +1419,6 @@
            ([remap compile] . detached-compile)
            ([remap recompile] . detached-compile-recompile)
            ;; Replace `compile' with `detached-compile'
-           ([remap project-compile] . +detached-project-compile)
            ([remap project-shell-command] . +detached-project-shell-command)
            ;; Replace built in completion of sessions with `consult'
            ([remap detached-open-session] . detached-consult-session))
@@ -1550,12 +1452,7 @@
     ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
     (setq detached-detach-key "C-c C-x"))
 
-  (use-package detached-fix
-    :after detached
-    :load-path "lisp"
-    :straight nil
-    :config
-    (load "detached-fix.el"))
+
 #+end_src
 
 * Misc
@@ -1580,9 +1477,12 @@ Change stuff in the grep buffer
     (interactive)
     (when (bound-and-true-p flyspell-mode)
       (cond
-       ((string-equal ispell-local-dictionary flyspell-default-dictionary) (ispell-change-dictionary "swedish"))
-       ((string-equal ispell-local-dictionary "swedish")                   (ispell-change-dictionary flyspell-default-dictionary))
-       (t                                                                  (ispell-change-dictionary flyspell-default-dictionary)))))
+       ((string-equal ispell-local-dictionary flyspell-default-dictionary)
+        (ispell-change-dictionary "swedish"))
+       ((string-equal ispell-local-dictionary "swedish")
+        (ispell-change-dictionary flyspell-default-dictionary))
+       (t
+        (ispell-change-dictionary flyspell-default-dictionary)))))
 
   (use-package flyspell
     :straight t
@@ -1641,11 +1541,13 @@ Change stuff in the grep buffer
 
     (advice-add 'compilation-filter :around #'+emacs/advice-compilation-filter))
 #+end_src
+
 ** Scratch
 #+begin_src emacs-lisp
   ;; Eval code lisp in the *scratch* buffer
   (define-key lisp-interaction-mode-map (kbd "C-c C-c") 'eval-buffer)
 #+end_src
+
 ** Useful functions
 #+begin_src emacs-lisp
   (defun +zoom-window ()
@@ -1701,6 +1603,7 @@ Change stuff in the grep buffer
   (eval-after-load "savehist"
     (add-hook 'savehist-mode-hook 'load-last-theme))
 #+end_src
+
 ** Remove white spaces
 #+begin_src emacs-lisp
   (use-package ws-butler
@@ -1793,12 +1696,12 @@ Change stuff in the grep buffer
   (use-package yaml-mode :straight t)
   (use-package json-mode :straight t)
 #+end_src
- 
+
 ** Go
 #+begin_src emacs-lisp
   (use-package go-mode :straight t)
 #+end_src
- 
+
 ** Clojure
 #+begin_src emacs-lisp
   (use-package clojure-mode :straight t :defer t)
@@ -2228,7 +2131,7 @@ Change stuff in the grep buffer
 #+end_src
 
 ** Jupyter notebooks
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (use-package ein
     :straight t
     :config
