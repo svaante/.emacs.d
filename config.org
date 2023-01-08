@@ -827,6 +827,11 @@
     (setq company-dabbrev-ignore-case nil)
     (setq company-dabbrev-downcase nil)
 
+    ;; Something creept in during update where c-n/c-p would sometimes
+    ;; trigger evil-complete-next/previous
+    (define-key evil-insert-state-map "\C-n" 'company-select-next)
+    (define-key evil-insert-state-map "\C-p" 'company-select-previous)
+
     (define-key company-active-map (kbd "RET") nil)
     (define-key company-active-map (kbd "<return>") nil)
     (define-key company-active-map (kbd "TAB") 'company-complete)
