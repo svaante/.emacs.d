@@ -835,8 +835,22 @@
 
     ;; Something creept in during update where c-n/c-p would sometimes
     ;; trigger evil-complete-next/previous
-    (define-key evil-insert-state-map "\C-n" 'company-select-next)
-    (define-key evil-insert-state-map "\C-p" 'company-select-previous)
+    (defun evil-complete-next-company (func arg)
+      (if (company--active-p)
+          (call-interactively 'company-select-next)
+        (funcall func arg)))
+
+    (defun evil-complete-previous-company (func arg)
+      (if (company--active-p)
+          (call-interactively 'company-select-previous)
+        (funcall func arg)))
+
+    (advice-add 'evil-complete-next
+                :around
+                #'evil-complete-next-company)
+    (advice-add 'evil-complete-previous
+                :around
+                #'evil-complete-previous-company)
 
     (define-key company-active-map (kbd "RET") nil)
     (define-key company-active-map (kbd "<return>") nil)
