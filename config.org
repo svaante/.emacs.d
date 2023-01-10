@@ -1415,11 +1415,16 @@
       (let ((embark-target-injection-hooks))
         (call-interactively 'detached-shell-command))))
 
+  (defun +detached-project-with-directory ()
+    (interactive)
+    (project-with-directory t
+      (call-interactively 'detached-compile)))
+
   (use-package detached
     :straight (:type git
                :host nil
                :repo "https://git.sr.ht/~dpettersson/detached.el"
-               :branch "bug/consult-not-working")
+               :branch "working")
     :init
     (detached-init)
 
@@ -1434,6 +1439,7 @@
            ([remap recompile] . detached-compile-recompile)
            ;; Replace `compile' with `detached-compile'
            ([remap project-shell-command] . +detached-project-shell-command)
+           ([remap project-compile] . +detached-project-with-directory)
            ;; Replace built in completion of sessions with `consult'
            ([remap detached-open-session] . detached-consult-session))
     :custom ((detached-show-output-on-attach t)
