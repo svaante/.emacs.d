@@ -315,6 +315,12 @@
              :size 80
              :dedicated t
              :popup t)
+            (compilation-mode
+             :noselect nil
+             :align right
+             :size 80
+             :dedicated t
+             :popup t)
             ("*Help*"
              :select t
              :align right
