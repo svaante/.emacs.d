@@ -963,6 +963,9 @@
           (funcall old-fn)
         (consult-grep)))
 
+    (consult-customize
+     consult-history :initial nil)
+
     (advice-add 'consult-ripgrep :around #'+consult-ripgrep-fallback-advice)
 
     (leader-key
