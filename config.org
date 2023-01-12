@@ -2003,6 +2003,13 @@ Change stuff in the grep buffer
 * Applications
 ** Dired
 #+begin_src emacs-lisp
+  (use-package dired
+    :straight (:type built-in)
+    :config
+    ;; If two dired opened use other dired default-directory as
+    ;; base target
+    (setq dired-dwim-target t))
+
   (use-package diredfl
     :straight t
     :hook (dired-mode . diredfl-mode))
