@@ -526,10 +526,11 @@
 #+BEGIN_SRC emacs-lisp
   (use-package global-whitespace
     :defer t
-    ;:hook (prog-mode . whitespace-mode)
+    :hook (prog-mode . whitespace-mode)
     :diminish
     :init
-    (setq whitespace-style '(face trailing)))
+    (setq whitespace-line-column 80) ;; limit line length
+    (setq whitespace-style '(face lines-tail trailing)))
 #+END_SRC
 
 ** Package dashboard
