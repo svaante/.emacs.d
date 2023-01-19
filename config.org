@@ -2080,6 +2080,30 @@ Change stuff in the grep buffer
     (setq tramp-default-method "ssh"))
 #+end_src
 
+** Proced/top
+#+BEGIN_SRC emacs-lisp
+  (use-package proced
+    :straight (:type built-in)
+    :config
+    ;; Auto update procede buffer
+    (setq-default proced-auto-update-flag t)
+
+    (setq proced-auto-update-interval 1
+          proced-goal-attribute nil
+          proced-enable-color-flag t)
+
+    (add-to-list
+     'proced-format-alist
+     '(custom user pid ppid sess tree pcpu pmem rss start time state (args comm)))
+
+    (setq-default proced-format 'custom)
+
+    (defun eshell/top (&rest args)
+      (proced))
+
+    (leader-key "ap" 'proced))
+#+END_SRC
+
 ** Postman
 #+begin_src emacs-lisp
   (use-package restclient
