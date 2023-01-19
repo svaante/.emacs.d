@@ -1410,11 +1410,6 @@
 
 ** Detached
 #+begin_src  emacs-lisp
-  (defun +detached-project-shell-command ()
-    (interactive)
-    (projectile-with-directory t
-      (call-interactively 'detached-shell-command)))
-
   (defun +detached-project-shell-command-here (file)
     (let ((default-directory (file-name-directory
                               (expand-file-name
@@ -1445,9 +1440,6 @@
            ;; Replace `compile' with `detached-compile'
            ([remap compile] . detached-compile)
            ([remap recompile] . detached-compile-recompile)
-           ;; Replace `compile' with `detached-compile'
-           ;([remap project-shell-command] . +detached-project-shell-command)
-           ;([remap project-compile] . +detached-project-with-directory)
            ;; Replace built in completion of sessions with `consult'
            ([remap detached-open-session] . detached-consult-session))
     :custom ((detached-show-output-on-attach t)
@@ -1455,6 +1447,9 @@
     :config
     ;; No dbus support on osx so we will skip the notifications
     (setq detached-notification-function 'identity)
+
+    ;; Do not add last command as initial input
+    (setq detached-shell-command-initial-input nil)
 
     ;; Enter normal state on command attach
     (setq evil-normal-state-modes (append evil-normal-state-modes '(detached-shell-mode)))
@@ -1467,10 +1462,6 @@
       (kbd "<S-return>") 'detached-eshell-send-input)
     (evil-define-key 'insert detached-eshell-mode-map
       (kbd "<C-return>") 'detached-eshell-attach-session)
-
-    ;; Embark add hook for injecting file into shell command
-    (add-to-list 'embark-target-injection-hooks
-                 '(detached-shell-command embark--allow-edit embark--shell-prep))
 
     ;; Dtache view bindings
     (evil-define-key 'normal detached-shell-mode-map "q" 'quit-window)
@@ -1951,7 +1942,6 @@ Change stuff in the grep buffer
 
 #+begin_src emacs-lisp
   (use-package dap-mode
-    :disabled
     :straight t
     :ensure t
     :config
