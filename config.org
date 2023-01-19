@@ -725,7 +725,10 @@
   (use-package org-modern
     :straight (org-modern :type git :host github :repo "minad/org-modern")
     :hook ((org-mode . org-modern-mode)
-           (org-agenda-finalize . org-modern-agenda)))
+           (org-agenda-finalize . org-modern-agenda))
+    :config
+    ;; Some type of fix when using org-indent-mode
+    (setq org-modern-block-fringe nil))
 #+END_SRC
 
 ** Org inline property
