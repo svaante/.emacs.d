@@ -827,7 +827,7 @@
     :straight t
     :diminish company-mode
     :config
-    (setq company-backends '(company-files (company-capf :with company-yasnippet)))
+    (setq company-backends '(company-files company-capf))
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 2)
     (setq company-tooltip-align-annotations t)
