@@ -2004,6 +2004,7 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package dired
     :straight (:type built-in)
+    :hook (dired-mode . auto-revert-mode)
     :config
     ;; If two dired opened use other dired default-directory as
     ;; base target
