@@ -1771,12 +1771,12 @@ Change stuff in the grep buffer
 
 ** Python
 #+begin_src emacs-lisp
-  (use-package lsp-pyright
+  (use-package lsp-python-ms
     :straight t
-    :after lsp-mode
-    :custom
-    (lsp-pyright-auto-import-completions nil)
-    (lsp-pyright-typechecking-mode "off"))
+    :init (setq lsp-python-ms-auto-install-server t)
+    :hook (python-mode . (lambda ()
+                            (require 'lsp-python-ms)
+                            (lsp))))
 
   (defun +inferior-python-mode-init ()
     (setq-local completion-styles '(basic)))
