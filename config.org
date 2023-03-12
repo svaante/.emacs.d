@@ -528,6 +528,7 @@
     :defer t
     :hook (prog-mode . whitespace-mode)
     :diminish
+    :hook (prog-mode . whitespace-mode)
     :init
     (setq whitespace-line-column 80) ;; limit line length
     (setq whitespace-style '(face lines-tail trailing)))
@@ -1408,76 +1409,30 @@
       (setenv "AWS_PROFILE" choice)))
 #+end_src
 
-** Detached
+** Proc-hist
 #+begin_src  emacs-lisp
-  (defun +detached-project-shell-command-here (file)
-    (let ((default-directory (file-name-directory
-                              (expand-file-name
-                               (substitute-in-file-name file)))))
-      ;; Remove injeciton hooks here as thats not what we want
-      (let ((embark-target-injection-hooks))
-        (call-interactively 'detached-shell-command))))
-
-  (defun +detached-project-with-directory ()
-    (interactive)
-    (projectile-with-directory t
-      (call-interactively 'detached-compile)))
-
-  (use-package detached
-    :straight (:type git
-               :host nil
-               :repo "https://git.sr.ht/~dpettersson/detached.el"
-               :branch "working")
-    :init
-    (detached-init)
+  (use-package proc-hist
+    :straight (proc-hist :type git :host github :repo "svaante/proc-hist")
+    :config
+    (proc-hist-mode)
 
     (leader-key
-      "!" 'detached-shell-command
-      "d" 'detached-open-session)
-    :bind (;; Replace `async-shell-command' with `detached-shell-command'
-           ([remap shell-command] . detached-shell-command)
-           ([remap async-shell-command] . detached-shell-command)
-           ;; Replace `compile' with `detached-compile'
-           ([remap compile] . detached-compile)
-           ([remap recompile] . detached-compile-recompile)
-           ;; Replace built in completion of sessions with `consult'
-           ([remap detached-open-session] . detached-consult-session))
-    :custom ((detached-show-output-on-attach t)
-             (detached-terminal-data-command system-type))
-    :config
-    ;; No dbus support on osx so we will skip the notifications
-    (setq detached-notification-function 'identity)
-
-    ;; Do not add last command as initial input
-    (setq detached-shell-command-initial-input nil)
-
-    ;; Embark add hook for injecting file into shell command
-    (add-to-list 'embark-target-injection-hooks
-                 '(detached-shell-command embark--allow-edit embark--shell-prep))
-
-
-    ;; Enter normal state on command attach
-    (setq evil-normal-state-modes (append evil-normal-state-modes '(detached-shell-mode)))
-
-    ;; Embark file mapping
-    (define-key embark-file-map "&" '+detached-project-shell-command-here)
-
-    ;; Eshell bindings
-    (evil-define-key 'insert detached-eshell-mode-map
-      (kbd "<S-return>") 'detached-eshell-send-input)
-    (evil-define-key 'insert detached-eshell-mode-map
-      (kbd "<C-return>") 'detached-eshell-attach-session)
-
-    ;; Dtache view bindings
-    (evil-define-key 'normal detached-shell-mode-map "q" 'quit-window)
-    (evil-define-key 'normal detached-log-mode-map "q" 'quit-window)
-    (evil-define-key 'normal detached-tail-mode-map "q" 'quit-window)
-
-    ;; Remove binding of "C-c C-d" as this conflicts whith C-d escape sequence
-    (setq detached-detach-key "C-c C-x"))
-
-
+      "d" 'proc-hist-dwim))
 #+end_src
+
+** Shell-mode
+#+begin_src emacs-lisp
+  (use-package shell
+    :straight (:type built-in)
+    :config
+    (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
+    (evil-define-key 'normal shell-mode-map "q" 'quit-window)
+
+    (define-key embark-file-map "!" 'async-shell-command)
+
+    (leader-key
+      "!" 'async-shell-command))
+#+END_SRC
 
 * Misc
 ** wgrep
