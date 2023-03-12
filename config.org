@@ -58,7 +58,10 @@
 
   ;; Resize frames based on pixels
   (setq frame-resize-pixelwise t)
-#+END_SRC
+
+  ;; Ignore defvaralias warnings
+  (add-to-list 'warning-suppress-types '(defvaralias))
+ #+END_SRC
 
 * Platform
 ** Mac
