@@ -527,9 +527,8 @@
 
 ** White space
 #+BEGIN_SRC emacs-lisp
-  (use-package global-whitespace
-    :defer t
-    :hook (prog-mode . whitespace-mode)
+  (use-package whitespace
+    :straight (:type built-in)
     :diminish
     :hook (prog-mode . whitespace-mode)
     :init
