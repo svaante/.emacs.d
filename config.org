@@ -708,17 +708,17 @@
 
     (setq org-capture-templates '(("p" "Pad" plain
                                    (file+olp+datetree "~/org/pad.org")
-                                   "Context: %a\n%?\n"
+                                   "\n%?\n"
                                    :unnarrowed t)
                                   ("n" "Note" entry
                                    (file "~/org/notes.org")
                                    "* %?\n")
                                   ("t" "Todo" entry
                                    (file "~/org/todo.org")
-                                   "* TODO %?\nTimestamp: %t\nContext: %a")
+                                   "* TODO %?\nTimestamp: %t\n")
                                   ("c" "Clipboard" entry
                                    (file "~/org/clipboard.org")
-                                   "* %?\nTimestamp: %t\nContext: %(x-get-clipboard)")))
+                                   "* %?\nTimestamp: %t\n%(x-get-clipboard)")))
     (leader-key "oc" 'org-capture))
 
   (use-package ob-async :straight t)
