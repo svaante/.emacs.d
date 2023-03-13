@@ -81,7 +81,6 @@
 #+end_src
 
 * Package
-
 #+begin_src emacs-lisp
   (defvar bootstrap-version)
   (let ((bootstrap-file
@@ -474,7 +473,7 @@
       (when (buffer-file-name)
         (abbreviate-file-name
          (or
-          (when-let* ((prj (projectile-project-root))
+          (when-let* ((prj (project-project-root))
                       (prj-parent (file-name-directory
                                    (directory-file-name
                                     (expand-file-name prj)))))
@@ -1083,14 +1082,6 @@
       (windmove-display-same-window)
       (magit-status default-directory)))
 
-  (defun +projectile-find-file-here (file)
-    "Run projectile-find-file in directory of FILE."
-    (interactive "Directory: ")
-    (let* ((default-directory (file-name-directory
-                               (expand-file-name
-                                (substitute-in-file-name file)))))
-      (projectile-find-file)))
-
   (use-package embark-consult
     :straight (embark-consult :type git :host github :repo "oantolin/embark"))
 
@@ -1118,7 +1109,6 @@
             #'which-key--hide-popup-ignore-command)
           embark-become-indicator embark-action-indicator)
 
-    (define-key embark-file-map " " '+projectile-find-file-here)
     (define-key embark-file-map "." 'find-file-at)
     (define-key embark-file-map "g" '+magit-there)
     (define-key embark-file-map "G" 'consult-ripgrep)
@@ -1173,43 +1163,43 @@
 #+END_SRC
 
 * Project management
-** projectile
 #+begin_src emacs-lisp
-  (defmacro projectile-with-directory (force &rest body)
+  (defmacro project-with-directory (force &rest body)
     "Try to set `default-dirctory' by using project.el.
 
     If FORCE is non nil prompt user for project if not already inside of
     project else use `default-directory'"
     (declare (indent 1) (debug t))
-    `(let ((default-directory (or (projectile-project-root)
-                               default-directory)))
+    `(let ((default-directory (or (and (project-current ,force)
+                                       (project-root (project-current ,force)))
+                                  default-directory)))
        ,@body))
 
-  (use-package projectile
-    :diminish
-    :straight t
-    :config
-    ;; When marginalia is up annotate completions from projectile
-    (when (bound-and-true-p marginalia-mode)
-      ;; Fix marginalia for finding files after projectile-switch-project
-      (add-to-list 'marginalia-prompt-categories
-                   '("Find file:" . project-file))
-      (setq marginalia-command-categories
-            '((projectile-find-file . project-file)
-              (projectile-find-dir . project-file)
-              (projectile-switch-project . file))))
+  (defun project-project-root (&optional force)
+    (when-let ((project (project-current force)))
+      (project-root project)))
 
-    ;; Integrate with consult
-    (with-eval-after-load 'consult
-      (setq consult-project-function (lambda (_) (projectile-project-root))))
+  (defun project-find-file-at (file)
+    "Run project-find-file in directory of FILE."
+    (interactive "Directory: ")
+    (let* ((default-directory (file-name-directory
+                               (expand-file-name
+                                (substitute-in-file-name file)))))
+      (project-find-file)))
+
+  (use-package project
+    :straight (:type built-in)
+    :config
+    (setq project-vc-extra-root-markers '(".projectile" ".project"))
+    (setq project-switch-commands 'project-find-file)
+
+    (define-key embark-file-map " " 'project-find-file-at)
 
     (leader-key
-      "SPC" 'projectile-find-file
-      "pp" 'projectile-switch-project
-      "p!" 'projectile-run-async-shell-command-in-root
-      "pc" 'projectile-compile-project)
-
-    (projectile-mode +1))
+      "SPC" 'project-switch-project
+      "pp" 'project-switch-project
+      "p!" 'project-async-shell-command
+      "pc" 'project-compile))
 #+end_src
 * Terminal
 ** Get $PATH from bash/zsh profiles
@@ -1224,9 +1214,9 @@
 #+begin_src emacs-lisp
   (defun +eshell-name ()
     (let* ((path-part (if (and (bound-and-true-p eshell-project-type-p)
-                               (projectile-project-root))
+                               (project-project-root))
                           (format "<%s>"
-                                  (-> (projectile-project-root)
+                                  (-> (project-project-root)
                                       file-name-directory
                                       directory-file-name
                                       file-name-nondirectory))
@@ -1259,7 +1249,7 @@
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project ()
-    (let* ((default-directory (projectile-project-root))
+    (let* ((default-directory (project-project-root t))
            (eshell-project-type-p t)
            (buffer (+eshell)))
       (with-current-buffer buffer
@@ -1702,7 +1692,9 @@ Change stuff in the grep buffer
     (evil-define-key 'normal emacs-lisp-mode-map
       (kbd "K")
       'describe-elisp-thing-at-point)
-    (evil-define-key 'normal emacs-lisp-mode-map
+    (evil-define-key '(normal insert) emacs-lisp-mode-map
+      (kbd "C-c C-e") 'eval-defun)
+    (evil-define-key '(normal insert) emacs-lisp-mode-map
       (kbd "C-c C-c") 'eval-buffer)
     (evil-define-key 'visual emacs-lisp-mode-map
       (kbd "C-c C-c") 'eval-region))
@@ -1849,7 +1841,7 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package compile
     :straight (:type built-in)
-    :init
+    :config
     ;; Use last history as the compile command
     (setq compile-command (or (car-safe compile-history) ""))
     ;; Always scroll
@@ -1902,7 +1894,7 @@ Change stuff in the grep buffer
     (interactive)
     (gud-start-co--command)
     (let ((buf (current-buffer)))
-      (projectile-with-directory t
+      (project-with-directory t
         (call-interactively 'gdb)
         (switch-to-buffer buf))))
 
@@ -1950,7 +1942,7 @@ Change stuff in the grep buffer
      (lambda (conf)
        (let ((lldb-vscode-binary "lldb-vscode")
              (debug-port (dap--find-available-port))
-             (project-root-current (projectile-project-root))
+             (project-root-current (project-project-root t))
              (bin-name (alist-get 'name
                                   (rustic-flycheck-find-cargo-target
                                    buffer-file-name))))
@@ -2026,7 +2018,7 @@ Change stuff in the grep buffer
 
     (defun +dired-sidebar-toggle-sidebar()
       (interactive)
-      (projectile-with-directory nil
+      (project-with-directory nil
         (dired-sidebar-toggle-sidebar)))
 
     (leader-key "ad" '+dired-sidebar-toggle-sidebar))
