@@ -2046,6 +2046,8 @@ Change stuff in the grep buffer
           str)))
     (advice-add 'magit-rev-format :override '+magit-rev-format)
 
+    ;; Don't let magit close windows
+    (setq magit-bury-buffer-function 'bury-buffer)
 
     (leader-key "gg" 'magit-status-here-and-center)
     (leader-key "g." 'magit-find-file)
