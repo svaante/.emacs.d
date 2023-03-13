@@ -1424,11 +1424,17 @@
 
 ** Shell-mode
 #+begin_src emacs-lisp
+  (defun kill-on-no-process ()
+    (interactive)
+    (if (null (get-buffer-process (current-buffer)))
+        (kill-buffer)
+      (quit-window)))
+
   (use-package shell
     :straight (:type built-in)
     :config
     (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
-    (evil-define-key 'normal shell-mode-map "q" 'quit-window)
+    (evil-define-key 'normal shell-mode-map "q" 'kill-on-no-process)
 
     (define-key embark-file-map "!" 'async-shell-command)
 
