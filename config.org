@@ -1693,15 +1693,18 @@ Change stuff in the grep buffer
   (use-package elisp-mode
     :straight (:type built-in)
     :config
-    (evil-define-key 'normal emacs-lisp-mode-map
-      (kbd "K")
-      'describe-elisp-thing-at-point)
-    (evil-define-key '(normal insert) emacs-lisp-mode-map
-      (kbd "C-c C-e") 'eval-defun)
-    (evil-define-key '(normal insert) emacs-lisp-mode-map
-      (kbd "C-c C-c") 'eval-buffer)
-    (evil-define-key 'visual emacs-lisp-mode-map
-      (kbd "C-c C-c") 'eval-region))
+    (seq-do
+     (lambda (mode-map)
+       (evil-define-key 'normal mode-map
+         (kbd "K")
+         'describe-elisp-thing-at-point)
+       (evil-define-key '(normal insert) mode-map
+         (kbd "C-c C-e") 'eval-defun)
+       (evil-define-key '(normal insert) mode-map
+         (kbd "C-c C-c") 'eval-buffer)
+       (evil-define-key 'visual mode-map
+         (kbd "C-c C-c") 'eval-region))
+     (list emacs-lisp-mode-map lisp-interaction-mode-map)))
 #+end_src
 
 ** Readable data files
