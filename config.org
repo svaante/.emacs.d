@@ -1196,7 +1196,7 @@
     (define-key embark-file-map " " 'project-find-file-at)
 
     (leader-key
-      "SPC" 'project-switch-project
+      "SPC" 'project-find-file
       "pp" 'project-switch-project
       "p!" 'project-async-shell-command
       "pc" 'project-compile))
