@@ -189,6 +189,10 @@
     ;; run the macro in the q register
     (evil-define-key 'normal 'global "Q" "@q")
 
+    ;; Keep eldoc message on insert
+    (eldoc-add-command 'evil-change)
+    (eldoc-add-command 'evil-insert)
+
     ;; my common misspellings
     (evil-ex-define-cmd "E[dit]" 'evil-edit)
     (evil-ex-define-cmd "W[rite]" 'evil-write)
