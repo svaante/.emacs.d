@@ -735,6 +735,12 @@
     :config
     ;; Some type of fix when using org-indent-mode
     (setq org-modern-block-fringe nil))
+
+  (use-package org-modern-indent
+    :straight
+    (org-modern-indent :type git :host github :repo "jdtsmith/org-modern-indent")
+    :config
+    (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 #+END_SRC
 
 ** Org inline property
