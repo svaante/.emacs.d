@@ -914,7 +914,7 @@
 
     (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
 
-    (leader-key "r" 'vertico-repeat)
+    (leader-key "r" 'vertico-repeat-select)
 
     (evil-define-key '(insert normal) vertico-map
       (kbd "DEL") 'vertico-directory-delete-char
