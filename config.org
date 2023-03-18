@@ -1191,11 +1191,23 @@
                                 (substitute-in-file-name file)))))
       (project-find-file)))
 
+  ;; https://github.com/minad/vertico/issues/296
+  (defvar project-file nil)
+
+  (defun project--read-file-cpd-relative-fix (prompt
+                                               all-files &optional predicate
+                                               hist mb-default)
+    (project--read-file-cpd-relative prompt
+                                     all-files
+                                     predicate
+                                     'project-file
+                                     mb-default))
   (use-package project
     :straight (:type built-in)
     :config
     (setq project-vc-extra-root-markers '(".projectile" ".project"))
     (setq project-switch-commands 'project-find-file)
+    (setq project-read-file-name-function #'project--read-file-cpd-relative-fix)
 
     (define-key embark-file-map " " 'project-find-file-at)
 
