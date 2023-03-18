@@ -830,6 +830,7 @@
 ** Package company
 #+BEGIN_SRC emacs-lisp
   (use-package company
+    :disabled
     :straight t
     :diminish company-mode
     :config
@@ -878,6 +879,28 @@
     (setq company-posframe-show-indicator nil)
     (setq company-posframe-quickhelp-delay nil)
     (company-posframe-mode 1))
+#+END_SRC
+
+** Corfu
+#+begin_src emacs-lisp
+  (use-package corfu
+    :straight t
+    :hook (evil-insert-state-exit . corfu-quit)
+    :config
+    (setq corfu-cycle t)
+    (setq corfu-auto t)
+    (setq corfu-preselect 'valid)
+    (setq corfu-quit-no-match t)
+    (setq corfu-auto-prefix 1)
+    (define-key corfu-map (kbd "RET") nil)
+
+    (global-corfu-mode))
+
+  (use-package corfu-terminal
+    :straight t
+    :config
+    (unless (display-graphic-p)
+      (corfu-terminal-mode +1)))
 #+END_SRC
 
 ** Vertico, consult, embark
@@ -931,7 +954,7 @@
     (setq orderless-style-dispatchers
           '(without-if-bang))
 
-    (setq completion-styles '(basic partial-completion orderless emacs22))
+    (setq completion-styles '(basic orderless))
 
     (setq completion-category-defaults nil
           completion-category-overrides
@@ -1056,13 +1079,15 @@
 
     (add-to-list 'consult-buffer-sources 'repl-buffer-source 'append)
 
-    ;; Use consult as the completion-in-region
-    (setq completion-in-region-function
-          (lambda (&rest args)
-            (apply (if vertico-mode
-                       #'consult-completion-in-region
-                     #'completion--in-region)
-                   args))))
+    ;; Use consult as the completion-in-region in minibuffer
+    (add-hook 'minibuffer-mode-hook
+              (lambda (&rest _)
+                (setq-local completion-in-region-function
+                            (lambda (&rest args)
+                              (apply (if vertico-mode
+                                         #'consult-completion-in-region
+                                       #'completion--in-region)
+                                     args))))))
 
   (use-package which-key
     :straight t
@@ -1154,15 +1179,36 @@
     :straight t
     :diminish yas-minor-mode
     :bind (:map yas-minor-mode-map
-           ("C-c C-e" . yas-expand)
            ([(tab)] . nil))
     :config
     ;; Org snippets does not work correctly without this
-    (setq org-src-tab-acts-natively nil)
+    ;;(setq org-src-tab-acts-natively nil)
 
     (yas-global-mode 1))
 
   (use-package yasnippet-snippets
+    :disabled t
+    :straight t)
+#+END_SRC
+
+** Temple
+#+begin_src emacs-lisp
+  (use-package tempel
+    :straight t
+    :init
+    (setq tempel-trigger-prefix "!")
+    ;; Setup completion at point
+    (defun tempel-setup-capf ()
+      (setq-local completion-at-point-functions
+                  (cons #'tempel-complete
+                        completion-at-point-functions)))
+
+    (add-hook 'prog-mode-hook 'tempel-setup-capf)
+    (add-hook 'text-mode-hook 'tempel-setup-capf))
+
+  ;; Optional: Add tempel-collection.
+  ;; The package is young and doesn't have comprehensive coverage.
+  (use-package tempel-collection
     :straight t)
 #+END_SRC
 
