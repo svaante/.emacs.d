@@ -917,10 +917,10 @@
   (use-package cape
     :straight t
     :config
-    (add-to-list 'completion-at-point-functions #'cape-file)
     (add-to-list 'completion-at-point-functions #'cape-history)
     (require 'company-yasnippet)
-    (add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet)))
+    (add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet))
+    (add-to-list 'completion-at-point-functions #'cape-file))
 
   ;;(use-package cape-yasnippet
   ;;  :after (cape yasnippet)
