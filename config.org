@@ -892,6 +892,8 @@
     (setq corfu-preselect 'valid)
     (setq corfu-quit-no-match t)
     (setq corfu-auto-prefix 1)
+    (setq corfu-on-exact-match 'quit)
+
     (define-key corfu-map (kbd "RET") nil)
 
     (global-corfu-mode))
@@ -901,6 +903,23 @@
     :config
     (unless (display-graphic-p)
       (corfu-terminal-mode +1)))
+
+  (use-package company
+    :straight t)
+
+  (use-package cape
+    :straight t
+    :config
+    (add-to-list 'completion-at-point-functions #'cape-file)
+    (add-to-list 'completion-at-point-functions #'cape-history)
+    (require 'company-yasnippet)
+    (add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet)))
+
+  ;;(use-package cape-yasnippet
+  ;;  :after (cape yasnippet)
+  ;;  :straight (cape-yasnippet :type git :host github :repo "elken/cape-yasnippet")
+  ;;  :config
+  ;;  (add-to-list 'completion-at-point-functions #'cape-yasnippet))
 #+END_SRC
 
 ** Vertico, consult, embark
@@ -1178,8 +1197,6 @@
   (use-package yasnippet
     :straight t
     :diminish yas-minor-mode
-    :bind (:map yas-minor-mode-map
-           ([(tab)] . nil))
     :config
     ;; Org snippets does not work correctly without this
     ;;(setq org-src-tab-acts-natively nil)
@@ -1187,28 +1204,6 @@
     (yas-global-mode 1))
 
   (use-package yasnippet-snippets
-    :disabled t
-    :straight t)
-#+END_SRC
-
-** Temple
-#+begin_src emacs-lisp
-  (use-package tempel
-    :straight t
-    :init
-    (setq tempel-trigger-prefix "!")
-    ;; Setup completion at point
-    (defun tempel-setup-capf ()
-      (setq-local completion-at-point-functions
-                  (cons #'tempel-complete
-                        completion-at-point-functions)))
-
-    (add-hook 'prog-mode-hook 'tempel-setup-capf)
-    (add-hook 'text-mode-hook 'tempel-setup-capf))
-
-  ;; Optional: Add tempel-collection.
-  ;; The package is young and doesn't have comprehensive coverage.
-  (use-package tempel-collection
     :straight t)
 #+END_SRC
 
@@ -1263,6 +1258,7 @@
       "p!" 'project-async-shell-command
       "pc" 'project-compile))
 #+end_src
+
 * Terminal
 ** Get $PATH from bash/zsh profiles
 #+begin_src emacs-lisp
@@ -1689,6 +1685,7 @@ Change stuff in the grep buffer
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-modeline-code-actions-enable nil)
     (setq lsp-modeline-diagnostics-enable nil)
+    (setq lsp-lens-enable nil)
     (setq lsp-completion-provider :none)
 
     ;; enable lsp-mode inside of org babel edit src blocks
@@ -1821,12 +1818,7 @@ Change stuff in the grep buffer
 
 ** Python
 #+begin_src emacs-lisp
-  (use-package lsp-python-ms
-    :straight t
-    :init (setq lsp-python-ms-auto-install-server t)
-    :hook (python-mode . (lambda ()
-                            (require 'lsp-python-ms)
-                            (lsp))))
+  (use-package lsp-pyright :straight t)
 
   (defun +inferior-python-mode-init ()
     (setq-local completion-styles '(basic)))
