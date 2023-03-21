@@ -798,19 +798,22 @@
     (setq org-mono-advice-org-refile t)
 
     (leader-key "on" 'org-mono-dwim)
-    (embark-define-keymap embark-org-mono-actions
-      "Keymap for actions for org-mono."
-      ("o" org-mono-goto-other-window)
-      ("t" org-mono-todo)
-      ("r" org-mono-rename)
-      ("w" org-mono-refile-from)
-      ("a" org-mono-archive)
-      ("k" org-mono-delete-headline)
-      ("c" org-mono-goto-headline-child)
-      ("d" org-mono-time-stamp)
-      ("b" org-mono-goto-backlinks))
 
-    (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions))
+    (defvar-keymap embark-org-mono-actions-map
+      :doc "Keymap for actions for org-mono."
+      :parent embark-general-map
+      "o" #'org-mono-goto-other-window
+      "t" #'org-mono-todo
+      "r" #'org-mono-rename
+      "w" #'org-mono-refile-from
+      "a" #'org-mono-archive
+      "k" #'org-mono-delete-headline
+      "c" #'org-mono-goto-headline-child
+      "d" #'org-mono-time-stamp
+      "b" #'org-mono-goto-backlinks)
+
+    (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map))
+
     (global-org-mono-mode))
 
   (use-package org-mono-consult
@@ -1170,11 +1173,13 @@
     (define-key embark-file-map "e" '+eshell-from-path)
     (define-key embark-file-map "E" '+eshell-from-path-other-window)
 
-    (embark-define-keymap embark-repls-actions
-      "Keymap for actions for repls"
-      ("o" open-repl-other-window))
+    (defvar-keymap embark-repls-actions-map
+      :doc "Keymap for actions for repls"
+      :parent embark-general-map
+      "o" #'open-repl-other-window)
 
-    (add-to-list 'embark-keymap-alist '(consult-repl . embark-repls-actions)))
+    (add-to-list 'embark-keymap-alist '(consult-repl . embark-repls-actions-map)))
+
 #+end_src
 
 ** Minibuffer
@@ -1472,6 +1477,14 @@
     :straight (proc-hist :type git :host github :repo "svaante/proc-hist")
     :config
     (proc-hist-mode)
+
+    (defvar-keymap embark-proc-hist-actions-map
+      :doc "Proc hist actions"
+      :parent embark-general-map
+      "k" #'proc-hist-kill
+      "r" #'proc-hist-rerun)
+
+      (add-to-list 'embark-keymap-alist '(proc-hist . embark-proc-hist-actions-map))
 
     (leader-key
       "d" 'proc-hist-dwim))
