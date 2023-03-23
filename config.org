@@ -892,7 +892,7 @@
     :config
     (setq corfu-cycle t)
     (setq corfu-auto t)
-    (setq corfu-preselect 'valid)
+    (setq corfu-preselect 'prompt)
     (setq corfu-quit-no-match t)
     (setq corfu-auto-prefix 2)
     (setq corfu-on-exact-match 'quit)
