@@ -37,7 +37,7 @@
   (global-auto-revert-mode t)
 
   ;; y/n will do
-  (fset 'yes-or-no-p 'y-or-n-p)
+  (defalias 'yes-or-no-p 'y-or-n-p)
 
   ;; stop the insessent blinking
   (blink-cursor-mode 0)
