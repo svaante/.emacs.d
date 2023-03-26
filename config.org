@@ -2276,7 +2276,7 @@ Change stuff in the grep buffer
     :straight (gptel :type git :host github :repo "karthink/gptel")
     :config
     (define-key gptel-mode-map (kbd "C-c C-c") 'gptel-send)
-    (when (file-exists-p "gpt-api-key.el")
+    (when (file-exists-p (locate-user-emacs-file "gpt-api-key.el"))
       ;; (setq gptel-api-key "key")
       (load-file (locate-user-emacs-file "gpt-api-key.el")))
     (leader-key "aa" 'gptel))
