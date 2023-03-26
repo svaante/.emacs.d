@@ -1024,11 +1024,14 @@
 
     (defun +consult-kill-line-insert-history ()
       (interactive)
+      (goto-char (point-max))
       (ignore-errors (call-interactively 'move-beginning-of-line) t)
       (ignore-errors (call-interactively 'kill-line) t)
       (call-interactively 'consult-history))
 
     (evil-global-set-key 'insert
+                         (kbd "C-r") '+consult-kill-line-insert-history)
+    (evil-global-set-key 'normal
                          (kbd "C-r") '+consult-kill-line-insert-history)
 
     (defun +consult-ripgrep-fallback-advice (old-fn &rest args)
