@@ -790,6 +790,7 @@
                            "~/org/thoughts.org"
                            "~/org/books.org"
                            "~/org/shared.org"
+                           "~/.emacs.d/config.org"
                            ))
 
     (setq org-mono-capture-dwim-template '(entry
@@ -887,7 +888,8 @@
 ** Corfu
 #+begin_src emacs-lisp
   (use-package corfu
-    :straight t
+    :straight (corfu :files (:defaults "extensions/*")
+                     :includes (corfu-popupinfo corfu-history))
     :hook (evil-insert-state-exit . corfu-quit)
     :config
     (setq corfu-cycle t)
@@ -897,6 +899,10 @@
     (setq corfu-auto-prefix 2)
     (setq corfu-on-exact-match 'quit)
 
+    ;; Orderless completion
+    (setq corfu-separator ?s)
+    (setq corfu-quit-at-boundary nil)
+
     ;; In eshell use tab to open corfu
     (setq corfu-excluded-modes '(eshell-mode))
     (add-hook 'eshell-mode-hook
@@ -905,8 +911,12 @@
                 (corfu-mode)))
 
     (define-key corfu-map (kbd "RET") nil)
+    (global-corfu-mode)
 
-    (global-corfu-mode))
+    (setq corfu-popupinfo-delay '(1.0 . 0.0))
+    (corfu-popupinfo-mode)
+
+    (corfu-history-mode))
 
   (use-package corfu-terminal
     :straight t
