@@ -913,7 +913,7 @@
     (define-key corfu-map (kbd "RET") nil)
     (global-corfu-mode)
 
-    (setq corfu-popupinfo-delay '(1.0 . 0.0))
+    (setq corfu-popupinfo-delay '(2.0 . 0.5))
     (corfu-popupinfo-mode)
 
     (corfu-history-mode))
