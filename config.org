@@ -1988,6 +1988,14 @@ Change stuff in the grep buffer
         (call-interactively 'gdb)
         (switch-to-buffer buf))))
 
+  (defun gud-open-comint-buffer ()
+    (interactive)
+    (let ((gud-buffer (seq-find (lambda (buffer)
+                                  (with-current-buffer buffer
+                                    (bound-and-true-p gud-mode)))
+                                (buffer-list))))
+      (switch-to-buffer gud-buffer)))
+
   (defhydra hydra-gdb (:exit nil :foreign-keys run :hint nil)
     "
     _o_pen (_O_: gdb)     _R_un        _b_reak      _n_ext (_N_: inst)
@@ -2010,6 +2018,7 @@ Change stuff in the grep buffer
     ("S" gud-stepi)
     ("f" gud-finish)
     ("u" gud-until)
+    ("!" gud-open-comint-buffer)
     ("q" ignore :exit t)
     ("C-g" ignore :exit t))
 
