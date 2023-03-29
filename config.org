@@ -429,8 +429,11 @@
                       (font-spec :family "Apple Color Emoji" :size 12)))
 
   (when (eq system-type 'gnu/linux)
-    (set-face-attribute 'default nil :font "DejaVu Sans Mono 9"))
+    (set-face-attribute 'default nil :font "Monaco 8")
+    ;(set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
+    )
 #+end_src
+
 
 ** Themes
 #+BEGIN_SRC emacs-lisp
