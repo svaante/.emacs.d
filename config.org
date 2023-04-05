@@ -402,15 +402,6 @@
     (shackle-mode 1))
 #+end_src
 
-** Frame move
-#+BEGIN_SRC emacs-lisp
-  (use-package framemove
-    :straight t
-    :config
-    (framemove-default-keybindings)
-    (setq framemove-hook-into-windmove t))
-#+END_SRC
-
 ** Mappings
 #+begin_src emacs-lisp
   (leader-key
@@ -525,7 +516,8 @@
     (show-paren-mode +1))
 #+end_src
 
-** White space
+** Whitespace
+*** Show whitespace
 #+BEGIN_SRC emacs-lisp
   (use-package whitespace
     :straight (:type built-in)
@@ -536,7 +528,16 @@
     (setq whitespace-style '(face lines-tail trailing)))
 #+END_SRC
 
-** Package dashboard
+*** Delete whitespace
+#+begin_src emacs-lisp
+  (use-package ws-butler
+    :straight t
+    :diminish
+    :config
+    (ws-butler-global-mode))
+#+end_src
+
+** Dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
     :diminish
@@ -598,8 +599,7 @@
 * Org
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :straight
-    (:type built-in)
+    :straight (:type built-in)
     :hook ((org-mode . org-indent-mode)
            (org-mode . visual-line-mode))
     :config
@@ -1679,14 +1679,6 @@ Change stuff in the grep buffer
     (add-hook 'savehist-mode-hook 'load-last-theme))
 #+end_src
 
-** Remove white spaces
-#+begin_src emacs-lisp
-  (use-package ws-butler
-    :straight t
-    :diminish
-    :config
-    (ws-butler-global-mode))
-#+end_src
 
 * Programming
 ** Flycheck
