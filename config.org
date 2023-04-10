@@ -1659,8 +1659,8 @@ Change stuff in the grep buffer
     (load-theme theme t))
 
   (defun load-last-theme ()
-    (when (and load-one-theme-hist)
-      (load-one-theme (intern (car load-one-theme-hist)))))
+    (when (and consult--theme-history)
+      (load-one-theme (intern (car consult--theme-history)))))
 
   (eval-after-load "savehist"
     (add-hook 'savehist-mode-hook 'load-last-theme))
