@@ -1268,8 +1268,8 @@
   (defvar project-file nil)
 
   (defun project--read-file-cpd-relative-fix (prompt
-                                               all-files &optional predicate
-                                               hist mb-default)
+                                              all-files &optional predicate
+                                              hist mb-default)
     (project--read-file-cpd-relative prompt
                                      all-files
                                      predicate
