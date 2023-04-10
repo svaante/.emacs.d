@@ -2101,7 +2101,13 @@ Change stuff in the grep buffer
     :config
     ;; If two dired opened use other dired default-directory as
     ;; base target
-    (setq dired-dwim-target t))
+    (setq dired-dwim-target t)
+
+    (defun dired-here ()
+      (interactive)
+      (dired-other-window default-directory))
+
+    (leader-key "ad" 'dired-here))
 
   (use-package diredfl
     :straight t
@@ -2109,20 +2115,6 @@ Change stuff in the grep buffer
 
   (use-package dired-subtree
     :straight t)
-
-  (use-package dired-sidebar
-    :straight t
-    :after dired
-    :config
-    (setq dired-sidebar-one-instance-p t)
-    (setq dired-sidebar-should-follow-file t)
-
-    (defun +dired-sidebar-toggle-sidebar()
-      (interactive)
-      (project-with-directory nil
-        (dired-sidebar-toggle-sidebar)))
-
-    (leader-key "ad" '+dired-sidebar-toggle-sidebar))
 #+end_src
 
 ** Magit
