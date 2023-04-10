@@ -1604,19 +1604,6 @@ Change stuff in the grep buffer
   (leader-key "wk" 'kill-dedicated-windows)
 #+END_SRC
 
-** Fix color stuff
-#+begin_src  emacs-lisp
-  (use-package xterm-color
-    :straight t
-    :config
-    (setq compilation-environment '("TERM=xterm-256color"))
-
-    (defun +emacs/advice-compilation-filter (f proc string)
-      (funcall f proc (xterm-color-filter string)))
-
-    (advice-add 'compilation-filter :around #'+emacs/advice-compilation-filter))
-#+end_src
-
 ** Scratch
 #+begin_src emacs-lisp
   ;; Eval code lisp in the *scratch* buffer
@@ -1928,6 +1915,16 @@ Change stuff in the grep buffer
 
 ** Compilation
 #+begin_src emacs-lisp
+  (use-package xterm-color
+    :straight t
+    :config
+    (setq compilation-environment '("TERM=xterm-256color"))
+
+    (defun xterm-color-advice-compilation-filter (f proc string)
+      (funcall f proc (xterm-color-filter string)))
+
+    (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
+
   (use-package compile
     :straight (:type built-in)
     :config
