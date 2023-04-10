@@ -1582,19 +1582,18 @@ Change stuff in the grep buffer
       'define-word-at-point))
 #+end_src
 
-** Window lock
+** Dedicated windows
 #+begin_src emacs-lisp
   (defun toggle-window-dedicated ()
+    "Toggle window dedicated"
     (interactive)
     (set-window-dedicated-p (selected-window)
                             (not (window-dedicated-p))))
 
   (leader-key "wl" 'toggle-window-dedicated)
-#+end_src
 
-** Kill all dedicated windows
-#+BEGIN_SRC emacs-lisp
   (defun kill-dedicated-windows ()
+    "Kill all dedicated windows"
     (interactive)
     (seq-do (lambda (window)
               (when (window-dedicated-p window)
