@@ -984,6 +984,9 @@
     :straight t
     :hook (minibuffer-setup . use-orderless-in-minibuffer)
     :init
+    ;; Escape spaces with ?\
+    (setq orderless-component-separator 'orderless-escapable-split-on-space)
+
     (defun without-if-bang (pattern _index _total)
       (cond
        ((equal "!" pattern)
