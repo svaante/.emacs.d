@@ -1221,24 +1221,36 @@
 #+end_src
 
 * Snippets
-** YASnippets
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
+** Tempel
+#+begin_src emacs-lisp
+  (use-package tempel
     :straight t
-    :diminish yas-minor-mode
+    :hook (evil-insert-state-exit . tempel-done)
     :config
-    ;; Org snippets does not work correctly without this
-    ;;(setq org-src-tab-acts-natively nil)
+    (defun tempel-setup-capf ()
+      (setq-local completion-at-point-functions
+                  (cons #'tempel-complete
+                        completion-at-point-functions)))
 
-    (setq yas-keymap-disable-hook
-          (lambda (&rest _)
-            (and corfu-mode completion-in-region-mode)))
+    (setq tempel-trigger-prefix "!")
 
-    (yas-global-mode 1))
+    (defun tempel-or-corfu-complete-next ()
+      (interactive)
+      (if completion-in-region-mode
+          (call-interactively 'corfu-complete)
+       (call-interactively 'tempel-next)))
 
-  (use-package yasnippet-snippets
-    :straight t)
-#+END_SRC
+    (define-key tempel-map (kbd "TAB") 'tempel-or-corfu-complete-next)
+    (define-key tempel-map (kbd "<tab>") 'tempel-or-corfu-complete-next)
+    (define-key tempel-map (kbd "<backtab>") 'tempel-previous)
+    (define-key tempel-map (kbd "S-TAB") 'tempel-previous)
+
+    (add-hook 'eshell-mode-hook 'tempel-setup-capf)
+    (add-hook 'prog-mode-hook 'tempel-setup-capf)
+    (add-hook 'text-mode-hook 'tempel-setup-capf))
+
+  (use-package tempel-collection :straight t)
+#+end_src
 
 * Project management
 #+begin_src emacs-lisp
