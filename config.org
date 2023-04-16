@@ -1694,6 +1694,18 @@ Change stuff in the grep buffer
 
 ** LSP
 #+begin_src emacs-lisp
+  (use-package yasnippet
+    :straight t
+    :diminish yas-minor-mode
+    :config
+
+    ;; Disable yas snippet if completion-in-region active in corfu mode
+    (setq yas-keymap-disable-hook
+          (lambda (&rest _)
+            (and corfu-mode completion-in-region-mode)))
+
+    (yas-global-mode 1))
+
   (use-package lsp-mode
     :straight t
     :hook (prog-mode . (lambda ()
@@ -1702,13 +1714,9 @@ Change stuff in the grep buffer
                                                  'lisp-mode
                                                  'snippet-mode)
                            (lsp-deferred))))
+    :hook (lsp-mode . (lambda ()
+                        (setq-local evil-lookup-func 'lsp-describe-thing-at-point)))
     :config
-    (defun lsp-mode-configuration ()
-      (with-eval-after-load 'evil
-        (define-key evil-normal-state-local-map "K" 'lsp-describe-thing-at-point)
-        (define-key evil-normal-state-local-map "gd" 'lsp-find-definition)
-        (define-key evil-normal-state-local-map "gr" 'lsp-find-references)))
-
     (setq lsp-file-watch-threshold 1000)
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-modeline-code-actions-enable nil)
@@ -1731,8 +1739,6 @@ Change stuff in the grep buffer
             "--header-insertion=never"
             "--header-insertion-decorators=0"))
 
-
-    (add-hook 'lsp-mode-hook 'lsp-mode-configuration)
     (leader-key
       "lr" 'lsp-rename
       "lf" 'lsp-format-buffer))
