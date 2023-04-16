@@ -1668,6 +1668,15 @@ Change stuff in the grep buffer
 
 
 * Programming
+** Progn mode
+#+begin_src emacs-lisp
+  (use-package prog-mode
+    :straight (:type built-in)
+    :config
+    (evil-define-key 'normal prog-mode-map "gr" 'xref-find-references)
+    (evil-define-key 'normal prog-mode-map "gD" 'xref-find-definitions-other-window))
+#+end_src
+
 ** Flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
