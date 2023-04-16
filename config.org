@@ -937,9 +937,10 @@
 
     (defun coruf-lsp-mode-completions ()
       (setq-local completion-at-point-functions
-                  (list (cape-super-capf
-                         #'lsp-completion-at-point)
-                        #'cape-file))))
+                  (cons #'tempel-complete
+                        (list (cape-super-capf
+                               #'lsp-completion-at-point)
+                              #'cape-file)))))
 
 #+END_SRC
 
