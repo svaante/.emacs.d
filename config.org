@@ -926,9 +926,6 @@
     (unless (display-graphic-p)
       (corfu-terminal-mode +1)))
 
-  (use-package company
-    :straight t)
-
   (use-package cape
     :straight t
     :hook (lsp-mode . coruf-lsp-mode-completions)
@@ -936,22 +933,14 @@
     ;; Default completion at point additions
     (add-to-list 'completion-at-point-functions #'cape-history)
 
-    (require 'company-yasnippet)
-    (add-to-list 'completion-at-point-functions (cape-company-to-capf #'company-yasnippet))
     (add-to-list 'completion-at-point-functions #'cape-file)
 
     (defun coruf-lsp-mode-completions ()
       (setq-local completion-at-point-functions
                   (list (cape-super-capf
-                         #'lsp-completion-at-point
-                         (cape-company-to-capf #'company-yasnippet))
+                         #'lsp-completion-at-point)
                         #'cape-file))))
 
-  ;;(use-package cape-yasnippet
-  ;;  :after (cape yasnippet)
-  ;;  :straight (cape-yasnippet :type git :host github :repo "elken/cape-yasnippet")
-  ;;  :config
-  ;;  (add-to-list 'completion-at-point-functions #'cape-yasnippet))
 #+END_SRC
 
 ** Vertico, consult, embark
