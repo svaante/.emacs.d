@@ -1683,7 +1683,7 @@ Change stuff in the grep buffer
     :straight t)
 #+end_src
 
-** 80 Columns please
+** 80 Columns
 #+begin_src emacs-lisp
   (use-package display-fill-column-indicator
     :straight (:type built-in)
