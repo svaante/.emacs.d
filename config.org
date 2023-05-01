@@ -1985,6 +1985,8 @@ Change stuff in the grep buffer
     (setq compile-command (or (car-safe compile-history) ""))
     ;; Always scroll
     (setq compilation-scroll-output t)
+    ;; Just save me the keystrokes
+    (setq compilation-ask-about-save nil)
 
     (evil-define-key 'normal compilation-minor-mode-map
       (kbd "<tab>") 'compilation-next-file
