@@ -1707,17 +1707,13 @@ Change stuff in the grep buffer
 
 ** LSP
 #+begin_src emacs-lisp
-  (use-package yasnippet
-    :straight t
-    :diminish yas-minor-mode
+  (use-package lsp-snippet
+    :straight (lsp-snippet :type git
+                           :host github
+                           :repo "svaante/lsp-snippet"
+                           :include (lsp-snippet-tempel))
     :config
-
-    ;; Disable yas snippet if completion-in-region active in corfu mode
-    (setq yas-keymap-disable-hook
-          (lambda (&rest _)
-            (and corfu-mode completion-in-region-mode)))
-
-    (yas-global-mode 1))
+    (lsp-snippet-tempel-lsp-mode-init))
 
   (use-package lsp-mode
     :straight t
