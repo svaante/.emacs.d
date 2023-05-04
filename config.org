@@ -1472,8 +1472,9 @@
 
     (setenv "PAGER" "cat")
 
-    (advice-add '+emacs/split-follow-window-horizontally :after #'eshell-after-split)
-    (advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
+    ;; TODO remove the follwing if not needed
+    ;;(advice-add '+emacs/split-follow-window-horizontally :after #'eshell-after-split)
+    ;;(advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
     (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
 
     (leader-key "e" '+eshell-same-window)
