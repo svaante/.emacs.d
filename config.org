@@ -1462,7 +1462,10 @@
   (use-package eshell
     :hook ((eshell-first-time-mode . eshell-mode-configuration)
            (eshell-directory-change . +eshell-rename)
-           (eshell-after-prompt . +eshell-make-field))
+           (eshell-after-prompt . +eshell-make-field)
+           (eshell-mode . (lambda ()
+                            ;; imenu support for eshell
+                            (setq-local imenu-generic-expression '(("$ " " $ \\(.*\\)" 1))))))
     :init
     (setq eshell-hist-ignoredups t
           eshell-save-history-on-exit t
