@@ -67,17 +67,16 @@
 ** Mac
 #+BEGIN_SRC  emacs-lisp
   (when (eq system-type 'darwin)
-      (progn
-        (setq mac-option-key-is-meta t)
-        (setq mac-right-option-modifier nil)))
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+    (setq mac-option-key-is-meta t)
+    (setq mac-right-option-modifier nil))
 #+END_SRC
 
 ** Linux
 #+begin_src emacs-lisp
   (when (eq system-type 'gnu/linux)
-      (progn
-        (global-set-key (kbd "C-+") 'text-scale-increase)
-        (global-set-key (kbd "C--") 'text-scale-decrease)))
+    (global-set-key (kbd "C-+") 'text-scale-increase)
+    (global-set-key (kbd "C--") 'text-scale-decrease))
 #+end_src
 
 * Package
