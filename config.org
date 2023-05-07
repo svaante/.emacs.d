@@ -1710,11 +1710,10 @@ Change stuff in the grep buffer
 
 ** LSP
 #+begin_src emacs-lisp
-  (use-package lsp-snippet
-    :straight (lsp-snippet :type git
-                           :host github
-                           :repo "svaante/lsp-snippet"
-                           :include (lsp-snippet-tempel))
+  (use-package lsp-snippet-tempel
+    :straight (lsp-snippet-tempel :type git
+                                  :host github
+                                  :repo "svaante/lsp-snippet")
     :config
     (lsp-snippet-tempel-lsp-mode-init))
 
