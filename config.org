@@ -799,7 +799,7 @@
                                            "* %(org-mono-dwim-headline)\n%?"))
     (setq org-mono-advice-org-refile t)
 
-    (leader-key "on" 'org-mono-dwim)
+    (leader-key "oo" 'org-mono-dwim)
 
     (defvar-keymap embark-org-mono-actions-map
       :doc "Keymap for actions for org-mono."
