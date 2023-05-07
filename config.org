@@ -1645,7 +1645,7 @@ Change stuff in the grep buffer
   ;; source: http://steve.yegge.googlepages.com/my-dot-emacs-file
   (defun rename-file-and-buffer (new-name)
     "Renames both current buffer and file it's visiting to NEW-NAME."
-    (interactive (read-string "New name: " (buffer-name (current-buffer))))
+    (interactive (list (read-string "New name: " (buffer-name (current-buffer)))))
     (let ((name (buffer-name))
           (filename (buffer-file-name)))
       (if (not filename)
