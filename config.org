@@ -2095,11 +2095,16 @@ Change stuff in the grep buffer
     ;; base target
     (setq dired-dwim-target t)
 
-    (defun dired-here ()
+    (defun dired-here-other-window ()
       (interactive)
       (dired-other-window default-directory))
 
-    (leader-key "ad" 'dired-here))
+    (defun dired-here ()
+      (interactive)
+      (dired default-directory))
+
+    (leader-key "ad" 'dired-here
+                "aD" 'dired-here-other-window))
 
   (use-package diredfl
     :straight t
