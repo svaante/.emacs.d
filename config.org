@@ -1690,7 +1690,13 @@ Change stuff in the grep buffer
     :straight (:type built-in)
     :config
     (evil-define-key 'normal prog-mode-map "gr" 'xref-find-references)
-    (evil-define-key 'normal prog-mode-map "gD" 'xref-find-definitions-other-window))
+    (evil-define-key 'normal prog-mode-map "gD" 'xref-find-definitions-other-window)
+
+    (setq xref-prompt-for-identifier
+          '(not xref-find-definitions
+                xref-find-definitions-other-window
+                xref-find-definitions-other-frame
+                xref-find-references)))
 #+end_src
 
 ** Flycheck
