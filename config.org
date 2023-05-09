@@ -2077,13 +2077,42 @@ Change stuff in the grep buffer
     ("q" ignore :exit t)
     ("C-g" ignore :exit t))
 
-    (general-define-key
-     :prefix "SPC"
-     :states 'normal
-     :keymaps 'c-mode-map
-     "pd" 'hydra-gdb/body)
+    ;;(general-define-key
+    ;; :prefix "SPC"
+    ;; :states 'normal
+    ;; :keymaps 'c-mode-map
+    ;; "pd" 'hydra-gdb/body)
 #+end_src
+*** DAP
+#+begin_src emacs-lisp
+  (use-package dap-mode
+    :straight (dap-mode :type git
+                        :host github
+                        :repo "mrsch/dap-mode"
+                        :branch "feat/cortex-debug")
+    :hook ((dap-stopped . (lambda (&rest _) (dap-hydra))))
+    :config
+    (require 'dap-cortex)
 
+    (dap-register-debug-template
+     "Cortex F4 debug"
+     (list :type "cortex-debug"
+           :runToEntryPoint "main"
+           :executable nil
+           :servertype "jlink"
+           :cwd "${workspaceFolder}"
+           :device "STM32F405VG"))
+
+    (require 'dap-ui)
+    (set-face-attribute 'dap-ui-marker-face nil :inherit 'region)
+    (set-face-attribute 'dap-ui-pending-breakpoint-face nil :inherit 'underline)
+    (set-face-attribute 'dap-ui-verified-breakpoint-face nil :inherit 'underline)
+
+    (setq dap-auto-show-output nil)
+    (setq dap-auto-configure-features nil)
+
+    (leader-key "pd" 'dap-hydra))
+#+end_src
 * Applications
 ** Dired
 #+begin_src emacs-lisp
