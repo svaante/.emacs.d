@@ -590,7 +590,7 @@
     :config
     (leader-key
       "jj" 'evil-avy-goto-char-timer
-      "jl" 'avy-goto-line))
+      "jl" 'evil-avy-goto-line))
 #+end_src
 
 * Org
