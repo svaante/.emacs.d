@@ -1518,7 +1518,9 @@
       :doc "Proc hist actions"
       :parent embark-general-map
       "k" #'proc-hist-kill
-      "r" #'proc-hist-rerun)
+      "r" #'proc-hist-rerun
+      "R" #'proc-hist-rerun-as
+      "w" #'proc-hist-copy-as-kill-command)
 
       (add-to-list 'embark-keymap-alist '(proc-hist . embark-proc-hist-actions-map))
 
