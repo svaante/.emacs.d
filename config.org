@@ -1722,9 +1722,10 @@ Change stuff in the grep buffer
                                   :host github
                                   :repo "svaante/lsp-snippet")
     :config
-    (lsp-snippet-tempel-lsp-mode-init))
+    (lsp-snippet-tempel-eglot-init))
 
   (use-package lsp-mode
+    :disabled
     :straight t
     :hook (prog-mode . (lambda ()
                          (unless (derived-mode-p 'clojure-mode
@@ -1767,6 +1768,13 @@ Change stuff in the grep buffer
     (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
     (leader-key
       "ls" 'consult-lsp-symbols))
+#+end_src
+
+** Eglot
+#+begin_src emacs-lisp
+  (use-package eglot
+    :straight (:type built-in)
+    :hook (prog-mode . (lambda () (ignore-errors (eglot-ensure)))))
 #+end_src
 
 ** Emacs lisp
@@ -1928,6 +1936,7 @@ Change stuff in the grep buffer
 ** Rust
 #+begin_src emacs-lisp
   (use-package rustic
+    :disabled
     :straight t
     :config
     ;; Remove auto formating which caused isses with trying to save all buffers
