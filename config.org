@@ -38,6 +38,7 @@
 
   ;; y/n will do
   (defalias 'yes-or-no-p 'y-or-n-p)
+  (setq use-short-answers t)
 
   ;; stop the insessent blinking
   (blink-cursor-mode 0)
