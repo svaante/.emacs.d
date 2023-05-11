@@ -2000,6 +2000,11 @@ Change stuff in the grep buffer
     :config
     (leader-key "k" 'devdocs-lookup)
     (leader-key "K" 'devdocs-lookup-ask-docs))
+
+  (use-package eldoc
+    :straight (:type built-in)
+    :config
+    (setq eldoc-echo-area-use-multiline-p 1))
 #+end_src
 
 ** Compilation
