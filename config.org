@@ -1786,8 +1786,18 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package eglot
     :straight (:type built-in)
-    :hook (prog-mode . (lambda () (ignore-errors (eglot-ensure)))))
-#+end_src
+    :hook ((c-mode . eglot-ensure)
+           (python-mode . eglot-ensure))
+    :config
+    (leader-key "lr" 'eglot-rename)
+    (leader-key "lf" 'eglot-format-buffer))
+
+  (use-package consult-eglot
+    :straight t
+    :config
+    (leader-key "ls" 'consult-eglot-symbols))
+#+END_SRC
+
 
 ** Emacs lisp
 #+begin_src emacs-lisp
