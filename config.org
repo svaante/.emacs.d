@@ -927,7 +927,8 @@
 
   (use-package cape
     :straight t
-    :hook (lsp-mode . coruf-lsp-mode-completions)
+    :hook ((lsp-mode . coruf-lsp-mode-completions)
+           (eglot-managed-mode . coruf-eglot-completions))
     :init
     ;; Default completion at point additions
     (add-to-list 'completion-at-point-functions #'cape-history)
@@ -939,7 +940,13 @@
                   (cons #'tempel-complete
                         (list (cape-super-capf
                                #'lsp-completion-at-point)
-                              #'cape-file)))))
+                              #'cape-file))))
+
+    (defun coruf-eglot-completions ()
+      (setq-local completion-at-point-functions
+                  (cons #'tempel-complete
+                        (list #'cape-file
+                              #'eglot-completion-at-point)))))
 
 #+END_SRC
 
