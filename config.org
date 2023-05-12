@@ -1207,14 +1207,16 @@
       "o" #'open-repl-other-window)
 
     (add-to-list 'embark-keymap-alist '(consult-repl . embark-repls-actions-map)))
-
 #+end_src
 
 ** Minibuffer
 #+BEGIN_SRC emacs-lisp
   (setq minibuffer-insert-commands '(consult-line
                                      consult-ripgrep
-                                     consult-lsp-symbols))
+                                     consult-lsp-symbols
+                                     consult-eglot-symbols
+                                     async-shell-command
+                                     project-async-shell-command))
 
   (defun minibuffer-insert-selection ()
     (when-let* ((_ (member this-command minibuffer-insert-commands))
