@@ -1557,6 +1557,8 @@
     (evil-define-key 'normal shell-mode-map "q" 'kill-on-no-process)
 
     (define-key embark-file-map "!" 'async-shell-command)
+    (setq async-shell-command-buffer 'rename-buffer)
+    (setq shell-command-prompt-show-cwd t)
 
     (leader-key
       "!" 'async-shell-command))
