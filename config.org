@@ -492,7 +492,7 @@
                   " "
                   mode-line-position
                   (:propertize mode-name
-                               face mode-line-emphasis)
+                               face bold)
                   " "
                   vc-mode
                   mode-line-misc-info
