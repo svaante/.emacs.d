@@ -489,12 +489,12 @@
                   mode-line-buffer-identification
                   " "
                   (:eval (mode-line-file-path))
-                  "  "
+                  " "
                   mode-line-position
+                  (:propertize mode-name
+                               face mode-line-emphasis)
+                  " "
                   vc-mode
-                  " "
-                  mode-line-modes
-                  " "
                   mode-line-misc-info
                   mode-line-end-spaces))
 
