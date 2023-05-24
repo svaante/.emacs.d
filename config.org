@@ -477,9 +477,9 @@
   (setq mode-line-position-column-line-format '(" %l:%c"))
 
   (setq-default mode-line-format
-                '("🌻"
-                  (:eval (when (window-dedicated-p)
-                           (propertize "LOCK " 'face 'mode-line-emphasis)))
+                '((:eval (when (window-dedicated-p)
+                           (propertize "DEDI " 'face 'mode-line-emphasis)))
+                  "🌻"
                   mode-line-front-space
                   mode-line-mule-info
                   mode-line-client
