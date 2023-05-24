@@ -1100,9 +1100,8 @@
       "Eshell buffer candidate source for `consult-buffer'.")
     (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
 
-    ;; Remove initial # when using async
-    (add-to-list 'consult-async-split-styles-alist
-                 '(perl :initial "" :function consult--split-perl))
+    ;; Use semicolon as spliter
+    (setq consult-async-split-style 'semicolon)
 
     ;; Add repl buffer source for easier repl creation
     (setq consult-buffer-repls '(("*Python*" . run-python)
