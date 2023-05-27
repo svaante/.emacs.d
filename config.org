@@ -736,75 +736,45 @@
     (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 #+END_SRC
 
-** Search
-#+BEGIN_SRC emacs-lisp
-  (use-package emacs
-    :after consult
-    :config
-    (require 'consult-org)
-    (setq consult-org-agenda-match "+LEVEL=1")
-    (setq consult-org-agenda-scope '("~/org/notes.org"))
+** Notes
+#+begin_src emacs-lisp
+    (use-package org-mono
+      :after embark
+      :diminish
+      :straight (org-mono :type git :host github :repo "svaante/org-mono")
+      :config
+      (setq org-mono-files '("~/org/notes.org"
+                             "~/org/pad.org"
+                             "~/org/thoughts.org"
+                             "~/.emacs.d/config.org"))
 
-    ;; FIXME There is some bug happening with dedicated buffers still
-    (defun consult-org-note ()
-      "Jump to an Org heading."
-      (interactive)
-      (let* (orig-buffers
-             ;; If current buffer is an indirect one lets keep it
-             (org-last-indirect-buffer nil)
-             (org-goto-marker-indirect
-              (lambda (marker)
-                ;; If current window is dedicated use last preview window
-                (when (and (window-dedicated-p)
-                           (buffer-live-p org-last-indirect-buffer))
-                  (pop-to-buffer org-last-indirect-buffer))
-                (with-current-buffer (marker-buffer marker)
-                  (save-excursion
-                    (goto-char marker)
-                    (let ((org-indirect-buffer-display 'current-window))
-                      (ignore-errors
-                        (org-tree-to-indirect-buffer)
-                        (org-show-subtree)
-                        (pop-to-buffer org-last-indirect-buffer)))))))
-             (state (lambda (action candidate)
-                      (cond
-                       ;; Store all buffer state
-                       ((eq action 'setup)
-                        (setq orig-buffers (buffer-list)))
-                       ;; Preview buffers
-                       ((and (eq action 'preview)
-                             candidate)
-                        (funcall org-goto-marker-indirect candidate))
-                       ;; Delete all new buffers
-                       ((eq action 'exit)
-                        (dolist (buffer (buffer-list))
-                          (unless (member buffer orig-buffers)
-                            (kill-buffer buffer))))
-                       ;; Goto last candidate
-                       ((and (eq action 'return) candidate)
-                        (funcall org-goto-marker-indirect candidate))))))
-        (consult--read
-         (consult--slow-operation "Collecting headings..."
-           (or (consult-org--headings nil consult-org-agenda-match consult-org-agenda-scope)
-               (user-error "No headings")))
-         :prompt "Go to heading: "
-         :category 'consult-org-heading
-         :sort nil
-         :require-match t
-         :history '(:input consult-org--history)
-         :narrow (consult-org--narrow)
-         :state state
-         :lookup #'consult--lookup-candidate)))
+      (setq org-mono-advice-org-refile t)
 
-    (defun consult-org-grep ()
-      (interactive)
-      (let ((default-directory "~/org"))
-        (consult-ripgrep)))
+      (leader-key "oo" 'org-mono-goto)
 
-    (leader-key
-      "og" 'consult-org-grep
-      "oo" 'consult-org-note))
-#+END_SRC
+      (defvar-keymap embark-org-mono-actions-map
+        :doc "Keymap for actions for org-mono."
+        :parent embark-general-map
+        "o" #'org-mono-goto-other-window
+        "t" #'org-mono-todo
+        "r" #'org-mono-rename
+        "w" #'org-mono-refile-from
+        "a" #'org-mono-archive
+        "k" #'org-mono-delete-headline
+        "c" #'org-mono-goto-headline-child
+        "d" #'org-mono-time-stamp
+        "b" #'org-mono-goto-backlinks)
+
+      (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map))
+
+      (global-org-mono-mode))
+
+    (use-package org-mono-consult
+      :after consult
+      :straight (org-mono-consult :type git :host github :repo "svaante/org-mono")
+      :config
+      (setq org-mono-completing-read-fn 'org-mono-consult-completing-read))
+#+end_src
 
 * Completion
 ** Basics
