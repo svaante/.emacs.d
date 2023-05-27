@@ -604,24 +604,17 @@
     (defun +org-confirm-babel-evaluate (lang body)
       (not (member lang '("sh" "emacs-lisp" "python"))))
 
-    (diminish 'visual-line-mode)
-    (eval-after-load 'org-indent '(diminish 'org-indent-mode))
-
     (setq org-link-frame-setup '((file . find-file))) ;; Open Link in same window
     (setq org-return-follows-link t)
     (setq org-babel-python-command "python3")
     (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
     (setq org-src-window-setup 'current-window)
     (setq org-startup-with-inline-images t)
+
+    ;; Enable babel languages
     (org-babel-do-load-languages 'org-babel-load-languages
                                  '((shell . t)
                                    (python . t)))
-
-    (custom-set-faces
-     '(org-level-1 ((t (:inherit outline-1 :height 1.2))))
-     '(org-level-2 ((t (:inherit outline-2 :height 1.15))))
-     '(org-level-3 ((t (:inherit outline-3 :height 1.1))))
-     '(org-level-3 ((t (:inherit outline-3 :height 1.05)))))
 
     (evil-define-key 'normal org-mode-map
       (kbd "<RET>") 'org-return)
@@ -638,16 +631,39 @@
         (apply old-org-agenda args)))
     (advice-add 'org-agenda :around 'org-agenda-well-behaved)
 
+    (setq org-agenda-breadcrumbs-separator "/")
+    (setq org-agenda-prefix-format '((agenda .  "  %?-40 b")
+                                     (todo .    "  %?-40 b")
+                                     (tags .    "  %?-40 b")
+                                     (search .  "  %?-40 b")))
+
+    (setq org-todo-keywords
+          '((sequence "TODO" "ACTIVE" "DONE")))
+
+    ;; Replace the original agenda
+    (setq org-agenda-custom-commands
+          '(("A" "Agenda"
+             ((todo "ACTIVE"
+                    ((org-agenda-overriding-header "Active:")))
+              (agenda)
+              (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
+                    ((org-agenda-overriding-header "Projects:")))
+              (tags "+LEVEL=1-SCHEDULED={.+}-DEADLINE={.+}/TODO"
+                    ((org-agenda-overriding-header "Todos:")))))))
+
+    (defun org-agenda-custom ()
+      (interactive)
+      (org-agenda nil "A"))
+
     (leader-key
-      "oa" 'org-agenda
+      "oa" 'org-agenda-custom
+      "oA" 'org-agenda
       "ot" 'org-todo-list
       "ow" 'org-agenda-list)
 
     (setq org-agenda-files '("~/org/notes.org"
                              "~/org/pad.org"
-                             "~/org/clipboard.org"
-                             "~/org/todo.org"
-                             "~/org/books.org"))
+                             "~/org/todo.org"))
 
     ;; Create files if they do not exist
     (seq-do (lambda (file)
@@ -680,7 +696,7 @@
     :config
     ;; Dont touch my windows
     (defun org-capture-well-behaved (old-org-capture &rest args)
-      "Does not close the other opend window before opening the capture buffer"
+      "Does not close the other opened window before opening the capture buffer"
       (interactive)
       (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
         (apply old-org-capture args)))
@@ -693,19 +709,6 @@
     (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
     (setq org-outline-path-complete-in-steps nil)
 
-    (defun org-todos-write-timestamp ()
-      (org-map-entries
-       (lambda ()
-         (when (and (org-entry-is-todo-p)
-                    (not (org-get-inline-property "Timestamp")))
-           (org-set-inline-property "Timestamp"
-                                    (format-time-string (car org-time-stamp-formats)))))))
-
-    (defun org-headline--register-functions-h ()
-      (add-hook 'before-save-hook 'org-todos-write-timestamp nil t))
-
-    (add-hook 'org-mode-hook #'org-headline--register-functions-h)
-
     (setq org-capture-templates '(("p" "Pad" plain
                                    (file+olp+datetree "~/org/pad.org")
                                    "\n%?\n"
@@ -715,13 +718,8 @@
                                    "* %?\n")
                                   ("t" "Todo" entry
                                    (file "~/org/todo.org")
-                                   "* TODO %?\nTimestamp: %t\n")
-                                  ("c" "Clipboard" entry
-                                   (file "~/org/clipboard.org")
-                                   "* %?\nTimestamp: %t\n%(x-get-clipboard)")))
+                                   "* TODO %?\n")))
     (leader-key "oc" 'org-capture))
-
-  (use-package ob-async :straight t)
 
   (use-package org-modern
     :straight (org-modern :type git :host github :repo "minad/org-modern")
@@ -738,91 +736,74 @@
     (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 #+END_SRC
 
-** Org inline property
-#+begin_src emacs-lisp
-  (defconst re-org-inline-property "%s:")
-
-  (defun org-get-inline-property (property)
-    (save-excursion
-      (org-back-to-heading t)
-      (when (search-forward (format re-org-inline-property property)
-                            (save-excursion (outline-next-heading))
-                            t)
-        (goto-char (match-end 0))
-        (skip-chars-forward " \t")
-        (org-trim (buffer-substring-no-properties (point) (point-at-eol))))))
-
-  (defun org-delete-inline-property (property)
-    (save-excursion
-      (org-back-to-heading t)
-      (when (search-forward (format re-org-inline-property property)
-                            (save-excursion (outline-next-heading))
-                            t)
-        (goto-char (match-end 0))
-        (kill-whole-line))))
-
-  (defun org-set-inline-property (property value)
-    (save-excursion
-      (org-back-to-heading t)
-      (if (search-forward (format re-org-inline-property property)
-                          (save-excursion (outline-next-heading))
-                          t)
-          (progn
-            (goto-char (match-end 0))
-            (kill-region (point) (line-end-position)))
-        (end-of-line)
-        (newline-and-indent)
-        (insert (concat property ":")))
-      (insert " " value)))
-#+end_src
-
-** Org roamish
-
+** Search
 #+BEGIN_SRC emacs-lisp
-  (use-package org-mono
-    :after embark
-    :diminish
-    :straight (org-mono :type git :host github :repo "svaante/org-mono")
-    :config
-    (setq org-mono-files '("~/org/notes.org"
-                           "~/org/pad.org"
-                           "~/org/todo.org"
-                           "~/org/clipboard.org"
-                           "~/org/thoughts.org"
-                           "~/org/books.org"
-                           "~/org/shared.org"
-                           "~/.emacs.d/config.org"
-                           ))
-
-    (setq org-mono-capture-dwim-template '(entry
-                                           (file "~/org/notes.org")
-                                           "* %(org-mono-dwim-headline)\n%?"))
-    (setq org-mono-advice-org-refile t)
-
-    (leader-key "oo" 'org-mono-dwim)
-
-    (defvar-keymap embark-org-mono-actions-map
-      :doc "Keymap for actions for org-mono."
-      :parent embark-general-map
-      "o" #'org-mono-goto-other-window
-      "t" #'org-mono-todo
-      "r" #'org-mono-rename
-      "w" #'org-mono-refile-from
-      "a" #'org-mono-archive
-      "k" #'org-mono-delete-headline
-      "c" #'org-mono-goto-headline-child
-      "d" #'org-mono-time-stamp
-      "b" #'org-mono-goto-backlinks)
-
-    (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map))
-
-    (global-org-mono-mode))
-
-  (use-package org-mono-consult
+  (use-package emacs
     :after consult
-    :straight (org-mono-consult :type git :host github :repo "svaante/org-mono")
     :config
-    (setq org-mono-completing-read-fn 'org-mono-consult-completing-read))
+    (require 'consult-org)
+    (setq consult-org-agenda-match "+LEVEL=1")
+    (setq consult-org-agenda-scope '("~/org/notes.org"))
+
+    ;; FIXME There is some bug happening with dedicated buffers still
+    (defun consult-org-note ()
+      "Jump to an Org heading."
+      (interactive)
+      (let* (orig-buffers
+             ;; If current buffer is an indirect one lets keep it
+             (org-last-indirect-buffer nil)
+             (org-goto-marker-indirect
+              (lambda (marker)
+                ;; If current window is dedicated use last preview window
+                (when (and (window-dedicated-p)
+                           (buffer-live-p org-last-indirect-buffer))
+                  (pop-to-buffer org-last-indirect-buffer))
+                (with-current-buffer (marker-buffer marker)
+                  (save-excursion
+                    (goto-char marker)
+                    (let ((org-indirect-buffer-display 'current-window))
+                      (ignore-errors
+                        (org-tree-to-indirect-buffer)
+                        (org-show-subtree)
+                        (pop-to-buffer org-last-indirect-buffer)))))))
+             (state (lambda (action candidate)
+                      (cond
+                       ;; Store all buffer state
+                       ((eq action 'setup)
+                        (setq orig-buffers (buffer-list)))
+                       ;; Preview buffers
+                       ((and (eq action 'preview)
+                             candidate)
+                        (funcall org-goto-marker-indirect candidate))
+                       ;; Delete all new buffers
+                       ((eq action 'exit)
+                        (dolist (buffer (buffer-list))
+                          (unless (member buffer orig-buffers)
+                            (kill-buffer buffer))))
+                       ;; Goto last candidate
+                       ((and (eq action 'return) candidate)
+                        (funcall org-goto-marker-indirect candidate))))))
+        (consult--read
+         (consult--slow-operation "Collecting headings..."
+           (or (consult-org--headings nil consult-org-agenda-match consult-org-agenda-scope)
+               (user-error "No headings")))
+         :prompt "Go to heading: "
+         :category 'consult-org-heading
+         :sort nil
+         :require-match t
+         :history '(:input consult-org--history)
+         :narrow (consult-org--narrow)
+         :state state
+         :lookup #'consult--lookup-candidate)))
+
+    (defun consult-org-grep ()
+      (interactive)
+      (let ((default-directory "~/org"))
+        (consult-ripgrep)))
+
+    (leader-key
+      "og" 'consult-org-grep
+      "oo" 'consult-org-note))
 #+END_SRC
 
 * Completion
