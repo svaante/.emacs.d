@@ -486,9 +486,8 @@
                   mode-line-modified
                   mode-line-remote
                   mode-line-frame-identification
-                  mode-line-buffer-identification
-                  " "
                   (:eval (mode-line-file-path))
+                  mode-line-buffer-identification
                   " "
                   mode-line-position
                   (:propertize mode-name
