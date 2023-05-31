@@ -521,8 +521,8 @@
     :diminish
     :hook (prog-mode . whitespace-mode)
     :init
-    (setq whitespace-line-column 80) ;; limit line length
-    (setq whitespace-style '(face lines-tail trailing)))
+    (setq whitespace-line-column 80)
+    (setq whitespace-style '(face trailing lines-char)))
 #+END_SRC
 
 *** Delete whitespace
