@@ -1746,6 +1746,7 @@ Change stuff in the grep buffer
   (use-package eglot
     :straight (:type built-in)
     :hook ((c-mode . eglot-ensure)
+           (c++-mode . eglot-ensure)
            (python-mode . eglot-ensure))
     :config
     (leader-key "lr" 'eglot-rename)
