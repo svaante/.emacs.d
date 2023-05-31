@@ -737,42 +737,42 @@
 
 ** Notes
 #+begin_src emacs-lisp
-    (use-package org-mono
-      :after embark
-      :diminish
-      :straight (org-mono :type git :host github :repo "svaante/org-mono")
-      :config
-      (setq org-mono-files '("~/org/notes.org"
-                             "~/org/pad.org"
-                             "~/org/thoughts.org"
-                             "~/.emacs.d/config.org"))
+  (use-package org-mono
+    :after embark
+    :diminish
+    :straight (org-mono :type git :host github :repo "svaante/org-mono")
+    :config
+    (setq org-mono-files '("~/org/notes.org"
+                           "~/org/pad.org"
+                           "~/org/thoughts.org"
+                           "~/.emacs.d/config.org"))
 
-      (setq org-mono-advice-org-refile t)
+    (setq org-mono-advice-org-refile t)
 
-      (leader-key "oo" 'org-mono-goto)
+    (leader-key "oo" 'org-mono-goto)
 
-      (defvar-keymap embark-org-mono-actions-map
-        :doc "Keymap for actions for org-mono."
-        :parent embark-general-map
-        "o" #'org-mono-goto-other-window
-        "t" #'org-mono-todo
-        "r" #'org-mono-rename
-        "w" #'org-mono-refile-from
-        "a" #'org-mono-archive
-        "k" #'org-mono-delete-headline
-        "c" #'org-mono-goto-headline-child
-        "d" #'org-mono-time-stamp
-        "b" #'org-mono-goto-backlinks)
+    (defvar-keymap embark-org-mono-actions-map
+      :doc "Keymap for actions for org-mono."
+      :parent embark-general-map
+      "o" #'org-mono-goto-other-window
+      "t" #'org-mono-todo
+      "r" #'org-mono-rename
+      "w" #'org-mono-refile-from
+      "a" #'org-mono-archive
+      "k" #'org-mono-delete-headline
+      "c" #'org-mono-goto-headline-child
+      "d" #'org-mono-time-stamp
+      "b" #'org-mono-goto-backlinks)
 
-      (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map))
+    (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map))
 
-      (global-org-mono-mode))
+    (global-org-mono-mode))
 
-    (use-package org-mono-consult
-      :after consult
-      :straight (org-mono-consult :type git :host github :repo "svaante/org-mono")
-      :config
-      (setq org-mono-completing-read-fn 'org-mono-consult-completing-read))
+  (use-package org-mono-consult
+    :after consult
+    :straight (org-mono-consult :type git :host github :repo "svaante/org-mono")
+    :config
+    (setq org-mono-completing-read-fn 'org-mono-consult-completing-read))
 #+end_src
 
 * Completion
