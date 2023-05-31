@@ -1186,7 +1186,7 @@
 ** Tempel
 #+begin_src emacs-lisp
   (use-package tempel
-    :straight t
+    :straight (tempel :type git :host github :repo "minad/tempel")
     :hook (evil-insert-state-exit . tempel-done)
     :config
     (defun tempel-setup-capf ()
