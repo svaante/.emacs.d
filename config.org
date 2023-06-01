@@ -1749,6 +1749,7 @@ Change stuff in the grep buffer
     :straight (:type built-in)
     :hook ((c-mode . eglot-ensure)
            (c++-mode . eglot-ensure)
+           (rust-mode . eglot-ensure)
            (python-mode . eglot-ensure))
     :config
     (leader-key
