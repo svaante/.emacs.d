@@ -1671,7 +1671,7 @@ Change stuff in the grep buffer
                 xref-find-references)))
 #+end_src
 
-** Flycheck
+** Flymake
 #+begin_src emacs-lisp
   (use-package flymake
     :straight (:type built-in)
