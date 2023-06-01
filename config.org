@@ -1751,8 +1751,10 @@ Change stuff in the grep buffer
            (c++-mode . eglot-ensure)
            (python-mode . eglot-ensure))
     :config
-    (leader-key "lr" 'eglot-rename)
-    (leader-key "lf" 'eglot-format-buffer))
+    (leader-key
+      "lr" 'eglot-rename
+      "lf" 'eglot-format-buffer
+      "lq" 'eglot-code-action-quickfix))
 
   (use-package consult-eglot
     :straight t
