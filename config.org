@@ -588,6 +588,32 @@
   (use-package avy
     :straight t
     :config
+    (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
+
+    (defun avy-action-visual (pt)
+      (let (beg end)
+        (goto-char pt)
+        (setq beg (point))
+        (avy-forward-item)
+        (backward-char)
+        (setq end (point))
+        (evil-visual-select beg end)))
+
+    (defun avy-action-paste-line (pt)
+      (avy-action-yank-line pt))
+
+    (defun avy-action-paste (pt)
+      (avy-action-yank pt))
+
+    (setq avy-dispatch-alist
+          '((?x . avy-action-kill-move)
+            (?X . avy-action-kill-stay)
+            (?v . avy-action-visual)
+            (?w . avy-action-copy)
+            (?p . avy-action-paste)
+            (?P . avy-action-paste-line)
+            (?z . avy-action-ispell)))
+
     (leader-key
       "jj" 'evil-avy-goto-char-timer
       "jl" 'evil-avy-goto-line))
