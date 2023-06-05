@@ -1776,6 +1776,13 @@ Change stuff in the grep buffer
            (rust-mode . eglot-ensure)
            (python-mode . eglot-ensure))
     :config
+    ;; BUG: https://github.com/joaotavora/eglot/issues/1171
+    (add-hook 'eglot-managed-mode-hook
+              (lambda () (setq eldoc-documentation-functions
+                               '(flymake-eldoc-function
+                                 eglot-signature-eldoc-function
+                                 eglot-hover-eldoc-function))))
+
     (leader-key
       "lr" 'eglot-rename
       "lf" 'eglot-format-buffer
