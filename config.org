@@ -1700,9 +1700,7 @@ Change stuff in the grep buffer
 ** Flymake
 #+begin_src emacs-lisp
   (use-package flymake
-    :straight (:type built-in)
-    :config
-    (setq flymake-show-diagnostics-at-end-of-line t))
+    :straight (:type built-in))
 #+end_src
 
 ** 80 Columns
