@@ -1272,11 +1272,14 @@
   (defun project--read-file-cpd-relative-fix (prompt
                                               all-files &optional predicate
                                               hist mb-default)
-    (project--read-file-cpd-relative prompt
-                                     all-files
-                                     predicate
-                                     'project-file
-                                     mb-default))
+    (let ((current-buffer-file-name buffer-file-name))
+      (project--read-file-cpd-relative prompt
+                                       all-files
+                                       ;; Remove current buffer from candidates list
+                                       (lambda (candidate)
+                                         (not (string-suffix-p candidate current-buffer-file-name)))
+                                       'project-file
+                                       mb-default)))
   (use-package project
     :straight (:type built-in)
     :config
