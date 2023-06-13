@@ -1053,6 +1053,7 @@
       "m"  'consult-bookmark
       "jm" 'consult-mark
       "jc" 'consult-compile-error
+      "je" 'consult-flymake
       "y"  'consult-yank-pop
       ":"  'execute-extended-command
       "s"  'consult-line)
