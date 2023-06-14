@@ -228,6 +228,7 @@
 
     (thread-last evil-collection-mode-list
                  (remove 'eshell)
+                 (remove 'corfu)
                  (setq evil-collection-mode-list))
     (evil-collection-init)
     (diminish 'evil-collection-unimpaired-mode))
@@ -886,6 +887,14 @@
               (lambda ()
                 (setq-local corfu-auto nil)
                 (corfu-mode)))
+
+    ;; C-n C-p
+    (evil-make-overriding-map corfu-map)
+    (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
+    (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
+    (evil-define-key 'insert corfu-map
+      (kbd "C-n") 'corfu-next
+      (kbd "C-p") 'corfu-previous)
 
     (define-key corfu-map (kbd "RET") nil)
     (global-corfu-mode)
