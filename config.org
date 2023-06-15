@@ -108,7 +108,6 @@
 #+end_src
 
 * Key mappings
-
 ** Global mappings
 #+begin_src emacs-lisp
   (use-package emacs
@@ -425,7 +424,6 @@
     (set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
     )
 #+end_src
-
 
 ** Themes
 #+BEGIN_SRC emacs-lisp
@@ -1693,7 +1691,6 @@ Change stuff in the grep buffer
     (add-hook 'savehist-mode-hook 'load-last-theme))
 #+end_src
 
-
 * Programming
 ** Progn mode
 #+begin_src emacs-lisp
@@ -1806,7 +1803,6 @@ Change stuff in the grep buffer
     :config
     (leader-key "ls" 'consult-eglot-symbols))
 #+END_SRC
-
 
 ** Emacs lisp
 #+begin_src emacs-lisp
