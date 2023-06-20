@@ -870,7 +870,7 @@
     (setq corfu-cycle t)
     (setq corfu-auto t)
     (setq corfu-preselect 'first)
-    (setq corfu-quit-no-match 'separator)
+    (setq corfu-quit-no-match nil)
     (setq corfu-auto-prefix 2)
     (setq corfu-on-exact-match 'quit)
 
