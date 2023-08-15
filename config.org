@@ -453,6 +453,8 @@
     :straight t)
 
   (use-package doom-themes :straight t)
+
+  (use-package wildcharm-theme :straight t)
 #+END_SRC
 
 ** Mode-line
