@@ -1288,6 +1288,11 @@
                                          (not (string-suffix-p candidate current-buffer-file-name)))
                                        'project-file
                                        mb-default)))
+  (defun project-recompile ()
+    (interactive)
+    (project-with-directory t
+        (recompile)))
+
   (use-package project
     :straight (:type built-in)
     :config
@@ -1301,7 +1306,8 @@
       "SPC" 'project-find-file
       "pp" 'project-switch-project
       "p!" 'project-async-shell-command
-      "pc" 'project-compile))
+      "pc" 'project-compile
+      "pC" 'project-recompile))
 #+end_src
 
 * Terminal
