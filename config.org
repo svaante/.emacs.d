@@ -333,12 +333,13 @@
              :size 85
              :dedicated t
              :popup t)
-            ("*Messages*"
+            ("\\*Messages\\*"
+             :regexp t
              :select t
              :align below
              :size 0.30
              :dedicated t
-             :popup t)
+             :popup nil)
             ("\\*Embark Export Occur\\*"
              :regexp t
              :select t
@@ -578,6 +579,7 @@
                  (t (org-narrow-to-subtree))))
           ((derived-mode-p 'latex-mode)
            (LaTeX-narrow-to-environment))
+          ((not (thing-at-point 'defun)) (narrow-to-page))
           (t (narrow-to-defun))))
 
   (leader-key "z" 'narrow-or-widen-dwim)
@@ -663,13 +665,11 @@
                                      (search .  "  %?-40 b")))
 
     (setq org-todo-keywords
-          '((sequence "TODO" "ACTIVE" "DONE")))
+          '((sequence "TODO" "DONE")))
 
     ;; Replace the original agenda
     (setq org-agenda-custom-commands
           '(("A" "Agenda"
-             ((todo "ACTIVE"
-                    ((org-agenda-overriding-header "Active:")))
               (agenda)
               (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
                     ((org-agenda-overriding-header "Projects:")))
@@ -1738,6 +1738,28 @@ Change stuff in the grep buffer
     :config
     (lsp-snippet-tempel-eglot-init))
 
+  (use-package lsp-snippet-yasnippet
+    :disabled
+    :straight (lsp-snippet-yasnippet :type git
+                                     :host github
+                                     :repo "svaante/lsp-snippet")
+    :config
+    (lsp-snippet-yasnippet-eglot-init))
+
+  ;; Testing
+  (use-package yasnippet
+    :disabled
+    :straight (yasnippet :type git
+                         :host github
+                         :repo "joaotavora/yasnippet")
+    :hook (eglot-managed-mode . yas-minor-mode)
+    :config
+    ;; Disable yas snippet if completion-in-region active in corfu mode
+    (setq yas-keymap-disable-hook
+          (lambda (&rest _)
+            (and corfu-mode completion-in-region-mode))))
+
+
   (use-package lsp-mode
     :disabled
     :straight t
@@ -1902,6 +1924,14 @@ Change stuff in the grep buffer
     (setq c-basic-offset 4))
 #+end_src
 
+** Common lisp
+#+begin_src emacs-lisp
+  (use-package sly
+    :straight t
+    :config
+    (setq sly-command-switch-to-existing-lisp 'always))
+#+end_src
+
 ** Javascript
 #+begin_src emacs-lisp
   (use-package emacs
@@ -1990,6 +2020,9 @@ Change stuff in the grep buffer
     (add-to-list 'compilation-error-regexp-alist 'rustic-warning)
     (add-to-list 'compilation-error-regexp-alist 'rustic-info)
     (add-to-list 'compilation-error-regexp-alist 'rustic-panic))
+
+  (use-package rust-mode
+    :straight t)
 #+end_src
 
 ** Godot
@@ -2157,11 +2190,10 @@ Change stuff in the grep buffer
     (set-face-attribute 'dap-ui-pending-breakpoint-face nil :inherit 'underline)
     (set-face-attribute 'dap-ui-verified-breakpoint-face nil :inherit 'underline)
 
-    (setq dap-auto-show-output nil)
-    (setq dap-auto-configure-features nil)
-
-    (leader-key "pd" 'dap-hydra))
+    (setq dap-auto-show-output t)
+    (setq dap-auto-configure-features nil))
 #+end_src
+
 * Applications
 ** Dired
 #+begin_src emacs-lisp
@@ -2225,6 +2257,7 @@ Change stuff in the grep buffer
     (leader-key "gc" 'magit-checkout)
     (leader-key "gf" 'magit-fetch-all)
     (leader-key "gf" 'magit-log-buffer-file))
+
 #+end_src
 
 ** Tramp
