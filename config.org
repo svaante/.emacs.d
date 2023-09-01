@@ -414,15 +414,16 @@
 * Looks
 ** Fonts
 #+begin_src emacs-lisp
-  ;; Set my font
-  (when (eq system-type 'darwin)
-    (set-face-attribute 'default nil :font "Monaco 14")
-    (set-fontset-font t '(#x1f300 . #x1f5ff)
-                      (font-spec :family "Apple Color Emoji" :size 12)))
+    ;; Set my font
+    (when (eq system-type 'darwin)
+      (set-face-attribute 'default nil :font "Monaco 14")
+      (set-fontset-font t '(#x1f300 . #x1f5ff)
+                        (font-spec :family "Apple Color Emoji" :size 12)))
 
-  (when (eq system-type 'gnu/linux)
-    ;(set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
-    (set-face-attribute 'default nil :font "Comic Mono 11"))
+    (when (eq system-type 'gnu/linux)
+      (set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
+      ;(set-face-attribute 'default nil :font "Comic Mono 11")
+      )
 #+end_src
 
 ** Themes
@@ -670,7 +671,7 @@
     ;; Replace the original agenda
     (setq org-agenda-custom-commands
           '(("A" "Agenda"
-              (agenda)
+             ((agenda)
               (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
                     ((org-agenda-overriding-header "Projects:")))
               (tags "+LEVEL=1-SCHEDULED={.+}-DEADLINE={.+}/TODO"
@@ -872,7 +873,7 @@
     (setq corfu-cycle t)
     (setq corfu-auto t)
     (setq corfu-preselect 'first)
-    (setq corfu-quit-no-match nil)
+    (setq corfu-quit-no-match t)
     (setq corfu-auto-prefix 2)
     (setq corfu-on-exact-match 'quit)
 
@@ -1306,6 +1307,7 @@
       "SPC" 'project-find-file
       "pp" 'project-switch-project
       "p!" 'project-async-shell-command
+      "pk" 'project-kill-buffers
       "pc" 'project-compile
       "pC" 'project-recompile))
 #+end_src
@@ -1785,20 +1787,21 @@ Change stuff in the grep buffer
       (setq-local buffer-file-name (->> babel-info caddr (alist-get :tangle))))
 
     ;; c mode configurations
-    (setq lsp-clients-clangd-args
-          '("-j=2"
-            "--background-index"
-            "--clang-tidy"
-            "--completion-style=bundled"
-            "--pch-storage=memory"
-            "--header-insertion=never"
-            "--header-insertion-decorators=0"))
+    ;;(setq lsp-clients-clangd-args
+    ;;      '("-j=2"
+    ;;        "--background-index"
+    ;;        "--clang-tidy"
+    ;;        "--completion-style=bundled"
+    ;;        "--pch-storage=memory"
+    ;;        "--header-insertion=never"
+    ;;        "--header-insertion-decorators=0"))
 
     (leader-key
       "lr" 'lsp-rename
       "lf" 'lsp-format-buffer))
 
   (use-package consult-lsp
+    :after lsp-mode
     :straight t
     :config
     (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
@@ -1809,7 +1812,7 @@ Change stuff in the grep buffer
 ** Eglot
 #+begin_src emacs-lisp
   (use-package eglot
-    :straight (:type built-in)
+    :straight (eglot :type git :host github :repo "joaotavora/eglot")
     :hook ((c-mode . eglot-ensure)
            (c++-mode . eglot-ensure)
            (rust-mode . eglot-ensure)
@@ -1828,6 +1831,7 @@ Change stuff in the grep buffer
       "lq" 'eglot-code-action-quickfix))
 
   (use-package consult-eglot
+    :after eglot
     :straight t
     :config
     (leader-key "ls" 'consult-eglot-symbols))
