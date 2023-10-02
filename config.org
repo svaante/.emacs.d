@@ -191,6 +191,7 @@
     ;; Keep eldoc message on insert
     (eldoc-add-command 'evil-change)
     (eldoc-add-command 'evil-insert)
+    (eldoc-add-command 'evil-escape)
 
     ;; my common misspellings
     (evil-ex-define-cmd "E[dit]" 'evil-edit)
@@ -1053,7 +1054,7 @@
 
     (leader-key
       "."  'find-file-at-point
-      "pg"  'consult-ripgrep
+      "pg" 'consult-ripgrep
       "pl" 'consult-locate
       "b"  'consult-buffer
       "i"  'consult-imenu
@@ -1137,7 +1138,8 @@
     :init
     (which-key-mode))
 
-  (defun find-file-at (file)
+  (defun +find-file-at (file)
+    "Find file at `default-directory' FILE."
     (interactive "Directory: ")
     (let* ((default-directory (file-name-directory
                                (expand-file-name
@@ -1180,7 +1182,7 @@
             #'which-key--hide-popup-ignore-command)
           embark-become-indicator embark-action-indicator)
 
-    (define-key embark-file-map "." 'find-file-at)
+    (define-key embark-file-map "." '+find-file-at)
     (define-key embark-file-map "g" '+magit-there)
     (define-key embark-file-map "G" 'consult-ripgrep)
     (define-key embark-file-map "e" '+eshell-from-path)
@@ -1340,7 +1342,7 @@
     (when (bound-and-true-p eshell-mode)
       (rename-buffer (generate-new-buffer-name (+eshell-name)
                                                (buffer-name)))))
-  (defun +eshell ()
+  (defun +eshell-dwim ()
     (let* ((name (+eshell-name))
            (buffer (cond
                     ;; If called from eshell buffer generate new buffer
@@ -1354,48 +1356,53 @@
           (eshell-mode))
       buffer)))
 
-  (defun +eshell-same-window ()
+  (defun +eshell ()
     (interactive)
-    (switch-to-buffer (+eshell))
+    (switch-to-buffer (+eshell-dwim))
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project ()
     (let* ((default-directory (project-project-root t))
            (eshell-project-type-p t)
-           (buffer (+eshell)))
+           (buffer (+eshell-dwim)))
       (with-current-buffer buffer
         (setq-local eshell-project-type-p t)
       buffer)))
 
   (defun +eshell-other-window ()
+    "Open +eshell in other window."
     (interactive)
-    (switch-to-buffer-other-window (+eshell))
+    (switch-to-buffer-other-window (+eshell-dwim))
     (+eshell/goto-end-of-prompt))
 
-  (defun +eshell-project-same-window ()
+  (defun +eshell-project ()
+    "Open +eshell in project."
     (interactive)
     (switch-to-buffer (+eshell-project))
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project-other-window ()
+    "Open +eshell in project in other window."
     (interactive)
     (switch-to-buffer-other-window (+eshell-project))
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-from-path (path)
+    "Open +eshell from PATH."
     (interactive "F")
     (let ((default-directory (file-name-directory
                                 (expand-file-name
                                  (substitute-in-file-name path)))))
-      (switch-to-buffer (+eshell))
+      (switch-to-buffer (+eshell-dwim))
       (+eshell/goto-end-of-prompt)))
 
   (defun +eshell-from-path-other-window (path)
+    "Open +eshell from PATH in other window."
     (interactive "F")
     (let ((default-directory (file-name-directory
                                 (expand-file-name
                                  (substitute-in-file-name path)))))
-      (switch-to-buffer-other-window (+eshell))
+      (switch-to-buffer-other-window (+eshell-dwim))
       (+eshell/goto-end-of-prompt)))
 
   (defun +eshell/goto-end-of-prompt ()
@@ -1419,7 +1426,7 @@
 
   (defun eshell-after-split (&rest _)
     (when (bound-and-true-p eshell-mode)
-      (+eshell)))
+      (+eshell-dwim)))
 
   (defun +eshell-previous-prompt-hack ()
     "With prompt as field eshell-previous-prompt sets cursor at the beggining of the line and not at prompt begin"
@@ -1485,9 +1492,9 @@
     ;;(advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
     (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
 
-    (leader-key "e" '+eshell-same-window)
+    (leader-key "e" '+eshell)
     (leader-key "E" '+eshell-other-window)
-    (leader-key "pe" '+eshell-project-same-window)
+    (leader-key "pe" '+eshell-project)
     (leader-key "pE" '+eshell-project-other-window))
 
   (use-package eshell-syntax-highlighting
