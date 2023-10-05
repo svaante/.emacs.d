@@ -2107,8 +2107,8 @@ Change stuff in the grep buffer
 *** Dape
 #+begin_src emacs-lisp
   (use-package dape
-    ;;:straight (dape :type git :host github :repo "svaante/dape")
-    :straight (:local-repo "~/Workspace/dape/")
+    :straight (dape :type git :host github :repo "svaante/dape")
+    ;;:straight (:local-repo "~/Workspace/dape/")
     :config
     (add-hook 'dape-compile-compile-hooks 'kill-buffer)
 
