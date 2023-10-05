@@ -267,6 +267,14 @@
     :straight t)
 #+end_src
 
+** Repeat
+#+begin_src emacs-lisp
+  (use-package repeat
+    :straight (:type built-in)
+    :config
+    (repeat-mode))
+#+end_src
+
 * Window
 ** Ace window
 #+begin_src emacs-lisp
@@ -415,16 +423,16 @@
 * Looks
 ** Fonts
 #+begin_src emacs-lisp
-    ;; Set my font
-    (when (eq system-type 'darwin)
-      (set-face-attribute 'default nil :font "Monaco 14")
-      (set-fontset-font t '(#x1f300 . #x1f5ff)
-                        (font-spec :family "Apple Color Emoji" :size 12)))
+  ;; Mac font
+  (when (eq system-type 'darwin)
+    (set-face-attribute 'default nil :font "Monaco 12")
+    (set-fontset-font t
+                      '(#x1f300 . #x1f5ff)
+                      (font-spec :family "Apple Color Emoji" :size 12)))
 
-    (when (eq system-type 'gnu/linux)
-      (set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
-      ;(set-face-attribute 'default nil :font "Comic Mono 11")
-      )
+  ;; Linux font
+  (when (eq system-type 'gnu/linux)
+    (set-face-attribute 'default nil :font "DejaVu Sans Mono 9"))
 #+end_src
 
 ** Themes
@@ -593,6 +601,8 @@
     :straight t
     :config
     (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
+
+    (setq avy-timeout-seconds 0.3)
 
     (defun avy-action-visual (pt)
       (let (beg end)
@@ -1824,6 +1834,7 @@ Change stuff in the grep buffer
     :hook ((c-mode . eglot-ensure)
            (c++-mode . eglot-ensure)
            (rust-mode . eglot-ensure)
+           (go-mode . eglot-ensure)
            (python-mode . eglot-ensure))
     :config
     ;; BUG: https://github.com/joaotavora/eglot/issues/1171
@@ -1834,6 +1845,7 @@ Change stuff in the grep buffer
                                  eglot-hover-eldoc-function))))
 
     (leader-key
+      "la" 'eglot-code-actions
       "lr" 'eglot-rename
       "lf" 'eglot-format-buffer
       "lq" 'eglot-code-action-quickfix))
@@ -2092,120 +2104,118 @@ Change stuff in the grep buffer
 #+end_src
 
 ** Debugging
-*** C
+*** Dape
 #+begin_src emacs-lisp
-  (defun gud-kill-buffers ()
-    (interactive)
-    (seq-do
-     (lambda (buffer)
-       (when (string-match-p "\\\*gud-.*\\\*" (or (buffer-name buffer) ""))
-         (kill-buffer buffer)))
-     (buffer-list)))
-
-  (defvar gud-co--process-command nil)
-
-  (defun gud-co-set-process-command (command)
-    (interactive (list
-                  (read-shell-command "gud-co process: "
-                                      gud-co--process-command)))
-    (setq gud-co--process-command command))
-
-  (defun gud-start-co--command ()
-    (interactive)
-    (when (and gud-co--process-command
-               (not (string-empty-p gud-co--process-command)))
-      (let ((args (split-string-shell-command gud-co--process-command)))
-        (apply
-         'make-comint
-         `(,(format "gud-co-%s" gud-co--process-command)
-           ,(car args)
-           nil . ,(cdr args))))))
-
-  (defvar +gud-basic-call-hist nil)
-
-  (defun +gud-basic-call (command)
-    (interactive (list (read-string "gud basic call: "
-                                    (car +gud-basic-call-hist)
-                                    '+gud-basic-call-hist)))
-    (gud-basic-call command))
-
-  (defun +gdb-project ()
-    (interactive)
-    (gud-start-co--command)
-    (let ((buf (current-buffer)))
-      (project-with-directory t
-        (call-interactively 'gdb)
-        (switch-to-buffer buf))))
-
-  (defun gud-open-comint-buffer ()
-    (interactive)
-    (let ((gud-buffer (seq-find (lambda (buffer)
-                                  (with-current-buffer buffer
-                                    (bound-and-true-p gud-mode)))
-                                (buffer-list))))
-      (switch-to-buffer gud-buffer)))
-
-  (defhydra hydra-gdb (:exit nil :foreign-keys run :hint nil)
-    "
-    _o_pen (_O_: gdb)     _R_un        _b_reak      _n_ext (_N_: inst)
-    _K_ill  ^ ^           _c_ontinue   _t_break     _s_tep (_S_: inst)
-    _C_all  ^ ^           ^ ^          _r_emove     _f_inish
-    set co-_p_rocess ^ ^  ^ ^          ^ ^          _u_ntil"
-    ("o" +gdb-project)
-    ("O" gdb)
-    ("K" gud-kill-buffers :exit t)
-    ("C" +gud-basic-call)
-    ("p" gud-co-set-process-command)
-    ("R" gud-run)
-    ("c" gud-cont)
-    ("b" gud-break)
-    ("t" gud-tbreak)
-    ("r" gud-remove)
-    ("n" gud-next)
-    ("N" gud-nexti)
-    ("s" gud-step)
-    ("S" gud-stepi)
-    ("f" gud-finish)
-    ("u" gud-until)
-    ("!" gud-open-comint-buffer)
-    ("q" ignore :exit t)
-    ("C-g" ignore :exit t))
-
-    ;;(general-define-key
-    ;; :prefix "SPC"
-    ;; :states 'normal
-    ;; :keymaps 'c-mode-map
-    ;; "pd" 'hydra-gdb/body)
-#+end_src
-*** DAP
-#+begin_src emacs-lisp
-  (use-package dap-mode
-    :straight (dap-mode :type git
-                        :host github
-                        :repo "mrsch/dap-mode"
-                        :branch "feat/cortex-debug")
-    :hook ((dap-stopped . (lambda (&rest _) (dap-hydra))))
+  (use-package dape
+    ;;:straight (dape :type git :host github :repo "svaante/dape")
+    :straight (:local-repo "~/Workspace/dape/")
     :config
-    (require 'dap-cortex)
+    (add-hook 'dape-compile-compile-hooks 'kill-buffer)
 
-    (dap-register-debug-template
-     "Cortex F4 debug"
-     (list :type "cortex-debug"
-           :runToEntryPoint "main"
-           :executable nil
-           :servertype "jlink"
-           :cwd "${workspaceFolder}"
-           :device "STM32F405VG"))
+    (setq dape-repl-use-shorthand t)
 
-    (require 'dap-ui)
-    (set-face-attribute 'dap-ui-marker-face nil :inherit 'region)
-    (set-face-attribute 'dap-ui-pending-breakpoint-face nil :inherit 'underline)
-    (set-face-attribute 'dap-ui-verified-breakpoint-face nil :inherit 'underline)
+    (leader-key "pd" '(:keymap dape-global-map :which-key "dape"))
 
-    (setq dap-auto-show-output t)
-    (setq dap-auto-configure-features nil))
+    (setq dape--cppdbg-command
+          "~/.vscode/extensions/ms-vscode.cpptools-1.17.5-darwin-arm64/debugAdapters/bin/OpenDebugAD7")
+    (setq dape--codelldb-server-command
+          "~/.vscode/extensions/vadimcn.vscode-lldb-1.10.0/adapter/codelldb")
+    (setq dape--cortex-path
+          "~/.vscode/extensions/marus25.cortex-debug-1.12.0/")
+
+    (setq dape-configs `((cppdbg
+                          modes (c-mode c-ts-mode c++-mode c++-ts-mode)
+                          command dape--cppdbg-command
+                          command-cwd ,(file-name-directory dape--cppdbg-command)
+                          :type "cppdbg"
+                          :request "launch"
+                          :cwd dape-cwd-fn
+                          :program dape-find-file
+                          :MIMode ,(if (eq system-type 'darwin) "lldb" "gdb"))
+                         (codelldb
+                          modes (c-mode c-ts-mode
+                                 c++-mode c++-ts-mode
+                                 rust-ts-mode rust-mode)
+                          command dape--codelldb-server-command
+                          host "localhost"
+                          port 8080
+                          command-args ("--port" "8080")
+                          :type "lldb"
+                          :request "launch"
+                          :cwd dape-cwd-fn
+                          :program dape-find-file)
+                         (debugpy
+                          modes (python-ts-mode python-mode)
+                          command "python3"
+                          command-args ("-m" "debugpy.adapter")
+                          :type "executable"
+                          :request "launch"
+                          :cwd dape-cwd-fn
+                          :program dape-find-file-buffer-default)
+                         (cortex
+                          modes (c-mode c-ts-mode)
+                          command "node"
+                          command-args ("dist/debugadapter.js")
+                          command-cwd dape--cortex-path
+                          :type "cortex-debug"
+                          :request "launch"
+                          :cwd dape-cwd-fn
+                          :executable dape-find-file
+                          :servertype "jlink"
+                          :device "STM32F405VG"
+                          :gdbPath "arm-none-eabi-gdb"
+                          :gdbServerConsolePort 55878
+                          :extensionPath dape--cortex-path
+                          :interface "swd"
+                          :swoConfig (:enabled nil)
+                          :rttConfig (:enabled t
+                                               :address "auto"
+                                               :decoders [(:label ""
+                                                                  :port 0
+                                                                  :type "console")])
+                          :preLaunchCommands []
+                          :postLaunchCommands [])
+                         (godot-launch
+                          ;; Has some issues v4.1.1 sending several stopped events
+                          modes (gdscript-mode)
+                          host "127.0.0.1"
+                          port 6006
+                          :type "server"
+                          :request "launch"
+                          :cwd dape-cwd-fn)
+                         (go-dlv-debug
+                          ;; For more information
+                          ;; https://github.com/go-delve/delve/blob/master/Documentation/usage/dlv_dap.md
+                          modes (go-mode go-ts-mode)
+                          command "dlv"
+                          command-args ("dap" "--listen" "127.0.0.1:55878")
+                          command-cwd dape-cwd-fn
+                          host "127.0.0.1"
+                          port 55878
+                          :type "debug"
+                          :request "launch"
+                          :cwd dape-cwd-fn
+                          :program dape-cwd-fn)
+                         (vscode-js
+                          ;; npx gulp dapDebugServer
+                          modes (js-mode js-ts-mode)
+                          host "localhost"
+                          port 8123
+                          command "node"
+                          command-cwd "~/Workspace/vscode-js-debug/dist/"
+                          command-args ("src/dapDebugServer.js" "8123")
+                          :type "pwa-node"
+                          :request "launch"
+                          :cwd dape-cwd-fn
+                          :program dape-find-file-buffer-default
+                          :outputCapture "console"
+                          :sourceMapRenames t
+                          :pauseForSourceMap nil
+                          :enableContentValidation t
+                          :autoAttachChildProcesses t
+                          :console "internalConsole"
+                          :killBehavior "forceful"))))
 #+end_src
-
 * Applications
 ** Dired
 #+begin_src emacs-lisp
