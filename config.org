@@ -1371,7 +1371,7 @@
     (switch-to-buffer (+eshell-dwim))
     (+eshell/goto-end-of-prompt))
 
-  (defun +eshell-project ()
+  (defun +eshell-project-dwim ()
     (let* ((default-directory (project-project-root t))
            (eshell-project-type-p t)
            (buffer (+eshell-dwim)))
@@ -1388,13 +1388,13 @@
   (defun +eshell-project ()
     "Open +eshell in project."
     (interactive)
-    (switch-to-buffer (+eshell-project))
+    (switch-to-buffer (+eshell-project-dwim))
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-project-other-window ()
     "Open +eshell in project in other window."
     (interactive)
-    (switch-to-buffer-other-window (+eshell-project))
+    (switch-to-buffer-other-window (+eshell-project-dwim))
     (+eshell/goto-end-of-prompt))
 
   (defun +eshell-from-path (path)
