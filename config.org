@@ -231,7 +231,8 @@
                  (remove 'corfu)
                  (setq evil-collection-mode-list))
     (evil-collection-init)
-    (diminish 'evil-collection-unimpaired-mode))
+    (diminish 'evil-collection-unimpaired-mode)
+    (leader-key "js" 'evil-collection-consult-jump-list))
 
   (use-package evil-org
     :diminish
@@ -428,7 +429,7 @@
     (set-face-attribute 'default nil :font "Monaco 12")
     (set-fontset-font t
                       '(#x1f300 . #x1f5ff)
-                      (font-spec :family "Apple Color Emoji" :size 12)))
+                      (font-spec :family "Apple Color Emoji" :size 11)))
 
   ;; Linux font
   (when (eq system-type 'gnu/linux)
@@ -597,40 +598,54 @@
 
 ** Avy
 #+begin_src emacs-lisp
-  (use-package avy
-    :straight t
-    :config
-    (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
+    (use-package avy
+      :straight t
+      :config
+      (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
+      (advice-add 'avy-read-de-bruijn :before (lambda (&rest _) (avy-show-dispatch-help)))
 
-    (setq avy-timeout-seconds 0.3)
+      (setq avy-timeout-seconds 0.3)
+      (setq avy-style 'de-bruijn)
+      (setq avy-line-insert-style 'below)
 
-    (defun avy-action-visual (pt)
-      (let (beg end)
-        (goto-char pt)
-        (setq beg (point))
-        (avy-forward-item)
-        (backward-char)
-        (setq end (point))
-        (evil-visual-select beg end)))
+      (defun avy-goto-line-keep-column (&optional arg)
+        "Jump to a line at the current column."
+        (interactive "p")
+        (let ((window (selected-window))
+              (column (current-column)))
+          (avy-goto-line arg)
+          (when (equal window (selected-window))
+             (move-to-column column))))
 
-    (defun avy-action-paste-line (pt)
-      (avy-action-yank-line pt))
+      (evil-define-avy-motion avy-goto-line-keep-column line)
 
-    (defun avy-action-paste (pt)
-      (avy-action-yank pt))
+      (defun avy-action-visual (pt)
+        (let (beg end)
+          (goto-char pt)
+          (setq beg (point))
+          (avy-forward-item)
+          (backward-char)
+          (setq end (point))
+          (evil-visual-select beg end)))
 
-    (setq avy-dispatch-alist
-          '((?x . avy-action-kill-move)
-            (?X . avy-action-kill-stay)
-            (?v . avy-action-visual)
-            (?w . avy-action-copy)
-            (?p . avy-action-paste)
-            (?P . avy-action-paste-line)
-            (?z . avy-action-ispell)))
+      (defun avy-action-paste-line (pt)
+        (avy-action-yank-line pt))
 
-    (leader-key
-      "jj" 'evil-avy-goto-char-timer
-      "jl" 'evil-avy-goto-line))
+      (defun avy-action-paste (pt)
+        (avy-action-yank pt))
+
+      (setq avy-dispatch-alist
+            '((?x . avy-action-kill-move)
+              (?X . avy-action-kill-stay)
+              (?v . avy-action-visual)
+              (?w . avy-action-copy)
+              (?p . avy-action-paste)
+              (?P . avy-action-paste-line)
+              (?z . avy-action-ispell)))
+
+      (leader-key
+        "jj" 'evil-avy-goto-char-timer
+        "jl" 'evil-avy-goto-line-keep-column))
 #+end_src
 
 * Org
