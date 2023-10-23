@@ -154,6 +154,18 @@
       "\C-wv" '+emacs/split-follow-window-horizontally))
 #+end_src
 
+** Leader mappings
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+    :straight t
+    :after evil
+    :config
+    (general-create-definer leader-key
+      :prefix "SPC"
+      :states '(normal emacs motion visual)
+      :keymaps 'override))
+#+END_SRC
+
 ** Evil
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
@@ -250,18 +262,6 @@
                                                         todo))))))
 #+END_SRC
 
-** Leader mappings
-#+BEGIN_SRC emacs-lisp
-  (use-package general
-    :straight t
-    :after evil
-    :config
-    (general-create-definer leader-key
-      :prefix "SPC"
-      :states '(normal emacs motion visual)
-      :keymaps 'override))
-#+END_SRC
-
 ** Hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
@@ -319,96 +319,22 @@
 
     (setq shackle-lighter "")
     (setq shackle-rules
-          '((shell-mode
-             :noselect nil
-             :align right
-             :size 80
-             :dedicated t
-             :popup t)
-            (compilation-mode
-             :noselect nil
-             :align right
-             :size 80
-             :dedicated t
-             :popup t)
-            ("*Help*"
-             :select t
-             :align right
-             :size 75
-             :dedicated t
-             :popup t)
-            ("*devdocs*"
-             :select t
-             :align right
-             :size 85
-             :dedicated t
-             :popup t)
-            ("\\*Messages\\*"
-             :regexp t
-             :select t
-             :align below
-             :size 0.30
-             :dedicated t
-             :popup nil)
-            ("\\*Embark Export Occur\\*"
-             :regexp t
-             :select t
-             :align below
-             :size 0.25
-             :dedicated t
-             :popup t)
-            ("*xref*"
-             :select t
-             :align below
-             :size 0.25
-             :dedicated t
-             :popup t)
-            ("\\*Embark Export Grep\\*"
-             :regexp t
-             :select t
-             :align below
-             :size 0.25
-             :dedicated t
-             :popup t)
-            ("*Org Select*"
-             :select t
-             :align below
-             :popup t)
-            ("CAPTURE-.*\\.org"
-             :regexp t
-             :align below
-             :size 0.40
-             :popup t)
-            ("\\*Agenda Commands\\*"
-             :regexp t
-             :select t
-             :size 0.25
-             :custom shackle-split-below)
-            ("\\*Org Agenda\\*" ;; this does not work for some reason
-             :regexp t
-             :select t
-             :size 0.25
-             :custom shackle-split-below)
-            ("\\*literate-calc\\*"
-             :regexp t
-             :select t
-             :size 0.25
-             :dedicated t
-             :custom shackle-split-below)
-            ("\\*restclient\\*"
-             :regexp t
-             :select t
-             :size 0.25
-             :custom shackle-split-below)
-            ("\\*Python\\*"
-             :regexp t
-             :select t
-             :size 0.25
-             :custom shackle-split-below)
-            (magit-status-mode
-             :select t
-             :inhibit-window-quit t
-             :same t)))
+          '((shell-mode :noselect nil :align right :size 80 :dedicated t :popup t)
+            (compilation-mode :noselect nil :align right :size 80 :dedicated t :popup t)
+            ("*Help*" :select t :align right :size 75 :dedicated t :popup t)
+            ("*devdocs*" :select t :align right :size 85 :dedicated t :popup t)
+            ("\\*Messages\\*" :regexp t :select t :align below :size 0.30 :dedicated t :popup nil)
+            ("\\*Embark Export Occur\\*" :regexp t :select t :align below :size 0.25 :dedicated t :popup t)
+            ("*xref*" :select t :align below :size 0.25 :dedicated t :popup t)
+            ("\\*Embark Export Grep\\*" :regexp t :select t :align below :size 0.25 :dedicated t :popup t)
+            ("*Org Select*" :select t :align below :popup t)
+            ("CAPTURE-.*\\.org" :regexp t :align below :size 0.40 :popup t)
+            ("\\*Agenda Commands\\*" :regexp t :select t :size 0.25 :custom shackle-split-below)
+            ("\\*Org Agenda\\*" :regexp t :select t :size 0.25 :custom shackle-split-below)  ;; this does not work for some reason
+            ("\\*literate-calc\\*" :regexp t :select t :size 0.25 :dedicated t :custom shackle-split-below)
+            ("\\*restclient\\*" :regexp t :select t :size 0.25 :custom shackle-split-below)
+            ("\\*Python\\*" :regexp t :select t :size 0.25 :custom shackle-split-below)
+            (magit-status-mode :select t :inhibit-window-quit t :same t)))
 
     (shackle-mode 1))
 #+end_src
@@ -444,25 +370,16 @@
   (use-package modus-themes
     :straight t
     :config
-    (setq modus-themes-mode-line '(accented borderless 3d))
-    (setq modus-themes-org-blocks 'tinted-background)
-    (setq modus-themes-headings
-          '((1 . section)
-            (2 . rainbow-line)
-            (t . rainbow-no-bold)))
+    ;(setq modus-themes-mode-line '(accented borderless 3d))
+    ;(setq modus-themes-org-blocks 'tinted-background)
     '(load-theme 'modus-operandi t)
     '(load-theme 'modus-vivendi t))
 
-  (use-package grandshell-theme
-    :straight t
-    :config
-    '(load-theme 'grandshell t))
+  (use-package grandshell-theme :straight t)
 
-  (use-package inkpot-theme
-    :straight t)
+  (use-package inkpot-theme :straight t)
 
-  (use-package zenburn-theme
-    :straight t)
+  (use-package zenburn-theme :straight t)
 
   (use-package doom-themes :straight t)
 
@@ -925,7 +842,7 @@
     (define-key corfu-map (kbd "RET") nil)
     (global-corfu-mode)
 
-    (setq corfu-popupinfo-delay '(2.0 . 0.5))
+    (setq corfu-popupinfo-delay '(0.5 . 0.0))
     (corfu-popupinfo-mode)
 
     (corfu-history-mode))
@@ -1708,25 +1625,27 @@ Change stuff in the grep buffer
             (set-visited-file-name new-name)
             (set-buffer-modified-p nil))))))
 
-  (defvar load-one-theme-hist nil)
-  (defun load-one-theme (theme)
-    "Disable each loaded theme and load theme THEME"
+  (defun scratch-from-mode (mode)
+    "Create scratch buffer for major MODE."
     (interactive
      (list
-      (intern (completing-read "Load custom theme: "
-                               (mapcar #'symbol-name
-                                       (custom-available-themes))
-                               nil
-                               nil
-                               nil
-                               'load-one-theme-hist))))
-    (dolist (theme custom-enabled-themes)
-      (disable-theme theme))
-    (load-theme theme t))
+      (intern
+       (completing-read "Mode: "
+                        (mapcar 'cdr
+                                auto-mode-alist)
+                        nil t))))
+    (let ((buffer
+           (get-buffer-create (format "*scratch: %s*"
+                                      (symbol-name mode)))))
+      (with-current-buffer buffer
+        (funcall-interactively mode))
+      (pop-to-buffer-same-window buffer)))
 
   (defun load-last-theme ()
     (when (and consult--theme-history)
-      (load-one-theme (intern (car consult--theme-history)))))
+      (dolist (theme custom-enabled-themes)
+        (disable-theme theme))
+      (load-theme (intern (car consult--theme-history)) t)))
 
   (eval-after-load "savehist"
     (add-hook 'savehist-mode-hook 'load-last-theme))
@@ -1863,7 +1782,8 @@ Change stuff in the grep buffer
       "la" 'eglot-code-actions
       "lr" 'eglot-rename
       "lf" 'eglot-format-buffer
-      "lq" 'eglot-code-action-quickfix))
+      "lq" 'eglot-code-action-quickfix
+      "la" 'eglot-code-actions))
 
   (use-package consult-eglot
     :after eglot
@@ -2258,7 +2178,9 @@ Change stuff in the grep buffer
     :hook (dired-mode . diredfl-mode))
 
   (use-package dired-subtree
-    :straight t)
+    :straight t
+    :config
+    (setq dired-subtree-line-prefix "    "))
 #+end_src
 
 ** Magit
@@ -2272,16 +2194,6 @@ Change stuff in the grep buffer
       (interactive)
       (magit-status-here)
       (recenter))
-
-    ;; Fix for slow magit
-    ;; https://github.com/magit/magit/issues/2982#issuecomment-1081204026
-    (defun +magit-rev-format (format &optional rev args)
-      (let ((str (magit-git-string "log" "-1" "--no-patch"
-                                   (concat "--format=" format) args
-                                   (if rev (concat rev "^{commit}") "HEAD") "--")))
-        (unless (string-equal str "")
-          str)))
-    (advice-add 'magit-rev-format :override '+magit-rev-format)
 
     ;; Don't let magit close windows
     (setq magit-bury-buffer-function 'bury-buffer)
