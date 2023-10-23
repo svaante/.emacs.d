@@ -370,10 +370,27 @@
   (use-package modus-themes
     :straight t
     :config
-    ;(setq modus-themes-mode-line '(accented borderless 3d))
-    ;(setq modus-themes-org-blocks 'tinted-background)
-    '(load-theme 'modus-operandi t)
-    '(load-theme 'modus-vivendi t))
+
+    (setq modus-themes-completions
+          (quote ((matches . (extrabold underline))
+                  (selection . (semibold)))))
+
+    (setq modus-themes-headings
+          (quote ((1 . (variable-pitch 1.5))
+                  (2 . (1.3))
+                  (agenda-date . (1.3))
+                  (agenda-structure . (variable-pitch light 1.8))
+                  (t . (1.1)))))
+
+    (setq modus-themes-org-blocks 'gray-background)
+
+
+    ;; Subtle blue background, neutral foreground, intense blue border
+    (setq modus-themes-common-palette-overrides
+          '((bg-mode-line-active bg-blue-subtle)
+            (fg-mode-line-active fg-main)
+            (border-mode-line-active blue-intense))))
+
 
   (use-package grandshell-theme :straight t)
 
@@ -515,54 +532,54 @@
 
 ** Avy
 #+begin_src emacs-lisp
-    (use-package avy
-      :straight t
-      :config
-      (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
-      (advice-add 'avy-read-de-bruijn :before (lambda (&rest _) (avy-show-dispatch-help)))
+  (use-package avy
+    :straight t
+    :config
+    (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
+    (advice-add 'avy-read-de-bruijn :before (lambda (&rest _) (avy-show-dispatch-help)))
 
-      (setq avy-timeout-seconds 0.3)
-      (setq avy-style 'de-bruijn)
-      (setq avy-line-insert-style 'below)
+    (setq avy-timeout-seconds 0.3)
+    (setq avy-style 'de-bruijn)
+    (setq avy-line-insert-style 'below)
 
-      (defun avy-goto-line-keep-column (&optional arg)
-        "Jump to a line at the current column."
-        (interactive "p")
-        (let ((window (selected-window))
-              (column (current-column)))
-          (avy-goto-line arg)
-          (when (equal window (selected-window))
-             (move-to-column column))))
+    (defun avy-goto-line-keep-column (&optional arg)
+      "Jump to a line at the current column."
+      (interactive "p")
+      (let ((window (selected-window))
+            (column (current-column)))
+        (avy-goto-line arg)
+        (when (equal window (selected-window))
+           (move-to-column column))))
 
-      (evil-define-avy-motion avy-goto-line-keep-column line)
+    (evil-define-avy-motion avy-goto-line-keep-column line)
 
-      (defun avy-action-visual (pt)
-        (let (beg end)
-          (goto-char pt)
-          (setq beg (point))
-          (avy-forward-item)
-          (backward-char)
-          (setq end (point))
-          (evil-visual-select beg end)))
+    (defun avy-action-visual (pt)
+      (let (beg end)
+        (goto-char pt)
+        (setq beg (point))
+        (avy-forward-item)
+        (backward-char)
+        (setq end (point))
+        (evil-visual-select beg end)))
 
-      (defun avy-action-paste-line (pt)
-        (avy-action-yank-line pt))
+    (defun avy-action-paste-line (pt)
+      (avy-action-yank-line pt))
 
-      (defun avy-action-paste (pt)
-        (avy-action-yank pt))
+    (defun avy-action-paste (pt)
+      (avy-action-yank pt))
 
-      (setq avy-dispatch-alist
-            '((?x . avy-action-kill-move)
-              (?X . avy-action-kill-stay)
-              (?v . avy-action-visual)
-              (?w . avy-action-copy)
-              (?p . avy-action-paste)
-              (?P . avy-action-paste-line)
-              (?z . avy-action-ispell)))
+    (setq avy-dispatch-alist
+          '((?x . avy-action-kill-move)
+            (?X . avy-action-kill-stay)
+            (?v . avy-action-visual)
+            (?w . avy-action-copy)
+            (?p . avy-action-paste)
+            (?P . avy-action-paste-line)
+            (?z . avy-action-ispell)))
 
-      (leader-key
-        "jj" 'evil-avy-goto-char-timer
-        "jl" 'evil-avy-goto-line-keep-column))
+    (leader-key
+      "jj" 'evil-avy-goto-char-timer
+      "jl" 'evil-avy-goto-line-keep-column))
 #+end_src
 
 * Org
@@ -970,6 +987,8 @@
     :config
     (evil-define-key '(insert normal) minibuffer-local-map
       (kbd "C-r") 'consult-history)
+
+    (setq xref-show-xrefs-function 'consult-xref)
 
     (defun +consult-kill-line-insert-history ()
       (interactive)
@@ -1584,7 +1603,7 @@ Change stuff in the grep buffer
                 (quit-window nil window)))
             (window-list)))
 
-  (leader-key "wk" 'kill-dedicated-windows)
+  (leader-key "wq" 'kill-dedicated-windows)
 #+END_SRC
 
 ** Scratch
