@@ -1934,6 +1934,8 @@ Change stuff in the grep buffer
     :hook ((inferior-python-mode . +inferior-python-mode-init)
            (python-mode . hs-minor-mode))
     :config
+    (setq python-flymake-command nil)
+
     (defun +python-shell-send-dwm ()
       (interactive)
       (or (python-shell-get-process) (run-python))
