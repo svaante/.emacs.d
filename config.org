@@ -1468,6 +1468,10 @@
 
 ** Eshell functions
 #+begin_src emacs-lisp
+  (defun eshell/! (&rest args)
+    (let ((cmd (mapconcat 'identity args " ")))
+      (async-shell-command cmd)))
+
   (defun eshell/ff (&rest args)
     (apply #'find-file args))
 
