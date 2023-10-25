@@ -1855,6 +1855,11 @@ Change stuff in the grep buffer
        (evil-define-key 'visual mode-map
          (kbd "C-c C-c") 'eval-region))
      (list emacs-lisp-mode-map lisp-interaction-mode-map)))
+
+  (use-package eros
+    :straight t
+    :config
+    (eros-mode))
 #+end_src
 
 ** Readable data files
