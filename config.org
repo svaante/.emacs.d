@@ -1052,7 +1052,8 @@
     (setq consult-async-split-style 'semicolon)
 
     ;; Add repl buffer source for easier repl creation
-    (setq consult-buffer-repls '(("*Python*" . run-python)
+    (setq consult-buffer-repls '(("*ielm*"   . ielm)
+                                 ("*Python*" . run-python)
                                  ("*nodejs*" . nodejs-repl)
                                  ("*eshell*" . eshell)
                                  ("*SQL: MySQL*" . sql-mysql)))
