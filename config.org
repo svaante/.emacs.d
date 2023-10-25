@@ -1534,6 +1534,27 @@
       "!" 'async-shell-command))
 #+END_SRC
 
+** Async shell command
+#+begin_src emacs-lisp
+  (advice-add 'read-shell-command :around
+              (defun read-shell-command-default-wrapper (read-shell-command prompt &rest args)
+                (let* ((insert (or (string-match-p ": $" prompt)
+                                   (length prompt)))
+                       (last (car shell-command-history))
+                       (prompt
+                        (concat
+                         (substring prompt 0 insert)
+                         (when last
+                           (format " (%s)" last))
+                         (substring prompt insert)))
+                       (command (apply read-shell-command
+                                       prompt
+                                       args)))
+                  (or (and (string-empty-p command)
+                           last)
+                      command))))
+#+end_src
+
 * Misc
 ** wgrep
 Change stuff in the grep buffer
