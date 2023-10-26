@@ -1540,23 +1540,27 @@
 
 ** Async shell command
 #+begin_src emacs-lisp
-  (advice-add 'read-shell-command :around
-              (defun read-shell-command-default-wrapper (read-shell-command prompt &rest args)
-                (let* ((insert (or (string-match-p ": $" prompt)
-                                   (length prompt)))
-                       (last (car shell-command-history))
-                       (prompt
-                        (concat
-                         (substring prompt 0 insert)
-                         (when last
-                           (format " (%s)" last))
-                         (substring prompt insert)))
-                       (command (apply read-shell-command
-                                       prompt
-                                       args)))
-                  (or (and (string-empty-p command)
-                           last)
-                      command))))
+  (advice-add 'read-shell-command
+              :around
+              (defun read-shell-command-default (read-shell-command
+                                                 prompt
+                                                 &optional initial-contents hist
+                                                 &rest args)
+                "Advice for `read-shell-command', use last hist as default."
+                (let ((last-command (car (or hist shell-command-history))))
+                  (when (and last-command (stringp last-command))
+                    (let ((insert-point (or (string-match-p ": $" prompt)
+                                            (length prompt))))
+                      (setq prompt
+                            (concat (substring prompt 0 insert-point)
+                                    (format " (%s)"
+                                            (propertize last-command
+                                                        'face '(t :inherit highlight
+                                                                  :slant italic)))
+                                    (substring prompt insert-point)))))
+                  (or (apply read-shell-command prompt initial-contents hist
+                             args)
+                      last-command))))
 #+end_src
 
 * Misc
