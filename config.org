@@ -325,7 +325,6 @@
             ("*devdocs*" :select t :align right :size 85 :dedicated t :popup t)
             ("\\*Messages\\*" :regexp t :select t :align below :size 0.30 :dedicated t :popup nil)
             ("\\*Embark Export Occur\\*" :regexp t :select t :align below :size 0.25 :dedicated t :popup t)
-            ("*xref*" :select t :align below :size 0.25 :dedicated t :popup t)
             ("\\*Embark Export Grep\\*" :regexp t :select t :align below :size 0.25 :dedicated t :popup t)
             ("*Org Select*" :select t :align below :popup t)
             ("CAPTURE-.*\\.org" :regexp t :align below :size 0.40 :popup t)
