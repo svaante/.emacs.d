@@ -1546,7 +1546,8 @@
                                                  &optional initial-contents hist
                                                  &rest args)
                 "Advice for `read-shell-command', use last hist as default."
-                (let ((last-command (car (or hist shell-command-history))))
+                (let ((last-command (or (and (listp hist) (car hist))
+                                        (car shell-command-history))))
                   (when (and last-command (stringp last-command))
                     (let ((insert-point (or (string-match-p ": $" prompt)
                                             (length prompt))))
@@ -1988,6 +1989,7 @@ Change stuff in the grep buffer
            (python-mode . hs-minor-mode))
     :config
     (setq python-flymake-command nil)
+    (setq python-check-command nil)
 
     (defun +python-shell-send-dwm ()
       (interactive)
