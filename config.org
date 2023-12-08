@@ -17,7 +17,7 @@
   (menu-bar-mode -1)
 
   ;; set fringe style to minimal
-  (set-fringe-style 0)
+  ;;(set-fringe-style 0)
 
   ;; remove visual bell
   (setq visible-bell       nil
@@ -53,15 +53,8 @@
   ;; Remove that pesky help window
   (setq inhibit-startup-screen t)
 
-  ;; Prefer vertical splits over horizontal splits
-  (setq split-width-threshold 160)
-  (setq split-height-threshold 90)
-
   ;; Resize frames based on pixels
   (setq frame-resize-pixelwise t)
-
-  ;; Ignore defvaralias warnings
-  (add-to-list 'warning-suppress-types '(defvaralias))
  #+END_SRC
 
 * Platform
@@ -158,7 +151,6 @@
 #+BEGIN_SRC emacs-lisp
   (use-package general
     :straight t
-    :after evil
     :config
     (general-create-definer leader-key
       :prefix "SPC"
@@ -277,6 +269,21 @@
 #+end_src
 
 * Window
+
+** Base
+#+begin_src emacs-lisp
+  (setq fit-window-to-buffer-horizontally t)
+  (setq fit-frame-to-buffer t)
+
+  ;; Prefer vertical splits over horizontal splits
+  (setq split-width-threshold 160)
+  (setq split-height-threshold 90)
+
+  (setq display-buffer-base-action
+        '((display-buffer-reuse-window
+           display-buffer-in-previous-window)))
+#+end_src
+
 ** Ace window
 #+begin_src emacs-lisp
   (use-package ace-window
@@ -338,6 +345,40 @@
     (shackle-mode 1))
 #+end_src
 
+** Display buffer rules
+#+begin_src emacs-lisp
+  ;; (setq window-sides-vertical t)
+  ;; (defun display-buffer-in-side-window-select (&rest args)
+  ;;   (when-let ((window (apply 'display-buffer-in-side-window args)))
+  ;;     (select-window window)))
+  ;;
+  ;; (defun display-buffer-reuse-window-select (&rest args)
+  ;;   (when-let ((window (apply 'display-buffer-reuse-window args)))
+  ;;     (select-window window)))
+  ;;
+  ;; (let ((popup-below '(display-buffer-at-bottom
+  ;;                      . ((window-height . 0.4)
+  ;;                         (dedicated . t))))
+  ;;       (popup-left-slot '((display-buffer-reuse-window-select
+  ;;                           display-buffer-in-side-window-select)
+  ;;                          . ((side . right)
+  ;;                             (slot . -1)
+  ;;                             (window-width . 75)
+  ;;                             (dedicated . t))))
+  ;;       (popup-right-slot '((display-buffer-reuse-window
+  ;;                            display-buffer-in-side-window)
+  ;;                           . ((side . right)
+  ;;                              (slot . 1)
+  ;;                              (window-width . 75)
+  ;;                              (dedicated . t))))
+  ;;       )
+  ;;   (setq display-buffer-alist
+  ;;         `(((major-mode . help-mode) . ,popup-left-slot)
+  ;;           ((major-mode . shell-mode) . ,popup-right-slot)
+  ;;           ((major-mode . compilation-mode) . ,popup-right-slot)
+  ;;           )))
+#+end_src
+
 ** Mappings
 #+begin_src emacs-lisp
   (leader-key
@@ -352,6 +393,7 @@
   ;; Mac font
   (when (eq system-type 'darwin)
     (set-face-attribute 'default nil :font "Monaco 12")
+    ;; (set-face-attribute 'default nil :font "Terminus (TTF) 14")
     (set-fontset-font t
                       '(#x1f300 . #x1f5ff)
                       (font-spec :family "Apple Color Emoji" :size 11)))
@@ -410,10 +452,21 @@
        (or (when-let* ((prj (project-project-root))
                        (prj-parent (file-name-directory
                                     (directory-file-name
-                                     (expand-file-name prj)))))
-             (file-relative-name
-              (file-name-directory buffer-file-truename)
-              prj-parent))
+                                     (expand-file-name prj))))
+                       (rel-path
+                        (file-relative-name
+                         (file-name-directory buffer-file-truename)
+                         prj-parent)))
+             (if (length< rel-path 60)
+                 rel-path
+               (let ((split-rel-path (file-name-split rel-path)))
+                 (file-name-as-directory
+                  (apply 'file-name-concat (car split-rel-path)
+                         (mapcar (lambda (p)
+                                   (if (string-empty-p p)
+                                       p
+                                     (substring p 0 1)))
+                                 (cdr split-rel-path)))))))
            default-directory))))
 
   (setq mode-line-defining-kbd-macro
@@ -422,9 +475,12 @@
   (setq mode-line-position-column-line-format '(" %l:%c"))
 
   (setq-default mode-line-format
-                '((:eval (when (window-dedicated-p)
-                           (propertize "DEDI " 'face 'mode-line-emphasis)))
-                  "🌻"
+                '(
+                  (:eval (when (window-dedicated-p)
+                           (and nil (propertize "DEDI "
+                                                'face 'mode-line-emphasis)))
+                         )
+                  ;; "🌻"
                   mode-line-front-space
                   mode-line-mule-info
                   mode-line-client
@@ -466,18 +522,10 @@
     :diminish
     :hook (prog-mode . whitespace-mode)
     :init
+    (setq show-trailing-whitespace t)
     (setq whitespace-line-column 80)
     (setq whitespace-style '(face trailing lines-char)))
 #+END_SRC
-
-*** Delete whitespace
-#+begin_src emacs-lisp
-  (use-package ws-butler
-    :straight t
-    :diminish
-    :config
-    (ws-butler-global-mode))
-#+end_src
 
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
@@ -996,10 +1044,10 @@
       (ignore-errors (call-interactively 'kill-line) t)
       (call-interactively 'consult-history))
 
-    (evil-global-set-key 'insert
-                         (kbd "C-r") '+consult-kill-line-insert-history)
-    (evil-global-set-key 'normal
-                         (kbd "C-r") '+consult-kill-line-insert-history)
+    (evil-define-key 'insert comint-mode-map
+      (kbd "C-r") '+consult-kill-line-insert-history)
+    (evil-define-key 'normal comint-mode-map
+      (kbd "C-r") '+consult-kill-line-insert-history)
 
     (defun +consult-ripgrep-fallback-advice (old-fn &rest args)
       (interactive)
@@ -1061,7 +1109,7 @@
       (interactive
        (list (completing-read "Switch to REPLish: "
                               (->> consult-buffer-repls
-                                (mapcar 'car))
+                                   (mapcar 'car))
                               nil
                               t)))
       (call-interactively (alist-get key consult-buffer-repls nil nil 'equal)))
@@ -1078,7 +1126,7 @@
                                (funcall (alist-get key consult-buffer-repls)))
                   :items    ,(lambda ()
                                (->> consult-buffer-repls
-                                 (mapcar 'car)))
+                                    (mapcar 'car)))
                   "Repl buffer candidate source for `consult-buffer'."))
 
     (add-to-list 'consult-buffer-sources 'repl-buffer-source 'append)
@@ -1258,7 +1306,7 @@
         (recompile)))
 
   (use-package project
-    :straight (:type built-in)
+    :straight t
     :config
     (setq project-vc-extra-root-markers '(".projectile" ".project"))
     (setq project-switch-commands 'project-find-file)
@@ -1282,6 +1330,18 @@
     :straight t
     :config
     (exec-path-from-shell-initialize))
+#+end_src
+** Compleation
+#+begin_src emacs-lisp
+  (use-package bash-completion
+    :disabled
+    :straight t
+    :init
+    (autoload 'bash-completion-dynamic-complete
+            "bash-completion"
+            "BASH completion hook")
+    (add-hook 'shell-dynamic-complete-functions
+              #'bash-completion-dynamic-complete))
 #+end_src
 
 ** Eshell
@@ -1407,7 +1467,7 @@
 
     (eshell-hist-initialize)
 
-    (evil-define-key 'normal 'local
+    (evil-define-key 'normal eshell-mode-map
       "I" (lambda () (interactive) (eshell-bol) (evil-insert 1))
       (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
       (kbd "C-p") '+eshell-previous-prompt-hack
@@ -1415,6 +1475,10 @@
       (kbd "C-r") '+eshell/consult-esh-history-normal
       (kbd "<return>") '+eshell/goto-end-of-prompt
       "q" (lambda () (interactive) (kill-buffer)))
+
+    (evil-define-key 'insert eshell-mode-map
+      (kbd "C-r") '+consult-kill-line-insert-history)
+
 
     (evil-define-key 'visual 'local
       (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state)))))
@@ -1546,8 +1610,8 @@
                                                  &optional initial-contents hist
                                                  &rest args)
                 "Advice for `read-shell-command', use last hist as default."
-                (let ((last-command (or (and (listp hist) (car hist))
-                                        (car shell-command-history))))
+                (let ((last-command (and (not hist)
+                                         (car shell-command-history))))
                   (when (and last-command (stringp last-command))
                     (let ((insert-point (or (string-match-p ": $" prompt)
                                             (length prompt))))
@@ -1560,7 +1624,10 @@
                                     (substring prompt insert-point)))))
                   (or (apply read-shell-command prompt initial-contents hist
                              args)
-                      last-command))))
+                      (and (setq (cons last-command shell-command-history))
+                           last-command)))))
+
+  (advice-remove 'read-shell-command 'read-shell-command-default)
 #+end_src
 
 * Misc
@@ -1613,6 +1680,12 @@ Change stuff in the grep buffer
     :config
     (leader-key "fd"
       'define-word-at-point))
+
+  (use-package mail-mode
+    :straight (:type built-in)
+    :hook ((mail-mode . auto-fill-mode)
+           (mail-mode . (lambda ()
+                          (setq-local fill-column 70)))))
 #+end_src
 
 ** Dedicated windows
@@ -1765,23 +1838,23 @@ Change stuff in the grep buffer
 
   (use-package lsp-mode
     :disabled
-    :straight t
-    :hook (prog-mode . (lambda ()
-                         (unless (derived-mode-p 'clojure-mode
-                                                 'emacs-lisp-mode
-                                                 'lisp-mode
-                                                 'snippet-mode)
-                           (lsp-deferred))))
-    :hook (lsp-mode . (lambda ()
-                        (setq-local evil-lookup-func 'lsp-describe-thing-at-point)))
-    :config
-    (setq lsp-file-watch-threshold 1000)
-    (setq lsp-headerline-breadcrumb-enable nil)
-    (setq lsp-modeline-code-actions-enable nil)
-    (setq lsp-modeline-diagnostics-enable nil)
-    (setq lsp-lens-enable nil)
-    (setq lsp-completion-provider :none)
-    (setq lsp-completion-enable nil)
+    :straight t)
+    ;:hook (prog-mode . (lambda ()
+    ;                     (unless (derived-mode-p 'clojure-mode
+    ;                                             'emacs-lisp-mode
+    ;                                             'lisp-mode
+    ;                                             'snippet-mode)
+    ;                       (lsp-deferred))))
+    ;:hook (lsp-mode . (lambda ()
+    ;                    (setq-local evil-lookup-func 'lsp-describe-thing-at-point)))
+    ;:config
+    ;(setq lsp-file-watch-threshold 1000)
+    ;(setq lsp-headerline-breadcrumb-enable nil)
+    ;(setq lsp-modeline-code-actions-enable nil)
+    ;(setq lsp-modeline-diagnostics-enable nil)
+    ;(setq lsp-lens-enable nil)
+    ;(setq lsp-completion-provider :none)
+    ;(setq lsp-completion-enable nil)
 
     ;; enable lsp-mode inside of org babel edit src blocks
     (defun org-babel-edit-prep:python (babel-info)
@@ -1797,11 +1870,12 @@ Change stuff in the grep buffer
     ;;        "--header-insertion=never"
     ;;        "--header-insertion-decorators=0"))
 
-    (leader-key
-      "lr" 'lsp-rename
-      "lf" 'lsp-format-buffer))
+    ;; (leader-key
+    ;;   "lr" 'lsp-rename
+    ;;   "lf" 'lsp-format-buffer))
 
   (use-package consult-lsp
+    :disabled
     :after lsp-mode
     :straight t
     :config
@@ -1812,13 +1886,18 @@ Change stuff in the grep buffer
 
 ** Eglot
 #+begin_src emacs-lisp
+  ;; out of sync errors between eglot and corfu
+  (use-package jsonrpc
+    :straight t)
+
   (use-package eglot
     :straight (eglot :type git :host github :repo "joaotavora/eglot")
     :hook ((c-mode . eglot-ensure)
            (c++-mode . eglot-ensure)
            (rust-mode . eglot-ensure)
            (go-mode . eglot-ensure)
-           (python-mode . eglot-ensure))
+           (python-mode . eglot-ensure)
+           (csharp-mode . eglot-ensure))
     :config
     ;; BUG: https://github.com/joaotavora/eglot/issues/1171
     (add-hook 'eglot-managed-mode-hook
@@ -1826,6 +1905,8 @@ Change stuff in the grep buffer
                                '(flymake-eldoc-function
                                  eglot-signature-eldoc-function
                                  eglot-hover-eldoc-function))))
+
+    (setq eglot-ignored-server-capabilities '(:codeLensProvider))
 
     (leader-key
       "la" 'eglot-code-actions
@@ -1978,6 +2059,14 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package lsp-pyright :straight t)
 
+  (use-package with-venv
+    :straight t)
+
+  (use-package pyenv
+    :straight t
+    :config
+    (pyenv-use-global))
+
   (defun +inferior-python-mode-init ()
     (advice-add 'python-shell-completion-at-point :around 'cape-wrap-purify)
     (advice-add 'python-shell-completion-at-point :around 'cape-wrap-noninterruptible)
@@ -2050,6 +2139,12 @@ Change stuff in the grep buffer
     (setq gdscript-indent-offset 4))
 #+end_src
 
+** Dart
+#+begin_src emacs-lisp
+  (use-package dart-mode
+    :straight t)
+#+end_src
+
 ** Devdocs
 #+begin_src  emacs-lisp
   (defun devdocs-lookup-ask-docs ()
@@ -2100,15 +2195,30 @@ Change stuff in the grep buffer
   (use-package dape
     ;;:straight (dape :type git :host github :repo "svaante/dape")
     :straight (:local-repo "~/Workspace/dape/")
+    :init
+    ;; (setq dape-buffer-window-arrangment 'gud)
     :config
-    ;;(add-hook 'dape-compile-compile-hooks 'kill-buffer)
+    (add-hook 'dape-compile-compile-hooks 'kill-buffer)
+
     (add-hook 'dape-on-start-hooks (defun dape--save-on-start ()
                                      (save-some-buffers t t)))
+
+    (remove-hook 'dape-on-start-hooks 'dape-info)
+    (add-hook 'dape-on-stopped-hooks 'dape-info)
+
+    (dape-breakpoint-global-mode)
+
+    (setq dape-buffer-window-arrangment 'right)
 
     (leader-key "pd" '(:keymap dape-global-map :which-key "dape")))
 
   (use-package dape-configs
-    :straight (dape-configs :type git :protocol ssh :host github :repo "svaante/dape-configs"))
+    :disabled
+    :straight (:local-repo "~/Workspace/dape-configs/")
+    ;;:straight (dape-configs :type git :protocol ssh :host github :repo "svaante/dape-configs")
+    :config
+    ;;(setq dape-configs (assq-delete-all 'lldb-vscode dape-configs))
+    )
 #+end_src
 * Applications
 ** Dired
@@ -2120,6 +2230,9 @@ Change stuff in the grep buffer
     ;; If two dired opened use other dired default-directory as
     ;; base target
     (setq dired-dwim-target t)
+
+    (when (eq system-type 'darwin)
+      (setq dired-use-ls-dired nil))
 
     (defun dired-here-other-window ()
       (interactive)
@@ -2185,7 +2298,7 @@ Change stuff in the grep buffer
     (defun eshell/top (&rest args)
       (proced))
 
-    (leader-key "ap" 'proced))
+    (leader-key "ap" #'proced))
 #+END_SRC
 
 ** Postman
@@ -2206,7 +2319,7 @@ Change stuff in the grep buffer
                 (restclient-mode)
                 (insert
                  "Welcome to restclient-mode!\n"
-                 "Execute with: C-c C-C\n"
+                 "Execute with: C-c C-c\n"
                  "\n"
                  "POST https://httpbin.org/post\n"
                  "Content-Type: application/json\n"
