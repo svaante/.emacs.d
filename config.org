@@ -1018,7 +1018,6 @@
     (leader-key
       "."  'find-file-at-point
       "pg" 'consult-ripgrep
-      "pl" 'consult-locate
       "b"  'consult-buffer
       "i"  'consult-imenu
       "hh" 'describe-function
@@ -1749,12 +1748,6 @@ Change stuff in the grep buffer
   (leader-key "wq" 'kill-dedicated-windows)
 #+END_SRC
 
-** Scratch
-#+begin_src emacs-lisp
-  ;; Eval code lisp in the *scratch* buffer
-  (define-key lisp-interaction-mode-map (kbd "C-c C-c") 'eval-buffer)
-#+end_src
-
 ** Useful functions
 #+begin_src emacs-lisp
   (defun +zoom-window ()
@@ -2136,8 +2129,6 @@ Change stuff in the grep buffer
 
 ** Python
 #+begin_src emacs-lisp
-  (use-package lsp-pyright :straight t)
-
   (use-package with-venv
     :straight t)
 
@@ -2456,14 +2447,6 @@ Change stuff in the grep buffer
       'create-literate-calc-mode-buffer))
 #+end_src
 
-** Jupyter notebooks
-#+begin_src emacs-lisp
-  (use-package ein
-    :straight t
-    :config
-    (setq ein:polymode t))
-#+end_src
-
 ** Elfeed
 #+begin_src emacs-lisp
   (defun elfeed-open-and-refresh ()
@@ -2493,15 +2476,5 @@ Change stuff in the grep buffer
     :config
     (setq epa-pinentry-mode 'loopback))
 #+end_src
-
-** Chatgpt
 #+begin_src emacs-lisp
-  (use-package gptel
-    :straight (gptel :type git :host github :repo "karthink/gptel")
-    :config
-    (define-key gptel-mode-map (kbd "C-c C-c") 'gptel-send)
-    (when (file-exists-p (locate-user-emacs-file "gpt-api-key.el"))
-      ;; (setq gptel-api-key "key")
-      (load-file (locate-user-emacs-file "gpt-api-key.el")))
-    (leader-key "aa" 'gptel))
 #+end_src
