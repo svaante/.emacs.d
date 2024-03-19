@@ -599,10 +599,10 @@
     :config
     (defun +org-confirm-babel-evaluate (lang body)
       (not (member lang '("sh" "emacs-lisp" "python"))))
+    ;; Open Link in same window
+    (add-to-list 'org-link-frame-setup '(file . find-file))
 
-    (setq org-link-frame-setup '((file . find-file))) ;; Open Link in same window
     (setq org-return-follows-link t)
-    (setq org-babel-python-command "python3")
     (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
     (setq org-src-window-setup 'current-window)
     (setq org-startup-with-inline-images t)
