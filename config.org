@@ -406,7 +406,14 @@
 ** Themes
 #+BEGIN_SRC emacs-lisp
   (use-package ef-themes
-    :straight (ef-themes :type git :host github :repo "protesilaos/ef-themes"))
+    :straight (ef-themes :type git :host github :repo "protesilaos/ef-themes")
+    :config
+    (setq ef-themes-common-palette-overrides
+          '((bg-mode-line bg-dim)
+            (bg-alt bg-main))))
+
+  (use-package standard-themes
+    :straight t)
 
   (use-package modus-themes
     :straight t
@@ -425,13 +432,8 @@
 
     (setq modus-themes-org-blocks 'gray-background)
 
-
-    ;; Subtle blue background, neutral foreground, intense blue border
     (setq modus-themes-common-palette-overrides
-          '((bg-mode-line-active bg-blue-subtle)
-            (fg-mode-line-active fg-main)
-            (border-mode-line-active blue-intense))))
-
+          '((fringe bg-main))))
 
   (use-package grandshell-theme :straight t)
 
