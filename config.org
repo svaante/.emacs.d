@@ -486,6 +486,13 @@
     (setq whitespace-style '(face trailing lines-char)))
 #+END_SRC
 
+*** Remove whitespace
+#+begin_src emacs-lisp
+  (use-package whitespace-cleanup-mode
+    :straight t
+    :hook (prog-mode . whitespace-cleanup-mode))
+#+end_src
+
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
