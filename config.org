@@ -627,7 +627,7 @@
         (apply old-org-agenda args)))
     (advice-add 'org-agenda :around 'org-agenda-well-behaved)
 
-    (setq org-agenda-breadcrumbs-separator "/")
+    (setq org-agenda-breadcrumbs-separator " ")
     (setq org-agenda-prefix-format '((agenda .  "  %?-40 b")
                                      (todo .    "  %?-40 b")
                                      (tags .    "  %?-40 b")
@@ -640,10 +640,10 @@
     (setq org-agenda-custom-commands
           '(("A" "Agenda"
              ((agenda)
-              (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
-                    ((org-agenda-overriding-header "Projects:")))
               (tags "+LEVEL=1-SCHEDULED={.+}-DEADLINE={.+}/TODO"
-                    ((org-agenda-overriding-header "Todos:")))))))
+                    ((org-agenda-overriding-header "Todos:")))
+              (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
+                    ((org-agenda-overriding-header "Projects:")))))))
 
     (defun org-agenda-custom ()
       (interactive)
@@ -712,22 +712,18 @@
                                    "* %?\n")
                                   ("t" "Todo" entry
                                    (file "~/org/todo.org")
-                                   "* TODO %?\n")))
+                                   "* TODO %?\n")
+                                  ("l" "Link" entry
+                                   (file "~/org/todo.org")
+                                   "* TODO %? %a\n")))
     (leader-key "oc" 'org-capture))
 
   (use-package org-modern
     :straight (org-modern :type git :host github :repo "minad/org-modern")
-    :hook ((org-mode . org-modern-mode)
-           (org-agenda-finalize . org-modern-agenda))
+    :hook ((org-mode . org-modern-mode))
     :config
     ;; Some type of fix when using org-indent-mode
     (setq org-modern-block-fringe nil))
-
-  (use-package org-modern-indent
-    :straight
-    (org-modern-indent :type git :host github :repo "jdtsmith/org-modern-indent")
-    :config
-    (add-hook 'org-mode-hook #'org-modern-indent-mode 90))
 #+END_SRC
 
 ** Notes
