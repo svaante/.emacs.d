@@ -1098,7 +1098,10 @@
   (use-package which-key
     :straight t
     :init
-    (which-key-mode))
+    (which-key-mode)
+    :config
+    (setq which-key-show-docstrings t)
+    (setq which-key-max-description-length nil))
 
   (defun +find-file-at (file)
     "Find file at `default-directory' FILE."
