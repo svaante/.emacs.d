@@ -954,7 +954,9 @@
     (setq completion-category-defaults nil
           completion-category-overrides
           '((file (styles basic partial-completion))
-            (lsp-capf (styles basic)))))
+            (lsp-capf (styles basic))
+            (eglot (styles flex orderless))
+            (eglot-capf (styles flex orderless)))))
 
   ;; Persist history over Emacs restarts. Vertico sorts by history position.
   (use-package savehist
