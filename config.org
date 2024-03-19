@@ -1915,15 +1915,15 @@ Change stuff in the grep buffer
 
 ** Eglot
 #+begin_src emacs-lisp
-  ;; out of sync errors between eglot and corfu
   (use-package jsonrpc
     :straight t)
 
   (use-package eglot
-    :straight (eglot :type git :host github :repo "joaotavora/eglot")
+    :straight t
     :hook ((c-mode . eglot-ensure)
            (c++-mode . eglot-ensure)
            (rust-mode . eglot-ensure)
+           (typescript-mode . eglot-ensure)
            (go-mode . eglot-ensure)
            (python-mode . eglot-ensure)
            (csharp-mode . eglot-ensure))
@@ -1931,9 +1931,35 @@ Change stuff in the grep buffer
     ;; BUG: https://github.com/joaotavora/eglot/issues/1171
     (add-hook 'eglot-managed-mode-hook
               (lambda () (setq eldoc-documentation-functions
-                               '(flymake-eldoc-function
-                                 eglot-signature-eldoc-function
+                               '(eglot-signature-eldoc-function
+                                 flymake-eldoc-function
                                  eglot-hover-eldoc-function))))
+
+
+    (defun eglot-imenu-keep-parent (alist)
+      "Extract `eglot-imenu' keys as items from the imenu ALIST."
+      (mapcan
+       (pcase-lambda (`(,key . ,value))
+         (cond
+          ((listp value)
+           `((,key . ,(car (get-text-property 0 'breadcrumb-region key)))
+             (,key . ,(eglot-imenu-keep-parent value))))
+          (t `((,key . ,value)))))
+       alist))
+
+    (advice-add 'eglot-imenu :filter-return 'eglot-imenu-keep-parent)
+
+    (defun eglot-imenu-extract-base-kind (alist)
+      "Add kind as an parent to each item to PLIST."
+      (mapcar (pcase-lambda (`(,key . ,value))
+                (let ((kind (get-text-property 0 'breadcrumb-kind key)))
+                  (cond
+                   ((stringp kind)
+                    (cons (concat kind) `((,key . ,value))))
+                   (t `(,key . ,value)))))
+              alist))
+
+    (advice-add 'eglot-imenu-keep-parent :filter-return 'eglot-imenu-extract-base-kind)
 
     (setq eglot-ignored-server-capabilities '(:codeLensProvider))
 
