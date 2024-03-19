@@ -2208,14 +2208,17 @@ Change stuff in the grep buffer
 
   (use-package devdocs
     :straight t
-    :config
+    :init
     (leader-key "k" 'devdocs-lookup)
     (leader-key "K" 'devdocs-lookup-ask-docs))
+#+end_src
 
+** Eldoc
+#+begin_src emacs-lisp
   (use-package eldoc
     :straight (:type built-in)
     :config
-    (setq eldoc-echo-area-use-multiline-p 1))
+    (setq eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit))
 #+end_src
 
 ** Compilation
