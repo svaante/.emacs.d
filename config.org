@@ -2008,11 +2008,10 @@ Change stuff in the grep buffer
   ;; Stolen from http://www.sugarshark.com/elisp/init/lisp.el.html
   (defun describe-elisp-thing-at-point ()
     "Show the documentation of the Elisp function and variable near point.
-          This checks in turn:
-          -- for a function name where point is
-          -- for a variable name where point is
-          -- for a surrounding function call
-          "
+  This checks in turn:
+  -- for a function name where point is
+  -- for a variable name where point is
+  -- for a surrounding function call"
     (interactive)
     (let (sym)
       ;; sigh, function-at-point is too clever.  we want only the first half.
@@ -2038,8 +2037,7 @@ Change stuff in the grep buffer
     (seq-do
      (lambda (mode-map)
        (evil-define-key 'normal mode-map
-         (kbd "K")
-         'describe-elisp-thing-at-point)
+         (kbd "K") 'describe-elisp-thing-at-point)
        (evil-define-key '(normal insert) mode-map
          (kbd "C-c C-e") 'eval-defun)
        (evil-define-key '(normal insert) mode-map
