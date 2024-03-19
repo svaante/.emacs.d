@@ -449,71 +449,73 @@
 ** Mode-line
 #+begin_src emacs-lisp
   (defun mode-line-file-path ()
-    (when (buffer-file-name)
-      (abbreviate-file-name
-       (or (when-let* ((prj (project-project-root))
-                       (prj-parent (file-name-directory
-                                    (directory-file-name
-                                     (expand-file-name prj))))
-                       (rel-path
-                        (file-relative-name
-                         (file-name-directory buffer-file-truename)
-                         prj-parent)))
-             (if (length< rel-path 60)
-                 rel-path
-               (let ((split-rel-path (file-name-split rel-path)))
-                 (file-name-as-directory
-                  (apply 'file-name-concat (car split-rel-path)
-                         (mapcar (lambda (p)
-                                   (if (string-empty-p p)
-                                       p
-                                     (substring p 0 1)))
-                                 (cdr split-rel-path)))))))
-           default-directory))))
-
-  (setq mode-line-defining-kbd-macro
-        (propertize " Macro" 'face 'mode-line-emphasis))
+    (when-let ((file-name (buffer-file-name)))
+      (propertize
+       (abbreviate-file-name
+        (or (when-let* ((prj (project-project-root))
+                        (prj-parent (file-name-directory
+                                     (directory-file-name
+                                      (expand-file-name prj))))
+                        (rel-path
+                         (file-relative-name
+                          (file-name-directory buffer-file-truename)
+                          prj-parent)))
+              (if (length< rel-path 60)
+                  rel-path
+                (let ((split-rel-path (file-name-split rel-path)))
+                  (file-name-as-directory
+                   (apply 'file-name-concat (car split-rel-path)
+                          (mapcar (lambda (p)
+                                    (if (string-empty-p p)
+                                        p
+                                      (substring p 0 1)))
+                                  (cdr split-rel-path)))))))
+            default-directory))
+       'mouse-face 'highlight
+       'help-echo (file-name-directory file-name))))
 
   (setq mode-line-position-column-line-format '(" %l:%c"))
 
+  (defface evil-state-tag-face
+    '((t (:inherit (match font-lock-constant-face mode-line))))
+    "Face for mode line evil mode indication.")
+
   (setq-default mode-line-format
                 '(
-                  (:eval (when (window-dedicated-p)
-                           (and nil (propertize "DEDI "
-                                                'face 'mode-line-emphasis)))
-                         )
-                  ;; "🌻"
+                  ""
                   mode-line-front-space
                   mode-line-mule-info
                   mode-line-client
                   mode-line-modified
                   mode-line-remote
                   mode-line-frame-identification
+                  " "
                   (:eval (mode-line-file-path))
                   mode-line-buffer-identification
-                  " "
+                  "  "
                   mode-line-position
+                  " "
                   (:propertize mode-name
                                face bold)
+                  "  "
+                  (vc-mode vc-mode)
                   " "
-                  vc-mode
+                  (:eval (when (window-dedicated-p)
+                           (propertize " Dedicated"
+                                       'face 'font-lock-warning-face)))
+                  (:eval (when (buffer-narrowed-p)
+                           (propertize " Narrow"
+                                       'face 'font-lock-warning-face)))
+                  (:eval (when (region-active-p)
+                           (format " Lines %d" (1+ (count-lines (region-beginning)
+                                                                (region-end))))))
+                  (defining-kbd-macro mode-line-defining-kbd-macro)
+                  " "
+                  mode-line-process
                   mode-line-misc-info
-                  mode-line-end-spaces))
+                  mode-line-format-right-align))
 
   (column-number-mode 1)
-
-  (diminish 'eldoc-mode)
-#+end_src
-
-** Match paren
-#+begin_src  emacs-lisp
-  (use-package paren
-    :config
-    (setq show-paren-style 'parenthesis)
-    (setq show-paren-when-point-in-periphery nil)
-    (setq show-paren-when-point-inside-paren nil)
-    (setq show-paren-delay 0)
-    (show-paren-mode +1))
 #+end_src
 
 ** Whitespace
