@@ -1298,7 +1298,8 @@
     :config
     (exec-path-from-shell-initialize))
 #+end_src
-** Compleation
+
+** Completion
 #+begin_src emacs-lisp
   (use-package bash-completion
     :disabled
