@@ -1846,7 +1846,10 @@ Change stuff in the grep buffer
 ** Flymake
 #+begin_src emacs-lisp
   (use-package flymake
-    :straight (:type built-in))
+    :straight (:type built-in)
+    :hook (emacs-lisp-mode . flymake-mode)
+    :config
+    (setq flymake-fringe-indicator-position nil))
 #+end_src
 
 ** 80 Columns
