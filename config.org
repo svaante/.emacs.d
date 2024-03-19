@@ -1007,8 +1007,8 @@
     (defun +consult-ripgrep-fallback-advice (old-fn &rest args)
       (interactive)
       (if (executable-find "rg")
-          (funcall old-fn)
-        (consult-grep)))
+          (apply old-fn args)
+        (apply consult-grep args)))
 
     (consult-customize
      consult-history :initial nil)
