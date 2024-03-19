@@ -1710,10 +1710,9 @@ Change stuff in the grep buffer
     (leader-key "fd"
       'define-word-at-point))
 
-  (use-package mail-mode
+  (use-package sendmail
     :straight (:type built-in)
-    :hook ((mail-mode . auto-fill-mode)
-           (mail-mode . (lambda ()
+    :hook ((mail-mode . (lambda ()
                           (setq-local fill-column 70)))))
 #+end_src
 
