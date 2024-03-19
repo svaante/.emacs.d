@@ -1722,6 +1722,13 @@ Change stuff in the grep buffer
                           (setq-local fill-column 70)))))
 #+end_src
 
+** Markdown
+#+begin_src emacs-lisp
+  (use-package markdown-mode
+    :straight t
+    :mode ("/README\\(?:\\.md\\)?\\'" . gfm-mode))
+#+end_src
+
 ** Dedicated windows
 #+begin_src emacs-lisp
   (defun toggle-window-dedicated ()
