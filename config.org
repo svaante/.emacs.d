@@ -1250,31 +1250,31 @@
                                 (substitute-in-file-name file)))))
       (project-find-file)))
 
-  ;; https://github.com/minad/vertico/issues/296
-  (defvar project-file nil)
-
-  (defun project--read-file-cpd-relative-fix (prompt
-                                              all-files &optional predicate
-                                              hist mb-default)
-    (let ((current-buffer-file-name buffer-file-name))
-      (project--read-file-cpd-relative prompt
-                                       all-files
-                                       ;; Remove current buffer from candidates list
-                                       (lambda (candidate)
-                                         (not (string-suffix-p candidate current-buffer-file-name)))
-                                       'project-file
-                                       mb-default)))
   (defun project-recompile ()
+    "Re-compile current project."
     (interactive)
     (project-with-directory t
-        (recompile)))
+      (recompile)))
 
   (use-package project
     :straight t
     :config
     (setq project-vc-extra-root-markers '(".projectile" ".project"))
     (setq project-switch-commands 'project-find-file)
-    (setq project-read-file-name-function #'project--read-file-cpd-relative-fix)
+    (setq project-read-file-name-function
+          ;; Remove current visited file from list
+          (lambda (prompt all-files &optional predicate hist mb-default)
+            (when buffer-file-name
+              (setq all-files (remove buffer-file-name all-files)))
+            (project--read-file-cpd-relative prompt all-files predicate hist mb-default)))
+
+    (defun project-switch-project-advice (project-switch-project dir)
+      "Fix embark after switching project."
+      (minibuffer-with-setup-hook
+          (lambda () (setq default-directory dir))
+        (funcall project-switch-project dir)))
+
+    (advice-add 'project-switch-project :around 'project-switch-project-advice)
 
     (define-key embark-file-map " " 'project-find-file-at)
 
