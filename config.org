@@ -878,13 +878,12 @@
     :init
     ;; Default completion at point additions
     (add-to-list 'completion-at-point-functions #'cape-history)
-
     (add-to-list 'completion-at-point-functions #'cape-file)
 
     (defun coruf-lsp-mode-completions ()
       (setq-local completion-at-point-functions
                   (cons #'tempel-complete
-                        (list (cape-super-capf
+                        (list (cape-capf-super
                                #'lsp-completion-at-point)
                               #'cape-file))))
 
