@@ -1584,6 +1584,7 @@
 ** Shell-mode
 #+begin_src emacs-lisp
   (defun kill-on-no-process ()
+    "Kill buffer when no live process otherwise quit window."
     (interactive)
     (if (null (get-buffer-process (current-buffer)))
         (kill-buffer)
@@ -1595,7 +1596,27 @@
     (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
     (evil-define-key 'normal shell-mode-map "q" 'kill-on-no-process)
 
+    (defun shell-command-sentinel-show-exit-code (process status)
+      ""
+      (when-let ((buffer (process-buffer process)))
+        (with-current-buffer buffer
+          (setq mode-line-process
+                (concat
+                 ":"
+                 (propertize
+                  (concat
+                   (format "%s" (process-status process))
+                   (when (memq (process-status process) '(exit signal))
+                     (format " %s"
+                             (process-exit-status process))))
+                  'face 'warning)))
+          (force-mode-line-update t))))
+
+    (advice-add 'shell-command-sentinel :after
+                'shell-command-sentinel-show-exit-code)
+
     (define-key embark-file-map "!" 'async-shell-command)
+
     (setq async-shell-command-buffer 'rename-buffer)
     (setq shell-command-prompt-show-cwd t)
 
