@@ -1722,7 +1722,8 @@ Change stuff in the grep buffer
     "Toggle window dedicated"
     (interactive)
     (set-window-dedicated-p (selected-window)
-                            (not (window-dedicated-p))))
+                            (not (window-dedicated-p)))
+    (force-mode-line-update t))
 
   (leader-key "wl" 'toggle-window-dedicated)
 
