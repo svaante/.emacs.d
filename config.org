@@ -1684,19 +1684,25 @@ Change stuff in the grep buffer
 
   (use-package flyspell
     :straight t
-    ;;inside git commit and markdown
-    :hook ((git-commit-mode org-mode markdown-mode) . flyspell-mode)
+    :hook (((git-commit-mode text-mode) . flyspell-mode)
+           ;; (prog-mode . flyspell-prog-mode)
+           )
     :config
+    (defun flyspell-correct-buffer ()
+      "Use flyspell overlays to correct buffer."
+      (interactive)
+      (save-excursion
+        (cl-loop with overlays = (overlays-in (point-min) (point-max))
+                 for overlay in overlays
+                 when (flyspell-overlay-p overlay)
+                 do (goto-char (overlay-start overlay))
+                 (ispell-word))))
+
     (setq flyspell-default-dictionary "english")
 
-    (defun +flyspell-programing-english ()
-      (interactive)
-      (ispell-change-dictionary flyspell-default-dictionary)
-      (flyspell-prog-mode))
-
     (leader-key
-      "ff" '+ispell-toogle-english-swedish-dictonary
-      "fp" '+flyspell-programing-english))
+      "fb" 'flyspell-correct-buffer
+      "ff" '+ispell-toogle-english-swedish-dictonary))
 
   (use-package define-word
     :straight t
