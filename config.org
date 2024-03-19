@@ -1800,7 +1800,8 @@ Change stuff in the grep buffer
            (get-buffer-create (format "*scratch: %s*"
                                       (symbol-name mode)))))
       (with-current-buffer buffer
-        (funcall-interactively mode))
+        (funcall-interactively mode)
+        (setq-local buffer-offer-save nil))
       (pop-to-buffer-same-window buffer)))
 
   (defun load-last-theme ()
