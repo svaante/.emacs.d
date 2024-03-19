@@ -1182,8 +1182,19 @@
   (add-hook 'minibuffer-setup-hook 'minibuffer-insert-selection)
 #+end_src
 
-* Snippets
-** Tempel
+* Editing
+** Linewrap
+#+begin_src emacs-lisp
+  (use-package simple
+    :hook ((prog-mode . auto-fill-mode)
+           (prog-mode . (lambda ()
+                          (setq-local comment-auto-fill-only-comments t)))
+           (text-mode . auto-fill-mode)
+           (mail-mode . auto-fill-mode)
+           (message-mode . auto-fill-mode)))
+#+end_src
+
+** Snippets - Tempel
 #+begin_src emacs-lisp
   (use-package tempel
     :straight (tempel :type git :host github :repo "minad/tempel")
