@@ -1522,25 +1522,63 @@
       (setenv "AWS_PROFILE" choice)))
 #+end_src
 
-** Proc-hist
-#+begin_src  emacs-lisp
-  (use-package proc-hist
-    :straight (proc-hist :type git :host github :repo "svaante/proc-hist")
+** Process history
+#+begin_src emacs-lisp
+  (use-package process-history
+    :straight (:local-repo "~/Workspace/process-history/" :files ("process-history.el"))
     :config
-    (proc-hist-mode)
+    (process-history-mode)
 
-    (defvar-keymap embark-proc-hist-actions-map
-      :doc "Proc hist actions"
+    (add-to-list 'process-history-buffer-match "\\*dape-shell\\*")
+
+    (evil-make-overriding-map process-history-list-mode-map)
+
+    (defvar-keymap embark-process-history-actions-map
+      :doc "Process history actions"
       :parent embark-general-map
-      "k" #'proc-hist-kill
-      "r" #'proc-hist-rerun
-      "R" #'proc-hist-rerun-as
-      "w" #'proc-hist-copy-as-kill-command)
+      "k" #'process-history-process-kill
+      "r" #'process-history-rerun-with-async-shell-command
+      "c" #'process-history-rerun-with-compile
+      "!" #'process-history-rerun-with-async-shell-command
+      "w" #'process-history-copy-as-kill-command
+      "b" #'process-history-display-buffer
+      "d" #'process-history-delete-item)
 
-      (add-to-list 'embark-keymap-alist '(proc-hist . embark-proc-hist-actions-map))
+    (add-to-list 'embark-keymap-alist
+                 '(process-history . embark-process-history-actions-map))
+
+    (defun process-history-export (candidates)
+      (let ((alist (process-history--collection)))
+        (process-history-list (mapcar (lambda (cand)
+                                        (cdr (assoc cand alist)))
+                                      candidates))))
+
+    (add-to-list 'embark-exporters-alist
+                 '(process-history . process-history-export))
 
     (leader-key
-      "d" 'proc-hist-dwim))
+      "ap" 'process-history-find-log))
+
+  (use-package tablist
+    :hook (process-history-list-mode . tablist-minor-mode)
+    :straight t
+    :config
+    (defun tablist-equal-column ()
+      (interactive nil tablist-minor-mode)
+      (let ((tab-col (tablist-current-column)))
+        (tablist-push-equal-filter (tablist-column-name tab-col)
+                                   (aref (tabulated-list-get-entry) tab-col))))
+    (evil-define-key 'normal tablist-minor-mode-map "=" 'tablist-equal-column))
+
+  (use-package proced
+    :straight (:type built-in)
+    :config
+    (setq proced-enable-color-flag t)
+
+    (defun eshell/top (&rest args)
+      (proced))
+
+    (leader-key "aP" #'proced))
 #+end_src
 
 ** Shell-mode
@@ -2254,15 +2292,6 @@ Change stuff in the grep buffer
 
 ** Proced/top
 #+BEGIN_SRC emacs-lisp
-  (use-package proced
-    :straight (:type built-in)
-    :config
-    (setq proced-enable-color-flag t)
-
-    (defun eshell/top (&rest args)
-      (proced))
-
-    (leader-key "ap" #'proced))
 #+END_SRC
 
 ** Postman
