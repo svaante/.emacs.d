@@ -94,12 +94,6 @@
   (straight-use-package 'el-patch)
 #+end_src
 
-#+begin_src emacs-lisp
-  (use-package diminish
-    :straight t
-    :after use-package)
-#+end_src
-
 * Key mappings
 ** Global mappings
 #+begin_src emacs-lisp
@@ -162,7 +156,6 @@
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
     :straight t
-    :diminish
     :config
     (setq undo-tree-auto-save-history nil)
     (global-undo-tree-mode 1))
@@ -214,7 +207,6 @@
     (global-evil-surround-mode 1))
 
   (use-package evil-escape
-    :diminish
     :straight t
     :init
     (setq evil-escape-delay 0.2)
@@ -224,7 +216,7 @@
     (evil-escape-mode))
 
   (use-package evil-collection
-    :after evil diminish
+    :after evil
     :straight t
     :config
     ;; magit uses 'C-i' as tab like GUI emacs doesn't exist
@@ -235,11 +227,9 @@
                  (remove 'corfu)
                  (setq evil-collection-mode-list))
     (evil-collection-init)
-    (diminish 'evil-collection-unimpaired-mode)
     (leader-key "js" 'evil-collection-consult-jump-list))
 
   (use-package evil-org
-    :diminish
     :defer t
     :straight t
     :after org
@@ -493,7 +483,6 @@
 #+BEGIN_SRC emacs-lisp
   (use-package whitespace
     :straight (:type built-in)
-    :diminish
     :hook (prog-mode . whitespace-mode)
     :init
     (setq show-trailing-whitespace t)
@@ -504,7 +493,6 @@
 ** Dashboard
 #+BEGIN_SRC emacs-lisp
   (use-package dashboard
-    :diminish
     :straight t
     :config
     (setq dashboard-items '((recents  . 10)
@@ -515,7 +503,6 @@
 ** Visual lines
 #+begin_src emacs-lisp
   (use-package simple
-    :diminish
     (global-visual-line-mode t))
 #+end_src
 
@@ -747,7 +734,6 @@
 #+begin_src emacs-lisp
   (use-package org-mono
     :after embark
-    :diminish
     :straight (org-mono :type git :host github :repo "svaante/org-mono")
     :config
     (setq org-mono-files '("~/org/notes.org"
@@ -795,7 +781,6 @@
   (use-package company
     :disabled
     :straight t
-    :diminish company-mode
     :config
     (setq company-backends '(company-files company-capf))
     (setq company-idle-delay 0)
@@ -836,7 +821,6 @@
   (use-package company-posframe
     :disabled
     :straight t
-    :diminish
     :config
     (setq company-posframe-show-metadata nil)
     (setq company-posframe-show-indicator nil)
@@ -1117,7 +1101,6 @@
 
   (use-package which-key
     :straight t
-    :diminish which-key-mode
     :init
     (which-key-mode))
 
