@@ -244,11 +244,6 @@
                                                         todo))))))
 #+END_SRC
 
-** Hydra
-#+BEGIN_SRC emacs-lisp
-  (use-package hydra
-    :straight t)
-#+end_src
 
 ** Repeat
 #+begin_src emacs-lisp
