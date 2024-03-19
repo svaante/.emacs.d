@@ -851,8 +851,11 @@
 
     ;; C-n C-p
     (evil-make-overriding-map corfu-map)
-    (advice-add 'corfu--setup :after 'evil-normalize-keymaps)
-    (advice-add 'corfu--teardown :after 'evil-normalize-keymaps)
+    (advice-add 'corfu--setup :after
+                (lambda (&rest _)
+                  (evil-normalize-keymaps)))
+    (advice-add 'corfu--teardown :after
+                (lambda (&rest _) (evil-normalize-keymaps)))
     (evil-define-key 'insert corfu-map
       (kbd "C-n") 'corfu-next
       (kbd "C-p") 'corfu-previous)
