@@ -503,12 +503,6 @@
     (dashboard-setup-startup-hook))
 #+END_SRC
 
-** Visual lines
-#+begin_src emacs-lisp
-  (use-package simple
-    (global-visual-line-mode t))
-#+end_src
-
 * Buffer navigation
 ** Narrow
 #+BEGIN_SRC emacs-lisp
