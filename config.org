@@ -1834,7 +1834,7 @@ Change stuff in the grep buffer
     :config
     (evil-define-key 'normal prog-mode-map "gr" 'xref-find-references)
     (evil-define-key 'normal prog-mode-map "gD" 'xref-find-definitions-other-window)
-    (define-key prog-mode-map (kbd "C-;") 'comment-dwim)
+    (evil-define-key 'visual prog-mode-map (kbd "C-;") 'comment-dwim)
 
     (setq xref-prompt-for-identifier
           '(not xref-find-definitions
