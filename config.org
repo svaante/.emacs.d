@@ -2348,6 +2348,12 @@ Change stuff in the grep buffer
     ;; Don't let magit close windows
     (setq magit-bury-buffer-function 'bury-buffer)
 
+    ;; Show magit in current buffer
+    ;; TODO `magit-display-buffer-same-window-except-diff-v1' does not
+    ;; respect dedicated windows.
+    (setq magit-display-buffer-function
+          'magit-display-buffer-same-window-except-diff-v1)
+
     (leader-key "gg" 'magit-status-here-and-center)
     (leader-key "g." 'magit-find-file)
     (leader-key "gd" 'magit-diff)
