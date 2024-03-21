@@ -1690,7 +1690,8 @@ Change stuff in the grep buffer
   (use-package flyspell
     :straight t
     :hook (((git-commit-mode text-mode) . flyspell-mode)
-           ;; (prog-mode . flyspell-prog-mode)
+           ;; FIXME Breaks dape, see emacs bug #69733
+           (prog-mode . flyspell-prog-mode)
            )
     :config
     (defun flyspell-correct-buffer ()
