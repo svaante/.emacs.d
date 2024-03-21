@@ -2369,6 +2369,9 @@ Change stuff in the grep buffer
 #+begin_src emacs-lisp
   (use-package tramp
     :init
+    ;; If ssh:ed unto localhost the following seams to do the job, as
+    ;; PATH is copied to the new tramp session.
+    (add-to-list 'tramp-remote-path 'tramp-own-remote-path 'apppend)
     (setq tramp-default-method "ssh"))
 #+end_src
 
