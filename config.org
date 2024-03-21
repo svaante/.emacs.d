@@ -1284,6 +1284,7 @@
     (leader-key
       "SPC" 'project-find-file
       "pp" 'project-switch-project
+      "pd" 'project-dired
       "p!" 'project-async-shell-command
       "pk" 'project-kill-buffers
       "pc" 'project-compile
