@@ -1950,14 +1950,6 @@ Change stuff in the grep buffer
            (python-mode . eglot-ensure)
            (csharp-mode . eglot-ensure))
     :config
-    ;; BUG: https://github.com/joaotavora/eglot/issues/1171
-    (add-hook 'eglot-managed-mode-hook
-              (lambda () (setq eldoc-documentation-functions
-                               '(eglot-signature-eldoc-function
-                                 flymake-eldoc-function
-                                 eglot-hover-eldoc-function))))
-
-
     (defun eglot-imenu-keep-parent (alist)
       "Extract `eglot-imenu' keys as items from the imenu ALIST."
       (mapcan
