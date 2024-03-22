@@ -1975,7 +1975,7 @@ Change stuff in the grep buffer
 
     (advice-add 'eglot-imenu-keep-parent :filter-return 'eglot-imenu-extract-base-kind)
 
-    (setq eglot-ignored-server-capabilities '(:codeLensProvider))
+    (setq eglot-ignored-server-capabilities '(:inlayHintProvider :codeLensProvider))
 
     (leader-key
       "la" 'eglot-code-actions
