@@ -2228,6 +2228,8 @@ Change stuff in the grep buffer
   (use-package eldoc
     :straight (:type built-in)
     :config
+    ;; Concat all the functions in eldoc, please
+    (setq eldoc-documentation-strategy #'eldoc-documentation-compose)
     (setq eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit))
 #+end_src
 
