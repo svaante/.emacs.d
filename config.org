@@ -2301,33 +2301,70 @@ Change stuff in the grep buffer
 ** Dape Debugging
 #+begin_src emacs-lisp
   (use-package dape
-    ;;:straight (dape :type git :host github :repo "svaante/dape")
-    :straight (:local-repo "~/Workspace/dape/")
-    :init
-    ;; (setq dape-buffer-window-arrangment 'gud)
+    ;; :straight (dape :type git :host github :repo "svaante/dape")
+    :straight (:local-repo "~/Workspace/dape/" :files ("dape.el"))
+    :hook
+    (;; Save breakpoints on quit
+     (kill-emacs . dape-breakpoint-save)
+     ;; Load breakpoints on startup
+     (after-init . dape-breakpoint-load))
     :config
-    (add-hook 'dape-compile-compile-hooks 'kill-buffer)
+    (setq dape-debug t
+          dape-buffer-window-arrangment 'right
+          dape-info-variable-table-row-config
+          '((name . 0) (value . 0) (type . 0))
+          dape-info-buffer-window-groups
+          '((dape-info-scope-mode dape-info-watch-mode)
+            (dape-info-stack-mode dape-info-modules-mode dape-info-sources-mode)
+            (dape-info-threads-mode dape-info-breakpoints-mode)))
 
-    (add-hook 'dape-on-start-hooks (defun dape--save-on-start ()
-                                     (save-some-buffers t t)))
+    (define-key dape-global-map (kbd "H-i") #'dape-stack-select-down)
+    (define-key dape-global-map (kbd "C-o") #'dape-stack-select-up)
 
     (remove-hook 'dape-on-start-hooks 'dape-info)
+    (add-hook 'dape-on-start-hooks
+              (defun dape--save-on-start ()
+                (save-some-buffers t t)))
+
     (add-hook 'dape-on-stopped-hooks 'dape-info)
+    (add-hook 'dape-on-stopped-hooks 'dape-repl)
 
     (dape-breakpoint-global-mode)
 
-    (setq dape-buffer-window-arrangment 'right)
+    (evil-make-overriding-map dape-info-scope-mode-map)
+    (evil-make-overriding-map dape-info-watch-mode-map)
 
-    (leader-key "pd" '(:keymap dape-global-map :which-key "dape")))
+    (add-hook 'dape-active-mode-hook
+              (defun dape--kill-info-on-inactive ()
+                (unless dape-active-mode
+                  (dape-info nil 'kill))))
 
-  (use-package dape-configs
-    :disabled
-    :straight (:local-repo "~/Workspace/dape-configs/")
-    ;;:straight (dape-configs :type git :protocol ssh :host github :repo "svaante/dape-configs")
-    :config
-    ;;(setq dape-configs (assq-delete-all 'lldb-vscode dape-configs))
-    )
+    ;; java
+    (require 'eglot)
+    (let ((jar
+           (car
+            (file-expand-wildcards
+             (file-name-concat dape-adapter-dir
+                               "java-debug"
+                               "com.microsoft.java.debug.plugin"
+                               "target"
+                               "com.microsoft.java.debug.plugin-*.jar")
+             t))))
+      (add-to-list 'eglot-server-programs
+                   `((java-mode java-ts-mode) .
+                     ("jdtls"
+                      :initializationOptions
+                      (:bundles [,jar])))))
+
+    (leader-key "d" '(:keymap dape-global-map :which-key "dape")))
+
+  (use-package dape-cortex-debug
+    :after dape
+    :straight (dape-cortex-debug :type git :host github :repo "svaante/dape-cortex-debug")
+    :init
+    (require 'dape-cortex-debug))
 #+end_src
+
 * Applications
 ** Dired
 #+begin_src emacs-lisp
