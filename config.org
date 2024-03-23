@@ -2458,7 +2458,7 @@ Change stuff in the grep buffer
     :straight t
     :config
     (setq literate-calc-buffer-name "*literate-calc*")
-    (setq literate-calc-mode-idle-time 0.1)
+    (setq literate-calc-mode-idle-time 0.01)
 
     (defun create-literate-calc-mode-buffer ()
       (interactive)
