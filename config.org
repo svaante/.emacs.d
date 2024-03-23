@@ -1894,89 +1894,17 @@ Change stuff in the grep buffer
     (setq display-fill-column-indicator-column 80))
 #+end_src
 
-** LSP
+** Eglot
 #+begin_src emacs-lisp
+  (use-package jsonrpc
+    :straight t)
+
   (use-package lsp-snippet-tempel
     :straight (lsp-snippet-tempel :type git
                                   :host github
                                   :repo "svaante/lsp-snippet")
     :config
     (lsp-snippet-tempel-eglot-init))
-
-  (use-package lsp-snippet-yasnippet
-    :disabled
-    :straight (lsp-snippet-yasnippet :type git
-                                     :host github
-                                     :repo "svaante/lsp-snippet")
-    :config
-    (lsp-snippet-yasnippet-eglot-init))
-
-  ;; Testing
-  (use-package yasnippet
-    :disabled
-    :straight (yasnippet :type git
-                         :host github
-                         :repo "joaotavora/yasnippet")
-    :hook (eglot-managed-mode . yas-minor-mode)
-    :config
-    ;; Disable yas snippet if completion-in-region active in corfu mode
-    (setq yas-keymap-disable-hook
-          (lambda (&rest _)
-            (and corfu-mode completion-in-region-mode))))
-
-
-  (use-package lsp-mode
-    :disabled
-    :straight t)
-    ;:hook (prog-mode . (lambda ()
-    ;                     (unless (derived-mode-p 'clojure-mode
-    ;                                             'emacs-lisp-mode
-    ;                                             'lisp-mode
-    ;                                             'snippet-mode)
-    ;                       (lsp-deferred))))
-    ;:hook (lsp-mode . (lambda ()
-    ;                    (setq-local evil-lookup-func 'lsp-describe-thing-at-point)))
-    ;:config
-    ;(setq lsp-file-watch-threshold 1000)
-    ;(setq lsp-headerline-breadcrumb-enable nil)
-    ;(setq lsp-modeline-code-actions-enable nil)
-    ;(setq lsp-modeline-diagnostics-enable nil)
-    ;(setq lsp-lens-enable nil)
-    ;(setq lsp-completion-provider :none)
-    ;(setq lsp-completion-enable nil)
-
-    ;; enable lsp-mode inside of org babel edit src blocks
-    (defun org-babel-edit-prep:python (babel-info)
-      (setq-local buffer-file-name (->> babel-info caddr (alist-get :tangle))))
-
-    ;; c mode configurations
-    ;;(setq lsp-clients-clangd-args
-    ;;      '("-j=2"
-    ;;        "--background-index"
-    ;;        "--clang-tidy"
-    ;;        "--completion-style=bundled"
-    ;;        "--pch-storage=memory"
-    ;;        "--header-insertion=never"
-    ;;        "--header-insertion-decorators=0"))
-
-    ;; (leader-key
-    ;;   "lr" 'lsp-rename
-    ;;   "lf" 'lsp-format-buffer))
-
-  (use-package consult-lsp
-    :disabled
-    :after lsp-mode
-    :straight t
-    :config
-    (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)
-    (leader-key
-      "ls" 'consult-lsp-symbols))
-#+end_src
-
-** Eglot
-#+begin_src emacs-lisp
-  (use-package jsonrpc
-    :straight t)
 
   (use-package eglot
     :straight t
