@@ -1530,6 +1530,7 @@
 ** Process history
 #+begin_src emacs-lisp
   (use-package process-history
+    ;; :straight (:type git :host github :repo "svaante/process-history")
     :straight (:local-repo "~/Workspace/process-history/" :files ("process-history.el"))
     :config
     (process-history-mode)
