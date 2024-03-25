@@ -1714,40 +1714,11 @@ Change stuff in the grep buffer
 
 ** Writing
 #+begin_src emacs-lisp
-  (defun +ispell-toogle-english-swedish-dictonary ()
-    "Toggle `Ispell´ dictionary between English and Swedish."
-    (interactive)
-    (when (bound-and-true-p flyspell-mode)
-      (cond
-       ((string-equal ispell-local-dictionary flyspell-default-dictionary)
-        (ispell-change-dictionary "swedish"))
-       ((string-equal ispell-local-dictionary "swedish")
-        (ispell-change-dictionary flyspell-default-dictionary))
-       (t
-        (ispell-change-dictionary flyspell-default-dictionary)))))
-
-  (use-package flyspell
+  (use-package jinx
+    ;; Using jinx to get the missspelling overlays, still using ispell to correct word.
     :straight t
-    :hook (((git-commit-mode text-mode) . flyspell-mode)
-           ;; FIXME Breaks dape, see emacs bug #69733
-           (prog-mode . flyspell-prog-mode)
-           )
     :config
-    (defun flyspell-correct-buffer ()
-      "Use flyspell overlays to correct buffer."
-      (interactive)
-      (save-excursion
-        (cl-loop with overlays = (overlays-in (point-min) (point-max))
-                 for overlay in overlays
-                 when (flyspell-overlay-p overlay)
-                 do (goto-char (overlay-start overlay))
-                 (ispell-word))))
-
-    (setq flyspell-default-dictionary "english")
-
-    (leader-key
-      "fb" 'flyspell-correct-buffer
-      "ff" '+ispell-toogle-english-swedish-dictonary))
+    (global-jinx-mode))
 
   (use-package define-word
     :straight t
