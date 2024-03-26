@@ -2029,6 +2029,11 @@ Change stuff in the grep buffer
     :straight t
     :config
     (eros-mode))
+
+  (use-package debug
+    :straight (:type built-in)
+    :config
+    (setq debugger-stack-frame-as-list t))
 #+end_src
 
 ** Readable data files
