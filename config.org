@@ -588,6 +588,69 @@
       "jl" 'evil-avy-goto-line-keep-column))
 #+end_src
 
+* Project management
+#+begin_src emacs-lisp
+  (defmacro project-with-directory (force &rest body)
+    "Try to set `default-dirctory' by using project.el.
+
+    If FORCE is non nil prompt user for project if not already inside of
+    project else use `default-directory'"
+    (declare (indent 1) (debug t))
+    `(let ((default-directory (or (and (project-current ,force)
+                                       (project-root (project-current ,force)))
+                                  default-directory)))
+       ,@body))
+
+  (defun project-project-root (&optional force)
+    (when-let ((project (project-current force)))
+      (project-root project)))
+
+  (defun project-find-file-at (file)
+    "Run project-find-file in directory of FILE."
+    (interactive "Directory: ")
+    (let* ((default-directory (file-name-directory
+                               (expand-file-name
+                                (substitute-in-file-name file)))))
+      (project-find-file)))
+
+  (defun project-recompile ()
+    "Re-compile current project."
+    (interactive)
+    (project-with-directory t
+      (recompile)))
+
+  (straight-use-package 'project)
+
+  (use-package project
+    :straight t
+    :config
+    (setq project-vc-extra-root-markers '(".projectile" ".project"))
+    (setq project-switch-commands 'project-find-file)
+    (setq project-read-file-name-function
+          ;; Remove current visited file from list
+          (lambda (prompt all-files &optional predicate hist mb-default)
+            (when buffer-file-name
+              (setq all-files (remove buffer-file-name all-files)))
+            (project--read-file-cpd-relative prompt all-files predicate hist mb-default)))
+
+    (defun project-switch-project-advice (project-switch-project dir)
+      "Fix embark after switching project."
+      (minibuffer-with-setup-hook
+          (lambda () (setq default-directory dir))
+        (funcall project-switch-project dir)))
+
+    (advice-add 'project-switch-project :around 'project-switch-project-advice)
+
+    (leader-key
+      "SPC" 'project-find-file
+      "pp" 'project-switch-project
+      "pd" 'project-dired
+      "p!" 'project-async-shell-command
+      "pk" 'project-kill-buffers
+      "pc" 'project-compile
+      "pC" 'project-recompile))
+#+end_src
+
 * Org
 #+BEGIN_SRC emacs-lisp
   (use-package org
@@ -1128,6 +1191,7 @@
     :straight (embark :type git :host github :repo "oantolin/embark")
     :after embark-consult
     :config
+    (define-key embark-file-map " " 'project-find-file-at)
 
     (defun embark-act-noquit ()
       "Run action but don't quit the minibuffer afterwards."
@@ -1227,69 +1291,6 @@
     (add-hook 'text-mode-hook 'tempel-setup-capf))
 
   (use-package tempel-collection :straight t)
-#+end_src
-
-* Project management
-#+begin_src emacs-lisp
-  (defmacro project-with-directory (force &rest body)
-    "Try to set `default-dirctory' by using project.el.
-
-    If FORCE is non nil prompt user for project if not already inside of
-    project else use `default-directory'"
-    (declare (indent 1) (debug t))
-    `(let ((default-directory (or (and (project-current ,force)
-                                       (project-root (project-current ,force)))
-                                  default-directory)))
-       ,@body))
-
-  (defun project-project-root (&optional force)
-    (when-let ((project (project-current force)))
-      (project-root project)))
-
-  (defun project-find-file-at (file)
-    "Run project-find-file in directory of FILE."
-    (interactive "Directory: ")
-    (let* ((default-directory (file-name-directory
-                               (expand-file-name
-                                (substitute-in-file-name file)))))
-      (project-find-file)))
-
-  (defun project-recompile ()
-    "Re-compile current project."
-    (interactive)
-    (project-with-directory t
-      (recompile)))
-
-  (use-package project
-    :straight t
-    :config
-    (setq project-vc-extra-root-markers '(".projectile" ".project"))
-    (setq project-switch-commands 'project-find-file)
-    (setq project-read-file-name-function
-          ;; Remove current visited file from list
-          (lambda (prompt all-files &optional predicate hist mb-default)
-            (when buffer-file-name
-              (setq all-files (remove buffer-file-name all-files)))
-            (project--read-file-cpd-relative prompt all-files predicate hist mb-default)))
-
-    (defun project-switch-project-advice (project-switch-project dir)
-      "Fix embark after switching project."
-      (minibuffer-with-setup-hook
-          (lambda () (setq default-directory dir))
-        (funcall project-switch-project dir)))
-
-    (advice-add 'project-switch-project :around 'project-switch-project-advice)
-
-    (define-key embark-file-map " " 'project-find-file-at)
-
-    (leader-key
-      "SPC" 'project-find-file
-      "pp" 'project-switch-project
-      "pd" 'project-dired
-      "p!" 'project-async-shell-command
-      "pk" 'project-kill-buffers
-      "pc" 'project-compile
-      "pC" 'project-recompile))
 #+end_src
 
 * Terminal
