@@ -1736,6 +1736,7 @@ Change stuff in the grep buffer
     (defun jinx-ispell-word ()
       "Correct word at point."
       (interactive)
+      (require 'ispell)
       (save-excursion
         (jinx--correct-guard
          (let (start end word correction overlay)
