@@ -1533,77 +1533,21 @@
 #+begin_src emacs-lisp
   (use-package process-history
     ;; :straight (:type git :host github :repo "svaante/process-history")
-    :straight (:local-repo "~/Workspace/process-history/" :files ("process-history.el"))
+    :straight (:local-repo "~/Workspace/process-history/"
+                           :files ("process-history.el"
+                                   "extensions/process-history-embark.el"
+                                   "extensions/process-history-consult.el"))
     :config
     (process-history-mode)
 
-    (add-to-list 'process-history-buffer-match "\\*dape-shell\\*")
+    (require 'process-history-embark)
+    (require 'process-history-consult)
+    (setopt process-history-completing-read-fn 'process-history-consult-completing-read)
 
     (evil-make-overriding-map process-history-list-mode-map)
 
-    (defvar-keymap embark-process-history-actions-map
-      :doc "Process history actions"
-      :parent embark-general-map
-      "k" #'process-history-process-kill
-      "r" #'process-history-rerun-with-async-shell-command
-      "c" #'process-history-rerun-with-compile
-      "!" #'process-history-rerun-with-async-shell-command
-      "w" #'process-history-copy-as-kill-command
-      "b" #'process-history-display-buffer
-      "d" #'process-history-delete-item)
-
-    (add-to-list 'embark-keymap-alist
-                 '(process-history . embark-process-history-actions-map))
-
-    (defun process-history-export (candidates)
-      (let ((alist (process-history--collection)))
-        (process-history-list (mapcar (lambda (cand)
-                                        (cdr (assoc cand alist)))
-                                      candidates))))
-
-    (defun process-history-consult (history-item)
-      "View log file for HISTORY-ITEM."
-      (interactive
-       (list
-        (let* ((alist (process-history--collection))
-               (base-source
-                `(:hidden  t
-                           :annotate ,(process-history--make-annotation-function alist)
-                           :category process-history))
-               (sources
-                `((:hidden nil
-                           :default t
-                           :items ,(mapcar 'car alist)
-                           ,@base-source)
-                  (:narrow (?a . "Active")
-                           :items ,(mapcan (pcase-lambda (`(,str . ,item))
-                                             (unless (process-history--item-exit-code item)
-                                               (list str)))
-                                           alist)
-                           ,@base-source)
-                  (:narrow (?p . "Project")
-                           :items
-                           ,(when-let* ((root (consult--project-root))
-                                        (root (abbreviate-file-name root)))
-                              (mapcan (pcase-lambda (`(,str . ,item))
-                                        (when (equal root (process-history--item-directory item))
-                                          (list str)))
-                                      alist))
-                           ,@base-source)))
-               (match
-                (car (consult--multi sources
-                                     :prompt "View log file: "
-                                     :require-match t
-                                     :sort nil))))
-          (alist-get match alist nil nil 'equal))))
-
-      (process-history-find-log history-item))
-
-    (add-to-list 'embark-exporters-alist
-                 '(process-history . process-history-export))
-
     (leader-key
-      "ap" 'process-history-consult))
+      "ap" 'process-history-find-log))
 
   (use-package tablist
     :hook (process-history-list-mode . tablist-minor-mode)
