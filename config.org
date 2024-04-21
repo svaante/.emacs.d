@@ -2277,8 +2277,7 @@ Change stuff in the grep buffer
   (use-package dired
     :straight (:type built-in)
     :hook ((dired-mode . auto-revert-mode)
-           (dired-mode . dired-omit-mode)
-           (dired-mode . dired-hide-details-mode))
+           (dired-mode . dired-omit-mode))
     :config
     ;; If two dired opened use other dired default-directory as
     ;; base target
