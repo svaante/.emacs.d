@@ -2309,6 +2309,7 @@ Change stuff in the grep buffer
     :straight t
     :config
     (setq evil-insert-state-modes (append evil-insert-state-modes '(git-commit-mode)))
+    (setq magit-list-refs-sortby "-creatordate")
 
     (defun magit-status-here-and-center ()
       (interactive)
