@@ -2217,11 +2217,7 @@ Change stuff in the grep buffer
     (setq dape-debug t
           dape-buffer-window-arrangment 'right
           dape-info-variable-table-row-config
-          '((name . 0) (value . 0) (type . 0))
-          dape-info-buffer-window-groups
-          '((dape-info-scope-mode dape-info-watch-mode)
-            (dape-info-stack-mode dape-info-modules-mode dape-info-sources-mode)
-            (dape-info-threads-mode dape-info-breakpoints-mode)))
+          '((name . 0) (value . 0) (type . 0)))
 
     (define-key dape-global-map (kbd "H-i") #'dape-stack-select-down)
     (define-key dape-global-map (kbd "C-o") #'dape-stack-select-up)
