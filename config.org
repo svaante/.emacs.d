@@ -1587,6 +1587,7 @@
     :straight (:type built-in)
     :config
     (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
+    (evil-define-key 'normal shell-mode-map "q" 'kill-this-buffer)
 
     (defun shell-command-sentinel-show-exit-code (process status)
       (when-let ((buffer (process-buffer process)))
