@@ -1083,7 +1083,6 @@
       "i"  'consult-imenu
       "hh" 'describe-function
       "hv" 'describe-variable
-      "m"  'consult-bookmark
       "jm" 'consult-mark
       "jc" 'consult-compile-error
       "je" 'consult-flymake
