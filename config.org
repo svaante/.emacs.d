@@ -1596,21 +1596,12 @@
 
 ** Shell-mode
 #+begin_src emacs-lisp
-  (defun kill-on-no-process ()
-    "Kill buffer when no live process otherwise quit window."
-    (interactive)
-    (if (null (get-buffer-process (current-buffer)))
-        (kill-buffer)
-      (quit-window)))
-
   (use-package shell
     :straight (:type built-in)
     :config
     (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
-    (evil-define-key 'normal shell-mode-map "q" 'kill-on-no-process)
 
     (defun shell-command-sentinel-show-exit-code (process status)
-      ""
       (when-let ((buffer (process-buffer process)))
         (with-current-buffer buffer
           (setq mode-line-process
@@ -1636,35 +1627,6 @@
     (leader-key
       "!" 'async-shell-command))
 #+END_SRC
-
-** Async shell command
-#+begin_src emacs-lisp
-  (advice-add 'read-shell-command
-              :around
-              (defun read-shell-command-default (read-shell-command
-                                                 prompt
-                                                 &optional initial-contents hist
-                                                 &rest args)
-                "Advice for `read-shell-command', use last hist as default."
-                (let ((last-command (and (not hist)
-                                         (car shell-command-history))))
-                  (when (and last-command (stringp last-command))
-                    (let ((insert-point (or (string-match-p ": $" prompt)
-                                            (length prompt))))
-                      (setq prompt
-                            (concat (substring prompt 0 insert-point)
-                                    (format " (%s)"
-                                            (propertize last-command
-                                                        'face '(t :inherit highlight
-                                                                  :slant italic)))
-                                    (substring prompt insert-point)))))
-                  (or (apply read-shell-command prompt initial-contents hist
-                             args)
-                      (and (setq (cons last-command shell-command-history))
-                           last-command)))))
-
-  (advice-remove 'read-shell-command 'read-shell-command-default)
-#+end_src
 
 * Misc
 ** wgrep
