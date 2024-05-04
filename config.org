@@ -1262,6 +1262,7 @@
       (let ((sources
              '(("Projects" ?p
                 (lambda ()
+                  (project--ensure-read-project-list)
                   (cl-loop for (path) in project--list
                            collect path)))
                ("Bookmarks" ?m
