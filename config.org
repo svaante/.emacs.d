@@ -1261,13 +1261,12 @@
     (defun consult-dir-dispatch-command ()
       (interactive)
       (add-to-history 'file-name-history default-directory)
-      (call-interactively
-       (cond
-        ((equal (ignore-errors (project-root (project-current)))
-                default-directory)
-         'project-find-file)
-        (t
-         'find-file))))
+      (cond
+       ((equal (ignore-errors (project-root (project-current)))
+               default-directory)
+        (call-interactively 'project-find-file))
+       (t
+        (dired default-directory))))
     (setq consult-dir-default-command #'consult-dir-dispatch-command
           consult-dir-sort-candidates t)
     (evil-define-key '(normal insert) minibuffer-mode-map
