@@ -1250,6 +1250,29 @@
   (add-hook 'minibuffer-setup-hook 'minibuffer-insert-selection)
 #+end_src
 
+** Directory
+#+begin_src emacs-lisp
+  (use-package consult-dir
+    :after consult
+    :straight (consult-dir :type git :host github :repo "svaante/consult-dir")
+    :config
+    (defun consult-dir-dispatch-command ()
+      (interactive)
+      (add-to-history 'file-name-history default-directory)
+      (call-interactively
+       (cond
+        ((equal (ignore-errors (project-root (project-current)))
+                default-directory)
+         'project-find-file)
+        (t
+         'find-file))))
+    (setq consult-dir-default-command #'consult-dir-dispatch-command
+          consult-dir-sort-candidates t)
+    (evil-define-key '(normal insert) minibuffer-mode-map
+      (kbd "C-.") 'consult-dir)
+    (leader-key "f" 'consult-dir))
+#+end_src
+
 * Editing
 ** Linewrap
 #+begin_src emacs-lisp
@@ -1720,11 +1743,7 @@ Change stuff in the grep buffer
 
     (global-jinx-mode))
 
-  (use-package define-word
-    :straight t
-    :config
-    (leader-key "fd"
-      'define-word-at-point))
+  (use-package define-word :straight t)
 
   (use-package sendmail
     :straight (:type built-in)
