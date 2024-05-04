@@ -1212,11 +1212,17 @@
             #'which-key--hide-popup-ignore-command)
           embark-become-indicator embark-action-indicator)
 
+    (add-to-list 'embark-around-action-hooks '(+eshell embark--cd))
+    (add-to-list 'embark-around-action-hooks '(+eshell-other-window embark--cd))
+
     (define-key embark-file-map "." '+find-file-at)
     (define-key embark-file-map "g" '+magit-there)
     (define-key embark-file-map "G" 'consult-ripgrep)
-    (define-key embark-file-map "e" '+eshell-from-path)
-    (define-key embark-file-map "E" '+eshell-from-path-other-window)
+    (define-key embark-file-map "e" '+eshell)
+    (define-key embark-file-map "E" '+eshell-other-window)
+
+    (define-key embark-bookmark-map "e" '+eshell)
+    (define-key embark-bookmark-map "E" '+eshell-other-window)
 
     (defvar-keymap embark-repls-actions-map
       :doc "Keymap for actions for repls"
@@ -1371,7 +1377,8 @@
           (eshell-mode))
       buffer)))
 
-  (defun +eshell ()
+  (defun +eshell (&optional _)
+    "Create an eshell buffer."
     (interactive)
     (switch-to-buffer (+eshell-dwim))
     (+eshell/goto-end-of-prompt))
@@ -1384,8 +1391,8 @@
         (setq-local eshell-project-type-p t)
       buffer)))
 
-  (defun +eshell-other-window ()
-    "Open +eshell in other window."
+  (defun +eshell-other-window (&optional _)
+    "Pop to an eshell buffer."
     (interactive)
     (switch-to-buffer-other-window (+eshell-dwim))
     (+eshell/goto-end-of-prompt))
@@ -1402,34 +1409,14 @@
     (switch-to-buffer-other-window (+eshell-project-dwim))
     (+eshell/goto-end-of-prompt))
 
-  (defun +eshell-from-path (path)
-    "Open +eshell from PATH."
-    (interactive "F")
-    (let ((default-directory (file-name-directory
-                                (expand-file-name
-                                 (substitute-in-file-name path)))))
-      (switch-to-buffer (+eshell-dwim))
-      (+eshell/goto-end-of-prompt)))
-
-  (defun +eshell-from-path-other-window (path)
-    "Open +eshell from PATH in other window."
-    (interactive "F")
-    (let ((default-directory (file-name-directory
-                                (expand-file-name
-                                 (substitute-in-file-name path)))))
-      (switch-to-buffer-other-window (+eshell-dwim))
-      (+eshell/goto-end-of-prompt)))
-
   (defun +eshell/goto-end-of-prompt ()
-    "Move cursor to the prompt when switching to insert mode (if point isn't
-                                already there)."
+    "Move cursor to the prompt when switching to insert mode."
     (interactive)
     (goto-char (point-max))
     (evil-append 1))
 
   (defun +eshell/consult-esh-history-normal ()
-    "Move cursor to the end of the buffer before calling counsel-esh-history
-                                  and change `state` to insert."
+    "Move cursor to the end of buffer and invoke `counsel-esh-history'."
     (interactive)
     (goto-char (point-max))
     (eshell-bol)
