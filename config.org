@@ -403,7 +403,7 @@
   (use-package wildcharm-theme :straight t)
 #+END_SRC
 
-** Mode-line
+** Mode line
 #+begin_src emacs-lisp
   (defun mode-line-file-path ()
     (when-let ((file-name (buffer-file-name)))
