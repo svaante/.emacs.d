@@ -1254,24 +1254,59 @@
 
 ** Directory
 #+begin_src emacs-lisp
-  (use-package consult-dir
+  (use-package emacs
     :after consult
-    :straight (consult-dir :type git :host github :repo "svaante/consult-dir")
     :config
-    (defun consult-dir-dispatch-command ()
-      (interactive)
-      (add-to-history 'file-name-history default-directory)
-      (cond
-       ((equal (ignore-errors (project-root (project-current)))
-               default-directory)
-        (call-interactively 'project-find-file))
-       (t
-        (dired default-directory))))
-    (setq consult-dir-default-command #'consult-dir-dispatch-command
-          consult-dir-sort-candidates t)
+    (defun consult-read-directory (prompt)
+      "Read consult directory."
+      (let ((sources
+             '(("Projects" ?p
+                (lambda ()
+                  (cl-loop for (path) in project--list
+                           collect path)))
+               ("Bookmarks" ?m
+                (lambda ()
+                  (cl-loop for (_ . params) in bookmark-alist
+                           for path = (alist-get 'filename params)
+                           when (and (stringp path) (directory-name-p path))
+                           collect path)))
+               ("Recentf" ?f
+                (lambda ()
+                  (cl-loop for filename in recentf-list
+                           collect (file-name-directory filename)))))))
+        (car
+         (consult--multi
+          (cl-loop for (name narrow fn) in sources
+                   collect (list
+                            :name name
+                            :narrow narrow
+                            :items fn
+                            :category 'file))
+          :prompt prompt))))
+
+    (defun consult-directory-dispatch (directory)
+      "Dispatch on DIRECTORY."
+      (interactive
+       (list (consult-read-directory "Dispatch on directory: ")))
+      (let* ((directory (expand-file-name directory))
+             (default-directory directory))
+        (cond
+         ((ignore-errors (project-current))
+          (funcall-interactively 'project-find-file))
+         (t (dired directory)))))
+
+    (defun consult-insert-directory (directory)
+      "Insert DIRECTORY."
+      (interactive
+       (list
+        (let ((enable-recursive-minibuffers t))
+          (consult-read-directory "Insert directory: "))))
+      (insert (expand-file-name directory)))
+
     (evil-define-key '(normal insert) minibuffer-mode-map
-      (kbd "C-.") 'consult-dir)
-    (leader-key "f" 'consult-dir))
+      (kbd "C-.") #'consult-insert-directory)
+
+    (leader-key "f" #'consult-directory-dispatch))
 #+end_src
 
 * Editing
