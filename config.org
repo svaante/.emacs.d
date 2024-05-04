@@ -463,9 +463,9 @@
                            (propertize " Nar"
                                        'face 'font-lock-warning-face)))
                   (:eval (when (region-active-p)
-                           ;; FIXME This does not work
-                           (format " Lines %d" (1+ (count-lines (region-beginning)
-                                                                (region-end))))))
+                           (format " Lines %d"
+                                   (1+ (evil-count-lines (region-beginning)
+                                                         (region-end))))))
                   (defining-kbd-macro mode-line-defining-kbd-macro)
                   " "
                   mode-line-process
