@@ -432,10 +432,6 @@
 
   (setq mode-line-position-column-line-format '(" %l:%c"))
 
-  (defface evil-state-tag-face
-    '((t (:inherit (match font-lock-constant-face mode-line))))
-    "Face for mode line evil mode indication.")
-
   (setq-default mode-line-format
                 '(
                   ""
@@ -1425,10 +1421,6 @@
       (progn
         (evil-append-line 0)
         (consult-history))))
-
-  (defun eshell-after-split (&rest _)
-    (when (bound-and-true-p eshell-mode)
-      (+eshell-dwim)))
 
   (defun +eshell-previous-prompt-hack ()
     "With prompt as field eshell-previous-prompt sets cursor at the beggining of the line and not at prompt begin"
