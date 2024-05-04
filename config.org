@@ -2233,7 +2233,9 @@ Change stuff in the grep buffer
   (use-package dired
     :straight (:type built-in)
     :hook ((dired-mode . auto-revert-mode)
-           (dired-mode . dired-omit-mode))
+           (dired-mode . dired-omit-mode)
+           (dired-mode . (lambda () (recentf-push default-directory))))
+
     :config
     ;; If two dired opened use other dired default-directory as
     ;; base target
