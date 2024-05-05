@@ -1584,7 +1584,7 @@
     (evil-make-overriding-map process-history-list-mode-map)
 
     (leader-key
-      "ap" 'process-history-find-log))
+      "ap" 'process-history-find-dwim))
 
   (use-package tablist
     :hook (process-history-list-mode . tablist-minor-mode)
