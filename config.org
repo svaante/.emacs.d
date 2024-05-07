@@ -392,6 +392,8 @@
     (setq modus-themes-common-palette-overrides
           '((fringe bg-main))))
 
+  (use-package soothe-theme :straight t)
+
   (use-package grandshell-theme :straight t)
 
   (use-package inkpot-theme :straight t)
