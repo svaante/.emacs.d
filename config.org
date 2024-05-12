@@ -324,7 +324,13 @@
            (display-buffer-in-side-window)
            (side . right)
            (dedicated . t)
-           (window-width . 75))))
+           (window-width . 75))
+          ;; Magit
+          ((or . ((derived-mode . magit-diff-mode)
+                  (derived-mode . magit-process-mode)))
+           (display-buffer-pop-up-window))
+          ((derived-mode . magit-status-mode)
+           (display-buffer-same-window))))
 #+end_src
 
 ** Ace window
@@ -2305,35 +2311,42 @@ Change stuff in the grep buffer
 
 ** Magit
 #+begin_src emacs-lisp
-  (use-package magit
-    :straight t
-    :config
-    (setq evil-insert-state-modes (append evil-insert-state-modes '(git-commit-mode)))
-    (setq magit-list-refs-sortby "-creatordate")
+    (use-package
+      transient
+      :straight t
+      :config
+      (setq transient-display-buffer-action '(display-buffer-below-selected)
+            transient-mode-line-format '("%e" mode-line-front-space
+                                         mode-line-buffer-identification)))
 
-    (defun magit-status-here-and-center ()
-      (interactive)
-      (magit-status-here)
-      (recenter))
+    (use-package magit
+      :straight t
+      :config
+      (setq evil-insert-state-modes (append evil-insert-state-modes '(git-commit-mode)))
+      (setq magit-list-refs-sortby "-creatordate")
 
-    ;; Don't let magit close windows
-    (setq magit-bury-buffer-function 'bury-buffer)
+      (defun magit-status-here-and-center ()
+        (interactive)
+        (magit-status-here)
+        (recenter))
 
-    ;; Show magit in current buffer
-    ;; TODO `magit-display-buffer-same-window-except-diff-v1' does not
-    ;; respect dedicated windows.
-    (setq magit-display-buffer-function
-          'magit-display-buffer-same-window-except-diff-v1)
+      ;; Don't let magit close windows
+      (setq magit-bury-buffer-function 'bury-buffer)
 
-    (leader-key "gg" 'magit-status-here-and-center)
-    (leader-key "g." 'magit-find-file)
-    (leader-key "gd" 'magit-diff)
-    (leader-key "gb" 'magit-blame)
-    (leader-key "gl" 'magit-log)
-    (leader-key "gc" 'magit-checkout)
-    (leader-key "gf" 'magit-fetch-all)
-    (leader-key "gf" 'magit-log-buffer-file))
+      ;; Show magit in current buffer
+      ;; TODO `magit-display-buffer-same-window-except-diff-v1' does not
+      ;; respect dedicated windows.
+      (setq magit-display-buffer-function
+            'display-buffer)
 
+      (leader-key "gg" 'magit-status-here-and-center)
+      (leader-key "g." 'magit-find-file)
+      (leader-key "gd" 'magit-diff)
+      (leader-key "gb" 'magit-blame)
+      (leader-key "gl" 'magit-log)
+      (leader-key "gc" 'magit-checkout)
+      (leader-key "gf" 'magit-fetch-all)
+      (leader-key "gf" 'magit-log-buffer-file))
 #+end_src
 
 ** Tramp
