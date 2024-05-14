@@ -1622,14 +1622,38 @@
 
 ** Shell-mode
 #+begin_src emacs-lisp
+  (defun term-char-turn-on ()
+    ;; If process is killed error will be signaled
+    (and-let* ((process (get-buffer-process (current-buffer)))
+               ((process-live-p process)))
+      (term-char-mode)))
+
+  (defun term-line-turn-on ()
+    ;; If process is killed error will be signaled
+    (and-let* ((process (get-buffer-process (current-buffer)))
+               ((process-live-p process)))
+      (term-line-mode)))
+
   (use-package shell
     :straight (:type built-in)
+    :hook (shell-mode
+           . (lambda ()
+               ;; Bolt on char based input on evil insert mode,
+               ;; `comint-send-input' breaks to often.
+               (require 'term)
+               (add-hook 'evil-insert-state-entry-hook #'term-char-turn-on nil t)
+               (add-hook 'evil-insert-state-exit-hook #'term-line-turn-on nil t)))
     :config
     (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
-    (evil-define-key 'normal shell-mode-map "q" 'kill-this-buffer)
+
+    (evil-define-key 'normal shell-mode-map
+      "q" 'kill-this-buffer
+      ;; Rerun buffer
+      "gr" 'revert-buffer)
 
     (defun shell-command-sentinel-show-exit-code (process status)
-      (when-let ((buffer (process-buffer process)))
+      (when-let* ((buffer (process-buffer process))
+                  ((buffer-live-p buffer)))
         (with-current-buffer buffer
           (setq mode-line-process
                 (concat
@@ -1643,13 +1667,15 @@
                   'face 'warning)))
           (force-mode-line-update t))))
 
+    ;; Show exit code in mode line
     (advice-add 'shell-command-sentinel :after
                 'shell-command-sentinel-show-exit-code)
 
+    ;; & is terrible hard to reach
     (define-key embark-file-map "!" 'async-shell-command)
 
-    (setq async-shell-command-buffer 'rename-buffer)
-    (setq shell-command-prompt-show-cwd t)
+    (setq async-shell-command-buffer 'new-buffer
+          shell-command-prompt-show-cwd t)
 
     (leader-key
       "!" 'async-shell-command))
