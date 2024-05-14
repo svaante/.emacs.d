@@ -458,6 +458,7 @@
                   " "
                   (:propertize mode-name
                                face bold)
+                  mode-line-process
                   "  "
                   (vc-mode vc-mode)
                   " "
@@ -473,7 +474,6 @@
                                                          (region-end))))))
                   (defining-kbd-macro mode-line-defining-kbd-macro)
                   " "
-                  mode-line-process
                   mode-line-misc-info
                   mode-line-format-right-align))
 
