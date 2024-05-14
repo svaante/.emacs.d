@@ -1583,6 +1583,10 @@
                                    "extensions/process-history-embark.el"
                                    "extensions/process-history-consult.el"))
     :config
+    ;; Make sure that `shell-mode' `revert-buffer' buffer works
+    (add-to-list 'process-history-buffer-match
+                 "\*Async Shell Command.*\*")
+
     (process-history-mode)
 
     (require 'process-history-embark)
