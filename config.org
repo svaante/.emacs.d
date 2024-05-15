@@ -1622,28 +1622,14 @@
 
 ** Shell-mode
 #+begin_src emacs-lisp
-  (defun term-char-turn-on ()
-    ;; If process is killed error will be signaled
-    (and-let* ((process (get-buffer-process (current-buffer)))
-               ((process-live-p process)))
-      (term-char-mode)))
-
-  (defun term-line-turn-on ()
-    ;; If process is killed error will be signaled
-    (and-let* ((process (get-buffer-process (current-buffer)))
-               ((process-live-p process)))
-      (term-line-mode)))
-
   (use-package shell
     :straight (:type built-in)
-    :hook (shell-mode
-           . (lambda ()
-               ;; Bolt on char based input on evil insert mode,
-               ;; `comint-send-input' breaks to often.
-               (require 'term)
-               (add-hook 'evil-insert-state-entry-hook #'term-char-turn-on nil t)
-               (add-hook 'evil-insert-state-exit-hook #'term-line-turn-on nil t)))
     :config
+    ;; Bolt on char based input on evil insert mode,
+    ;; `comint-send-input' breaks to often.
+    (require 'term)
+    (evil-set-auxiliary-keymap shell-mode-map 'insert (map-copy term-raw-map))
+
     (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
 
     (evil-define-key 'normal shell-mode-map
