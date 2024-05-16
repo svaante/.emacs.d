@@ -972,7 +972,7 @@
                :host github
                :repo "minad/vertico"
                :files (:defaults "extensions/*")
-               :includes (vertico-repeat vertico-directory))
+               :includes (vertico-repeat vertico-directory vertico-multiform))
     :hook ((rfn-eshadow-update-overlay . vertico-directory-tidy)
            (minibuffer-setup . vertico-repeat-save))
     :init
@@ -991,6 +991,11 @@
       (cons (concat "[CRM] " (car args)) (cdr args)))
 
     (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+    (vertico-multiform-mode)
+
+    (setq vertico-multiform-commands
+          '((consult-ripgrep buffer)))
 
     (leader-key "r" 'vertico-repeat-select)
 
@@ -1073,16 +1078,8 @@
     (evil-define-key 'normal comint-mode-map
       (kbd "C-r") '+consult-kill-line-insert-history)
 
-    (defun +consult-ripgrep-fallback-advice (old-fn &rest args)
-      (interactive)
-      (if (executable-find "rg")
-          (apply old-fn args)
-        (apply consult-grep args)))
-
     (consult-customize
      consult-history :initial nil)
-
-    (advice-add 'consult-ripgrep :around #'+consult-ripgrep-fallback-advice)
 
     (leader-key
       "."  'find-file-at-point
@@ -1253,7 +1250,7 @@
       (with-current-buffer last-used-buffer
         (when (use-region-p)
           (let ((selection (buffer-substring-no-properties (region-beginning) (region-end))))
-            (deactivate-mark)
+            (setq mark-active nil)
             (with-current-buffer minibuffer-buffer
               (insert selection)))))))
 
