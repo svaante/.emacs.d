@@ -1278,6 +1278,14 @@
                   (project--ensure-read-project-list)
                   (cl-loop for (path) in project--list
                            collect path)))
+               ("Open" ?o
+                (lambda ()
+                  (cl-loop
+                   with folder-modes = '(dired-mode eshell-mode)
+                   for buffer in (buffer-list)
+                   for mode = (with-current-buffer buffer major-mode)
+                   when (provided-mode-derived-p mode folder-modes)
+                   collect (with-current-buffer buffer default-directory))))
                ("Bookmarks" ?m
                 (lambda ()
                   (cl-loop for (_ . params) in bookmark-alist
