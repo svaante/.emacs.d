@@ -303,7 +303,8 @@
                   (derived-mode . grep-mode)
                   (derived-mode . xref--xref-buffer-mode)
                   (derived-mode . embark-collect-mode)
-                  "\\*Embark Export: .*\\*"))
+                  "\\*Embark Export: .*\\*"
+                  "\\*literate-calc\\*"))
            (display-buffer-reuse-mode-window display-buffer-below-selected)
            (dedicated . t)
            (window-height . 0.4))
