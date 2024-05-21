@@ -1256,6 +1256,16 @@
               (insert selection)))))))
 
   (add-hook 'minibuffer-setup-hook 'minibuffer-insert-selection)
+
+  (defun minibuffer-insert-symbol ()
+    (interactive)
+    (let ((last-buffer (cadr (buffer-list))))
+      (insert
+       (with-current-buffer last-buffer
+         (thing-at-point 'symbol)))))
+
+  (evil-define-key '(normal insert) minibuffer-mode-map
+    (kbd "C-.") #'minibuffer-insert-symbol)
 #+end_src
 
 ** Directory
@@ -1311,7 +1321,7 @@
       (insert (expand-file-name directory)))
 
     (evil-define-key '(normal insert) minibuffer-mode-map
-      (kbd "C-.") #'consult-insert-directory)
+      (kbd "C-f") #'consult-insert-directory)
 
     (leader-key "f" #'consult-directory-dispatch))
 #+end_src
