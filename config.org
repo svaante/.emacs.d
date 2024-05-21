@@ -1497,6 +1497,7 @@
     (eshell-hist-initialize)
 
     (evil-define-key 'normal eshell-mode-map
+      "q" 'kill-this-buffer
       "I" (lambda () (interactive) (eshell-bol) (evil-insert 1))
       (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
       (kbd "C-p") '+eshell-previous-prompt-hack
@@ -1643,12 +1644,13 @@
     (require 'term)
     (evil-set-auxiliary-keymap shell-mode-map 'insert (map-copy term-raw-map))
 
-    (setq evil-normal-state-modes (append evil-normal-state-modes '(shell-mode)))
+    (add-to-list 'evil-normal-state-modes 'shell-mode)
 
     (evil-define-key 'normal shell-mode-map
       "q" 'kill-this-buffer
       ;; Rerun buffer
-      "gr" 'revert-buffer)
+      "gr" 'revert-buffer
+      "p" 'term-paste)
 
     (defun shell-command-sentinel-show-exit-code (process status)
       (when-let* ((buffer (process-buffer process))
