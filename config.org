@@ -2454,21 +2454,19 @@ Change stuff in the grep buffer
     (defun create-literate-calc-mode-buffer ()
       (interactive)
       (let* ((buffer-exist (get-buffer literate-calc-buffer-name))
-             (window-exist (and buffer-exist (get-buffer-window buffer-exist))))
-        (if window-exist
-            (select-window window-exist)
-          (switch-to-buffer-other-window literate-calc-buffer-name)
+             (buffer (get-buffer-create literate-calc-buffer-name)))
+        (with-current-buffer buffer
           (unless buffer-exist
-            (with-current-buffer (get-buffer literate-calc-buffer-name)
-              (unless (bound-and-true-p literate-calc-mode)
-                (progn
-                  (literate-calc-mode)
-                  (insert
-                   "Welcome to literate-calc-mode!\n"
-                   "\n"
-                   "= "))))))
-        (goto-char (point-max))
-        (evil-insert-state)))
+            (unless (bound-and-true-p literate-calc-mode)
+              (progn
+                (literate-calc-mode)
+                (insert
+                 "Welcome to literate-calc-mode!\n"
+                 "\n"
+                 "= "))))
+          (goto-char (point-max))
+          (evil-insert-state))
+        (select-window (display-buffer buffer))))
 
     (defun literate-calc-buffer-quit ()
       (interactive)
