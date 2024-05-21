@@ -2026,6 +2026,8 @@ Change stuff in the grep buffer
 
 ** Readable data files
 #+begin_src emacs-lisp
+  (use-package protobuf-mode :straight t)
+
   (use-package yaml-mode :straight t)
 
   (use-package json-mode :straight t)
