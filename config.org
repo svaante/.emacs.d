@@ -951,16 +951,13 @@
 
     (defun coruf-lsp-mode-completions ()
       (setq-local completion-at-point-functions
-                  (cons #'tempel-complete
-                        (list (cape-capf-super
-                               #'lsp-completion-at-point)
-                              #'cape-file))))
+                  (list #'tempel-complete
+                        (cape-capf-super #'lsp-completion-at-point)
+                        #'cape-file)))
 
     (defun coruf-eglot-completions ()
       (setq-local completion-at-point-functions
-                  (cons #'tempel-complete
-                        (list #'cape-file
-                              #'eglot-completion-at-point)))))
+                  (list 'tempel-complete 'cape-file (cape-capf-super 'eglot-completion-at-point)))))
 
 #+END_SRC
 
