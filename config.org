@@ -2113,10 +2113,10 @@ Change stuff in the grep buffer
   (use-package with-venv
     :straight t)
 
-  (use-package pyenv
+  (use-package pyvenv
     :straight t
     :config
-    (pyenv-use-global))
+    (pyvenv-mode))
 
   (defun +inferior-python-mode-init ()
     (advice-add 'python-shell-completion-at-point :around 'cape-wrap-purify)
