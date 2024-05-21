@@ -1257,10 +1257,12 @@
 
   (defun minibuffer-insert-symbol ()
     (interactive)
-    (let ((last-buffer (cadr (buffer-list))))
-      (insert
-       (with-current-buffer last-buffer
-         (thing-at-point 'symbol)))))
+    (let* ((last-buffer (cadr (buffer-list)))
+           (string (with-current-buffer last-buffer
+                     (thing-at-point 'symbol))))
+      (if (stringp string)
+          (insert string)
+        (message "No symbol at point"))))
 
   (evil-define-key '(normal insert) minibuffer-mode-map
     (kbd "C-.") #'minibuffer-insert-symbol)
