@@ -357,6 +357,7 @@
   ;; Mac font
   (when (eq system-type 'darwin)
     (set-face-attribute 'default nil :font "Monaco 12")
+    (set-face-attribute 'default nil :font "Comic Code Ligatures 12")
     ;; (set-face-attribute 'default nil :font "Terminus (TTF) 14")
     (set-fontset-font t
                       '(#x1f300 . #x1f5ff)
@@ -364,7 +365,8 @@
 
   ;; Linux font
   (when (eq system-type 'gnu/linux)
-    (set-face-attribute 'default nil :font "DejaVu Sans Mono 9"))
+    ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
+    (set-face-attribute 'default nil :font "Comic Code Ligatures 12"))
 #+end_src
 
 ** Themes
