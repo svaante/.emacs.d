@@ -97,16 +97,6 @@
   (use-package emacs
     :after evil
     :config
-    (defun +emacs/split-follow-window-vertically ()
-      "Split and follow window vertically."
-      (interactive)
-      (split-window-vertically) (other-window 1))
-
-    (defun +emacs/split-follow-window-horizontally ()
-      "Split and follow window horizontally."
-      (interactive)
-      (split-window-horizontally) (other-window 1))
-
     ;; create my own global intercept map for global evil keybindings
     (defvar global-intercept-mode-map (make-sparse-keymap)
       "High precedence keymap.")
@@ -125,15 +115,7 @@
 
     ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
     (when (display-graphic-p)
-      (define-key input-decode-map (kbd "C-i") (kbd "H-i")))
-
-    (evil-define-key '(normal insert) global-intercept-mode-map
-      "\C-j" 'evil-window-down
-      "\C-k" 'evil-window-up
-      "\C-h" 'evil-window-left
-      "\C-l" 'evil-window-right
-      "\C-ws" '+emacs/split-follow-window-vertically
-      "\C-wv" '+emacs/split-follow-window-horizontally))
+      (define-key input-decode-map (kbd "C-i") (kbd "H-i"))))
 #+end_src
 
 ** Leader mappings
@@ -254,7 +236,7 @@
     (repeat-mode))
 #+end_src
 
-* Window
+* Windows and buffers
 ** Display buffer
 #+begin_src emacs-lisp
   ;; (setq fit-window-to-buffer-horizontally t)
@@ -351,6 +333,29 @@
     "wm" 'toggle-frame-fullscreen)
 #+end_src
 
+** Switch buffers
+#+begin_src emacs-lisp
+  (defun +emacs/split-follow-window-vertically ()
+    "Split and follow window vertically."
+    (interactive)
+    (select-window (split-window-vertically)))
+
+  (defun +emacs/split-follow-window-horizontally ()
+    "Split and follow window horizontally."
+    (interactive)
+    (select-window (split-window-horizontally)))
+
+  (use-package emacs
+    :after evil
+    :config
+    (evil-define-key '(normal insert) global-intercept-mode-map
+      "\C-j" 'evil-window-down
+      "\C-k" 'evil-window-up
+      "\C-h" 'evil-window-left
+      "\C-l" 'evil-window-right
+      "\C-ws" '+emacs/split-follow-window-vertically
+      "\C-wv" '+emacs/split-follow-window-horizontally))
+#+END_SRC
 * Looks
 ** Fonts
 #+begin_src emacs-lisp
