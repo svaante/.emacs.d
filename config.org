@@ -1507,12 +1507,10 @@
       (kbd "C-p") '+eshell-previous-prompt-hack
       (kbd "C-n") 'eshell-next-prompt
       (kbd "C-r") '+eshell/consult-esh-history-normal
-      (kbd "<return>") '+eshell/goto-end-of-prompt
-      "q" (lambda () (interactive) (kill-buffer)))
+      (kbd "<return>") '+eshell/goto-end-of-prompt)
 
     (evil-define-key 'insert eshell-mode-map
       (kbd "C-r") '+consult-kill-line-insert-history)
-
 
     (evil-define-key 'visual 'local
       (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state)))))
