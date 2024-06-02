@@ -304,7 +304,7 @@
           ;; Side window stuff
           ((or . (,(regexp-quote shell-command-buffer-name-async)
                   (major-mode . compilation-mode)))
-           (display-buffer-in-side-window)
+           (display-buffer-reuse-mode-window display-buffer-in-side-window)
            (side . right)
            (dedicated . t)
            (window-width . 75))
