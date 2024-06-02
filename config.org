@@ -1859,6 +1859,8 @@ Change stuff in the grep buffer
     (evil-define-key 'normal prog-mode-map "gD" 'xref-find-definitions-other-window)
     (evil-define-key 'visual prog-mode-map (kbd "C-;") 'comment-dwim)
 
+    (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
+
     (setq xref-prompt-for-identifier
           '(not xref-find-definitions
                 xref-find-definitions-other-window
