@@ -504,6 +504,11 @@
     (dashboard-setup-startup-hook))
 #+END_SRC
 
+** Misc
+#+begin_src emacs-lisp
+  (setq bookmark-fringe-mark nil)
+#+end_src
+
 * Buffer navigation
 ** Narrow
 #+BEGIN_SRC emacs-lisp
