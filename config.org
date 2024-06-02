@@ -389,13 +389,6 @@
           (quote ((matches . (extrabold underline))
                   (selection . (semibold)))))
 
-    (setq modus-themes-headings
-          (quote ((1 . (variable-pitch 1.5))
-                  (2 . (1.3))
-                  (agenda-date . (1.3))
-                  (agenda-structure . (variable-pitch light 1.8))
-                  (t . (1.1)))))
-
     (setq modus-themes-org-blocks 'gray-background)
 
     (setq modus-themes-common-palette-overrides
@@ -1237,6 +1230,7 @@
 ** Minibuffer
 #+BEGIN_SRC emacs-lisp
   (setq minibuffer-insert-commands '(consult-line
+                                     consult-grep
                                      consult-ripgrep
                                      consult-lsp-symbols
                                      consult-eglot-symbols
