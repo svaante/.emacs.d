@@ -1685,6 +1685,22 @@
 #+END_SRC
 
 * Misc
+** Open related files
+#+begin_src emacs-lisp
+  (use-package find-file
+    :straight (:type built-in)
+    :config
+
+    (defun ff-find-other-file-other-window ()
+      (interactive)
+      (ff-find-other-file 'other-window)
+      (xref-pulse-momentarily))
+
+    (leader-key
+      "q" #'ff-find-other-file
+      "Q" #'ff-find-other-file-other-window))
+#+end_src
+
 ** wgrep
 Change stuff in the grep buffer
 #+begin_src emacs-lisp
