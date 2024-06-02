@@ -624,13 +624,14 @@
     (project-with-directory t
       (recompile)))
 
-  (straight-use-package 'project)
-
+  ;; Do not upgrade to 0.11.0 git submodules are handled terribly and
+  ;; relative and absolute file names get mixed up again.
   (use-package project
     :straight t
     :config
     (setq project-vc-extra-root-markers '(".projectile" ".project"))
     (setq project-switch-commands 'project-find-file)
+
     (setq project-read-file-name-function
           ;; Remove current visited file from list
           (lambda (prompt all-files &optional predicate hist mb-default)
