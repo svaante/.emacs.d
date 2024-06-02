@@ -1734,46 +1734,11 @@ Change stuff in the grep buffer
                  '(prog-mode font-lock-comment-face
                              font-lock-doc-face))
 
-    (defun jinx-ispell-word ()
-      "Correct word at point."
-      (interactive)
-      (require 'ispell)
-      (save-excursion
-        (jinx--correct-guard
-         (let (start end word correction overlay)
-           (cond
-            ;; Spell check region
-            ((region-active-p)
-             (setq start (region-beginning)
-                   end (region-end)))
-            ;; First overlay at point and forwards
-            ((setq overlay
-                   (car (jinx--force-overlays (point) (window-end) :visible t)))
-             (setq start (overlay-start overlay)
-                   end (overlay-end overlay)))
-            (t (user-error "Unable to determine word to spell")))
-           (setq word (buffer-substring-no-properties start end)
-                 correction
-                 (save-window-excursion
-                   (ispell-command-loop (jinx--correct-suggestions word) nil
-                                        word start end)))
-           (pcase correction
-             ;; keep word
-             ('nil nil)
-             ;; correct
-             ((pred stringp)
-              (delete-overlay overlay)
-              (delete-region start end)
-              (goto-char start)
-              (insert correction))
-             ;; unsupported
-             (_
-              (user-error "Unsupported command %s" correction)))
-           (if (get-buffer ispell-choices-buffer)
-               (kill-buffer ispell-choices-buffer))))))
+    (add-to-list 'vertico-multiform-categories
+                 '(jinx grid (vertico-grid-annotate . 20)))
 
-    (define-key evil-normal-state-map "z=" 'jinx-ispell-word)
-    (define-key evil-visual-state-map "z=" 'jinx-ispell-word)
+    (define-key evil-normal-state-map "z=" 'jinx-correct)
+    (define-key evil-visual-state-map "z=" 'jinx-correct)
 
     (global-jinx-mode))
 
