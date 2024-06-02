@@ -394,12 +394,8 @@
           (quote ((matches . (extrabold underline))
                   (selection . (semibold)))))
 
-    (setq modus-themes-org-blocks 'gray-background)
-
     (setq modus-themes-common-palette-overrides
           '((fringe bg-main))))
-
-  (use-package soothe-theme :straight t)
 
   (use-package grandshell-theme :straight t)
 
@@ -408,8 +404,6 @@
   (use-package zenburn-theme :straight t)
 
   (use-package doom-themes :straight t)
-
-  (use-package wildcharm-theme :straight t)
 #+END_SRC
 
 ** Mode line
