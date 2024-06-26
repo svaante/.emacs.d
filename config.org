@@ -315,12 +315,12 @@
 
 ** Switch buffers
 #+begin_src emacs-lisp
-  (defun +emacs/split-follow-window-vertically ()
+  (defun split-follow-window-vertically ()
     "Split and follow window vertically."
     (interactive)
     (select-window (split-window-vertically)))
 
-  (defun +emacs/split-follow-window-horizontally ()
+  (defun split-follow-window-horizontally ()
     "Split and follow window horizontally."
     (interactive)
     (select-window (split-window-horizontally)))
@@ -333,86 +333,94 @@
       "\C-k" 'evil-window-up
       "\C-h" 'evil-window-left
       "\C-l" 'evil-window-right
-      "\C-ws" '+emacs/split-follow-window-vertically
-      "\C-wv" '+emacs/split-follow-window-horizontally))
+      "\C-ws" 'split-follow-window-vertically
+      "\C-wv" 'split-follow-window-horizontally))
 #+END_SRC
 * Looks
-** Fonts
+** Basics
 #+begin_src emacs-lisp
-  ;; Mac font
-  (when (eq system-type 'darwin)
-    (set-face-attribute 'default nil :font "Monaco 12")
-    (set-face-attribute 'default nil :font "Comic Code Ligatures 12")
-    ;; (set-face-attribute 'default nil :font "Terminus (TTF) 14")
-    (set-fontset-font t
-                      '(#x1f300 . #x1f5ff)
-                      (font-spec :family "Apple Color Emoji" :size 11)))
-
-  ;; Linux font
-  (when (eq system-type 'gnu/linux)
-    ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
-    (set-face-attribute 'default nil :font "Comic Code Ligatures 12"))
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+  (menu-bar-mode -1)
 #+end_src
 
+** Fonts
+#+begin_src emacs-lisp
+  (pcase system-type
+    ;; Mac fonts
+    ('darwin
+     ;; (set-face-attribute 'default nil :font "Monaco 12")
+     (set-frame-font "Comic Code Ligatures 13" nil t)
+     (set-fontset-font t 'emoji "Apple Color Emoji"))
+    ;; Linux fonts
+    ('gnu/linux
+     ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
+     (set-frame-font "Comic Code Ligatures 12" nil t)))
+#+end_src
 ** Themes
 #+BEGIN_SRC emacs-lisp
   (use-package ef-themes
     :straight (ef-themes :type git :host github :repo "protesilaos/ef-themes")
-    :config
-    (setq ef-themes-common-palette-overrides
-          '((bg-mode-line bg-dim)
-            (bg-alt bg-main))))
+    :custom
+    (ef-themes-common-palette-overrides
+     '((bg-mode-line bg-dim)
+       (bg-alt bg-main))))
 
   (use-package standard-themes
     :straight t)
 
   (use-package modus-themes
     :straight t
-    :config
-
-    (setq modus-themes-completions
-          (quote ((matches . (extrabold underline))
-                  (selection . (semibold)))))
-
-    (setq modus-themes-common-palette-overrides
-          '((fringe bg-main))))
+    :custom
+    (modus-themes-completions
+     (quote ((matches . (extrabold underline))
+             (selection . (semibold)))))
+    (modus-themes-common-palette-overrides
+     '((fringe be-main))))
 
   (use-package grandshell-theme :straight t)
 
   (use-package inkpot-theme :straight t)
 
   (use-package zenburn-theme :straight t)
-
-  (use-package doom-themes :straight t)
 #+END_SRC
 
 ** Mode line
 #+begin_src emacs-lisp
+  (defvar-local mode-line-file-path-cache nil)
+
+  (defun mode-line-file-path-1 (file-name)
+    (propertize
+     (abbreviate-file-name
+      (if-let* ((project (project-project-root))
+                (project-parent
+                 (thread-first project
+                               expand-file-name
+                               directory-file-name
+                               file-name-directory))
+                (relative-path
+                 (file-relative-name (file-name-directory buffer-file-truename)
+                                     project-parent)))
+          (if (length< relative-path 60)
+              relative-path
+            (cl-loop with (root . rest) = (file-name-split relative-path)
+                     for p in rest
+                     unless (string-empty-p p) collect
+                     (substring p 0 1) into rest-short
+                     finally return
+                     (file-name-as-directory
+                      (apply 'file-name-concat root rest-short))))
+        default-directory))
+     'mouse-face 'highlight
+     'help-echo (file-name-directory file-name)))
+
   (defun mode-line-file-path ()
     (when-let ((file-name (buffer-file-name)))
-      (propertize
-       (abbreviate-file-name
-        (or (when-let* ((prj (project-project-root))
-                        (prj-parent (file-name-directory
-                                     (directory-file-name
-                                      (expand-file-name prj))))
-                        (rel-path
-                         (file-relative-name
-                          (file-name-directory buffer-file-truename)
-                          prj-parent)))
-              (if (length< rel-path 60)
-                  rel-path
-                (let ((split-rel-path (file-name-split rel-path)))
-                  (file-name-as-directory
-                   (apply 'file-name-concat (car split-rel-path)
-                          (mapcar (lambda (p)
-                                    (if (string-empty-p p)
-                                        p
-                                      (substring p 0 1)))
-                                  (cdr split-rel-path)))))))
-            default-directory))
-       'mouse-face 'highlight
-       'help-echo (file-name-directory file-name))))
+      (pcase-let ((`(,key ,path) mode-line-file-path-cache))
+        (unless (eq default-directory key)
+          (setq path (mode-line-file-path-1 file-name)
+                mode-line-file-path-cache `(,default-directory ,path)))
+        path)))
 
   (setq mode-line-position-column-line-format '(" %l:%c"))
 
