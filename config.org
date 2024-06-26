@@ -1696,6 +1696,8 @@ Change stuff in the grep buffer
   (use-package jinx
     ;; Using jinx to get the misspelling overlays, still using ispell to correct word.
     :straight t
+    :custom
+    (jinx-languages "en_US")
     :config
     ;; Git commit
     (add-to-list 'jinx-exclude-faces
