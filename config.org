@@ -226,13 +226,6 @@
 * Windows and buffers
 ** Display buffer
 #+begin_src emacs-lisp
-  ;; (setq fit-window-to-buffer-horizontally t)
-  ;; (setq fit-frame-to-buffer t)
-
-  ;; Prefer vertical splits over horizontal splits
-  ;; (setq split-width-threshold 190)
-  ;; (setq split-height-threshold 120)
-
   (setq split-height-threshold nil)
   (setq split-width-threshold (* 2 90))
 
