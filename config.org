@@ -252,6 +252,7 @@
                   (derived-mode . messages-buffer-mode)
                   (derived-mode . backtrace-mode)
                   (derived-mode . eshell-mode)
+                  "\\*Embark Export: .*\\*"
                   "\\(\\*Capture\\*\\|CAPTURE-.*\\)"))
            (display-buffer-reuse-mode-window display-buffer-at-bottom)
            (window-height . 0.3)
@@ -265,7 +266,6 @@
                   (derived-mode . grep-mode)
                   (derived-mode . xref--xref-buffer-mode)
                   (derived-mode . embark-collect-mode)
-                  "\\*Embark Export: .*\\*"
                   "\\*literate-calc\\*"))
            (display-buffer-reuse-mode-window display-buffer-below-selected)
            (dedicated . t)
