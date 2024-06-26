@@ -1620,35 +1620,31 @@
     ;; Bolt on char based input on evil insert mode,
     ;; `comint-send-input' breaks to often.
     (require 'term)
-    (evil-set-auxiliary-keymap shell-mode-map 'insert (map-copy term-raw-map))
+    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map))
 
-    (add-to-list 'evil-normal-state-modes 'shell-mode)
-
-    (evil-define-key 'normal shell-mode-map
-      "q" 'kill-this-buffer
-      ;; Rerun buffer
-      "gr" 'revert-buffer
+    (add-to-list 'evil-normal-state-modes 'shell-command-mode-map)
+    (evil-define-key 'normal shell-command-mode-map
+      "q" 'kill-current-buffer
+      "gr" 'revert-buffer ;; reruns buffer
       "p" 'term-paste)
-
-    (defun shell-command-sentinel-show-exit-code (process status)
-      (when-let* ((buffer (process-buffer process))
-                  ((buffer-live-p buffer)))
-        (with-current-buffer buffer
-          (setq mode-line-process
-                (concat
-                 ":"
-                 (propertize
-                  (concat
-                   (format "%s" (process-status process))
-                   (when (memq (process-status process) '(exit signal))
-                     (format " %s"
-                             (process-exit-status process))))
-                  'face 'warning)))
-          (force-mode-line-update t))))
 
     ;; Show exit code in mode line
     (advice-add 'shell-command-sentinel :after
-                'shell-command-sentinel-show-exit-code)
+                (defun shell-command-sentinel-show-exit-code (process status)
+                  (when-let* ((buffer (process-buffer process))
+                              ((buffer-live-p buffer)))
+                    (let ((dead (memq (process-status process) '(exit signal))))
+                      (with-current-buffer buffer
+                        (setq mode-line-process
+                              (concat ":"
+                                      (propertize
+                                       (concat
+                                        (format "%s" (process-status process))
+                                        (when dead
+                                          (format " %s"
+                                                  (process-exit-status process))))
+                                       'face 'warning)))
+                        (force-mode-line-update t))))))
 
     ;; & is terrible hard to reach
     (define-key embark-file-map "!" 'async-shell-command)
