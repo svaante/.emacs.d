@@ -1601,17 +1601,6 @@
     (leader-key
       "ap" 'process-history-find-dwim))
 
-  (use-package tablist
-    :hook (process-history-list-mode . tablist-minor-mode)
-    :straight t
-    :config
-    (defun tablist-equal-column ()
-      (interactive nil tablist-minor-mode)
-      (let ((tab-col (tablist-current-column)))
-        (tablist-push-equal-filter (tablist-column-name tab-col)
-                                   (aref (tabulated-list-get-entry) tab-col))))
-    (evil-define-key 'normal tablist-minor-mode-map "=" 'tablist-equal-column))
-
   (use-package proced
     :straight (:type built-in)
     :config
