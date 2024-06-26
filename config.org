@@ -2199,6 +2199,8 @@ Change stuff in the grep buffer
     (setq compilation-scroll-output t)
     ;; Just save me the keystrokes
     (setq compilation-ask-about-save nil)
+    ;; Not compile specific, but strip ^M in comint buffers
+    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
 
     (evil-define-key 'normal compilation-minor-mode-map
       (kbd "<tab>") 'compilation-next-file
