@@ -411,7 +411,6 @@
                      (file-name-as-directory
                       (apply 'file-name-concat root rest-short))))
         default-directory))
-     'mouse-face 'highlight
      'help-echo (file-name-directory file-name)))
 
   (defun mode-line-file-path ()
@@ -425,8 +424,7 @@
   (setq mode-line-position-column-line-format '(" %l:%c"))
 
   (setq-default mode-line-format
-                '(
-                  ""
+                '(""
                   mode-line-front-space
                   mode-line-mule-info
                   mode-line-client
