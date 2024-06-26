@@ -505,17 +505,13 @@
 * Buffer navigation
 ** Narrow
 #+BEGIN_SRC emacs-lisp
-  (defun narrow-or-widen-dwim (p)
+  (defun narrow-or-widen-dwim ()
     "Widen if buffer is narrowed, narrow-dwim otherwise.
   Dwim means: region, org-src-block, org-subtree, or
   defun, whichever applies first.  Narrowing to
-  org-src-block actually calls `org-edit-src-code'.
-
-  With prefix P, don't widen, just narrow even if buffer
-  is already narrowed."
-    (interactive "P")
-    (declare (interactive-only))
-    (cond ((and (buffer-narrowed-p) (not p)) (widen))
+  org-src-block actually calls `org-edit-src-code'."
+    (interactive)
+    (cond ((and (buffer-narrowed-p)) (widen))
           ((region-active-p)
            (narrow-to-region (region-beginning)
                              (region-end)))
