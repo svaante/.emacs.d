@@ -534,13 +534,20 @@
 #+begin_src emacs-lisp
   (use-package avy
     :straight t
+    :custom
+    (avy-timeout-seconds 0.3)
+    (avy-style 'de-bruijn)
+    (avy-line-insert-style 'below)
+    (avy-dispatch-alist '((?x . avy-action-kill-move)
+                          (?X . avy-action-kill-stay)
+                          (?v . avy-action-visual)
+                          (?w . avy-action-copy)
+                          (?p . avy-action-paste)
+                          (?P . avy-action-paste-line)
+                          (?z . avy-action-ispell)))
     :config
     (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
     (advice-add 'avy-read-de-bruijn :before (lambda (&rest _) (avy-show-dispatch-help)))
-
-    (setq avy-timeout-seconds 0.3)
-    (setq avy-style 'de-bruijn)
-    (setq avy-line-insert-style 'below)
 
     (defun avy-goto-line-keep-column (&optional arg)
       "Jump to a line at the current column."
@@ -549,7 +556,7 @@
             (column (current-column)))
         (avy-goto-line arg)
         (when (equal window (selected-window))
-           (move-to-column column))))
+          (move-to-column column))))
 
     (evil-define-avy-motion avy-goto-line-keep-column line)
 
@@ -567,15 +574,6 @@
 
     (defun avy-action-paste (pt)
       (avy-action-yank pt))
-
-    (setq avy-dispatch-alist
-          '((?x . avy-action-kill-move)
-            (?X . avy-action-kill-stay)
-            (?v . avy-action-visual)
-            (?w . avy-action-copy)
-            (?p . avy-action-paste)
-            (?P . avy-action-paste-line)
-            (?z . avy-action-ispell)))
 
     (leader-key
       "jj" 'evil-avy-goto-char-timer
