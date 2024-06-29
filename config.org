@@ -1620,7 +1620,7 @@
     (require 'term)
     (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map))
 
-    (add-to-list 'evil-normal-state-modes 'shell-command-mode-map)
+    (add-to-list 'evil-normal-state-modes 'shell-command-mode)
     (evil-define-key 'normal shell-command-mode-map
       "q" 'kill-current-buffer
       "gr" 'revert-buffer ;; reruns buffer
