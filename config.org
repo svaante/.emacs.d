@@ -1486,7 +1486,7 @@
     (eshell-hist-initialize)
 
     (evil-define-key 'normal eshell-mode-map
-      "q" 'kill-this-buffer
+      "q" 'kill-current-buffer
       "I" (lambda () (interactive) (eshell-bol) (evil-insert 1))
       (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
       (kbd "C-p") '+eshell-previous-prompt-hack
