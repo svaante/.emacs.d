@@ -2221,27 +2221,24 @@ Change stuff in the grep buffer
           dape-info-variable-table-row-config
           '((name . 0) (value . 0) (type . 0)))
 
+    (remove-hook 'dape-on-start-hooks 'dape-info)
+
+    (add-hook 'dape-stopped-hook 'dape-info)
+    (add-hook 'dape-stopped-hook 'dape-repl)
+    (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
+    (add-hook 'dape-compile-hook 'kill-buffer)
+    (add-hook 'dape-active-mode-hook (lambda ()
+                                       (unless dape-active-mode
+                                         (dape-info nil 'kill))))
+    (setq pulse-iterations 1)
+    (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line)
+
     (define-key dape-global-map (kbd "H-i") #'dape-stack-select-down)
     (define-key dape-global-map (kbd "C-o") #'dape-stack-select-up)
 
-    (remove-hook 'dape-on-start-hooks 'dape-info)
-    (add-hook 'dape-on-start-hooks
-              (defun dape--save-on-start ()
-                (save-some-buffers t t)))
-
-    (add-hook 'dape-on-stopped-hooks 'dape-info)
-    (add-hook 'dape-on-stopped-hooks 'dape-repl)
-    (add-hook 'dape-compile-compile-hooks 'kill-buffer)
-
     (dape-breakpoint-global-mode)
-
     (evil-make-overriding-map dape-info-scope-mode-map)
     (evil-make-overriding-map dape-info-watch-mode-map)
-
-    (add-hook 'dape-active-mode-hook
-              (defun dape--kill-info-on-inactive ()
-                (unless dape-active-mode
-                  (dape-info nil 'kill))))
 
     ;; java
     (require 'eglot)
