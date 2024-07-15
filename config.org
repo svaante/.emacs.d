@@ -226,8 +226,8 @@
 * Windows and buffers
 ** Display buffer
 #+begin_src emacs-lisp
-  (setq split-height-threshold nil)
-  (setq split-width-threshold (* 2 90))
+  (setq split-height-threshold 80)
+  (setq split-width-threshold 100)
 
   (setq display-buffer-base-action
         '((display-buffer-reuse-window
