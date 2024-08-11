@@ -1,1264 +1,825 @@
-#+TITLE: Emacs package configuration file
+#+TITLE: Emacs configuration file
 #+PROPERTY: header-args    :results silent
 
-* Basic
-#+BEGIN_SRC emacs-lisp
-  ;; perf
-  (setq gc-cons-threshold 100000000)
-  (setq read-process-output-max (* 1024 1024))
-
-  ;; Remove that pesky help window
-  (setq inhibit-startup-screen t)
-
-  ;; spaces not tabs
-  (setq-default indent-tabs-mode nil)
-
-  ;; remove visual bell
-  (setq visible-bell       nil
-        ring-bell-function #'ignore)
-
-  ;; set default dir to home
-  (setq default-directory "~/")
-
-  ;; follow symlinks
-  (setq vc-follow-symlinks t)
-
-  ;; no backup files
-  (setq make-backup-files nil)
-  (global-auto-revert-mode t)
-
-  ;; y/n will do
-  (defalias 'yes-or-no-p 'y-or-n-p)
-  (setq use-short-answers t)
-
-  ;; stop the insessent blinking
-  (blink-cursor-mode 0)
-
-  ;; Backup trails is worse then chem-trails, losing patches is 99% of the time my fault
-  (setq auto-save-default nil)
-
-  ;; Resize frames based on pixels
-  (setq frame-resize-pixelwise t)
- #+END_SRC
-
-* Platform
-** Mac
-#+BEGIN_SRC  emacs-lisp
-  (when (eq system-type 'darwin)
-    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-    (setq mac-option-key-is-meta t)
-    (setq mac-right-option-modifier nil))
-#+END_SRC
-
-** Linux
+* Setup
 #+begin_src emacs-lisp
-  (when (eq system-type 'gnu/linux)
-    (global-set-key (kbd "C-+") 'text-scale-increase)
-    (global-set-key (kbd "C--") 'text-scale-decrease))
+  ;;; -*- lexical-binding: t -*-
 #+end_src
 
 * Package
+Bootstrap =straight= and setup =use-package=.
 #+begin_src emacs-lisp
-  (defvar bootstrap-version)
-  (let ((bootstrap-file
-         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-        (bootstrap-version 5))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-          (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-           'silent 'inhibit-cookies)
-        (goto-char (point-max))
-        (eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage))
-
-  (setq package-enable-at-startup nil)
-
-  (straight-use-package 'use-package)
-  (straight-use-package 'el-patch)
+  (require 'use-package)
+  (use-package straight
+    :custom
+    ;; `straight' and `package' is not compatible
+    (package-enable-at-startup nil)
+    :init
+    (defvar bootstrap-version)
+    (let ((bootstrap-file
+           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+          (bootstrap-version 5))
+      (unless (file-exists-p bootstrap-file)
+        (with-current-buffer
+            (url-retrieve-synchronously
+             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+             'silent 'inhibit-cookies)
+          (goto-char (point-max))
+          (eval-print-last-sexp)))
+      (load bootstrap-file nil 'nomessage))
+    (straight-use-package 'use-package)
+    (straight-use-package 'el-patch))
 #+end_src
 
-* Key mappings
-** Global mappings
+* General
 #+begin_src emacs-lisp
   (use-package emacs
-    :after evil
-    :config
-    ;; create my own global intercept map for global evil keybindings
-    (defvar global-intercept-mode-map (make-sparse-keymap)
-      "High precedence keymap.")
-
-    (define-minor-mode global-intercept-mode
-      "Global minor mode for higher precedence keybindings."
-      :global t)
-
-    (global-intercept-mode)
-
-    (dolist (state '(normal visual insert))
-      (evil-make-intercept-map
-       ;; NOTE: This requires an evil version from 2018-03-20 or later
-       (evil-get-auxiliary-keymap global-intercept-mode-map state t t)
-       state))
-
-    ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
-    (when (display-graphic-p)
-      (define-key input-decode-map (kbd "C-i") (kbd "H-i"))))
+    :custom
+    ;; No bell
+    (ring-bell-function 'ignore)
+    ;; Follow symlinks
+    (vc-follow-symlinks t)
+    ;; Backup trails is worse then chem-trails
+    (make-backup-files nil)
+    (auto-save-default nil)
+    ;; y/n will do
+    (use-short-answers t)
+    ;; Keep buffers fresh with `revert-buffer'
+    (global-auto-revert-mode 1)
+    ;; Ensure home is $HOME
+    (default-directory "~/"))
 #+end_src
 
-** Leader mappings
-#+BEGIN_SRC emacs-lisp
+* Looks
+** Load theme
+Load last =consult-theme= loaded theme.
+#+begin_src emacs-lisp
+  (use-package theme-load-last
+    :after savehist
+    :preface
+    (defun load-last-theme ()
+      (when (and consult--theme-history)
+        (dolist (theme custom-enabled-themes)
+          (disable-theme theme))
+        (load-theme (intern (car consult--theme-history)) t)))
+    :hook
+    (savehist-mode . load-last-theme))
+#+end_src
+
+** Font
+#+begin_src emacs-lisp
+  (pcase system-type
+    ('darwin
+     (set-frame-font
+      "Comic Code Ligatures 13" nil t)))
+#+end_src
+
+** Themes
+#+begin_src emacs-lisp
+  (use-package no-clown-fiesta-theme :straight t)
+  (use-package ef-themes :straight t)
+  (use-package standard-themes :straight t)
+#+end_src
+
+** Simplify UI
+#+begin_src emacs-lisp
+  (use-package emacs
+    :custom
+    ;; Stop the incessant blinking
+    (blink-cursor-mode nil)
+    ;; Remove the bars
+    (tool-bar-mode nil)
+    (scroll-bar-mode nil)
+    (menu-bar-mode nil))
+#+end_src
+
+** Opacity
+#+begin_src emacs-lisp
+  ;; Set current frames opacity
+  (set-frame-parameter (selected-frame) 'alpha '90)
+  ;; Set future frames
+  (add-to-list 'default-frame-alist '(alpha 90))
+#+end_src
+
+** Mode-line
+#+begin_src emacs-lisp
+  (use-package emacs
+    :straight nil
+    :preface
+    (defvar-local mode-line-file-path-cache nil)
+    (defun mode-line-file-path-1 (file-name)
+      (propertize
+       (abbreviate-file-name
+        (if-let* ((project-current (project-current))
+                  (project (project-root project-current))
+                  (project-parent
+                   (thread-first project
+                                 expand-file-name
+                                 directory-file-name
+                                 file-name-directory))
+                  (relative-path
+                   (file-relative-name (file-name-directory buffer-file-truename)
+                                       project-parent)))
+            (if (length< relative-path 40)
+                relative-path
+              (cl-loop with (root . rest) =
+                       (file-name-split relative-path)
+                       for p in rest
+                       unless (string-empty-p p) collect
+                       (substring p 0 1) into rest-short
+                       finally return
+                       (file-name-as-directory
+                        (apply 'file-name-concat root rest-short))))
+          default-directory))
+       'help-echo (file-name-directory file-name)))
+
+    (defun mode-line-file-path ()
+      (when-let ((file-name (buffer-file-name)))
+        (pcase-let ((`(,key ,path) mode-line-file-path-cache))
+          (unless (eq default-directory key)
+            (setq path (mode-line-file-path-1 file-name)
+                  mode-line-file-path-cache `(,default-directory ,path)))
+          path)))
+    :custom
+    (mode-line-position-column-line-format '(" %l:%c"))
+    (column-number-mode 1)
+    (mode-line-format
+     '(""
+       mode-line-front-space
+       mode-line-mule-info
+       mode-line-client
+       mode-line-modified
+       mode-line-remote
+       mode-line-frame-identification
+       " "
+       (:eval (mode-line-file-path))
+       mode-line-buffer-identification
+       "  "
+       mode-line-position
+       " "
+       (:propertize mode-name face bold)
+       mode-line-process
+       "  "
+       (vc-mode vc-mode)
+       " "
+       (:eval (when (window-dedicated-p)
+                (propertize " Ded"
+                            'face 'font-lock-warning-face)))
+       (:eval (when (buffer-narrowed-p)
+                (propertize " Nar"
+                            'face 'font-lock-warning-face)))
+       (:eval (when (region-active-p)
+                (format " Lines %d"
+                        (1+ (evil-count-lines (region-beginning)
+                                              (region-end))))))
+       (defining-kbd-macro mode-line-defining-kbd-macro)
+       " "
+       mode-line-misc-info
+       mode-line-format-right-align)))
+#+end_src
+
+** Dashboard - Splash screen
+#+begin_src emacs-lisp
+  (use-package dashboard
+    :straight t
+    :custom
+    (dashboard-items '((recents  . 10)
+                       (bookmarks . 10)))
+    :config
+    (dashboard-setup-startup-hook))
+#+end_src
+
+** MacOS
+#+begin_src emacs-lisp
+  (when (eq system-type 'darwin)
+    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t)))
+#+end_src
+
+* Keymaps
+** System
+#+begin_src emacs-lisp
+  (use-package ns-win
+    :if (eq system-type 'darwin)
+    :custom
+    (mac-option-key-is-meta t)
+    (mac-right-option-modifier nil))
+#+end_src
+
+** Repeat - Ergonomic keymaps
+#+begin_src emacs-lisp
+  (use-package repeat
+    :custom
+    (repeat-mode 1))
+#+end_src
+
+** Which Key - Discover bindings
+#+begin_src emacs-lisp
+  (use-package which-key
+    :custom
+    ;; Why wait?
+    (which-key-idle-delay 1.)
+    ;; Easier to see unbound keys
+    (which-key-sort-order 'which-key-key-order-alpha)
+    ;; On
+    (which-key-mode +1))
+#+end_src
+
+** General - Leader and =:general=
+#+begin_src emacs-lisp
   (use-package general
     :straight t
     :config
-    (general-create-definer leader-key
+    (general-create-definer leader-map
       :prefix "SPC"
       :states '(normal emacs motion visual)
       :keymaps 'override))
-#+END_SRC
+#+end_src
 
-** Evil
-#+BEGIN_SRC emacs-lisp
-  (use-package undo-tree
-    :straight t
-    :config
-    (setq undo-tree-auto-save-history nil)
-    (global-undo-tree-mode 1))
-
+** Evil and Friends - Vi emulation
+#+begin_src emacs-lisp
+  ;; Last known good commit 30ebe6d:
+  ;; - evil-escape macro bug (inserts "jK")
+  ;; - minibuffer bug does not enter in insert mode
   (use-package evil
     :straight t
+    :custom
+    (evil-want-integration t)
+    (evil-want-keybinding nil)
+    (evil-want-C-i-jump nil)
+    (evil-want-C-u-scroll t)
+    (evil-want-minibuffer t)
+    ;; Cursor type is enough for evil state
+    (evil-mode-line-format nil)
+    ;; Integrations
+    (evil-undo-system 'undo-redo)
+    ;; Follow windows on split)
+    (evil-split-window-below t)
+    (evil-vsplit-window-right t)
     :init
-    (setq evil-mode-line-format nil)
-    (setq evil-want-C-i-jump nil)
-    (setq evil-want-integration t)
-    (setq evil-want-keybinding nil)
-    (setq evil-want-Y-yank-to-eol t)
-    (setq evil-want-C-u-scroll t)
+    ;; For some reason cannot be set with `:custom'
     (setq evil-search-module 'evil-search)
-    (setq evil-want-minibuffer t)
-    (setq evil-undo-system 'undo-tree)
-    (setq evil-jumps-cross-buffers t)
-    (setq evil--jumps-buffer-targets  "\\*\\(.+\\)\\*")
-    (setq evil-insert-state-message nil)
-    (setq evil-normal-state-message nil)
-    (setq-default evil-symbol-word-search t)
-    (setq-default evil-shift-width 2)
     :config
-    ;; use symbols instead of words when using the vim subject "word"
+    ;; Use symbols instead of words when using the vim subject "word"
     (defalias #'forward-evil-word #'forward-evil-symbol)
+    (setq-default evil-symbol-word-search t)
 
-    ;; run the macro in the q register
+    ;; Run the macro in the q register
     (evil-define-key 'normal 'global "Q" "@q")
 
-    ;; Keep eldoc message on insert
-    (eldoc-add-command 'evil-change)
+    ;; Keep eldoc on mode change
     (eldoc-add-command 'evil-insert)
-    (eldoc-add-command 'evil-escape)
+    (eldoc-add-command 'evil-change)
+    (eldoc-add-command 'evil-normal-state)
+    (setq evil-insert-state-message nil
+          evil-normal-state-message nil)
 
-    ;; my common misspellings
+    ;; Common EX misspellings
     (evil-ex-define-cmd "E[dit]" 'evil-edit)
     (evil-ex-define-cmd "W[rite]" 'evil-write)
     (evil-ex-define-cmd "Wq" 'evil-save-and-close)
     (evil-ex-define-cmd "WQ" 'evil-save-and-close)
-    (evil-ex-define-cmd "Wq" 'evil-save-and-close)
-    (evil-ex-define-cmd "Qa[ll]" "quitall")
-    (evil-ex-define-cmd "qA[ll]" "quitall")
-    (evil-ex-define-cmd "QA[ll]" "quitall")
-    (evil-mode 1))
 
-  (use-package evil-surround
-    :straight t
-    :config
-    (global-evil-surround-mode 1))
+    ;; Go
+    (evil-mode t))
+#+end_src
 
+Almost as important as =evil= itself.
+#+begin_src emacs-lisp
   (use-package evil-escape
     :straight t
-    :init
-    (setq evil-escape-delay 0.2)
-    (setq evil-escape-unordered-key-sequence t)
-    (setq-default evil-escape-key-sequence "jk")
+    :custom
+    (evil-escape-delay 0.1)
+    (evil-escape-key-sequence "jk")
+    (evil-escape-unordered-key-sequence t)
     :config
     (evil-escape-mode))
+#+end_src
 
+This makes =evil= almost feel like the default bindings.
+#+begin_src emacs-lisp
   (use-package evil-collection
-    :after evil
     :straight t
     :config
-    ;; magit uses 'C-i' as tab like GUI emacs doesn't exist
-    (evil-define-key 'normal magit-mode-map (kbd "<tab>") #'magit-section-cycle)
-
-    (thread-last evil-collection-mode-list
-                 (remove 'eshell)
-                 (remove 'corfu)
-                 (setq evil-collection-mode-list))
+    ;; Setup `eshell' and `corfu' on there own
+    (dolist (mode '(eshell corfu))
+      (setq evil-collection-mode-list
+            (delete mode evil-collection-mode-list)))
     (evil-collection-init))
-
-  (use-package evil-org
-    :defer t
-    :straight t
-    :after org
-    :hook ((org-mode . evil-org-mode)
-           (evil-org-mode . (lambda ()
-                              (evil-org-set-key-theme '(textobjects
-                                                        insert
-                                                        return
-                                                        return
-                                                        additional
-                                                        shift
-                                                        todo))))))
-
-  (use-package better-jumper
-    :straight t
-    :config
-    (better-jumper-mode +1)
-    (with-eval-after-load 'evil-maps
-      (define-key evil-motion-state-map (kbd "C-o") 'better-jumper-jump-backward)
-      (define-key evil-motion-state-map (kbd "H-i") 'better-jumper-jump-forward)))
-#+END_SRC
-
-** Repeat
-#+begin_src emacs-lisp
-  (use-package repeat
-    :straight (:type built-in)
-    :config
-    (repeat-mode))
 #+end_src
 
-* Windows and buffers
-** Display buffer
+Have always used Tims plugin.
 #+begin_src emacs-lisp
-  (setq split-height-threshold 120)
-  (setq split-width-threshold (* 90 2))
-
-  (setq display-buffer-base-action
-        '((display-buffer-reuse-window
-           display-buffer-in-previous-window)))
-
-  (setq window-sides-vertical t)
-  (setq window-combination-resize t)
-  (setq switch-to-buffer-in-dedicated-window 'pop)
-  (setq even-window-sizes 'height-only)
-
-  (setq display-buffer-alist
-        `(;; Org capture select
-          ("\\*Org \\(Select\\|Note\\)\\*"
-           (display-buffer-in-side-window)
-           (dedicated . t)
-           (side . bottom)
-           (slot . 0)
-           (window-parameters . ((mode-line-format . none))))
-          ;; Status buffers
-          ((or . ((derived-mode . flymake-diagnostics-buffer-mode)
-                  (derived-mode . flymake-project-diagnostics-mode)
-                  (derived-mode . messages-buffer-mode)
-                  (derived-mode . backtrace-mode)
-                  (derived-mode . eshell-mode)
-                  "\\*Embark Export: .*\\*"
-                  "\\(\\*Capture\\*\\|CAPTURE-.*\\)"))
-           (display-buffer-reuse-mode-window display-buffer-at-bottom)
-           (window-height . 0.3)
-           (dedicated . t)
-           (preserve-size . (t . t))
-           ;; Make window unsupportable
-           (body-functions . window-make-atom))
-          ;; Result type buffers
-          ((or . ((derived-mode . occur-mode)
-                  (derived-mode . ibuffer-mode)
-                  (derived-mode . grep-mode)
-                  (derived-mode . xref--xref-buffer-mode)
-                  (derived-mode . embark-collect-mode)
-                  "\\*literate-calc\\*"))
-           (display-buffer-reuse-mode-window display-buffer-below-selected)
-           (dedicated . t)
-           (window-height . 0.4))
-          ;; Things that pop from the right
-          ((or . ((derived-mode . help-mode)
-                  (derived-mode . Man-mode)
-                  (derived-mode . devdocs-mode)
-                  (derived-mode . shortdoc-mode)
-                  "\\*eldoc.*\\*"))
-           (display-buffer-in-direction)
-           (direction . rightmost)
-           (window-width . 75)
-           (dedicated . t)
-           (body-function . (lambda (window) (select-window window))))
-          ;; Side window stuff
-          ((or . (,(regexp-quote shell-command-buffer-name-async)
-                  (major-mode . compilation-mode)))
-           (display-buffer-reuse-mode-window display-buffer-in-side-window)
-           (side . right)
-           (dedicated . t)
-           (window-width . 75))
-          ;; Magit
-          ((or . ((derived-mode . magit-diff-mode)
-                  (derived-mode . magit-process-mode)))
-           (display-buffer-pop-up-window))
-          ((derived-mode . magit-status-mode)
-           (display-buffer-same-window))))
-#+end_src
-
-** Ace window
-#+begin_src emacs-lisp
-  (use-package ace-window
-    :straight t
-    :config
-    (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-    (leader-key "jw" 'ace-window))
-#+end_src
-
-** Mappings
-#+begin_src emacs-lisp
-  (leader-key
-    "w" '(:ignore t :which-key "Manage windows")
-    "wt" 'toggle-frame-maximized
-    "wm" 'toggle-frame-fullscreen)
-#+end_src
-
-** Switch buffers
-#+begin_src emacs-lisp
-  (defun split-follow-window-vertically ()
-    "Split and follow window vertically."
-    (interactive)
-    (select-window (split-window-vertically)))
-
-  (defun split-follow-window-horizontally ()
-    "Split and follow window horizontally."
-    (interactive)
-    (select-window (split-window-horizontally)))
-
-  (use-package emacs
-    :after evil
-    :config
-    (evil-define-key '(normal insert) global-intercept-mode-map
-      "\C-j" 'evil-window-down
-      "\C-k" 'evil-window-up
-      "\C-h" 'evil-window-left
-      "\C-l" 'evil-window-right
-      "\C-ws" 'split-follow-window-vertically
-      "\C-wv" 'split-follow-window-horizontally))
-#+END_SRC
-* Looks
-** Basics
-#+begin_src emacs-lisp
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (menu-bar-mode -1)
-#+end_src
-
-** Fonts
-#+begin_src emacs-lisp
-  (pcase system-type
-    ;; Mac fonts
-    ('darwin
-     ;; (set-face-attribute 'default nil :font "Monaco 12")
-     (set-frame-font "Comic Code Ligatures 13" nil t)
-     (set-fontset-font t 'emoji "Apple Color Emoji"))
-    ;; Linux fonts
-    ('gnu/linux
-     ;; (set-face-attribute 'default nil :font "DejaVu Sans Mono 9")
-     (set-frame-font "Comic Code Ligatures 12" nil t)))
-#+end_src
-** Themes
-#+BEGIN_SRC emacs-lisp
-  (use-package ef-themes
-    :straight (ef-themes :type git :host github :repo "protesilaos/ef-themes")
-    :custom
-    (ef-themes-common-palette-overrides
-     '((bg-mode-line bg-dim)
-       (bg-alt bg-main))))
-
-  (use-package standard-themes
-    :straight t)
-
-  (use-package modus-themes
+  (use-package evil-surround
     :straight t
     :custom
-    (modus-themes-completions
-     (quote ((matches . (extrabold underline))
-             (selection . (semibold)))))
-    (modus-themes-common-palette-overrides
-     '((fringe be-main))))
-
-  (use-package grandshell-theme :straight t)
-
-  (use-package inkpot-theme :straight t)
-
-  (use-package zenburn-theme :straight t)
-#+END_SRC
-
-** Mode line
-#+begin_src emacs-lisp
-  (defvar-local mode-line-file-path-cache nil)
-
-  (defun mode-line-file-path-1 (file-name)
-    (propertize
-     (abbreviate-file-name
-      (if-let* ((project (project-project-root))
-                (project-parent
-                 (thread-first project
-                               expand-file-name
-                               directory-file-name
-                               file-name-directory))
-                (relative-path
-                 (file-relative-name (file-name-directory buffer-file-truename)
-                                     project-parent)))
-          (if (length< relative-path 60)
-              relative-path
-            (cl-loop with (root . rest) = (file-name-split relative-path)
-                     for p in rest
-                     unless (string-empty-p p) collect
-                     (substring p 0 1) into rest-short
-                     finally return
-                     (file-name-as-directory
-                      (apply 'file-name-concat root rest-short))))
-        default-directory))
-     'help-echo (file-name-directory file-name)))
-
-  (defun mode-line-file-path ()
-    (when-let ((file-name (buffer-file-name)))
-      (pcase-let ((`(,key ,path) mode-line-file-path-cache))
-        (unless (eq default-directory key)
-          (setq path (mode-line-file-path-1 file-name)
-                mode-line-file-path-cache `(,default-directory ,path)))
-        path)))
-
-  (setq mode-line-position-column-line-format '(" %l:%c"))
-
-  (setq-default mode-line-format
-                '(""
-                  mode-line-front-space
-                  mode-line-mule-info
-                  mode-line-client
-                  mode-line-modified
-                  mode-line-remote
-                  mode-line-frame-identification
-                  " "
-                  (:eval (mode-line-file-path))
-                  mode-line-buffer-identification
-                  "  "
-                  mode-line-position
-                  " "
-                  (:propertize mode-name
-                               face bold)
-                  mode-line-process
-                  "  "
-                  (vc-mode vc-mode)
-                  " "
-                  (:eval (when (window-dedicated-p)
-                           (propertize " Ded"
-                                       'face 'font-lock-warning-face)))
-                  (:eval (when (buffer-narrowed-p)
-                           (propertize " Nar"
-                                       'face 'font-lock-warning-face)))
-                  (:eval (when (region-active-p)
-                           (format " Lines %d"
-                                   (1+ (evil-count-lines (region-beginning)
-                                                         (region-end))))))
-                  (defining-kbd-macro mode-line-defining-kbd-macro)
-                  " "
-                  mode-line-misc-info
-                  mode-line-format-right-align))
-
-  (column-number-mode 1)
+    (global-evil-surround-mode +1))
 #+end_src
 
-** Whitespace
-*** Show whitespace
-#+BEGIN_SRC emacs-lisp
+** Embark - At "thing" mappings
+#+begin_src emacs-lisp
+  (use-package embark
+    :straight t
+    :preface
+    (defun project-find-file-at (directory)
+      "Visit a file in the current project."
+      (let ((default-directory directory))
+        (call-interactively 'project-find-file)))
+    (defun find-file-at (directory)
+      "Visit a file."
+      (let ((default-directory directory))
+        (call-interactively 'find-file)))
+    :general
+    (minibuffer-local-map
+     :states '(insert normal)
+     (kbd "C-SPC") 'embark-act
+     (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
+     (kbd "C-<return>") 'embark-export)
+    (:states
+     'normal
+     (kbd "C-SPC") 'embark-act)
+    (embark-file-map
+     "SPC" 'project-find-file-at
+     "g" 'magit
+     "G" 'consult-ripgrep
+     "!" 'async-shell-command
+     "e" 'eshell
+     "." 'find-file-at
+     "&" nil
+     "$" nil)
+    :custom
+    ;; Show Embark actions via which-key
+    (embark-action-indicator
+     (lambda (map)
+       (which-key--show-keymap "Embark" map nil nil 'no-paging)
+       #'which-key--hide-popup-ignore-command)
+     embark-become-indicator embark-action-indicator)
+    :config
+    (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
+#+end_src
+
+* Editing
+** Jinx - Spellchecker
+#+begin_src emacs-lisp
+  (use-package jinx
+    :after vertico
+    :straight t
+    :general
+    (:states '(normal visual) "z=" #'jinx-correct)
+    :hook
+    (prog-mode . jinx-mode)
+    (text-mode . jinx-mode)
+    :custom
+    (jinx-languages "en_US")
+    :config
+    ;; Git commit message improvements
+    (add-to-list 'jinx-exclude-faces
+                 '(text-mode
+                   font-lock-comment-face
+                   git-commit-comment-heading
+                   git-commit-comment-branch-local
+                   git-commit-comment-branch-remote
+                   git-commit-comment-file))
+    ;; Remove spell spell checking in string
+    (add-to-list 'jinx-include-faces
+                 '(prog-mode font-lock-comment-face
+                             font-lock-doc-face))
+    ;; Use grid for jinx completions
+    (add-to-list 'vertico-multiform-categories
+                 '(jinx grid (vertico-grid-annotate . 20))))
+#+end_src
+
+** Auto Fill - Auto break lines "long" lines
+#+begin_src emacs-lisp
+  (use-package simple
+    :hook
+    (text-mode . auto-fill-mode)
+    (mail-mode . auto-fill-mode)
+    (message-mode . auto-fill-mode)
+    (prog-mode . auto-fill-mode)
+    (prog-mode
+     ;; Comments are re-used some mode which leads to `auto-fill' being
+     ;; disabled where it should not `prog-mode'.
+     . (lambda ()
+         (setq-local comment-auto-fill-only-comments t)))
+    :custom
+    ;; No tabs please
+    (indent-tabs-mode nil))
+#+end_src
+
+** Whitespace - Visualize white space, tabs, trailing and "long" lines
+#+begin_src emacs-lisp
   (use-package whitespace
-    :straight (:type built-in)
-    :hook (prog-mode . whitespace-mode)
-    :init
-    (setq show-trailing-whitespace t)
-    (setq whitespace-line-column 80)
-    (setq whitespace-style '(face trailing lines-char)))
-#+END_SRC
+    :hook
+    (prog-mode . whitespace-mode)
+    (text-mode . whitespace-mode)
+    :custom
+    ;; Show "long" lines
+    (whitespace-line-column 80)
+    ;; Show "hidden" chars
+    (whitespace-style '(face trailing lines-char tabs)))
+#+end_src
 
-*** Remove whitespace
+** Whitespace Cleanup - Remove whitespace on save-buffer
 #+begin_src emacs-lisp
   (use-package whitespace-cleanup-mode
     :straight t
-    :hook (prog-mode . whitespace-cleanup-mode))
+    :hook
+    (prog-mode . whitespace-cleanup-mode))
 #+end_src
 
-** Dashboard
-#+BEGIN_SRC emacs-lisp
-  (use-package dashboard
-    :straight t
-    :config
-    (setq dashboard-items '((recents  . 10)
-                            (bookmarks . 10)))
-    (dashboard-setup-startup-hook))
-#+END_SRC
-
-** Transparency
+** Narrowing
 #+begin_src emacs-lisp
-  (set-frame-parameter (selected-frame) 'alpha '(90 90))
-  (add-to-list 'default-frame-alist '(alpha 90 90))
-#+end_src
-
-** Misc
-#+begin_src emacs-lisp
-  (setq bookmark-fringe-mark nil)
-#+end_src
-* Buffer navigation
-** Narrow
-#+BEGIN_SRC emacs-lisp
-  (defun narrow-or-widen-dwim ()
-    "Widen if buffer is narrowed, narrow-dwim otherwise.
+  ;; Stolen from someplace
+  (use-package narrow-or-widen
+    :preface
+    (defun narrow-or-widen-dwim ()
+      "Widen if buffer is narrowed, narrow-dwim otherwise.
   Dwim means: region, org-src-block, org-subtree, or
   defun, whichever applies first.  Narrowing to
   org-src-block actually calls `org-edit-src-code'."
-    (interactive)
-    (cond ((and (buffer-narrowed-p)) (widen))
-          ((region-active-p)
-           (narrow-to-region (region-beginning)
-                             (region-end)))
-          ((derived-mode-p 'org-mode)
-           ;; `org-edit-src-code' is not a real narrowing
-           ;; command. Remove this first conditional if
-           ;; you don't want it.
-           (cond ((ignore-errors (org-edit-src-code) t))
-                 ((ignore-errors (org-narrow-to-block) t))
-                 (t (org-narrow-to-subtree))))
-          ((derived-mode-p 'latex-mode)
-           (LaTeX-narrow-to-environment))
-          ((not (thing-at-point 'defun)) (narrow-to-page))
-          (t (narrow-to-defun))))
+      (interactive)
+      (cond ((and (buffer-narrowed-p)) (widen))
+            ((region-active-p)
+             (narrow-to-region (region-beginning)
+                               (region-end)))
+            ((derived-mode-p 'org-mode)
+             ;; `org-edit-src-code' is not a real narrowing
+             ;; command. Remove this first conditional if
+             ;; you don't want it.
+             (cond ((ignore-errors (org-edit-src-code) t))
+                   ((ignore-errors (org-narrow-to-block) t))
+                   (t (org-narrow-to-subtree))))
+            ((not (thing-at-point 'defun)) (narrow-to-page))
+            (t (narrow-to-defun))))
+    :general
+    (leader-map "z" 'narrow-or-widen-dwim))
+#+end_src
 
-  (leader-key "z" 'narrow-or-widen-dwim)
-#+END_SRC
-
-** Avy
+** Wgrep - Editing in "search" buffers
 #+begin_src emacs-lisp
-  (use-package avy
+  (use-package wgrep :straight t)
+#+end_src
+
+** Tempel - Templates
+Not convinced that it's more better then =yasnippet=.
+#+begin_src emacs-lisp
+  (use-package tempel
     :straight t
+    :general
+    (tempel-map
+     "TAB" 'tempel-or-corfu-complete-next
+     "<tab>" 'tempel-or-corfu-complete-next
+     "<backtab>" 'tempel-previous
+     "S-TAB" 'tempel-previous)
+    :hook
+    (evil-insert-state-exit . tempel-done)
+    (eshell-mode . tempel-setup-capf)
+    (prog-mode . tempel-setup-capf)
+    (text-mode . tempel-setup-capf)
+    :preface
+    (defun tempel-setup-capf ()
+      (setq-local completion-at-point-functions
+                  (cons #'tempel-complete
+                        completion-at-point-functions)))
+
+    (defun tempel-or-corfu-complete-next ()
+      (interactive)
+      (if completion-in-region-mode
+          (call-interactively 'corfu-complete)
+        (call-interactively 'tempel-next)))
     :custom
-    (avy-timeout-seconds 0.3)
-    (avy-style 'de-bruijn)
-    (avy-line-insert-style 'below)
-    (avy-dispatch-alist '((?x . avy-action-kill-move)
-                          (?X . avy-action-kill-stay)
-                          (?v . avy-action-visual)
-                          (?w . avy-action-copy)
-                          (?p . avy-action-paste)
-                          (?P . avy-action-paste-line)
-                          (?z . avy-action-ispell)))
-    :config
-    (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
-    (advice-add 'avy-read-de-bruijn :before (lambda (&rest _) (avy-show-dispatch-help)))
-
-    (defun avy-goto-line-keep-column (&optional arg)
-      "Jump to a line at the current column."
-      (interactive "p")
-      (let ((window (selected-window))
-            (column (current-column)))
-        (avy-goto-line arg)
-        (when (equal window (selected-window))
-          (move-to-column column))))
-
-    (evil-define-avy-motion avy-goto-line-keep-column line)
-
-    (defun avy-action-visual (pt)
-      (let (beg end)
-        (goto-char pt)
-        (setq beg (point))
-        (avy-forward-item)
-        (backward-char)
-        (setq end (point))
-        (evil-visual-select beg end)))
-
-    (defun avy-action-paste-line (pt)
-      (avy-action-yank-line pt))
-
-    (defun avy-action-paste (pt)
-      (avy-action-yank pt))
-
-    (leader-key
-      "jj" 'evil-avy-goto-char-timer
-      "jl" 'evil-avy-goto-line-keep-column))
-#+end_src
-
-* Project management
-#+begin_src emacs-lisp
-  (defmacro project-with-directory (force &rest body)
-    "Try to set `default-dirctory' by using project.el.
-
-    If FORCE is non nil prompt user for project if not already inside of
-    project else use `default-directory'"
-    (declare (indent 1) (debug t))
-    `(let ((default-directory (or (and (project-current ,force)
-                                       (project-root (project-current ,force)))
-                                  default-directory)))
-       ,@body))
-
-  (defun project-project-root (&optional force)
-    (when-let ((project (project-current force)))
-      (project-root project)))
-
-  (defun project-find-file-at (file)
-    "Run project-find-file in directory of FILE."
-    (interactive "Directory: ")
-    (let* ((default-directory (file-name-directory
-                               (expand-file-name
-                                (substitute-in-file-name file)))))
-      (project-find-file)))
-
-  (defun project-recompile ()
-    "Re-compile current project."
-    (interactive)
-    (project-with-directory t
-      (recompile)))
-
-  ;; Do not upgrade to 0.11.0 git submodules are handled terribly and
-  ;; relative and absolute file names get mixed up again.
-  (use-package project
-    :straight t
-    :config
-    (setq project-vc-extra-root-markers '(".projectile" ".project"))
-    (setq project-switch-commands 'project-find-file)
-
-    (setq project-read-file-name-function
-          ;; Remove current visited file from list
-          (lambda (prompt all-files &optional predicate hist mb-default)
-            (when buffer-file-name
-              (setq all-files (remove buffer-file-name all-files)))
-            (project--read-file-cpd-relative prompt all-files predicate hist mb-default)))
-
-    (defun project-switch-project-advice (project-switch-project dir)
-      "Fix embark after switching project."
-      (minibuffer-with-setup-hook
-          (lambda () (setq default-directory dir))
-        (funcall project-switch-project dir)))
-
-    (advice-add 'project-switch-project :around 'project-switch-project-advice)
-
-    (leader-key
-      "SPC" 'project-find-file
-      "pp" 'project-switch-project
-      "pd" 'project-dired
-      "p!" 'project-async-shell-command
-      "pk" 'project-kill-buffers
-      "pc" 'project-compile
-      "pC" 'project-recompile))
-#+end_src
-
-* Org
-#+BEGIN_SRC emacs-lisp
-  (use-package org
-    :straight (:type built-in)
-    :hook ((org-mode . org-indent-mode)
-           (org-mode . visual-line-mode))
-    :config
-    (defun +org-confirm-babel-evaluate (lang body)
-      (not (member lang '("sh" "emacs-lisp" "python"))))
-    ;; Open Link in same window
-    (add-to-list 'org-link-frame-setup '(file . find-file))
-
-    (setq org-return-follows-link t)
-    (setq org-confirm-babel-evaluate '+org-confirm-babel-evaluate)
-    (setq org-src-window-setup 'current-window)
-    (setq org-startup-with-inline-images t)
-
-    ;; Enable babel languages
-    (org-babel-do-load-languages 'org-babel-load-languages
-                                 '((shell . t)
-                                   (python . t)))
-
-    (evil-define-key 'normal org-mode-map
-      (kbd "<RET>") 'org-return)
-
-    (leader-key "os" 'org-store-link))
-
-  (use-package org-agenda
-    :config
-    ;; Dont touch my windows
-    (defun org-agenda-well-behaved (old-org-agenda &rest args)
-      "Does not close the other opend window before opening the capture buffer"
-      (interactive)
-      (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
-        (apply old-org-agenda args)))
-    (advice-add 'org-agenda :around 'org-agenda-well-behaved)
-
-    (setq org-agenda-breadcrumbs-separator " ")
-    (setq org-agenda-prefix-format '((agenda .  "  %?-40 b")
-                                     (todo .    "  %?-40 b")
-                                     (tags .    "  %?-40 b")
-                                     (search .  "  %?-40 b")))
-
-    (setq org-todo-keywords
-          '((sequence "TODO" "DONE")))
-
-    ;; Replace the original agenda
-    (setq org-agenda-custom-commands
-          '(("A" "Agenda"
-             ((agenda)
-              (tags "+LEVEL=1-SCHEDULED={.+}-DEADLINE={.+}/TODO"
-                    ((org-agenda-overriding-header "Todos:")))
-              (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
-                    ((org-agenda-overriding-header "Projects:")))))))
-
-    (defun org-agenda-custom ()
-      (interactive)
-      (org-agenda nil "A"))
-
-    (leader-key
-      "oa" 'org-agenda-custom
-      "oA" 'org-agenda
-      "ot" 'org-todo-list
-      "ow" 'org-agenda-list)
-
-    (setq org-agenda-files '("~/org/notes.org"
-                             "~/org/pad.org"
-                             "~/org/todo.org"))
-
-    ;; Create files if they do not exist
-    (seq-do (lambda (file)
-              (unless (file-exists-p file)
-                (message "File %s created at startup" file)
-                (make-empty-file file)))
-            org-agenda-files)
-
-    ;; been trying to use evil-org's evil-agenda only result was pain
-    (evil-set-initial-state 'org-agenda-mode 'normal)
-    (evil-define-key 'normal org-agenda-mode-map
-      (kbd "<RET>") 'org-agenda-goto
-      "q" 'org-agenda-quit
-      "r" 'org-agenda-redo
-      "K" 'org-agenda-priority-up
-      "J" 'org-agenda-priority-down
-      "n" 'org-agenda-add-note
-      "t" 'org-agenda-todo
-      "#" 'org-agenda-set-tags
-      "j" 'org-agenda-next-line
-      "k" 'org-agenda-previous-line
-      "f" 'org-agenda-later
-      "b" 'org-agenda-earlier
-      "e" 'org-agenda-set-effort
-      "." 'org-agenda-goto-today
-      "H" 'org-agenda-do-date-earlier
-      "L" 'org-agenda-do-date-later))
-
-  (use-package org-capture
-    :config
-    ;; Dont touch my windows
-    (defun org-capture-well-behaved (old-org-capture &rest args)
-      "Does not close the other opened window before opening the capture buffer"
-      (interactive)
-      (cl-letf (((symbol-function 'delete-other-windows) 'ignore))
-        (apply old-org-capture args)))
-    (advice-add 'org-capture :around 'org-capture-well-behaved)
-
-    (add-hook 'org-capture-mode-hook (lambda (&rest _) (evil-insert 1)))
-
-    (setq org-agenda-follow-indirect t)
-    (setq org-refile-use-outline-path 'file)
-    (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
-    (setq org-outline-path-complete-in-steps nil)
-
-    (setq org-capture-templates '(("p" "Pad" plain
-                                   (file+olp+datetree "~/org/pad.org")
-                                   "\n%?\n"
-                                   :unnarrowed t)
-                                  ("n" "Note" entry
-                                   (file "~/org/notes.org")
-                                   "* %?\n")
-                                  ("t" "Todo" entry
-                                   (file "~/org/todo.org")
-                                   "* TODO %?\n")
-                                  ("l" "Link" entry
-                                   (file "~/org/todo.org")
-                                   "* TODO %? %a\n")))
-    (leader-key "oc" 'org-capture))
-
-  (use-package org-modern
-    :straight (org-modern :type git :host github :repo "minad/org-modern")
-    :hook ((org-mode . org-modern-mode))
-    :config
-    ;; Some type of fix when using org-indent-mode
-    (setq org-modern-block-fringe nil))
-#+END_SRC
-
-** Notes
-#+begin_src emacs-lisp
-  (use-package org-mono
-    :after embark
-    :straight (org-mono :type git :host github :repo "svaante/org-mono")
-    :config
-    (setq org-mono-files '("~/org/notes.org"
-                           "~/org/pad.org"
-                           "~/org/thoughts.org"
-                           "~/.emacs.d/config.org"))
-
-    (setq org-mono-advice-org-refile t)
-
-    (leader-key "oo" 'org-mono-goto)
-
-    (defvar-keymap embark-org-mono-actions-map
-      :doc "Keymap for actions for org-mono."
-      :parent embark-general-map
-      "o" #'org-mono-goto-other-window
-      "t" #'org-mono-todo
-      "r" #'org-mono-rename
-      "w" #'org-mono-refile-from
-      "a" #'org-mono-archive
-      "k" #'org-mono-delete-headline
-      "c" #'org-mono-goto-headline-child
-      "d" #'org-mono-time-stamp
-      "b" #'org-mono-goto-backlinks)
-
-    (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map))
-
-    (global-org-mono-mode))
-
-  (use-package org-mono-consult
-    :after consult
-    :straight (org-mono-consult :type git :host github :repo "svaante/org-mono")
-    :config
-    (setq org-mono-completing-read-fn 'org-mono-consult-completing-read))
+    (tempel-trigger-prefix "!"))
 #+end_src
 
 * Completion
-** Basics
+** General
 #+begin_src emacs-lisp
+  ;; Let bin be...
   (delete ".bin" completion-ignored-extensions)
+  ;; Don't for case
   (setq completion-ignore-case t)
 #+end_src
 
-** Package company
-#+BEGIN_SRC emacs-lisp
-  (use-package company
-    :disabled
-    :straight t
-    :config
-    (setq company-backends '(company-files company-capf))
-    (setq company-idle-delay 0)
-    (setq company-minimum-prefix-length 2)
-    (setq company-tooltip-align-annotations t)
-    (setq company-global-modes '(not eshell-mode))
-    (setq company-format-margin-function #'company-text-icons-margin)
-    (setq company-selection-wrap-around t)
-    (setq company-dabbrev-ignore-case nil)
-    (setq company-dabbrev-downcase nil)
-
-    ;; Something creept in during update where c-n/c-p would sometimes
-    ;; trigger evil-complete-next/previous
-    (defun evil-complete-next-company (func arg)
-      (if (company--active-p)
-          (call-interactively 'company-select-next)
-        (funcall func arg)))
-
-    (defun evil-complete-previous-company (func arg)
-      (if (company--active-p)
-          (call-interactively 'company-select-previous)
-        (funcall func arg)))
-
-    (advice-add 'evil-complete-next
-                :around
-                #'evil-complete-next-company)
-    (advice-add 'evil-complete-previous
-                :around
-                #'evil-complete-previous-company)
-
-    (define-key company-active-map (kbd "RET") nil)
-    (define-key company-active-map (kbd "<return>") nil)
-    (define-key company-active-map (kbd "TAB") 'company-complete)
-    (define-key company-active-map (kbd "<tab>") 'company-complete)
-
-    (global-company-mode 1))
-
-  (use-package company-posframe
-    :disabled
-    :straight t
-    :config
-    (setq company-posframe-show-metadata nil)
-    (setq company-posframe-show-indicator nil)
-    (setq company-posframe-quickhelp-delay nil)
-    (company-posframe-mode 1))
-#+END_SRC
-
-** Corfu
+** Savehist - Save completion history
 #+begin_src emacs-lisp
-  (use-package corfu
-    :straight (corfu :files (:defaults "extensions/*")
-                     :includes (corfu-popupinfo corfu-history))
-    :hook (evil-insert-state-exit . corfu-quit)
-    :config
-    (setq corfu-cycle t)
-    (setq corfu-auto t)
-    (setq corfu-preselect 'first)
-    (setq corfu-quit-no-match t)
-    (setq corfu-auto-prefix 2)
-    (setq corfu-on-exact-match 'quit)
+  (use-package savehist
+    :custom
+    (savehist-mode +1))
+#+end_src
 
-    ;; Orderless completion
-    (setq corfu-separator ?s)
-    (setq corfu-quit-at-boundary nil)
+** Minibuffer - Read string
+Add keymaps and insert region into =minibuffer= for set of commands.
+#+begin_src emacs-lisp
+  (use-package minibuffer
+    :general
+    (minibuffer-mode-map
+     :states '(normal insert)
+     ;; Insert symbol at point, C-r is used for fancier history search
+     ;; therefore Evils C-r C-W won't do
+     "C-." 'minibuffer-insert-symbol
+     ;; Navigate history with C-{n,p} in `read-string' and friends
+     "C-n" 'next-history-element
+     "C-p" 'previous-history-element)
+    :hook
+    (minibuffer-setup . minibuffer-insert-selection)
+    :preface
+    (defvar minibuffer-insert-commands
+     '(consult-line
+       consult-grep
+       consult-ripgrep
+       consult-lsp-symbols
+       consult-eglot-symbols
+       async-shell-command
+       project-async-shell-command))
+    (defun minibuffer-insert-selection ()
+      "If region is active insert region into minibuffer."
+      (when-let* ((_ (member this-command minibuffer-insert-commands))
+                  (minibuffer-buffer (current-buffer))
+                  (buffers (buffer-list))
+                  (last-used-buffer (cadr buffers)))
+        (with-current-buffer last-used-buffer
+          (when (use-region-p)
+            (let ((selection
+                   (buffer-substring-no-properties
+                (region-beginning) (region-end))))
+              (setq mark-active nil)
+              (with-current-buffer minibuffer-buffer
+                (insert selection)))))))
+    (defun minibuffer-insert-symbol ()
+      "Insert symbol at point into minibuffer."
+      (interactive)
+      (let* ((last-buffer (cadr (buffer-list)))
+             (string (with-current-buffer last-buffer
+                       (thing-at-point 'symbol))))
+        (if (stringp string)
+            (insert string)
+          (message "No symbol at point")))))
+#+end_src
 
-    ;; In eshell use tab to open corfu
-    (setq corfu-excluded-modes '(eshell-mode))
-    (add-hook 'eshell-mode-hook
-              (lambda ()
-                (setq-local corfu-auto nil)
-                (corfu-mode)))
-
-    ;; C-n C-p
-    (evil-make-overriding-map corfu-map)
-    (advice-add 'corfu--setup :after
-                (lambda (&rest _)
-                  (evil-normalize-keymaps)))
-    (advice-add 'corfu--teardown :after
-                (lambda (&rest _) (evil-normalize-keymaps)))
-    (evil-define-key 'insert corfu-map
-      (kbd "C-n") 'corfu-next
-      (kbd "C-p") 'corfu-previous)
-
-    (define-key corfu-map (kbd "RET") nil)
-    (global-corfu-mode)
-
-    (setq corfu-popupinfo-delay '(0.5 . 0.0))
-    (corfu-popupinfo-mode)
-
-    (corfu-history-mode))
-
-  (use-package corfu-terminal
-    :straight t
-    :config
-    (unless (display-graphic-p)
-      (corfu-terminal-mode +1)))
-
-  (use-package cape
-    :straight t
-    :hook ((lsp-mode . coruf-lsp-mode-completions)
-           (eglot-managed-mode . coruf-eglot-completions))
-    :init
-    ;; Default completion at point additions
-    (add-to-list 'completion-at-point-functions #'cape-history)
-    (add-to-list 'completion-at-point-functions #'cape-file)
-
-    (defun coruf-lsp-mode-completions ()
-      (setq-local completion-at-point-functions
-                  (list #'tempel-complete
-                        (cape-capf-super #'lsp-completion-at-point)
-                        #'cape-file)))
-
-    (defun coruf-eglot-completions ()
-      (setq-local completion-at-point-functions
-                  (list 'tempel-complete 'cape-file (cape-capf-super 'eglot-completion-at-point)))))
-
-#+END_SRC
-
-** Vertico, consult, embark
+** Vertico - Vertical minibuffer completion
 #+begin_src emacs-lisp
   (use-package vertico
-    :straight (vertico
-               :type git
-               :host github
-               :repo "minad/vertico"
-               :files (:defaults "extensions/*")
-               :includes (vertico-repeat vertico-directory vertico-multiform))
-    :hook ((rfn-eshadow-update-overlay . vertico-directory-tidy)
-           (minibuffer-setup . vertico-repeat-save))
-    :init
-    (vertico-mode)
-
-    (setq vertico-cycle t)
-    (setq enable-recursive-minibuffers nil)
-
-    ;; Use evil in the minibuffer
-    (evil-define-key '(insert normal) minibuffer-local-map
-      (kbd "RET") 'vertico-exit
-      (kbd "C-n") 'vertico-next
-      (kbd "C-p") 'vertico-previous)
-
+    :straight t
+    :general
+    (vertico-map
+     :states '(insert normal)
+     (kbd "RET") 'vertico-exit
+     (kbd "C-n") 'vertico-next
+     (kbd "C-p") 'vertico-previous)
+    :custom
+    (vertico-cycle t)
+    (enable-recursive-minibuffers nil)
+    (vertico-mode 1)
+    :config
     (defun crm-indicator (args)
       (cons (concat "[CRM] " (car args)) (cdr args)))
+    (advice-add #'completing-read-multiple :filter-args #'crm-indicator))
 
-    (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+  (use-package vertico-directory
+    :after vertico
+    :straight nil
+    :general
+    (vertico-map "DEL" 'vertico-directory-delete-char
+                 "M-DEL" 'vertico-directory-delete-word)
+    :hook
+    (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
-    (vertico-multiform-mode)
+  (use-package vertico-multiform
+    :after vertico
+    :straight nil
+    :custom
+    (vertico-multiform-commands
+     '((consult-ripgrep buffer)))
+    :config
+    (vertico-multiform-mode))
+#+end_src
 
-    (setq vertico-multiform-commands
-          '((consult-ripgrep buffer)))
-
-    (leader-key "r" 'vertico-repeat-select)
-
-    (evil-define-key '(insert normal) vertico-map
-      (kbd "DEL") 'vertico-directory-delete-char
-      (kbd "M-DEL") 'vertico-directory-delete-word))
-
-  (defun use-orderless-in-minibuffer ()
-    (setq-local completion-styles '(orderless basic)))
-
+** Orderless - Completion style
+#+begin_src emacs-lisp
   (use-package orderless
     :straight t
-    :hook (minibuffer-setup . use-orderless-in-minibuffer)
-    :init
-    ;; Escape spaces with ?\
-    (setq orderless-component-separator 'orderless-escapable-split-on-space)
+    :hook
+    (minibuffer-setup . orderless-minibuffer-setup)
+    :custom
+    ;; use bang(!) to filter out candidates
+    (orderless-style-dispatchers '(orderless-bang-filter))
+    ;; default styles
+    (completion-styles '(basic orderless))
+    (completion-category-defaults nil)
+    ;; setup style based on category
+    (completion-category-overrides
+     '(;; basic/partial makes more sense for files
+       (file (styles basic partial-completion))
+       (lsp-capf (styles basic))
+       ;; for code completion use flex for sensible order
+       (eglot (styles flex orderless))
+       (eglot-capf (styles flex orderless))))
+    :preface
+    (defun orderless-minibuffer-setup ()
+      (setq-local completion-styles '(orderless basic)))
 
-    (defun without-if-bang (pattern _index _total)
+    (defun orderless-bang-filter (pattern _index _total)
       (cond
-       ((equal "!" pattern)
-        '(orderless-literal . ""))
+       ((equal "!" pattern) '(orderless-literal . ""))
        ((string-prefix-p "!" pattern)
-        `(orderless-without-literal . ,(substring pattern 1)))))
+        `(orderless-without-literal . ,(substring pattern 1))))))
+#+end_src
 
-    (setq orderless-style-dispatchers
-          '(without-if-bang))
-
-    (setq completion-styles '(basic orderless))
-
-    (setq completion-category-defaults nil
-          completion-category-overrides
-          '((file (styles basic partial-completion))
-            (lsp-capf (styles basic))
-            (eglot (styles flex orderless))
-            (eglot-capf (styles flex orderless)))))
-
-  ;; Persist history over Emacs restarts. Vertico sorts by history position.
-  (use-package savehist
-    :straight t
-    :init
-    (savehist-mode))
-
-  ;; Enable richer annotations using the Marginalia package
-  (use-package marginalia
-    :straight t
-    :config
-    (marginalia-mode))
-
-  (defun consult-line-evil-history (&rest _)
-    "Add latest `consult-line' search pattern to the evil search history ring.
-  This only works with orderless and for the first component of the search."
-    (when (and (bound-and-true-p evil-mode)
-               (eq evil-search-module 'evil-search))
-      (let ((pattern (car (orderless-pattern-compiler (car consult--line-history)))))
-        (add-to-history 'evil-ex-search-history pattern)
-        (setq evil-ex-search-pattern (list pattern t t))
-        (setq evil-ex-search-direction 'forward)
-        (when evil-ex-search-persistent-highlight
-          (evil-ex-search-activate-highlight evil-ex-search-pattern)))))
-
-  (advice-add #'consult-line :after #'consult-line-evil-history)
+** Consult - Improved candidate completion functions
+#+begin_src emacs-lisp
+  (use-package embark-consult
+    :straight t)
 
   (use-package consult
-    :straight (consult :type git :host github :repo "minad/consult")
-    :config
-    (evil-define-key '(insert normal) minibuffer-local-map
-      (kbd "C-r") 'consult-history)
-
-    (setq xref-show-xrefs-function 'consult-xref)
-    (setq xref-show-definitions-function 'consult-xref)
-
-    (defun +consult-kill-line-insert-history ()
+    :straight t
+    :preface
+    (defun consult-kill-line-insert-history ()
       (interactive)
       (goto-char (point-max))
       (ignore-errors (call-interactively 'move-beginning-of-line) t)
       (ignore-errors (call-interactively 'kill-line) t)
-      (call-interactively 'consult-history))
-
-    (evil-define-key 'insert comint-mode-map
-      (kbd "C-r") '+consult-kill-line-insert-history)
-    (evil-define-key 'normal comint-mode-map
-      (kbd "C-r") '+consult-kill-line-insert-history)
-
-    (consult-customize
-     consult-history :initial nil)
-
-    (leader-key
-      "."  'find-file-at-point
-      "pg" 'consult-ripgrep
-      "b"  'consult-buffer
-      "i"  'consult-imenu
-      "hh" 'describe-function
-      "hv" 'describe-variable
-      "jm" 'consult-mark
+      (call-interactively 'consult-history)
+      (evil-insert-state))
+    :general
+    (leader-map
+      "." 'find-file-at-point
+      ":" 'execute-extended-command
+      "s" 'consult-line
+      "i" 'consult-imenu
+      "b" 'consult-buffer
+      "y" 'consult-yank-pop
+      "!" 'async-shell-command
+      "j" '(:which-key "jump")
       "jc" 'consult-compile-error
-      "je" 'consult-flymake
-      "y"  'consult-yank-pop
-      ":"  'execute-extended-command
-      "s"  'consult-line)
+      "jf" 'consult-flymake
+      "jm" 'consult-mark
+      "h" '(:which-key "help")
+      "hh" 'describe-function
+      "hv" 'describe-variable)
+    (minibuffer-local-map
+     :states '(insert normal)
+     (kbd "C-r") 'consult-history)
+    (:keymaps '(comint-mode-map eshell-mode-map)
+              :states '(insert normal)
+              (kbd "C-r") 'consult-kill-line-insert-history)
+    :custom
+    (xref-show-xrefs-function 'consult-xref)
+    (xref-show-definitions-function 'consult-xref)
+    (consult-async-split-style 'semicolon)
+    :hook
+    (minibuffer-mode
+     . (lambda (&rest _)
+         (setq-local completion-in-region-function
+                     (lambda (&rest args)
+                       (apply (if vertico-mode
+                                  #'consult-completion-in-region
+                                #'completion--in-region)
+                              args)))))
     :config
-    ;; Do not preview buffers in consult-buffer
-    (consult-customize consult-buffer :preview-key '())
-
-    ;; Add eshell as a buffer source
-    (defvar eshell-buffer-source
-      `(:name     "Eshell Buffer"
-                  :narrow   (?e . "Eshell")
-                  :hidden   t
-                  :category buffer
-                  :face     consult-buffer
-                  :history  buffer-name-history
-                  :state    ,#'consult--buffer-state
-                  :items
-                  ,(lambda ()
-                     (consult--buffer-query :mode 'eshell-mode
-                                            :as #'buffer-name)))
-      "Eshell buffer candidate source for `consult-buffer'.")
-    (add-to-list 'consult-buffer-sources 'eshell-buffer-source 'append)
-
-    ;; Use semicolon as spliter
-    (setq consult-async-split-style 'semicolon)
-
-    ;; Add repl buffer source for easier repl creation
-    (setq consult-buffer-repls '(("*ielm*"   . ielm)
-                                 ("*Python*" . run-python)
-                                 ("*nodejs*" . nodejs-repl)
-                                 ("*eshell*" . eshell)
-                                 ("*SQL: MySQL*" . sql-mysql)))
-
-    (defun open-repl-other-window (key)
-      (interactive
-       (list (completing-read "Switch to REPLish: "
-                              (->> consult-buffer-repls
-                                   (mapcar 'car))
-                              nil
-                              t)))
-      (call-interactively (alist-get key consult-buffer-repls nil nil 'equal)))
-
-    (defvar repl-buffer-source
-      `(:name     "REPLish buffers"
-                  :narrow   (?r . "REPL")
-                  :hidden   nil
-                  :category consult-repl
-                  :face     consult-buffer
-                  :state    ,#'consult--buffer-state
-                  :history  buffer-name-history
-                  :action   ,(lambda (key)
-                               (funcall (alist-get key consult-buffer-repls)))
-                  :items    ,(lambda ()
-                               (->> consult-buffer-repls
-                                    (mapcar 'car)))
-                  "Repl buffer candidate source for `consult-buffer'."))
-
-    (add-to-list 'consult-buffer-sources 'repl-buffer-source 'append)
-
-    ;; Use consult as the completion-in-region in minibuffer
-    (add-hook 'minibuffer-mode-hook
-              (lambda (&rest _)
-                (setq-local completion-in-region-function
-                            (lambda (&rest args)
-                              (apply (if vertico-mode
-                                         #'consult-completion-in-region
-                                       #'completion--in-region)
-                                     args))))))
-
-  (use-package which-key
-    :straight t
-    :init
-    (which-key-mode)
-    :config
-    (setq which-key-show-docstrings t)
-    (setq which-key-max-description-length nil))
-
-  (defun +find-file-at (file)
-    "Find file at `default-directory' FILE."
-    (interactive "Directory: ")
-    (let* ((default-directory (file-name-directory
-                               (expand-file-name
-                                (substitute-in-file-name file)))))
-      (call-interactively 'find-file)))
-
-  (defun +magit-there (file)
-    "Run magit in directory of FILE."
-    (interactive "Directory: ")
-    (let ((default-directory (file-name-directory
-                              (expand-file-name
-                               (substitute-in-file-name file)))))
-      (windmove-display-same-window)
-      (magit-status default-directory)))
-
-  (use-package embark-consult
-    :straight (embark-consult :type git :host github :repo "oantolin/embark"))
-
-  (use-package embark
-    :straight (embark :type git :host github :repo "oantolin/embark")
-    :after embark-consult
-    :config
-    (define-key embark-file-map " " 'project-find-file-at)
-
-    (defun embark-act-noquit ()
-      "Run action but don't quit the minibuffer afterwards."
-      (interactive)
-      (let ((embark-quit-after-action nil))
-        (embark-act)))
-
-    (evil-define-key '(insert normal) minibuffer-local-map
-      (kbd "C-SPC") 'embark-act
-      (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
-      (kbd "C-S-SPC") 'embark-act-noquit
-      (kbd "C-<return>") 'embark-export)
-
-    ;; Show Embark actions via which-key
-    (setq embark-action-indicator
-          (lambda (map)
-            (which-key--show-keymap "Embark" map nil nil 'no-paging)
-            #'which-key--hide-popup-ignore-command)
-          embark-become-indicator embark-action-indicator)
-
-    (add-to-list 'embark-around-action-hooks '(+eshell embark--cd))
-    (add-to-list 'embark-around-action-hooks '(+eshell-other-window embark--cd))
-
-    (define-key embark-file-map "." '+find-file-at)
-    (define-key embark-file-map "g" '+magit-there)
-    (define-key embark-file-map "G" 'consult-ripgrep)
-    (define-key embark-file-map "e" '+eshell)
-    (define-key embark-file-map "E" '+eshell-other-window)
-
-    (define-key embark-bookmark-map "e" '+eshell)
-    (define-key embark-bookmark-map "E" '+eshell-other-window)
-
-    (defvar-keymap embark-repls-actions-map
-      :doc "Keymap for actions for repls"
-      :parent embark-general-map
-      "o" #'open-repl-other-window)
-
-    (add-to-list 'embark-keymap-alist '(consult-repl . embark-repls-actions-map)))
+    ;; do not preview buffers in consult-buffer
+    (consult-customize consult-buffer :preview-key nil))
 #+end_src
 
-** Minibuffer
-#+BEGIN_SRC emacs-lisp
-  (setq minibuffer-insert-commands '(consult-line
-                                     consult-grep
-                                     consult-ripgrep
-                                     consult-lsp-symbols
-                                     consult-eglot-symbols
-                                     async-shell-command
-                                     project-async-shell-command))
-
-  (defun minibuffer-insert-selection ()
-    (when-let* ((_ (member this-command minibuffer-insert-commands))
-                (minibuffer-buffer (current-buffer))
-                (buffers (buffer-list))
-                (last-used-buffer (cadr buffers)))
-      (with-current-buffer last-used-buffer
-        (when (use-region-p)
-          (let ((selection (buffer-substring-no-properties (region-beginning) (region-end))))
-            (setq mark-active nil)
-            (with-current-buffer minibuffer-buffer
-              (insert selection)))))))
-
-  (add-hook 'minibuffer-setup-hook 'minibuffer-insert-selection)
-
-  (defun minibuffer-insert-symbol ()
-    (interactive)
-    (let* ((last-buffer (cadr (buffer-list)))
-           (string (with-current-buffer last-buffer
-                     (thing-at-point 'symbol))))
-      (if (stringp string)
-          (insert string)
-        (message "No symbol at point"))))
-
-  (evil-define-key '(normal insert) minibuffer-mode-map
-    (kbd "C-.") #'minibuffer-insert-symbol)
-#+end_src
-
-** Directory
+** Marginalia - Minibuffer annotations
 #+begin_src emacs-lisp
-  (use-package emacs
-    :after consult
+  (use-package marginalia
+    :straight t
+    :custom
+    (marginalia-mode +1))
+#+end_src
+
+** Corfu - Completion in region function
+#+begin_src emacs-lisp
+  (use-package corfu
+    :straight t
+    :general
+    (corfu-map ;; Noop
+     "RET" nil)
+    (corfu-map
+     :states 'insert
+     (kbd "C-n") 'corfu-next
+     (kbd "C-p") 'corfu-previous)
+    :hook
+    (evil-insert-state-exit . corfu-quit)
+    (eshell-mode
+     . (lambda ()
+         (setq-local corfu-auto nil)
+         (corfu-mode)))
+    :custom
+    (corfu-cycle t)
+    (corfu-auto t)
+    (corfu-preselect 'first)
+    (corfu-quit-no-match t)
+    (corfu-auto-prefix 2)
+    (corfu-on-exact-match 'quit)
+    ;; Orderless completion
+    (corfu-separator ?s)
+    (corfu-quit-at-boundary nil)
+    ;; In eshell use tab to open corfu
+    (corfu-excluded-modes '(eshell-mode))
+    ;; Stay out of minibuffer
+    (global-corfu-minibuffer nil)
+    (global-corfu-mode 1)
     :config
+    ;; C-n C-p needs some hacking to override evil binding
+    (evil-make-overriding-map corfu-map)
+    (advice-add 'corfu--setup :after
+                (lambda (&rest _) (evil-normalize-keymaps)))
+    (advice-add 'corfu--teardown :after
+                (lambda (&rest _) (evil-normalize-keymaps))))
+
+  (use-package corfu-popupinfo ;; packaged with corfu
+    :custom
+    (corfu-popupinfo-delay '(0.5 . 0.0))
+    (corfu-popupinfo-mode 1))
+
+  (use-package corfu-history ;; packaged with corfu
+    :custom
+    (corfu-history-mode 1))
+
+  (use-package corfu-terminal
+    :if (not (display-graphic-p))
+    :straight t
+    :custom
+    (corfu-terminal-mode +1))
+#+end_src
+
+** Cape - Completion at point functions
+#+begin_src emacs-lisp
+  (use-package cape
+    :straight t
+    :hook
+    (lsp-mode
+     . (lambda ()
+         (setq-local completion-at-point-functions
+                     (list 'tempel-complete
+                           (cape-capf-super #'lsp-completion-at-point)
+                           'cape-file))))
+    (eglot-managed-mode
+     . (lambda ()
+         (setq-local completion-at-point-functions
+                     (list 'tempel-complete
+                           'cape-file
+                           (cape-capf-super 'eglot-completion-at-point)))))
+    :config
+    ;; Default completion at point additions
+    (add-to-list 'completion-at-point-functions #'cape-history)
+    (add-to-list 'completion-at-point-functions #'cape-file))
+#+end_src
+
+* Default directory
+** Projects - Project
+#+begin_src emacs-lisp
+  (use-package project
+    :after consult ;; ripgrep
+    :general
+    (leader-map
+      "SPC" 'project-find-file
+      "p" '(:which-key "project")
+      "pp" 'project-switch-project
+      "pc" 'project-compile
+      "pC" 'project-recompile
+      "p!" 'project-async-shell-command
+      "pd" 'project-dired
+      "pe" 'project-eshell
+      "pg" 'consult-ripgrep)
+    :custom
+    (project-vc-extra-root-markers '(".projectile" ".project"))
+    (project-switch-commands 'project-find-file)
+    :config
+    ;; Remove current visited file from list
+    (cl-defun project-advice-read-file-filter
+        ((prompt all-files . rest))
+      `(,prompt
+        ,(remove
+          (when-let ((file-name (buffer-file-name)))
+            (file-relative-name file-name
+                                (project-root (project-current))))
+          all-files)
+        . ,rest))
+    (advice-add 'project--read-file-cpd-relative :filter-args
+                #'project-advice-read-file-filter)
+
+    ;; Ensure that embark works (embark--cd)
+    (defun project-switch-project-advice (project-switch-project dir)
+      (minibuffer-with-setup-hook
+          (lambda () (setq default-directory dir))
+        (funcall project-switch-project dir)))
+    (advice-add 'project-switch-project :around
+                #'project-switch-project-advice))
+#+end_src
+
+** Change directory - Consult dir
+#+begin_src emacs-lisp
+  (use-package consult-dir
+    :general
+    ;; Insert directory into minibuffer
+    (minibuffer-mode-map
+     :states '(normal insert)
+     (kbd "C-f") #'consult-insert-directory)
+    ;; Dispatch on directory
+    (leader-map "f" #'consult-dir)
+    :preface
     (defun consult-read-directory (prompt)
       "Read consult directory."
       (let ((sources
@@ -1295,7 +856,7 @@
                             :category 'file))
           :prompt prompt))))
 
-    (defun consult-directory-dispatch (directory)
+    (defun consult-dir (directory)
       "Dispatch on DIRECTORY."
       (interactive
        (list (consult-read-directory "Dispatch on directory: ")))
@@ -1312,59 +873,223 @@
        (list
         (let ((enable-recursive-minibuffers t))
           (consult-read-directory "Insert directory: "))))
-      (insert (expand-file-name directory)))
+      (insert (expand-file-name directory))))
 
-    (evil-define-key '(normal insert) minibuffer-mode-map
-      (kbd "C-f") #'consult-insert-directory)
-
-    (leader-key "f" #'consult-directory-dispatch))
 #+end_src
 
-* Editing
-** Linewrap
+* Window and frames
+** Window
 #+begin_src emacs-lisp
-  (use-package simple
-    :hook ((prog-mode . auto-fill-mode)
-           (prog-mode . (lambda ()
-                          (setq-local comment-auto-fill-only-comments t)))
-           (text-mode . auto-fill-mode)
-           (mail-mode . auto-fill-mode)
-           (message-mode . auto-fill-mode)))
+  (use-package window
+    :custom
+    ;; Use more space for right and left *side* windows
+    (window-sides-vertical t)
+    ;; Make dedicated windows strongly dedicated
+    (toggle-window-dedicated-flag t)
+    ;; Display buffer rules
+    (display-buffer-alist
+     `(;; Pop-ups pop from below
+       ((or ;; Shells and REPLs
+         "\\*.*eshell.*\\*" ;; need this silly thing to match `project-eshell'
+         (derived-mode . shell-command-mode)
+         (derived-mode . inferior-emacs-lisp-mode)
+         (derived-mode . inferior-python-mode)
+         ;; Special
+         "\\(\\*Capture\\*\\|CAPTURE-.*\\)"
+         (derived-mode . backtrace-mode)
+         (derived-mode . messages-buffer-mode)
+         ;; Result type buffers
+         "\\*Embark Export: .*\\*"
+         (derived-mode . embark-collect-mode)
+         (derived-mode . occur-mode)
+         (derived-mode . ibuffer-mode)
+         (derived-mode . grep-mode)
+         (derived-mode . xref--xref-buffer-mode)
+         (derived-mode . flymake-project-diagnostics-mode)
+         (derived-mode . flymake-diagnostics-buffer-mode))
+        (display-buffer-reuse-window display-buffer-below-selected)
+        (window-height . 0.3)
+        (dedicated . t))
+       ;; Help pop from the right
+       ((or (derived-mode . help-mode)
+            (derived-mode . Man-mode)
+            (derived-mode . devdocs-mode)
+            (derived-mode . shortdoc-mode)
+            "\\*eldoc.*\\*")
+        (display-buffer-in-direction)
+        (direction . rightmost)
+        (window-width . 75)
+        (dedicated . t)
+        (body-function . (lambda (window) (select-window window))))
+       ;; Compile
+       ((or (major-mode . compilation-mode))
+        (display-buffer-reuse-mode-window display-buffer-in-side-window)
+        (side . right)
+        (dedicated . t)
+        (window-width . 80))
+       ;; Org capture
+       ("\\*Org \\(Select\\|Note\\)\\*"
+        (display-buffer-in-side-window)
+        (dedicated . t)
+        (side . bottom)
+        (slot . 0)
+        (window-parameters . ((mode-line-format . none))))
+       ;; Magit
+       ((or (derived-mode . magit-diff-mode)
+            (derived-mode . magit-process-mode))
+        (display-buffer-pop-up-window))
+       ((derived-mode . magit-status-mode)
+        (display-buffer-same-window)))))
 #+end_src
 
-** Snippets - Tempel
+** Frame
 #+begin_src emacs-lisp
-  (use-package tempel
-    :straight (tempel :type git :host github :repo "minad/tempel")
-    :hook (evil-insert-state-exit . tempel-done)
-    :config
-    (defun tempel-setup-capf ()
-      (setq-local completion-at-point-functions
-                  (cons #'tempel-complete
-                        completion-at-point-functions)))
+  (use-package frame
+    :general
+    (leader-map
+      "w" '(:ignore t :which-key "windows and frames")
+      "wt" 'toggle-frame-maximized
+      "wm" 'toggle-frame-fullscreen)
+    :custom
+    (frame-resize-pixelwise t))
+#+end_src
 
-    (setq tempel-trigger-prefix "!")
+** Evil lazy window
+#+begin_src emacs-lisp
+  (use-package evil-lazy-bindings
+    :general
+    (general-def general-override-mode-map
+      :states '(normal insert)
+      "C-j" 'evil-window-down
+      "C-k" 'evil-window-up
+      "C-h" 'evil-window-left
+      "C-l" 'evil-window-right))
+#+end_src
 
-    (defun tempel-or-corfu-complete-next ()
+** Ace Window - Select window
+#+begin_src emacs-lisp
+  (use-package ace-window
+    :straight t
+    :general
+    (leader-map "jw" 'ace-window)
+    :custom
+    (aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+#+end_src
+
+** Dedicated windows
+#+begin_src emacs-lisp
+  (use-package dedicated-window
+    :general
+    (leader-map
+      "wd" 'toggle-window-dedicated
+      "wq" 'kill-dedicated-windows)
+    :preface
+    (defun toggle-window-dedicated ()
+      "Toggle window dedicated."
       (interactive)
-      (if completion-in-region-mode
-          (call-interactively 'corfu-complete)
-       (call-interactively 'tempel-next)))
+      (set-window-dedicated-p (selected-window)
+                              (not (window-dedicated-p)))
+      (force-mode-line-update t))
 
-    (define-key tempel-map (kbd "TAB") 'tempel-or-corfu-complete-next)
-    (define-key tempel-map (kbd "<tab>") 'tempel-or-corfu-complete-next)
-    (define-key tempel-map (kbd "<backtab>") 'tempel-previous)
-    (define-key tempel-map (kbd "S-TAB") 'tempel-previous)
-
-    (add-hook 'eshell-mode-hook 'tempel-setup-capf)
-    (add-hook 'prog-mode-hook 'tempel-setup-capf)
-    (add-hook 'text-mode-hook 'tempel-setup-capf))
-
-  (use-package tempel-collection :straight t)
+    (defun kill-dedicated-windows ()
+      "Kill all dedicated windows."
+      (interactive)
+      (cl-loop
+       for window in (window-list)
+       when (window-dedicated-p window) do
+       (quit-window nil window))))
 #+end_src
 
-* Terminal
-** Get $PATH from bash/zsh profiles
+* Buffer and navigation
+** Recentf - Save buffer history
+#+begin_src emacs-lisp
+  (use-package recentf
+    :custom
+    (recentf-mode +1))
+#+end_src
+
+** Better Jumper - Move forwards/backwards in point history
+#+begin_src emacs-lisp
+  (use-package better-jumper
+    :straight t
+    :general
+    ;; Old HACK to bind C-i globally without messing up \t, <tab>
+    ;; bindings there has to be something better?
+    (input-decode-map "C-i" "H-i")
+    (:states 'motion
+             "C-o" 'better-jumper-jump-backward
+             "H-i" 'better-jumper-jump-forward)
+    :custom
+    (better-jumper-mode +1))
+#+end_src
+
+** Avy - In buffer navigation
+#+begin_src emacs-lisp
+  (use-package avy
+    :straight t
+    :general
+    (leader-map
+      "jj" #'evil-avy-goto-char-timer
+      "jl" #'evil-avy-goto-line-keep-column)
+    :custom
+    (avy-timeout-seconds 0.3)
+    (avy-style 'de-bruijn)
+    (avy-line-insert-style 'below)
+    (avy-dispatch-alist '((?x . avy-action-kill-move)
+                          (?X . avy-action-kill-stay)
+                          (?v . avy-action-visual)
+                          (?w . avy-action-copy)
+                          (?p . avy-action-paste)
+                          (?P . avy-action-paste-line)
+                          (?z . avy-action-ispell)))
+    :preface
+    (defun avy-goto-line-keep-column (&optional arg)
+      "Jump to a line at the current column."
+      (interactive "p")
+      (let ((window (selected-window))
+            (column (current-column)))
+        (avy-goto-line arg)
+        (when (equal window (selected-window))
+          (move-to-column column))))
+
+    (defun avy-action-visual (pt)
+      (let (beg end)
+        (goto-char pt)
+        (setq beg (point))
+        (avy-forward-item)
+        (backward-char)
+        (setq end (point))
+        (evil-visual-select beg end)))
+
+    (defun avy-action-paste-line (pt)
+      (avy-action-yank-line pt))
+
+    (defun avy-action-paste (pt)
+      (avy-action-yank pt))
+    :config
+    (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
+    (advice-add 'avy-read-de-bruijn :before (lambda (&rest _) (avy-show-dispatch-help)))
+    ;; Recognize goto line as an evil motion
+    (evil-define-avy-motion avy-goto-line-keep-column line))
+#+end_src
+
+** Find-file - Find other (file)buffer
+#+begin_src emacs-lisp
+  (use-package find-file
+    :general
+    (leader-map
+      "jq" 'ff-find-other-file
+      "jQ" 'ff-find-other-file-other-window)
+    :preface
+    (defun ff-find-other-file-other-window ()
+      "Find the header or source file."
+      (interactive)
+      (ff-find-other-file 'other-window)
+      (xref-pulse-momentarily)))
+#+end_src
+
+* Shell and Commands
+** Exec path from shell - Infer PATH
 #+begin_src emacs-lisp
   (use-package exec-path-from-shell
     :straight t
@@ -1372,401 +1097,826 @@
     (exec-path-from-shell-initialize))
 #+end_src
 
-** Completion
+** Eshell - The preferred non standard shell
 #+begin_src emacs-lisp
-  (use-package bash-completion
-    :disabled
-    :straight t
-    :init
-    (autoload 'bash-completion-dynamic-complete
-            "bash-completion"
-            "BASH completion hook")
-    (add-hook 'shell-dynamic-complete-functions
-              #'bash-completion-dynamic-complete))
+  (use-package eshell
+    :preface
+    (defun evil-append-last-line ()
+      "Set point to max and enter `evil-insert'."
+      (interactive)
+      (goto-char (point-max))
+      (evil-append 1))
+
+    (defun eshell-buffer-name ()
+      (format "*eshell %s*" (abbreviate-file-name default-directory)))
+
+    ;; Eshells prefix arg interface has never stuck.
+    ;; `default-directory' instead and use `prefix-argument' / dwim
+    ;; (current buffer `eshell-mode') to create a new buffer.
+    (defun eshell-advice (eshell &rest args)
+      "Create an Eshell buffer here."
+      (interactive)
+      (eshell-load-modules eshell-modules-list)
+      (if (not (called-interactively-p 'any))
+          (apply eshell args)
+        (let* ((eshell-buffer-name (eshell-buffer-name))
+               (buffer
+                (funcall eshell (or current-prefix-arg
+                                    (derived-mode-p 'eshell-mode)))))
+          (with-current-buffer buffer
+            (add-hook 'eshell-directory-change-hook
+                      (lambda () (rename-buffer (eshell-buffer-name) t))
+                      nil t))
+          buffer)))
+    (defun eshell-goto-eob-advice (&rest _)
+      (goto-char (max-char))
+      (evil-insert-state))
+    :general
+    (leader-map "e" 'eshell)
+    (eshell-mode-map
+     :states 'normal
+     "q" 'bury-buffer
+     (kbd "<return>") 'evil-append-last-line)
+    :custom
+    (eshell-hist-ignoredups t)
+    (eshell-save-history-on-exit t)
+    :config
+    ;; Setup eshell `defualt-directory' naming stuff
+    (advice-add 'eshell :around #'eshell-advice)
+    ;; Ensure that we are in insert mode
+    (advice-add 'project-eshell :after #'eshell-goto-eob-advice)
+    (advice-add 'eshell :after #'eshell-goto-eob-advice)
+    ;; Cat works with eshell other pagers does not
+    (setenv "PAGER" "cat"))
 #+end_src
 
-** Eshell
+Faces in =eshell= feels helpful.
 #+begin_src emacs-lisp
-  (defun +eshell-name ()
-    (let* ((path-part (if (and (bound-and-true-p eshell-project-type-p)
-                               (project-project-root))
-                          (format "<%s>"
-                                  (-> (project-project-root)
-                                      file-name-directory
-                                      directory-file-name
-                                      file-name-nondirectory))
-                        (setq-local eshell-project-type-p nil)
-                        (abbreviate-file-name default-directory))))
-           (format "*eshell %s*" path-part)))
-
-  (defun +eshell-rename ()
-    (interactive)
-    (when (bound-and-true-p eshell-mode)
-      (rename-buffer (generate-new-buffer-name (+eshell-name)
-                                               (buffer-name)))))
-  (defun +eshell-dwim ()
-    (let* ((name (+eshell-name))
-           (buffer (cond
-                    ;; If called from eshell buffer generate new buffer
-                    ((bound-and-true-p eshell-mode) (generate-new-buffer name))
-                    ;; If eshell buffer exist grab that
-                    ((get-buffer name) (get-buffer name))
-                    ;; Otherwise generate new buffer
-                    (t (generate-new-buffer name)))))
-      (with-current-buffer buffer
-        (unless (bound-and-true-p eshell-mode)
-          (eshell-mode))
-      buffer)))
-
-  (defun +eshell (&optional _)
-    "Create an eshell buffer."
-    (interactive)
-    (switch-to-buffer (+eshell-dwim))
-    (+eshell/goto-end-of-prompt))
-
-  (defun +eshell-project-dwim ()
-    (let* ((default-directory (project-project-root t))
-           (eshell-project-type-p t)
-           (buffer (+eshell-dwim)))
-      (with-current-buffer buffer
-        (setq-local eshell-project-type-p t)
-      buffer)))
-
-  (defun +eshell-other-window (&optional _)
-    "Pop to an eshell buffer."
-    (interactive)
-    (switch-to-buffer-other-window (+eshell-dwim))
-    (+eshell/goto-end-of-prompt))
-
-  (defun +eshell-project ()
-    "Open +eshell in project."
-    (interactive)
-    (switch-to-buffer (+eshell-project-dwim))
-    (+eshell/goto-end-of-prompt))
-
-  (defun +eshell-project-other-window ()
-    "Open +eshell in project in other window."
-    (interactive)
-    (switch-to-buffer-other-window (+eshell-project-dwim))
-    (+eshell/goto-end-of-prompt))
-
-  (defun +eshell/goto-end-of-prompt ()
-    "Move cursor to the prompt when switching to insert mode."
-    (interactive)
-    (goto-char (point-max))
-    (evil-append 1))
-
-  (defun +eshell/consult-esh-history-normal ()
-    "Move cursor to the end of buffer and invoke `counsel-esh-history'."
-    (interactive)
-    (goto-char (point-max))
-    (eshell-bol)
-    (unwind-protect
-        (kill-line)
-      (progn
-        (evil-append-line 0)
-        (consult-history))))
-
-  (defun +eshell-previous-prompt-hack ()
-    "With prompt as field eshell-previous-prompt sets cursor at the beggining of the line and not at prompt begin"
-    (interactive)
-    (call-interactively 'eshell-previous-prompt)
-    (when (= (current-column) 0)
-      (call-interactively 'eshell-next-prompt)))
-
-  (defun eshell-mode-configuration ()
-    (push 'eshell-tramp eshell-modules-list)
-
-    ;; Save command history when commands are entered
-    (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
-
-    ;; Truncate buffer for performance
-    (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
-
-    (eshell-hist-initialize)
-
-    (evil-define-key 'normal eshell-mode-map
-      "q" 'kill-current-buffer
-      "I" (lambda () (interactive) (eshell-bol) (evil-insert 1))
-      (kbd "S") (lambda () (interactive) (eshell-bol) (kill-line) (evil-append 1))
-      (kbd "C-p") '+eshell-previous-prompt-hack
-      (kbd "C-n") 'eshell-next-prompt
-      (kbd "C-r") '+eshell/consult-esh-history-normal
-      (kbd "<return>") '+eshell/goto-end-of-prompt)
-
-    (evil-define-key 'insert eshell-mode-map
-      (kbd "C-r") '+consult-kill-line-insert-history)
-
-    (evil-define-key 'visual 'local
-      (kbd "<return>") (lambda () (interactive) (progn (eshell-send-input t) (evil-normal-state)))))
-
-  (defun +eshell-make-field ()
-    "Make text in front of the point a field, useful for prompts."
-    (let ((inhibit-read-only t))
-      (add-text-properties
-       (line-beginning-position) (point)
-       (list 'field t
-             'rear-nonsticky t))))
-
-  (defun +eshell-global-history-init ()
-    "Share the eshell history ring between the eshell buffers.
-  Addice add this :after `eshell-hist-initialize`"
-    (or (boundp 'eshell-global-history-ring)
-        (setq eshell-global-history-ring (ring-copy eshell-history-ring)))
-    (setq eshell-history-ring eshell-global-history-ring))
-
-  (use-package eshell
-    :hook ((eshell-first-time-mode . eshell-mode-configuration)
-           (eshell-directory-change . +eshell-rename)
-           (eshell-after-prompt . +eshell-make-field)
-           (eshell-mode . (lambda ()
-                            ;; imenu support for eshell
-                            (setq-local imenu-generic-expression '(("$ " " $ \\(.*\\)" 1))))))
-    :init
-    (setq eshell-hist-ignoredups t
-          eshell-save-history-on-exit t
-          eshell-destroy-buffer-when-process-dies t)
-
-    (setenv "PAGER" "cat")
-
-    ;; TODO remove the follwing if not needed
-    ;;(advice-add '+emacs/split-follow-window-horizontally :after #'eshell-after-split)
-    ;;(advice-add '+emacs/split-follow-window-vertically :after #'eshell-after-split)
-    (advice-add 'eshell-hist-initialize :after #'+eshell-global-history-init)
-
-    (leader-key "e" '+eshell)
-    (leader-key "E" '+eshell-other-window)
-    (leader-key "pe" '+eshell-project)
-    (leader-key "pE" '+eshell-project-other-window))
-
   (use-package eshell-syntax-highlighting
-    :straight t ;; Install if not already installed.
+    :straight t
     :config
-    ;; Enable in all Eshell buffers.
     (eshell-syntax-highlighting-global-mode +1))
 #+end_src
 
-** Eshell functions
+** Compile - Run thing
 #+begin_src emacs-lisp
-  (defun eshell/! (&rest args)
-    (let ((cmd (mapconcat 'identity args " ")))
-      (async-shell-command cmd)))
-
-  (defun eshell/ff (&rest args)
-    (apply #'find-file args))
-
-  (defun eshell/awswhoami (&rest args)
-    (let ((profile (getenv "AWS_PROFILE")))
-      (message (if (null profile) "default" profile))))
-
-  (defun slurp (f)
-    (with-temp-buffer
-      (insert-file-contents f)
-      (buffer-substring-no-properties
-       (point-min)
-       (point-max))))
-
-  (defun eshell/awsprofile (&rest args)
-    (require 'seq)
-    (let* ((matches (seq-filter (apply-partially 'string-match "\^\[*.\]\$")
-                                (split-string (slurp "~/.aws/credentials"))))
-           (trim (seq-map (lambda (x) (string-trim x "\\[" "\\]")) matches))
-           (choice (ivy-read "AWS Profile: " trim)))
-      (setenv "AWS_PROFILE" choice)))
+  (use-package compile
+    :custom
+    ;; Use last history as the compile command
+    (compile-command (or (car-safe compile-history) ""))
+    ;; Always scroll
+    (compilation-scroll-output t)
+    ;; Just save me the keystrokes
+    (compilation-ask-about-save nil)
+    :config
+    ;; Not compile specific, but strip ^M in comint buffers
+    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
 #+end_src
 
-** Process history
-#+begin_src emacs-lisp
-  (use-package process-history
-    ;; :straight (:type git :host github :repo "svaante/process-history")
-    :straight (:local-repo "~/Workspace/process-history/"
-                           :files ("process-history.el"
-                                   "extensions/process-history-embark.el"
-                                   "extensions/process-history-consult.el"))
-    :config
-    ;; Make sure that `shell-mode' `revert-buffer' buffer works
-    (add-to-list 'process-history-buffer-match
-                 "\*Async Shell Command.*\*")
-
-    (process-history-mode)
-
-    (require 'process-history-embark)
-    (require 'process-history-consult)
-    (setopt process-history-completing-read-fn 'process-history-consult-completing-read)
-
-    (evil-make-overriding-map process-history-list-mode-map)
-
-    (leader-key
-      "ap" 'process-history-find-dwim))
-
-  (use-package proced
-    :straight (:type built-in)
-    :config
-    (setq proced-enable-color-flag t)
-
-    (defun eshell/top (&rest args)
-      (proced))
-
-    (leader-key "aP" #'proced))
-#+end_src
-
-** Shell-mode
+** Async Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
-    :straight (:type built-in)
+    :general
+    (leader-map "!" 'async-shell-command)
+    (shell-command-mode-map
+     :states 'normal
+     "q" 'kill-current-buffer
+     "gr" 'revert-buffer ;; reruns buffer
+     "p" 'term-paste)
+    :custom
+    (async-shell-command-buffer 'rename-buffer)
+    (shell-command-prompt-show-cwd t)
     :config
     ;; Bolt on char based input on evil insert mode,
     ;; `comint-send-input' breaks to often.
     (require 'term)
-    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map))
-
+    (evil-set-auxiliary-keymap shell-command-mode-map
+                               'insert (map-copy term-raw-map))
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
-    (evil-define-key 'normal shell-command-mode-map
-      "q" 'kill-current-buffer
-      "gr" 'revert-buffer ;; reruns buffer
-      "p" 'term-paste)
 
     ;; Show exit code in mode line
+    (defun shell-command-sentinel-show-exit-code (process status)
+      (when-let* ((buffer (process-buffer process))
+                  ((buffer-live-p buffer)))
+        (let ((dead-p (memq (process-status process) '(exit signal)))
+              (status (process-exit-status process)))
+          (with-current-buffer buffer
+            (setq mode-line-process
+                  (propertize
+                   (concat
+                    ":"
+                    (format "%s" (process-status process))
+                    (when dead-p
+                      (format " [%s]" status)))
+                   'face (if (zerop status) 'success 'warning)))
+            (force-mode-line-update t)))))
     (advice-add 'shell-command-sentinel :after
-                (defun shell-command-sentinel-show-exit-code (process status)
-                  (when-let* ((buffer (process-buffer process))
-                              ((buffer-live-p buffer)))
-                    (let ((dead (memq (process-status process) '(exit signal))))
-                      (with-current-buffer buffer
-                        (setq mode-line-process
-                              (concat ":"
-                                      (propertize
-                                       (concat
-                                        (format "%s" (process-status process))
-                                        (when dead
-                                          (format " %s"
-                                                  (process-exit-status process))))
-                                       'face 'warning)))
-                        (force-mode-line-update t))))))
+                #'shell-command-sentinel-show-exit-code))
+#+end_src
 
-    ;; & is terrible hard to reach
-    (define-key embark-file-map "!" 'async-shell-command)
-
-    (setq async-shell-command-buffer 'new-buffer
-          shell-command-prompt-show-cwd t)
-
-    (leader-key
-      "!" 'async-shell-command))
-#+END_SRC
-
-* Misc
-** Open related files
+** Process history - Run things again
 #+begin_src emacs-lisp
-  (use-package find-file
-    :straight (:type built-in)
+  (use-package process-history
+    :straight (process-history :type git :host github
+                               :repo "svaante/process-history")
+    :general
+    (leader-map
+      "r" 'process-history-rerun)
     :config
+    (use-package process-history-embark
+      :straight nil)
+    (use-package process-history-consult
+      :straight nil
+      :custom
+      (process-history-completing-read-fn
+       'process-history-consult-completing-read))
 
-    (defun ff-find-other-file-other-window ()
+    (evil-make-overriding-map process-history-list-mode-map)
+    ;; Make sure that `shell-mode' `revert-buffer' buffer works
+    (add-to-list 'process-history-buffer-match
+                 "\*Async Shell Command.*\*")
+    (process-history-mode))
+#+end_src
+
+* Org
+** General
+#+begin_src emacs-lisp
+  (use-package org
+    :hook
+    (org-mode . org-indent-mode)
+    (org-mode . visual-line-mode)
+    ;; Looks
+    (org-mode
+     . (lambda ()
+         (set-face-attribute 'org-level-1 nil :height 1.4)
+         (set-face-attribute 'org-level-2 nil :height 1.2)
+         (set-face-attribute 'org-level-3 nil :height 1.1)
+         (set-face-attribute 'org-document-title nil :height 2.0)))
+    :general
+    (org-mode-map :states 'normal
+                  (kbd "<RET>") 'org-return)
+    (leader-map
+      "o" '(:which-key "org")
+      "os" 'org-store-link)
+    :custom
+    (org-imenu-depth 3)
+    (org-src-window-setup 'current-window)
+    (org-return-follows-link t)
+    (org-startup-with-inline-images t))
+#+end_src
+
+** Org Agenda
+#+begin_src emacs-lisp
+  (use-package org-agenda
+    :general
+    (leader-map
+      "oa" 'org-agenda-custom
+      "ot" 'org-todo-list
+      "ow" 'org-agenda-list)
+    (org-agenda-mode-map
+     :states 'normal
+     (kbd "<RET>") 'org-agenda-goto
+     "q" 'org-agenda-quit
+     "t" 'org-agenda-todo
+     "j" 'org-agenda-next-line
+     "k" 'org-agenda-previous-line
+     "n" 'org-agenda-later
+     "p" 'org-agenda-earlier)
+    :preface
+    (defun org-agenda-custom ()
+      "Org agenda custom view."
       (interactive)
-      (ff-find-other-file 'other-window)
-      (xref-pulse-momentarily))
-
-    (leader-key
-      "q" #'ff-find-other-file
-      "Q" #'ff-find-other-file-other-window))
-#+end_src
-
-** wgrep
-Change stuff in the grep buffer
-#+begin_src emacs-lisp
-  (use-package wgrep :straight t)
-#+end_src
-
-** ediff
-#+begin_src emacs-lisp
-  (use-package ediff
-    :straight (:type built-in)
+      (org-agenda nil "A"))
+    :custom
+    ;; Don't make any assumption on how I want my windows
+    (org-agenda-window-setup 'other-window)
+    (org-agenda-breadcrumbs-separator " ")
+    (org-agenda-prefix-format
+     '((agenda .  "  %?-40 b")
+       (todo .    "  %?-40 b")
+       (tags .    "  %?-40 b")
+       (search .  "  %?-40 b")))
+    (org-todo-keywords
+     '((sequence "TODO" "DONE")))
+    ;; Replace the original agenda
+    (org-agenda-custom-commands
+     '(("A" "Agenda"
+        ((agenda)
+         (tags "+LEVEL=1-SCHEDULED={.+}-DEADLINE={.+}/TODO"
+               ((org-agenda-overriding-header "Todos:")))
+         (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
+               ((org-agenda-overriding-header "Projects:")))))))
+    (org-agenda-files '("~/org/notes.org"
+                        "~/org/pad.org"
+                        "~/org/todo.org"))
     :config
-    (setq ediff-window-setup-function 'ediff-setup-windows-plain))
+    (evil-set-initial-state 'org-agenda-mode 'normal))
+
 #+end_src
 
-** Writing
+** Org Capture
 #+begin_src emacs-lisp
-  (use-package jinx
-    ;; Using jinx to get the misspelling overlays, still using ispell to correct word.
+  (use-package org-capture
+    :general
+    (leader-map "oc" 'org-capture)
+    :hook
+    (org-capture-mode . evil-insert-state)
+    :custom
+    (org-refile-use-outline-path 'file)
+    (org-refile-targets '((org-agenda-files :maxlevel . 3)))
+    (org-outline-path-complete-in-steps nil)
+    (org-capture-templates
+     '(("t" "Todo" entry
+        (file "~/org/todo.org")
+        "* TODO %?\n%a")
+       ("n" "Note" entry
+        (file "~/org/notes.org")
+        "* %?\n")
+       ("p" "Pad" plain
+        (file+olp+datetree "~/org/pad.org")
+        "\n%?\n" :unnarrowed t))))
+#+end_src
+
+** Evil Org - Org keybinds
+#+begin_src emacs-lisp
+  (use-package evil-org
+    :straight t
+    :hook (org-mode . evil-org-mode)
+    :custom
+    (evil-org-key-theme
+     '(textobjects insert return return
+                   additional shift todo))
+    :config
+    ;; Seams off but `evil-org-set-key-theme' needs to be called if
+    ;; themes change
+    (evil-org-set-key-theme))
+#+end_src
+
+** Org Mono - Search and index Org headlines
+#+begin_src emacs-lisp
+  (use-package org-mono
+    :straight (org-mono :type git :host github
+                        :repo "svaante/org-mono")
+    :general
+    (leader-map "oo" 'org-mono-goto)
+    :custom
+    (org-mono-files (append org-agenda-files
+                            '("~/.emacs.d/config.org")))
+    (org-mono-advice-org-refile t)
+    (global-org-mono-mode +1)
+    :config
+    (defvar-keymap embark-org-mono-actions-map
+      :doc "Keymap for actions for org-mono."
+      :parent embark-general-map
+      "o" #'org-mono-goto-other-window
+      "t" #'org-mono-todo
+      "r" #'org-mono-rename
+      "w" #'org-mono-refile-from
+      "a" #'org-mono-archive
+      "k" #'org-mono-delete-headline
+      "c" #'org-mono-goto-headline-child
+      "d" #'org-mono-time-stamp
+      "b" #'org-mono-goto-backlinks)
+    (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map)))
+
+  (use-package org-mono-consult
+    :after org-mono
+    :custom
+    (org-mono-completing-read-fn 'org-mono-consult-completing-read))
+#+end_src
+
+* Programming
+** General
+*** Prog Mode - Basic keybinds
+General bindings
+#+begin_src emacs-lisp
+  (use-package prog-mode
+    :general
+    (prog-mode-map :states 'visual (kbd "C-;") 'comment-dwim))
+#+end_src
+
+*** Eglot - Completions and stuff
+#+begin_src emacs-lisp
+  (use-package jsonrpc :straight t)
+
+  (use-package lsp-snippet-tempel
+    :straight (lsp-snippet-tempel :type git
+                                  :host github
+                                  :repo "svaante/lsp-snippet")
+    :config
+    (lsp-snippet-tempel-eglot-init))
+
+  (use-package eglot
+    :straight t
+    :hook
+    (c-mode . eglot-ensure)
+    (c++-mode . eglot-ensure)
+    (rust-mode . eglot-ensure)
+    (javascript-mode . eglot-ensure)
+    (go-mode . eglot-ensure)
+    (python-mode . eglot-ensure)
+    (csharp-mode . eglot-ensure)
+    :general
+    (leader-map
+      "la" 'eglot-code-actions
+      "lr" 'eglot-rename
+      "lf" 'eglot-format-buffer
+      "lq" 'eglot-code-action-quickfix
+      "la" 'eglot-code-actions)
+    :preface
+    (defun eglot-imenu-keep-parent (alist)
+      "Extract `eglot-imenu' keys as items from the imenu ALIST."
+      (mapcan
+       (pcase-lambda (`(,key . ,value))
+         (cond
+          ((listp value)
+           `((,key . ,(car (get-text-property 0 'breadcrumb-region key)))
+             (,key . ,(eglot-imenu-keep-parent value))))
+          (t `((,key . ,value)))))
+       alist))
+
+    (defun eglot-imenu-extract-base-kind (alist)
+      "Add kind as an parent to each item to PLIST."
+      (mapcar (pcase-lambda (`(,key . ,value))
+                (let ((kind (get-text-property 0 'breadcrumb-kind key)))
+                  (cond
+                   ((stringp kind)
+                    (cons (concat kind) `((,key . ,value))))
+                   (t `(,key . ,value)))))
+              alist))
+    :config
+    ;; Keep parent in imenu
+    (advice-add 'eglot-imenu :filter-return 'eglot-imenu-keep-parent)
+    ;; Add type as imenu
+    (advice-add 'eglot-imenu-keep-parent :filter-return 'eglot-imenu-extract-base-kind))
+
+  (use-package consult-eglot
+    :after eglot
+    :straight t
+    :general
+    (leader-map "ls" 'consult-eglot-symbols))
+#+end_src
+
+*** Xref - Goto code thing
+#+begin_src emacs-lisp
+  (use-package xref
+    :general
+    (prog-mode-map
+     :states 'normal
+     "gr" 'xref-find-references
+     "gD" 'xref-find-definitions-other-window)
+    :custom
+    ;; Do not prompt, just search
+    (xref-prompt-for-identifier
+     '(not xref-find-definitions
+           xref-find-definitions-other-window
+           xref-find-definitions-other-frame
+           xref-find-references)))
+#+end_src
+
+*** Flymake - Show errors
+#+begin_src emacs-lisp
+  (use-package flymake
+    :hook
+    (emacs-lisp-mode . flymake-mode))
+#+end_src
+
+*** Paren - Highlight parenthesis
+#+begin_src emacs-lisp
+  (use-package paren
+    :custom
+    (show-paren-style 'parenthesis)
+    (show-paren-when-point-in-periphery nil)
+    (show-paren-when-point-inside-paren nil)
+    (show-paren-delay 0)
+    (show-paren-mode +1))
+#+end_src
+
+*** Dape - Debug
+#+begin_src emacs-lisp
+  (use-package dape
+    :straight (dape :type git :host github
+                    :repo "svaante/dape")
+    :preface
+    (defun pulse-once ()
+      (let ((pulse-iterations 1))
+        (pulse-momentary-highlight-one-line)))
+    (defun save-all-buffers ()
+      (save-some-buffers t t))
+    :general
+    (dape-global-map
+     (kbd "H-i") #'dape-stack-select-down
+     (kbd "C-o") #'dape-stack-select-up)
+    (leader-map
+      "d" '(:keymap dape-global-map :which-key "dape"))
+    :hook
+    (kill-emacs . dape-breakpoint-save)
+    (after-init . dape-breakpoint-load)
+    (dape-display-source . pulse-once)
+    (dape-active-mode
+     . (lambda ()
+         (unless dape-active-mode
+           (dape-info nil 'kill))))
+    :custom
+    (dape-debug t)
+    (dape-buffer-window-arrangment 'right)
+    (dape-inlay-hints t)
+    ;; No trucation
+    (dape-info-variable-table-row-config
+     '((name . 0) (value . 0) (type . 0)))
+    (dape-breakpoint-global-mode +1)
+    :config
+    (evil-make-overriding-map dape-info-scope-mode-map)
+    (evil-make-overriding-map dape-info-watch-mode-map)
+
+    (add-hook 'dape-start-hook #'save-all-buffers)
+
+    ;; java ugh
+    (require 'eglot)
+    (let ((jar
+           (car
+            (file-expand-wildcards
+             (file-name-concat dape-adapter-dir
+                               "java-debug"
+                               "com.microsoft.java.debug.plugin"
+                               "target"
+                               "com.microsoft.java.debug.plugin-*.jar")
+             t))))
+      (add-to-list 'eglot-server-programs
+                   `((java-mode java-ts-mode) .
+                     ("jdtls"
+                      :initializationOptions
+                      (:bundles [,jar]))))))
+
+  (use-package dape-cortex-debug
+    :after dape
+    :straight (dape-cortex-debug :type git :host github
+                                 :repo "svaante/dape-cortex-debug")
+    :config
+    (require 'dape-cortex-debug))
+#+end_src
+
+*** Devdocs - Documentation
+#+begin_src emacs-lisp
+  (use-package devdocs
+    :general
+    (leader-map "k" 'devdocs-lookup)
+    :straight t)
+#+end_src
+
+** Elisp
+#+begin_src emacs-lisp
+  (use-package elisp-mode
+    :hook
+    (emacs-lisp-mode
+     . (lambda ()
+         (setq-local evil-lookup-func
+                     #'describe-elisp-thing-at-point)))
+    :general
+    (:keymaps
+     '(emacs-lisp-mode-map lisp-interaction-mode-map)
+     :states '(normal insert)
+     (kbd "C-c C-e") 'eval-defun
+     (kbd "C-c C-c") 'eval-buffer)
+    (:keymaps
+     '(emacs-lisp-mode-map lisp-interaction-mode-map)
+     :states 'visual
+     (kbd "C-c C-c") 'eval-region)
+    :preface
+    ;; Stolen from http://www.sugarshark.com/elisp/init/lisp.el.html
+    (defun describe-elisp-thing-at-point ()
+      "Show the documentation of the Elisp function and variable near point."
+      (interactive)
+      (let (sym)
+        (cond
+         ((setq sym
+                (ignore-errors
+                  (with-syntax-table emacs-lisp-mode-syntax-table
+                    (save-excursion
+                      (or (not (zerop (skip-syntax-backward "_w")))
+                          (eq (char-syntax (char-after (point))) ?w)
+                          (eq (char-syntax (char-after (point))) ?_)
+                          (forward-sexp -1))
+                      (skip-chars-forward "`'")
+                      (let ((obj (read (current-buffer))))
+                        (and (symbolp obj) (fboundp obj) obj))))))
+          (describe-function sym))
+         ((setq sym (variable-at-point)) (describe-variable sym))
+         ((setq sym (function-at-point)) (describe-function sym))
+         ((setq sym (symbol-at-point)) (describe-function sym))))))
+#+end_src
+
+*** Eros - Inlay eval
+#+begin_src emacs-lisp
+  (use-package eros
+    :straight t
+    :config
+    (eros-mode))
+#+end_src
+
+*** Debug - It's more convinent then edebug
+#+begin_src emacs-lisp
+  (use-package debug
+    :custom
+    (debugger-stack-frame-as-list t))
+#+end_src
+
+** Python
+Manage environment with =pyenv=
+#+begin_src emacs-lisp
+  (use-package pyvenv
     :straight t
     :custom
-    (jinx-languages "en_US")
-    :config
-    ;; Git commit
-    (add-to-list 'jinx-exclude-faces
-                 '(text-mode
-                   font-lock-comment-face
-                   git-commit-comment-heading
-                   git-commit-comment-branch-local
-                   git-commit-comment-branch-remote
-                   git-commit-comment-file))
-    ;; Remove spell spell checking in string
-    (add-to-list 'jinx-include-faces
-                 '(prog-mode font-lock-comment-face
-                             font-lock-doc-face))
-
-    (add-to-list 'vertico-multiform-categories
-                 '(jinx grid (vertico-grid-annotate . 20)))
-
-    (define-key evil-normal-state-map "z=" 'jinx-correct)
-    (define-key evil-visual-state-map "z=" 'jinx-correct)
-
-    (global-jinx-mode))
-
-  (use-package define-word :straight t)
-
-  (use-package sendmail
-    :straight (:type built-in)
-    :hook ((mail-mode . (lambda ()
-                          (setq-local fill-column 70)))))
+    (pyvenv-mode +1))
 #+end_src
 
-** Markdown
+** Rust
+Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
-  (use-package markdown-mode
+  (use-package rust-mode
+    :straight t)
+#+end_src
+
+* Data files
+#+begin_src emacs-lisp
+  (use-package protobuf-mode :straight t)
+  (use-package yaml-mode :straight t)
+  (use-package json-mode :straight t)
+#+end_src
+
+* Applications
+** General
+#+begin_src emacs-lisp
+  (leader-map "a" '(:which-key "applications"))
+#+end_src
+
+** Magit - Version Control
+#+begin_src emacs-lisp
+  (use-package magit
     :straight t
-    :mode ("/README\\(?:\\.md\\)?\\'" . gfm-mode))
+    :general
+    (leader-map
+      "g" '(:which-key "magit")
+      "gg" 'magit-status-here
+      "g." 'magit-find-file
+      "gd" 'magit-diff
+      "gb" 'magit-blame
+      "gl" 'magit-log
+      "gc" 'magit-checkout
+      "gf" 'magit-fetch-all
+      "gf" 'magit-log-buffer-file)
+    :custom
+    ;; sort branches by checkout (completion)
+    (magit-list-refs-sortby "-creatordate")
+    ;; don't let magit close windows
+    (magit-bury-buffer-function 'bury-buffer)
+    ;; wrangle magits and its transient buffer to not create pop-up
+    (magit-display-buffer-function 'display-buffer)
+    (transient-display-buffer-action '(display-buffer-below-selected))
+    (transient-mode-line-format '("%e" mode-line-front-space
+                                  mode-line-buffer-identification))
+    :config
+    (advice-add 'magit-status-here :after
+                (defun magit-recenter (&rest _) (recenter))))
 #+end_src
 
-** Dedicated windows
+** Ediff - Diff
 #+begin_src emacs-lisp
-  (defun toggle-window-dedicated ()
-    "Toggle window dedicated"
-    (interactive)
-    (set-window-dedicated-p (selected-window)
-                            (not (window-dedicated-p)))
-    (force-mode-line-update t))
+  (use-package ediff
+    :custom
+    (ediff-window-setup-function 'ediff-setup-windows-plain))
+#+end_src
 
-  (leader-key "wl" 'toggle-window-dedicated)
-
-  (defun kill-dedicated-windows ()
-    "Kill all dedicated windows"
-    (interactive)
-    (seq-do (lambda (window)
-              (when (window-dedicated-p window)
-                (quit-window nil window)))
-            (window-list)))
-
-  (leader-key "wq" 'kill-dedicated-windows)
-#+END_SRC
-
-** Useful functions
+** Dired - Directory browser
 #+begin_src emacs-lisp
-  (defun +zoom-window ()
-    (interactive)
-    (if (and (= 1 (count-windows))
-             (bound-and-true-p zoomed-window-configuration))
-        (let ((buffer (current-buffer)))
-          (set-window-configuration zoomed-window-configuration)
-          (switch-to-buffer buffer))
-      (setq-local zoomed-window-configuration (current-window-configuration))
-      (delete-other-windows)))
+  (use-package dired
+    :preface
+    (defun dired-here ()
+      "Open `dired' here."
+      (interactive)
+      (funcall (if current-prefix-arg 'dired-other-window
+                 'dired)
+               default-directory))
+    :general
+    (leader-map "ad" 'dired-here)
+    ;; Lets pretend shell-command does not exist
+    (dired-mode-map
+     :states 'normal
+     "!" 'dired-do-async-shell-command
+     "&" nil)
+    :hook
+    (dired-mode . auto-revert-mode)
+    (dired-mode . dired-omit-mode)
+    (dired-mode . (lambda () (recentf-push default-directory)))
+    :custom
+    ;; If two dired opened use other dired as target
+    (dired-dwim-target t)
+    (dired-use-ls-dired (not (eq system-type 'darwin))))
+#+end_src
 
-  (define-key evil-normal-state-map "\C-wo" '+zoom-window)
-  (define-key evil-emacs-state-map "\C-wo" '+zoom-window)
-  (define-key evil-visual-state-map "\C-wo" '+zoom-window)
+*** Dired Subtree - Expand directory
+#+begin_src emacs-lisp
+  (use-package dired-subtree
+    :straight t
+    :custom
+    (dired-subtree-line-prefix "    "))
+#+end_src
 
+*** Diredfl - Dired with colors
+#+begin_src emacs-lisp
+  (use-package diredfl
+    :straight t
+    :hook (dired-mode . diredfl-mode))
+#+end_src
+
+** Email and Feeds
+*** Gnus - Reading mail, feeds and lists
+#+begin_src emacs-lisp
+  (use-package gnus
+    :general
+    (leader-map "am" 'gnus)
+    (gnus-summary-mode-map
+     :states 'normal
+     "n" 'gnus-summary-next-page
+     "p" 'gnus-summary-prev-page
+     "u" 'gnus-summary-put-mark-as-unread
+     "!" 'gnus-summary-put-mark-as-ticked)
+    (gnus-group-mode-map
+     :states 'normal
+     "q" 'bury-buffer)
+    :hook
+    (gnus-group-mode . gnus-topic-mode)
+    (gnus-summary-mode . hl-line-mode)
+    :custom
+    ;; Startup
+    (gnus-check-new-newsgroups nil)
+    (gnus-check-bogus-newsgroups nil)
+    ;; Sensible date format
+    (gnus-user-date-format-alist '((t . "%Y-%m-%d %H:%M")))
+    ;; Looks
+    (gnus-group-line-format "%(%M%S%p%P%5y %B %G%)\n")
+    (gnus-summary-line-format "%(%U%R %d%z%I%[%-23,23f%] %s%)\n")
+    (gnus-treat-strip-trailing-blank-lines 'last)
+    (gnus-use-full-window nil)
+    ;; Sensible article order
+    (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date))
+    ;; Show all(ish) groups and articles
+    (gnus-permanently-visible-groups ".*")
+    (gnus-large-newsgroup 5000)
+    ;; Show more MIME-stuff
+    (gnus-mime-display-multipart-related-as-mixed t)
+    ;; Don't select the first automatically
+    (gnus-auto-select-first nil)
+    ;; Tree
+    (gnus-generate-tree-function 'gnus-generate-horizontal-tree)
+    ;; Dribble file
+    (gnus-always-read-dribble-file t)
+    ;; No useless newsrc file
+    (gnus-save-newsrc-file nil)
+    ;; Don't ask
+    (gnus-interactive-exit nil)
+    (gnus-article-browse-delete-temp t)
+    ;; Goto next no matter if it's unread or not (RET)
+    (gnus-summary-goto-unread 'never)
+    ;; Methods
+    (gnus-select-method '(nnnil ""))
+    (gnus-secondary-select-methods
+     '(
+       ;; Mail
+       (nnmaildir "dpettersson"
+                  (directory "~/Mail/dpettersson/"))
+       (nnmaildir "svaante"
+                  (directory "~/Mail/svaante/"))
+       ;; Rss
+       (nntp "feedbase.org"
+             (nntp-open-connection-function nntp-open-tls-stream)
+             (nntp-port-number 563))
+       ;; Mailing lists
+       (nntp "news.gmane.io")))
+  ;; use correct email
+    (gnus-posting-styles
+     '((".*" ; Matches all groups of messages
+        (address "Daniel Pettersson <daniel@dpettersson.net>"))
+       ("svaante"
+        (address "Daniel Pettersson <svaante@gmail.com>")
+        ("X-Message-SMTP-Method" "smtp smtp.gmail.com 587 svaante@gmail.com"))))
+    (gnus-parameters
+     `(("nnmaildir"
+        (gcc-self . t) ;; Let me see my own emails
+        ;; (display . 500)
+        )
+       (,(rx (or "nnrss"
+                 "feedbase.org"
+                 "news.gwene.org"))
+        (gnus-auto-select-first t)
+        (gnus-summary-line-format "%U%R%z%d %I%(%s %)\n"))
+       ("news.gmane.io"
+        ;; (display . 200)
+        ))))
+#+end_src
+
+*** mbsync - Receiving mail
+#+begin_src emacs-lisp
+  (use-package mbsync
+    :preface
+    (defvar mbsync-hook nil)
+    (defvar mbsync-period (* 5 60))
+
+    (defun mbsync ()
+      "Run mbsync -a."
+      (interactive)
+      (with-current-buffer (get-buffer-create " *mbsync*")
+        (when (called-interactively-p 'all)
+          (display-buffer (current-buffer)))
+
+        (unless (get-buffer-process (current-buffer))
+          (erase-buffer)
+          (insert (format "Started at %s\n\n" (current-time-string)))
+          (make-process :name "mbsync"
+                        :command '("mbsync" "-a")
+                        :buffer (current-buffer)
+                        :sentinel (lambda (process _)
+                                    (when (memq (process-status process)
+                                                '(exit signal))
+                                      (run-hooks 'mbsync-hook)))
+                        :noquery t))))
+    (defun mbsync-init ()
+      (if (executable-find "mbsync")
+          (run-with-timer mbsync-period t #'mbsync)
+        (error "No mbsync.")))
+    :hook
+    (after-init . mbsync-init))
+#+end_src
+
+*** SMTPmail - Sending mail
+#+begin_src emacs-lisp
+(use-package smtpmail
+  :custom
+  (user-mail-address "daniel@dpettersson.net")
+  (user-full-name "Daniel Pettersson")
+  ;; use smtpmail
+  (send-mail-function 'smtpmail-send-it)
+  ;; gmail
+  (smtpmail-smtp-server "smtp.gmail.com")
+  (smtpmail-smtp-service 587))
+#+end_src
+
+*** Message - Writing mail
+#+begin_src emacs-lisp
+  (use-package message
+    :custom
+    ;; why would you keep message buffers around?
+    (message-kill-buffer-on-exit t))
+#+end_src
+
+** IPython - Calculator
+#+begin_src emacs-lisp
+  (use-package ipython
+    :general
+    (leader-map "ac" #'run-ipython)
+    (inferior-python-mode-map
+     :states 'normal
+     "q" 'bury-buffer)
+    :preface
+    (defun run-ipython ()
+      "Run an inferior iPython process."
+      (interactive)
+      (require 'python)
+      (let* ((python-shell-buffer-name "IPython")
+             (python-shell-interpreter "ipython")
+             (python-shell-interpreter-args "-i --simple-prompt")
+             (process (run-python nil nil t)))
+        ;; There should not be anything interesting in this IPython process
+        (set-process-query-on-exit-flag process nil)
+        ;; Maybe this should be part of the `display-buffer-alist'
+        ;; `body-function' for TERM/REPL like things.
+        (with-current-buffer (process-buffer process)
+          (goto-char (point-max))
+          (evil-insert-state)))))
+#+end_src
+
+** Proced - Task manager
+#+begin_src emacs-lisp
+  (use-package proced
+    :general
+    (leader-map "ap" 'proced))
+#+end_src
+
+** define-word - Thesaurus
+#+begin_src emacs-lisp
+  (use-package define-word
+    :straight t
+    :general
+    (leader-map "at" 'define-word-at-point)
+    :hook
+    (text-mode
+     . (lambda ()
+           (setq-local evil-lookup-func
+                       #'define-word-at-point))))
+#+end_src
+
+* Misc commands
+#+begin_src emacs-lisp
   ;; source: http://steve.yegge.googlepages.com/my-dot-emacs-file
   (defun rename-file-and-buffer (new-name)
     "Renames both current buffer and file it's visiting to NEW-NAME."
@@ -1787,11 +1937,8 @@ Change stuff in the grep buffer
     "Create scratch buffer for major MODE."
     (interactive
      (list
-      (intern
-       (completing-read "Mode: "
-                        (mapcar 'cdr
-                                auto-mode-alist)
-                        nil t))))
+      (intern (completing-read "Mode: " (mapcar 'cdr auto-mode-alist)
+                               nil t))))
     (let ((buffer
            (get-buffer-create (format "*scratch: %s*"
                                       (symbol-name mode)))))
@@ -1799,671 +1946,5 @@ Change stuff in the grep buffer
         (funcall-interactively mode)
         (setq-local buffer-offer-save nil))
       (pop-to-buffer-same-window buffer)))
-
-  (defun load-last-theme ()
-    (when (and consult--theme-history)
-      (dolist (theme custom-enabled-themes)
-        (disable-theme theme))
-      (load-theme (intern (car consult--theme-history)) t)))
-
-  (eval-after-load "savehist"
-    (add-hook 'savehist-mode-hook 'load-last-theme))
 #+end_src
 
-* Programming
-** Match paren
-#+begin_src  emacs-lisp
-  (use-package paren
-    :config
-    (setq show-paren-style 'parenthesis)
-    (setq show-paren-when-point-in-periphery nil)
-    (setq show-paren-when-point-inside-paren nil)
-    (setq show-paren-delay 0)
-    (show-paren-mode +1))
-#+end_src
-
-** Progn mode
-#+begin_src emacs-lisp
-  (use-package prog-mode
-    :straight (:type built-in)
-    :config
-    (evil-define-key 'normal prog-mode-map "gr" 'xref-find-references)
-    (evil-define-key 'normal prog-mode-map "gD" 'xref-find-definitions-other-window)
-    (evil-define-key 'visual prog-mode-map (kbd "C-;") 'comment-dwim)
-
-    (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
-
-    (setq xref-prompt-for-identifier
-          '(not xref-find-definitions
-                xref-find-definitions-other-window
-                xref-find-definitions-other-frame
-                xref-find-references)))
-#+end_src
-
-** Flymake
-#+begin_src emacs-lisp
-  (use-package flymake
-    :straight (:type built-in)
-    :hook (emacs-lisp-mode . flymake-mode)
-    :config
-    (setq flymake-fringe-indicator-position nil))
-#+end_src
-
-** 80 Columns
-#+begin_src emacs-lisp
-  (use-package display-fill-column-indicator
-    :straight (:type built-in)
-    :hook (prog-mode-hook . display-fill-column-indicator-mode)
-    :config
-    (setq display-fill-column-indicator-column 80))
-#+end_src
-
-** Eglot
-#+begin_src emacs-lisp
-  (use-package jsonrpc
-    :straight t)
-
-  (use-package lsp-snippet-tempel
-    :straight (lsp-snippet-tempel :type git
-                                  :host github
-                                  :repo "svaante/lsp-snippet")
-    :config
-    (lsp-snippet-tempel-eglot-init))
-
-  (use-package eglot
-    :straight t
-    :hook ((c-mode . eglot-ensure)
-           (c++-mode . eglot-ensure)
-           (rust-mode . eglot-ensure)
-           (typescript-mode . eglot-ensure)
-           (go-mode . eglot-ensure)
-           (python-mode . eglot-ensure)
-           (csharp-mode . eglot-ensure))
-    :config
-    (defun eglot-imenu-keep-parent (alist)
-      "Extract `eglot-imenu' keys as items from the imenu ALIST."
-      (mapcan
-       (pcase-lambda (`(,key . ,value))
-         (cond
-          ((listp value)
-           `((,key . ,(car (get-text-property 0 'breadcrumb-region key)))
-             (,key . ,(eglot-imenu-keep-parent value))))
-          (t `((,key . ,value)))))
-       alist))
-
-    (advice-add 'eglot-imenu :filter-return 'eglot-imenu-keep-parent)
-
-    (defun eglot-imenu-extract-base-kind (alist)
-      "Add kind as an parent to each item to PLIST."
-      (mapcar (pcase-lambda (`(,key . ,value))
-                (let ((kind (get-text-property 0 'breadcrumb-kind key)))
-                  (cond
-                   ((stringp kind)
-                    (cons (concat kind) `((,key . ,value))))
-                   (t `(,key . ,value)))))
-              alist))
-
-    ;; Add type as imenu
-    (advice-add 'eglot-imenu-keep-parent :filter-return 'eglot-imenu-extract-base-kind)
-
-    ;; Extra clangd features
-    (add-to-list 'eglot-server-programs
-                 `((c-mode c-ts-mode c++-mode c++-ts-mode objc-mode)
-                   . ("clangd" "--background-index" "--all-scopes-completion")))
-
-    (setq eglot-ignored-server-capabilities '(:inlayHintProvider :codeLensProvider))
-
-    (leader-key
-      "la" 'eglot-code-actions
-      "lr" 'eglot-rename
-      "lf" 'eglot-format-buffer
-      "lq" 'eglot-code-action-quickfix
-      "la" 'eglot-code-actions))
-
-  (use-package consult-eglot
-    :after eglot
-    :straight t
-    :config
-    (leader-key "ls" 'consult-eglot-symbols))
-#+END_SRC
-
-** Emacs lisp
-#+begin_src emacs-lisp
-  ;; Stolen from http://www.sugarshark.com/elisp/init/lisp.el.html
-  (defun describe-elisp-thing-at-point ()
-    "Show the documentation of the Elisp function and variable near point.
-  This checks in turn:
-  -- for a function name where point is
-  -- for a variable name where point is
-  -- for a surrounding function call"
-    (interactive)
-    (let (sym)
-      ;; sigh, function-at-point is too clever.  we want only the first half.
-      (cond ((setq sym (ignore-errors
-                         (with-syntax-table emacs-lisp-mode-syntax-table
-                           (save-excursion
-                             (or (not (zerop (skip-syntax-backward "_w")))
-                                 (eq (char-syntax (char-after (point))) ?w)
-                                 (eq (char-syntax (char-after (point))) ?_)
-                                 (forward-sexp -1))
-                             (skip-chars-forward "`'")
-                             (let ((obj (read (current-buffer))))
-                               (and (symbolp obj) (fboundp obj) obj))))))
-             (describe-function sym))
-            ((setq sym (variable-at-point)) (describe-variable sym))
-            ;; now let it operate fully -- i.e. also check the
-            ;; surrounding sexp for a function call.
-            ((setq sym (function-at-point)) (describe-function sym)))))
-
-  (use-package elisp-mode
-    :straight (:type built-in)
-    :config
-    (seq-do
-     (lambda (mode-map)
-       (evil-define-key 'normal mode-map
-         (kbd "K") 'describe-elisp-thing-at-point)
-       (evil-define-key '(normal insert) mode-map
-         (kbd "C-c C-e") 'eval-defun)
-       (evil-define-key '(normal insert) mode-map
-         (kbd "C-c C-c") 'eval-buffer)
-       (evil-define-key 'visual mode-map
-         (kbd "C-c C-c") 'eval-region))
-     (list emacs-lisp-mode-map lisp-interaction-mode-map)))
-
-  (use-package eros
-    :straight t
-    :config
-    (eros-mode))
-
-  (use-package debug
-    :straight (:type built-in)
-    :config
-    (setq debugger-stack-frame-as-list t))
-#+end_src
-
-** Readable data files
-#+begin_src emacs-lisp
-  (use-package protobuf-mode :straight t)
-
-  (use-package yaml-mode :straight t)
-
-  (use-package json-mode :straight t)
-
-  (use-package csv-mode
-    :straight t
-    :hook ((csv-mode . csv-align-mode)
-           (csv-mode . csv-highlight))
-    :config
-
-    (defun csv-highlight (&optional separator)
-      (interactive (list (when current-prefix-arg (read-char "Separator: "))))
-      (font-lock-mode 1)
-      (let* ((separator (or separator ?\,))
-             (n (count-matches (string separator) (point-at-bol) (point-at-eol)))
-             (colors (cl-loop for i from 0 to 1.0 by (/ 2.0 n)
-                              collect (apply #'color-rgb-to-hex
-                                             (color-hsl-to-rgb i 0.3 0.5)))))
-        (cl-loop for i from 2 to n by 2
-                 for c in colors
-                 for r = (format "^\\([^%c\n]+%c\\)\\{%d\\}" separator separator i)
-                 do (font-lock-add-keywords nil `((,r (1 '(face (:foreground ,c))))))))))
-#+end_src
-
-** Go
-#+begin_src emacs-lisp
-  (use-package go-mode :straight t)
-#+end_src
-
-** Clojure
-#+begin_src emacs-lisp
-  (use-package clojure-mode :straight t :defer t)
-  (use-package cider :straight t :defer t)
-#+end_src
-
-** C
-#+begin_src emacs-lisp
-  (use-package cc-mode
-    :straight (:type built-in)
-    :config
-    (setq c-basic-offset 4))
-#+end_src
-
-** Common lisp
-#+begin_src emacs-lisp
-  (use-package sly
-    :straight t
-    :config
-    (setq sly-command-switch-to-existing-lisp 'always))
-#+end_src
-
-** Javascript
-#+begin_src emacs-lisp
-  (use-package emacs
-    :config
-    (setq js-indent-level 2))
-
-  (use-package web-mode
-    :straight t
-    :defer t
-    :custom
-    (web-mode-markup-indent-offset 2)
-    (web-mode-css-indent-offset 2)
-    (web-mode-code-indent-offset 2)
-    :config
-    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'")))
-    (add-to-list 'auto-mode-alist '("\\.jsx?$" . web-mode)))
-
-  (use-package add-node-modules-path :straight t)
-
-  (use-package nodejs-repl
-    :straight t
-    :config
-    ;; https://github.com/abicky/nodejs-repl.el/issues/37
-    (defun +nodejs-repl-remove-broken-filter ()
-      (remove-hook 'comint-output-filter-functions 'nodejs-repl--delete-prompt t))
-
-    (add-hook 'nodejs-repl-mode-hook #'+nodejs-repl-remove-broken-filter))
-#+end_src
-
-** Python
-#+begin_src emacs-lisp
-  (use-package with-venv
-    :straight t)
-
-  (use-package pyvenv
-    :straight t
-    :config
-    (pyvenv-mode))
-
-  (defun +inferior-python-mode-init ()
-    (advice-add 'python-shell-completion-at-point :around 'cape-wrap-purify)
-    (advice-add 'python-shell-completion-at-point :around 'cape-wrap-noninterruptible)
-    (setq-local completion-styles '(basic)))
-
-  (use-package python
-    :after cape
-    :hook ((inferior-python-mode . +inferior-python-mode-init)
-           (python-mode . hs-minor-mode))
-    :config
-    (setq python-flymake-command nil)
-    (setq python-check-command nil)
-
-    (defun +python-shell-send-dwm ()
-      (interactive)
-      (or (python-shell-get-process) (run-python))
-      (if (use-region-p)
-          (call-interactively 'python-shell-send-region)
-        (call-interactively 'python-shell-send-buffer)))
-
-    (setq python-shell-interpreter "ipython3"
-          python-shell-interpreter-args "-i --simple-prompt"
-          python-shell-completion-native-enable nil)
-
-    (define-key python-mode-map (kbd "C-c C-c") '+python-shell-send-dwm))
-#+end_src
-
-** Typescript
-#+begin_src emacs-lisp
-  (use-package typescript-mode
-    :straight t
-    :config
-    (setq-default typescript-indent-level 2))
-#+end_src
-
-** Rust
-#+begin_src emacs-lisp
-  (use-package rustic
-    :disabled
-    :straight t
-    :config
-    ;; Remove auto formating which caused isses with trying to save all buffers
-    (advice-remove 'save-some-buffers 'rustic-save-some-buffers-advice)
-
-    ;; Use rustic compilation mode stuff outside of rustic-compilation mode
-    (add-hook 'compilation-filter-hook #'rustic-insert-errno-button nil)
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 (cons 'rustic-error rustic-compilation-error))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 (cons 'rustic-warning rustic-compilation-warning))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 (cons 'rustic-info rustic-compilation-info))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 (cons 'rustic-panic rustic-compilation-panic))
-    (add-to-list 'compilation-error-regexp-alist 'rustic-error)
-    (add-to-list 'compilation-error-regexp-alist 'rustic-warning)
-    (add-to-list 'compilation-error-regexp-alist 'rustic-info)
-    (add-to-list 'compilation-error-regexp-alist 'rustic-panic))
-
-  (use-package rust-mode
-    :straight t)
-#+end_src
-
-** Godot
-#+begin_src emacs-lisp
-  (use-package gdscript-mode
-    :straight t
-    :config
-    (setq gdscript-use-tab-indents nil)
-    (setq gdscript-indent-offset 4))
-#+end_src
-
-** Dart
-#+begin_src emacs-lisp
-  (use-package dart-mode
-    :straight t)
-#+end_src
-
-** Devdocs
-#+begin_src  emacs-lisp
-  (defun devdocs-lookup-ask-docs ()
-    (interactive)
-    (devdocs-lookup t))
-
-  (use-package devdocs
-    :straight t
-    :init
-    (leader-key "k" 'devdocs-lookup)
-    (leader-key "K" 'devdocs-lookup-ask-docs))
-#+end_src
-
-** Eldoc
-#+begin_src emacs-lisp
-  (use-package eldoc
-    :straight (:type built-in)
-    :config
-    ;; Concat all the functions in eldoc, please
-    (setq eldoc-documentation-strategy #'eldoc-documentation-compose)
-    (setq eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit))
-#+end_src
-
-** Compilation
-#+begin_src emacs-lisp
-  (use-package xterm-color
-    :straight t
-    :config
-    (setq compilation-environment '("TERM=xterm-256color"))
-
-    (defun xterm-color-advice-compilation-filter (f proc string)
-      (funcall f proc (xterm-color-filter string)))
-
-    (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
-
-  (use-package compile
-    :straight (:type built-in)
-    :config
-    ;; Use last history as the compile command
-    (setq compile-command (or (car-safe compile-history) ""))
-    ;; Always scroll
-    (setq compilation-scroll-output t)
-    ;; Just save me the keystrokes
-    (setq compilation-ask-about-save nil)
-    ;; Not compile specific, but strip ^M in comint buffers
-    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m)
-
-    (evil-define-key 'normal compilation-minor-mode-map
-      (kbd "<tab>") 'compilation-next-file
-      (kbd "<backtab>") 'compilation-previous-file))
-#+end_src
-
-** Dape Debugging
-#+begin_src emacs-lisp
-  (use-package dape
-    ;; :straight (dape :type git :host github :repo "svaante/dape")
-    :straight (:local-repo "~/Workspace/dape/" :files ("dape.el"))
-    :hook
-    (;; Save breakpoints on quit
-     (kill-emacs . dape-breakpoint-save)
-     ;; Load breakpoints on startup
-     (after-init . dape-breakpoint-load))
-    :config
-    (setq dape-debug t
-          dape-buffer-window-arrangment 'right
-          dape-info-variable-table-row-config
-          '((name . 0) (value . 0) (type . 0)))
-
-    (remove-hook 'dape-on-start-hooks 'dape-info)
-
-    (add-hook 'dape-stopped-hook 'dape-info)
-    (add-hook 'dape-stopped-hook 'dape-repl)
-    (add-hook 'dape-start-hook (lambda () (save-some-buffers t t)))
-    (add-hook 'dape-compile-hook 'kill-buffer)
-    (add-hook 'dape-active-mode-hook (lambda ()
-                                       (unless dape-active-mode
-                                         (dape-info nil 'kill))))
-    (setq pulse-iterations 1)
-    (add-hook 'dape-display-source-hook 'pulse-momentary-highlight-one-line)
-
-    (define-key dape-global-map (kbd "H-i") #'dape-stack-select-down)
-    (define-key dape-global-map (kbd "C-o") #'dape-stack-select-up)
-
-    (dape-breakpoint-global-mode)
-    (evil-make-overriding-map dape-info-scope-mode-map)
-    (evil-make-overriding-map dape-info-watch-mode-map)
-
-    ;; java
-    (require 'eglot)
-    (let ((jar
-           (car
-            (file-expand-wildcards
-             (file-name-concat dape-adapter-dir
-                               "java-debug"
-                               "com.microsoft.java.debug.plugin"
-                               "target"
-                               "com.microsoft.java.debug.plugin-*.jar")
-             t))))
-      (add-to-list 'eglot-server-programs
-                   `((java-mode java-ts-mode) .
-                     ("jdtls"
-                      :initializationOptions
-                      (:bundles [,jar])))))
-
-    (leader-key "d" '(:keymap dape-global-map :which-key "dape")))
-
-  (use-package dape-cortex-debug
-    :after dape
-    :straight (dape-cortex-debug :type git :host github :repo "svaante/dape-cortex-debug")
-    :init
-    (require 'dape-cortex-debug))
-#+end_src
-
-* Applications
-** Dired
-#+begin_src emacs-lisp
-  (use-package dired
-    :straight (:type built-in)
-    :hook ((dired-mode . auto-revert-mode)
-           (dired-mode . dired-omit-mode)
-           (dired-mode . (lambda () (recentf-push default-directory))))
-
-    :config
-    ;; If two dired opened use other dired default-directory as
-    ;; base target
-    (setq dired-dwim-target t)
-
-    (when (eq system-type 'darwin)
-      (setq dired-use-ls-dired nil))
-
-    (defun dired-here-other-window ()
-      (interactive)
-      (dired-other-window default-directory))
-
-    (defun dired-here ()
-      (interactive)
-      (dired default-directory))
-
-    (leader-key "ad" 'dired-here
-                "aD" 'dired-here-other-window))
-
-  (use-package diredfl
-    :straight t
-    :hook (dired-mode . diredfl-mode))
-
-  (use-package dired-subtree
-    :straight t
-    :config
-    (setq dired-subtree-line-prefix "    "))
-#+end_src
-
-** Magit
-#+begin_src emacs-lisp
-    (use-package
-      transient
-      :straight t
-      :config
-      (setq transient-display-buffer-action '(display-buffer-below-selected)
-            transient-mode-line-format '("%e" mode-line-front-space
-                                         mode-line-buffer-identification)))
-
-    (use-package magit
-      :straight t
-      :config
-      (setq evil-insert-state-modes (append evil-insert-state-modes '(git-commit-mode)))
-      (setq magit-list-refs-sortby "-creatordate")
-
-      (defun magit-status-here-and-center ()
-        (interactive)
-        (magit-status-here)
-        (recenter))
-
-      ;; Don't let magit close windows
-      (setq magit-bury-buffer-function 'bury-buffer)
-
-      ;; Show magit in current buffer
-      ;; TODO `magit-display-buffer-same-window-except-diff-v1' does not
-      ;; respect dedicated windows.
-      (setq magit-display-buffer-function
-            'display-buffer)
-
-      (leader-key "gg" 'magit-status-here-and-center)
-      (leader-key "g." 'magit-find-file)
-      (leader-key "gd" 'magit-diff)
-      (leader-key "gb" 'magit-blame)
-      (leader-key "gl" 'magit-log)
-      (leader-key "gc" 'magit-checkout)
-      (leader-key "gf" 'magit-fetch-all)
-      (leader-key "gf" 'magit-log-buffer-file))
-#+end_src
-
-** Tramp
-#+begin_src emacs-lisp
-  (use-package tramp
-    :init
-    ;; If ssh:ed unto localhost the following seams to do the job, as
-    ;; PATH is copied to the new tramp session.
-    (add-to-list 'tramp-remote-path 'tramp-own-remote-path 'apppend)
-    (setq tramp-default-method "ssh"))
-#+end_src
-
-** Proced/top
-#+BEGIN_SRC emacs-lisp
-#+END_SRC
-
-** Postman
-#+begin_src emacs-lisp
-  (use-package restclient
-    :straight t
-    :config
-    (setq restclient-buffer-name "*restclient*")
-
-    (defun create-restclient-mode-buffer ()
-      (interactive)
-      (let ((buffer-exist (get-buffer restclient-buffer-name)))
-        (switch-to-buffer-other-window restclient-buffer-name)
-        (unless buffer-exist
-          (with-current-buffer (get-buffer restclient-buffer-name)
-            (unless (bound-and-true-p restclient-mode)
-              (progn
-                (restclient-mode)
-                (insert
-                 "Welcome to restclient-mode!\n"
-                 "Execute with: C-c C-c\n"
-                 "\n"
-                 "POST https://httpbin.org/post\n"
-                 "Content-Type: application/json\n"
-                 "{\n"
-                 "   \"key\": \"value\"\n"
-                 "}\n")))))
-      (goto-char (point-max))
-      (evil-insert-state)))
-
-    (defun restclient-buffer-quit ()
-      (interactive)
-      (delete-windows-on restclient-buffer-name)
-      (bury-buffer restclient-buffer-name))
-
-    (evil-define-key 'normal restclient-mode-map
-      "q" 'restclient-buffer-quit)
-
-    (add-to-list 'auto-mode-alist '("\\.http\\'" . restclient-mode))
-
-    (leader-key "ah" 'create-restclient-mode-buffer))
-#+end_src
-
-** Calc
-#+begin_src emacs-lisp
-  (use-package literate-calc-mode
-    :straight t
-    :config
-    (setq literate-calc-buffer-name "*literate-calc*")
-    (setq literate-calc-mode-idle-time 0.01)
-
-    (defun create-literate-calc-mode-buffer ()
-      (interactive)
-      (let* ((buffer-exist (get-buffer literate-calc-buffer-name))
-             (buffer (get-buffer-create literate-calc-buffer-name)))
-        (with-current-buffer buffer
-          (unless buffer-exist
-            (unless (bound-and-true-p literate-calc-mode)
-              (progn
-                (literate-calc-mode)
-                (insert
-                 "Welcome to literate-calc-mode!\n"
-                 "\n"
-                 "= "))))
-          (goto-char (point-max))
-          (evil-insert-state))
-        (select-window (display-buffer buffer))))
-
-    (defun literate-calc-buffer-quit ()
-      (interactive)
-      (delete-windows-on literate-calc-buffer-name)
-      (bury-buffer literate-calc-buffer-name))
-
-    (evil-define-key 'normal literate-calc-mode-map
-      "q" 'literate-calc-buffer-quit)
-
-    (leader-key "ac"
-      'create-literate-calc-mode-buffer))
-#+end_src
-
-** Elfeed
-#+begin_src emacs-lisp
-  (defun elfeed-open-and-refresh ()
-    (interactive)
-    (elfeed)
-    (elfeed-update))
-
-  (use-package elfeed
-    :straight t
-    :config
-    (leader-key "ar" 'elfeed-open-and-refresh)
-    (setq elfeed-feeds
-          '(("https://lithub.com/feed/" kultur)
-            ("https://hnrss.org/newest?points=50" tech)
-            ("https://us-east1-ml-feeds.cloudfunctions.net/arxiv-ml-reviews" ml)
-            ("http://api.sr.se/api/rss/channel/83?format=1" nyheter)))
-
-    (evil-define-key 'normal elfeed-show-mode-map
-      "p" 'elfeed-show-prev
-      "n" 'elfeed-show-next))
-#+end_src
-
-** Email
-*** Gnus
-#+begin_src emacs-lisp
-  (use-package gnus
-    :config
-    (setq epa-pinentry-mode 'loopback))
-#+end_src
-#+begin_src emacs-lisp
-#+end_src
