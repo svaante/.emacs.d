@@ -1425,6 +1425,7 @@ General bindings
     (c++-mode . eglot-ensure)
     (rust-mode . eglot-ensure)
     (javascript-mode . eglot-ensure)
+    (typescript-mode . eglot-ensure)
     (go-mode . eglot-ensure)
     (python-mode . eglot-ensure)
     (csharp-mode . eglot-ensure)
@@ -1646,6 +1647,12 @@ Manage environment with =pyenv=
 Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package rust-mode
+    :straight t)
+#+end_src
+
+** Typescript
+#+begin_src emacs-lisp
+  (use-package typescript-mode
     :straight t)
 #+end_src
 
