@@ -1861,10 +1861,11 @@ Why is =rust-mode= not part Emacs?
                         :noquery t))))
     (defun mbsync-init ()
       (if (executable-find "mbsync")
-          (run-with-timer 0 mbsync-period t #'mbsync)
+          (run-with-timer 0 mbsync-period #'mbsync)
         (error "No mbsync.")))
     :hook
-    (after-init . mbsync-init))
+    (after-init . mbsync-init)
+    (mbsync . gnus-group-get-new-news))
 #+end_src
 
 *** SMTPmail - Sending mail
