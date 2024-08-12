@@ -31,6 +31,14 @@ Bootstrap =straight= and setup =use-package=.
     (straight-use-package 'el-patch))
 #+end_src
 
+=straight= does not respect package dependencies and their versions,
+which is somewhat painful so I would like to replace it.
+
+Unfortunately the now builtin =package-vc-install=, does not keep
+"installed" packages under vc which makes version management and local
+development a pain.  Other alternatives like =borg= might be a better
+choice.
+
 * General
 #+begin_src emacs-lisp
   (use-package emacs
