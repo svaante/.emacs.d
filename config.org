@@ -918,7 +918,6 @@ Add keymaps and insert region into =minibuffer= for set of commands.
          (derived-mode . flymake-project-diagnostics-mode)
          (derived-mode . flymake-diagnostics-buffer-mode))
         (display-buffer-reuse-window display-buffer-below-selected)
-        (window-height . 0.3)
         (dedicated . t))
        ;; Help pop from the right
        ((or (derived-mode . help-mode)
