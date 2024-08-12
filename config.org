@@ -1879,15 +1879,17 @@ Why is =rust-mode= not part Emacs?
 
 *** SMTPmail - Sending mail
 #+begin_src emacs-lisp
-(use-package smtpmail
-  :custom
-  (user-mail-address "daniel@dpettersson.net")
-  (user-full-name "Daniel Pettersson")
-  ;; use smtpmail
-  (send-mail-function 'smtpmail-send-it)
-  ;; gmail
-  (smtpmail-smtp-server "smtp.gmail.com")
-  (smtpmail-smtp-service 587))
+  (use-package smtpmail
+    :custom
+    (user-mail-address "daniel@dpettersson.net")
+    (user-full-name "Daniel Pettersson")
+    ;; use smtpmail
+    (send-mail-function 'smtpmail-send-it)
+    ;; use gnus?
+    (mail-user-agent 'gnus-user-agent)
+    ;; gmail
+    (smtpmail-smtp-server "smtp.gmail.com")
+    (smtpmail-smtp-service 587))
 #+end_src
 
 *** Message - Writing mail
