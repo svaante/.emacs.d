@@ -1821,8 +1821,17 @@ Why is =rust-mode= not part Emacs?
         (gnus-auto-select-first t)
         (gnus-summary-line-format "%U%R%z%d %I%(%s %)\n"))
        ("news.gmane.io"
-        ;; (display . 200)
-        ))))
+        (display . 1000)))))
+#+end_src
+
+*** Gnus unread - Show unread in mode line
+#+begin_src emacs-lisp
+  (use-package gnus-unread
+    :straight (gnus-unread :type git :host github
+                           :repo "svaante/gnus-unread")
+    :custom
+    (gnus-unread-group "dpettersson.*Inbox")
+    (gnus-unread-mode +1))
 #+end_src
 
 *** mbsync - Receiving mail
