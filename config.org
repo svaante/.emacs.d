@@ -1209,9 +1209,6 @@ Convert escape codes to color.
     :custom
     (async-shell-command-buffer 'rename-buffer)
     (shell-command-prompt-show-cwd t)
-    ;; Wait until there is output before displaying (we might not need
-    ;; to display)
-    (async-shell-command-display-buffer nil)
     :config
     ;; Bolt on char based input on evil insert mode,
     ;; `comint-send-input' breaks to often.
