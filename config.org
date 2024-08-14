@@ -1,7 +1,7 @@
 #+TITLE: Emacs configuration file
-#+PROPERTY: header-args    :results silent
+#+PROPERTY: header-args :results silent
 
-* Setup
+* Setup init.el
 #+begin_src emacs-lisp
   ;;; -*- lexical-binding: t -*-
 #+end_src
