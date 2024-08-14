@@ -1648,6 +1648,13 @@ General bindings
     (debugger-stack-frame-as-list t))
 #+end_src
 
+** C
+#+begin_src emacs-lisp
+  (use-package cc-mode
+    :custom
+    (c-basic-offset 4))
+#+end_src
+
 ** Python
 Manage environment with =pyenv=
 #+begin_src emacs-lisp
