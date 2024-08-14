@@ -1833,48 +1833,25 @@ Why is =rust-mode= not part Emacs?
         (display . 1000)))))
 #+end_src
 
-*** Gnus unread - Show unread in mode line
+*** Mbsync - Get mail
 #+begin_src emacs-lisp
-  (use-package gnus-unread
-    :straight (gnus-unread :type git :host github
-                           :repo "svaante/gnus-unread")
-    :custom
-    (gnus-unread-group "dpettersson.*Inbox")
-    (gnus-unread-mode +1))
-#+end_src
+  (defun mbsync ()
+    "Run mbsync -a."
+    (interactive)
+    (with-current-buffer (get-buffer-create " *mbsync*")
+      (when (called-interactively-p 'all)
+        (display-buffer (current-buffer)))
 
-*** mbsync - Receiving mail
-#+begin_src emacs-lisp
-  (use-package mbsync
-    :preface
-    (defvar mbsync-hook nil)
-    (defvar mbsync-period (* 5 60))
+      (unless (get-buffer-process (current-buffer))
+        (erase-buffer)
+        (insert (format "Started at %s\n\n" (current-time-string)))
+        (make-process :name "mbsync"
+                      :command '("mbsync" "-a")
+                      :buffer (current-buffer)
+                      :noquery t))))
 
-    (defun mbsync ()
-      "Run mbsync -a."
-      (interactive)
-      (with-current-buffer (get-buffer-create " *mbsync*")
-        (when (called-interactively-p 'all)
-          (display-buffer (current-buffer)))
-
-        (unless (get-buffer-process (current-buffer))
-          (erase-buffer)
-          (insert (format "Started at %s\n\n" (current-time-string)))
-          (make-process :name "mbsync"
-                        :command '("mbsync" "-a")
-                        :buffer (current-buffer)
-                        :sentinel (lambda (process _)
-                                    (when (memq (process-status process)
-                                                '(exit signal))
-                                      (run-hooks 'mbsync-hook)))
-                        :noquery t))))
-    (defun mbsync-init ()
-      (if (executable-find "mbsync")
-          (run-with-timer 0 mbsync-period #'mbsync)
-        (error "No mbsync.")))
-    :hook
-    (after-init . mbsync-init)
-    (mbsync . gnus-group-get-new-news))
+  ;; Cron up `mbsync' running with an period of 5 min
+  (run-with-timer 0 (* 60 5) #'mbsync)
 #+end_src
 
 *** SMTPmail - Sending mail
