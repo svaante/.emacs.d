@@ -1183,6 +1183,19 @@ Faces in =eshell= feels helpful.
     (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
 #+end_src
 
+Convert escape codes to color.
+#+begin_src emacs-lisp
+  (use-package xterm-color
+    :straight t
+    :preface
+    (defun xterm-color-advice-compilation-filter (f proc string)
+      (funcall f proc (xterm-color-filter string)))
+    :custom
+    (compilation-environment '("TERM=xterm-256color"))
+    :config
+    (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
+#+end_src
+
 ** Async Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
