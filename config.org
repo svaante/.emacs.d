@@ -1482,6 +1482,31 @@ General bindings
     (leader-map "ls" 'consult-eglot-symbols))
 #+end_src
 
+*** LSP Mode - Completions and stuff
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :disabled
+    :after lsp-snippet-tempel
+    :straight t
+    :hook
+    (c-mode . lsp)
+    (lsp-mode
+     . (lambda ()
+         (setq-local evil-lookup-func #'lsp-describe-thing-at-point)))
+    :custom
+    (lsp-headerline-breadcrumb-enable nil)
+    (lsp-modeline-code-actions-enable nil)
+    (lsp-modeline-diagnostics-enable nil)
+    :config
+    (lsp-snippet-tempel-lsp-mode-init))
+
+  (use-package consult-lsp
+    :after lsp-mode
+    :straight t
+    :general
+    (leader-map "ls" 'consult-lsp-symbols))
+#+end_src
+
 *** Xref - Goto code thing
 #+begin_src emacs-lisp
   (use-package xref
