@@ -894,6 +894,9 @@ Add keymaps and insert region into =minibuffer= for set of commands.
 #+begin_src emacs-lisp
   (use-package window
     :custom
+    ;; Split rules (prefer vertically)
+    (split-height-threshold nil)
+    (split-width-threshold (* 2 70))
     ;; Use more space for right and left *side* windows
     (window-sides-vertical t)
     ;; Make dedicated windows strongly dedicated
