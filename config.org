@@ -1427,6 +1427,7 @@ General bindings
                                   :host github
                                   :repo "svaante/lsp-snippet")
     :config
+    (lsp-snippet-tempel-lsp-mode-init)
     (lsp-snippet-tempel-eglot-init))
 
   (use-package eglot
