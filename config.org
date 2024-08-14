@@ -1051,6 +1051,7 @@ Add keymaps and insert region into =minibuffer= for set of commands.
                           (?p . avy-action-paste)
                           (?P . avy-action-paste-line)
                           (?z . avy-action-ispell)))
+    (avy-all-windows 'all-frames)
     :preface
     (defun avy-goto-line-keep-column (&optional arg)
       "Jump to a line at the current column."
