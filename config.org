@@ -1501,6 +1501,9 @@ General bindings
 *** Flymake - Show errors
 #+begin_src emacs-lisp
   (use-package flymake
+    :custom
+    ;; I find the fringe bang's distracting
+    (flymake-fringe-indicator-position nil)
     :hook
     (emacs-lisp-mode . flymake-mode))
 #+end_src
