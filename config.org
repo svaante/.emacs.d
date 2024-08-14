@@ -79,8 +79,8 @@ Load last =consult-theme= loaded theme.
   (let ((width (display-pixel-width)))
     (set-frame-font
      (format "Comic Code Ligatures %d"
-             (cond ((> width 1080) 14)
-                   (t 13)))
+             (cond ((> width 1080) 13)
+                   (t 12)))
      nil t))
 #+end_src
 
