@@ -940,7 +940,7 @@ Add keymaps and insert region into =minibuffer= for set of commands.
         (display-buffer-reuse-mode-window display-buffer-in-side-window)
         (side . right)
         (dedicated . t)
-        (window-width . 80))
+        (window-width . 75))
        ;; Org capture
        ("\\*Org \\(Select\\|Note\\)\\*"
         (display-buffer-in-side-window)
