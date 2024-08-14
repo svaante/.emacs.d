@@ -780,6 +780,7 @@ Add keymaps and insert region into =minibuffer= for set of commands.
 * Default directory
 ** Projects - Project
 #+begin_src emacs-lisp
+  ;; Last working commit bf4c3cf after that the history is broken
   (use-package project
     :after consult ;; ripgrep
     :general
@@ -799,14 +800,15 @@ Add keymaps and insert region into =minibuffer= for set of commands.
     :config
     ;; Remove current visited file from list
     (cl-defun project-advice-read-file-filter
-        ((prompt all-files . rest))
-      `(,prompt
-        ,(remove
-          (when-let ((file-name (buffer-file-name)))
-            (file-relative-name file-name
-                                (project-root (project-current))))
-          all-files)
-        . ,rest))
+        ((prompt all-files . args))
+      (when buffer-file-name
+        (setq all-files
+              (delete
+               (thread-last (project-current)
+                            (project-root)
+                            (file-relative-name buffer-file-name))
+               all-files)))
+      `(,prompt ,all-files ,@args))
     (advice-add 'project--read-file-cpd-relative :filter-args
                 #'project-advice-read-file-filter)
 
