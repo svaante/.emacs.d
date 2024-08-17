@@ -1094,6 +1094,9 @@ region into minibuffer for certain commands.
 
 * Shell and Commands
 ** Exec path from shell - Infer PATH
+=exec-path-from-shell= is a hack to set `exec-path' shellishly for
+Emacsen not launched from a shell.
+
 #+begin_src emacs-lisp
   (use-package exec-path-from-shell
     :straight t
