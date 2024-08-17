@@ -517,23 +517,21 @@ Not convinced that it's more better then =yasnippet=.
     (savehist-mode +1))
 #+end_src
 
-** Minibuffer - Read string
-Add keymaps and insert region into =minibuffer= for set of commands.
+** Minibuffer - Read and complete
+Add bindings for the history navigation and hook for inserting current
+region into minibuffer for certain commands.
 #+begin_src emacs-lisp
   (use-package minibuffer
     :general
     (minibuffer-mode-map
      :states '(normal insert)
-     ;; Insert symbol at point, C-r is used for fancier history search
-     ;; therefore Evils C-r C-W won't do
-     "C-." 'minibuffer-insert-symbol
-     ;; Navigate history with C-{n,p} in `read-string' and friends
-     "C-n" 'next-history-element
-     "C-p" 'previous-history-element)
+     ;; Navigate history keep ignoring Meta key
+     "C-." 'next-history-element
+     "C-," 'previous-history-element)
     :hook
     (minibuffer-setup . minibuffer-insert-selection)
     :preface
-    (defvar minibuffer-insert-commands
+    (defvar minibuffer-insert-region-commands
      '(consult-line
        consult-grep
        consult-ripgrep
@@ -543,7 +541,7 @@ Add keymaps and insert region into =minibuffer= for set of commands.
        project-async-shell-command))
     (defun minibuffer-insert-selection ()
       "If region is active insert region into minibuffer."
-      (when-let* ((_ (member this-command minibuffer-insert-commands))
+      (when-let* ((_ (member this-command minibuffer-insert-region-commands))
                   (minibuffer-buffer (current-buffer))
                   (buffers (buffer-list))
                   (last-used-buffer (cadr buffers)))
@@ -554,16 +552,7 @@ Add keymaps and insert region into =minibuffer= for set of commands.
                 (region-beginning) (region-end))))
               (setq mark-active nil)
               (with-current-buffer minibuffer-buffer
-                (insert selection)))))))
-    (defun minibuffer-insert-symbol ()
-      "Insert symbol at point into minibuffer."
-      (interactive)
-      (let* ((last-buffer (cadr (buffer-list)))
-             (string (with-current-buffer last-buffer
-                       (thing-at-point 'symbol))))
-        (if (stringp string)
-            (insert string)
-          (message "No symbol at point")))))
+                (insert selection))))))))
 #+end_src
 
 ** Vertico - Vertical minibuffer completion
@@ -652,7 +641,7 @@ Add keymaps and insert region into =minibuffer= for set of commands.
       (evil-insert-state))
     :general
     (leader-map
-      "." 'find-file-at-point
+      "." 'find-file
       ":" 'execute-extended-command
       "s" 'consult-line
       "i" 'consult-imenu
