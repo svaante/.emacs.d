@@ -1576,12 +1576,9 @@ General bindings
      '((name . 0) (value . 0) (type . 0)))
     (dape-breakpoint-global-mode +1)
     :config
-    (evil-make-overriding-map dape-info-scope-mode-map)
-    (evil-make-overriding-map dape-info-watch-mode-map)
-
     (add-hook 'dape-start-hook #'save-all-buffers)
 
-    ;; java ugh
+    ;; java ughhh
     (require 'eglot)
     (let ((jar
            (car
