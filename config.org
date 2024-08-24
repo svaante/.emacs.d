@@ -912,6 +912,7 @@ region into minibuffer for certain commands.
          (derived-mode . flymake-project-diagnostics-mode)
          (derived-mode . flymake-diagnostics-buffer-mode))
         (display-buffer-reuse-window display-buffer-below-selected)
+        (body-function . select-window)
         (dedicated . t))
        ;; Help pop from the right
        ((or (derived-mode . help-mode)
@@ -1220,11 +1221,6 @@ Convert escape codes to color.
                       (format " [%s]" status)))
                    'face (if (zerop status) 'success 'warning)))
             (force-mode-line-update t)))))
-
-    (defun async-shell-command-advice-filter-return (window)
-      (when (windowp window)
-        (select-window window))
-      window)
     :general
     (leader-map "!" 'async-shell-command)
     (shell-command-mode-map
@@ -1243,14 +1239,8 @@ Convert escape codes to color.
                                'insert (map-copy term-raw-map))
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
 
-    (advice-add 'async-shell-command :filter-return
-                'async-shell-command-advice-filter-return)
     (advice-add 'shell-command-sentinel :after
-                #'shell-command-sentinel-show-exit-code)
-
-    ;; Eshell command
-    (defun eshell/ff (&rest args)
-      (apply #'find-file args)))
+                #'shell-command-sentinel-show-exit-code))
 #+end_src
 
 ** Process history - Run things again
