@@ -924,7 +924,7 @@ region into minibuffer for certain commands.
         (direction . rightmost)
         (window-width . 75)
         (dedicated . t)
-        (body-function . (lambda (window) (select-window window))))
+        (body-function . select-window ))
        ;; Compile
        ((or (major-mode . compilation-mode))
         (display-buffer-reuse-mode-window display-buffer-in-side-window)
