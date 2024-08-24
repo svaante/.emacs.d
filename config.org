@@ -289,6 +289,10 @@ Load last =consult-theme= loaded theme.
     (evil-ex-define-cmd "Wq" 'evil-save-and-close)
     (evil-ex-define-cmd "WQ" 'evil-save-and-close)
 
+    ;; Fix bindings in messages buffer
+    (with-current-buffer "*Messages*"
+      (evil-normalize-keymaps))
+
     ;; Go
     (evil-mode t))
 #+end_src
