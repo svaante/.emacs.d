@@ -1135,6 +1135,7 @@ Emacsen not launched from a shell.
                       (lambda () (rename-buffer (eshell-buffer-name) t))
                       nil t))
           buffer)))
+
     (defun eshell-goto-eob-advice (&rest _)
       (goto-char (max-char))
       (evil-insert-state))
@@ -1142,9 +1143,9 @@ Emacsen not launched from a shell.
     (eshell-mode
      . (lambda ()
          (setq-local imenu-generic-expression '(("$ " " $ \\(.*\\)" 1)))))
+    (eshell-mode-map
     :general
     (leader-map "e" 'eshell)
-    (eshell-mode-map
      :states 'normal
      "C-p" 'eshell-previous-prompt
      "C-n" 'eshell-next-prompt
@@ -1202,6 +1203,28 @@ Convert escape codes to color.
 ** Async Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
+    :preface
+    ;; Show exit code in mode line
+    (defun shell-command-sentinel-show-exit-code (process status)
+      (when-let* ((buffer (process-buffer process))
+                  ((buffer-live-p buffer)))
+        (let ((dead-p (memq (process-status process) '(exit signal)))
+              (status (process-exit-status process)))
+          (with-current-buffer buffer
+            (setq mode-line-process
+                  (propertize
+                   (concat
+                    ":"
+                    (format "%s" (process-status process))
+                    (when dead-p
+                      (format " [%s]" status)))
+                   'face (if (zerop status) 'success 'warning)))
+            (force-mode-line-update t)))))
+
+    (defun async-shell-command-advice-filter-return (window)
+      (when (windowp window)
+        (select-window window))
+      window)
     :general
     (leader-map "!" 'async-shell-command)
     (shell-command-mode-map
@@ -1220,24 +1243,14 @@ Convert escape codes to color.
                                'insert (map-copy term-raw-map))
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
 
-    ;; Show exit code in mode line
-    (defun shell-command-sentinel-show-exit-code (process status)
-      (when-let* ((buffer (process-buffer process))
-                  ((buffer-live-p buffer)))
-        (let ((dead-p (memq (process-status process) '(exit signal)))
-              (status (process-exit-status process)))
-          (with-current-buffer buffer
-            (setq mode-line-process
-                  (propertize
-                   (concat
-                    ":"
-                    (format "%s" (process-status process))
-                    (when dead-p
-                      (format " [%s]" status)))
-                   'face (if (zerop status) 'success 'warning)))
-            (force-mode-line-update t)))))
+    (advice-add 'async-shell-command :filter-return
+                'async-shell-command-advice-filter-return)
     (advice-add 'shell-command-sentinel :after
-                #'shell-command-sentinel-show-exit-code))
+                #'shell-command-sentinel-show-exit-code)
+
+    ;; Eshell command
+    (defun eshell/ff (&rest args)
+      (apply #'find-file args)))
 #+end_src
 
 ** Process history - Run things again
