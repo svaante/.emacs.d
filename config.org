@@ -1138,6 +1138,10 @@ Emacsen not launched from a shell.
     (defun eshell-goto-eob-advice (&rest _)
       (goto-char (max-char))
       (evil-insert-state))
+    :hook
+    (eshell-mode
+     . (lambda ()
+         (setq-local imenu-generic-expression '(("$ " " $ \\(.*\\)" 1)))))
     :general
     (leader-map "e" 'eshell)
     (eshell-mode-map
