@@ -1148,9 +1148,9 @@ Emacsen not launched from a shell.
     (eshell-mode
      . (lambda ()
          (setq-local imenu-generic-expression '(("$ " " $ \\(.*\\)" 1)))))
-    (eshell-mode-map
     :general
     (leader-map "e" 'eshell)
+    (eshell-mode-map
      :states 'normal
      "C-p" 'eshell-previous-prompt
      "C-n" 'eshell-next-prompt
@@ -1166,7 +1166,10 @@ Emacsen not launched from a shell.
     (advice-add 'project-eshell :after #'eshell-goto-eob-advice)
     (advice-add 'eshell :after #'eshell-goto-eob-advice)
     ;; Cat works with eshell other pagers does not
-    (setenv "PAGER" "cat"))
+    (setenv "PAGER" "cat")
+    ;; Eshell command
+    (defun eshell/ff (&rest args)
+      (apply #'find-file args)))
 #+end_src
 
 Faces in =eshell= feels helpful.
