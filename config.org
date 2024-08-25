@@ -534,6 +534,10 @@ region into minibuffer for certain commands.
      "C-," 'previous-history-element)
     :hook
     (minibuffer-setup . minibuffer-insert-selection)
+    :config
+    ;; Move cursor after inserted history
+    (advice-add 'goto-history-element :after
+                (lambda (&rest _) (end-of-buffer)))
     :preface
     (defvar minibuffer-insert-region-commands
      '(consult-line
