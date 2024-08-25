@@ -1262,6 +1262,8 @@ Convert escape codes to color.
     :general
     (leader-map
       "r" 'process-history-rerun)
+    :custom
+    (process-history-mode +1)
     :config
     (use-package process-history-embark
       :straight nil)
@@ -1270,12 +1272,7 @@ Convert escape codes to color.
       :custom
       (process-history-completing-read-fn
        'process-history-consult-completing-read))
-
-    (evil-make-overriding-map process-history-list-mode-map)
-    ;; Make sure that `shell-mode' `revert-buffer' buffer works
-    (add-to-list 'process-history-buffer-match
-                 "\*Async Shell Command.*\*")
-    (process-history-mode))
+    (evil-make-overriding-map process-history-list-mode-map))
 #+end_src
 
 * Org
