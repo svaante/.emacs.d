@@ -902,7 +902,7 @@ region into minibuffer for certain commands.
     (display-buffer-alist
      `(;; Popup pop from below
        ((or
-         ;;"\\*.*eshell.*\\*" ;; need this silly thing to match `project-eshell'
+         "\\*.*eshell.*\\*" ;; need this silly thing to match `project-eshell'
          ;; Output
          (derived-mode . shell-command-mode)
          (derived-mode . messages-buffer-mode)
@@ -923,7 +923,6 @@ region into minibuffer for certain commands.
          (derived-mode . flymake-diagnostics-buffer-mode))
         (display-buffer-reuse-window display-buffer-below-selected)
         (body-function . select-window)
-        (window-height . 0.4)
         (dedicated . t))
        ;; Help pop from right
        ((or (derived-mode . help-mode)
@@ -1136,7 +1135,7 @@ Emacsen not launched from a shell.
       "Create an Eshell buffer here."
       (interactive)
       (eshell-load-modules eshell-modules-list)
-      (if (not (called-interactively-p 'any))
+      (if (eq this-command 'project-eshell)
           (apply eshell args)
         ;; If `eshell' called interactively used current directory as
         ;; basis for buffer name.
