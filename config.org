@@ -1120,7 +1120,7 @@ Emacsen not launched from a shell.
 #+begin_src emacs-lisp
   (use-package eshell
     :preface
-    (defun evil-append-last-line ()
+    (defun evil-append-last-line (&rest _)
       "Set point to max and enter `evil-insert'."
       (interactive)
       (goto-char (point-max))
@@ -1138,22 +1138,19 @@ Emacsen not launched from a shell.
       (eshell-load-modules eshell-modules-list)
       (if (not (called-interactively-p 'any))
           (apply eshell args)
+        ;; If `eshell' called interactively used current directory as
+        ;; basis for buffer name.
         (let* ((eshell-buffer-name (eshell-buffer-name))
-               (buffer
-                (funcall eshell (or current-prefix-arg
-                                    (derived-mode-p 'eshell-mode)))))
+               (buffer (funcall eshell current-prefix-arg)))
           (with-current-buffer buffer
             (add-hook 'eshell-directory-change-hook
                       (lambda () (rename-buffer (eshell-buffer-name) t))
                       nil t))
           buffer)))
-
-    (defun eshell-goto-eob-advice (&rest _)
-      (goto-char (max-char))
-      (evil-insert-state))
     :hook
     (eshell-mode
      . (lambda ()
+         ;; Add imenu support
          (setq-local imenu-generic-expression '(("$ " " $ \\(.*\\)" 1)))))
     :general
     (leader-map "e" 'eshell)
@@ -1170,8 +1167,8 @@ Emacsen not launched from a shell.
     ;; Setup eshell `defualt-directory' naming stuff
     (advice-add 'eshell :around #'eshell-advice)
     ;; Ensure that we are in insert mode
-    (advice-add 'project-eshell :after #'eshell-goto-eob-advice)
-    (advice-add 'eshell :after #'eshell-goto-eob-advice)
+    (advice-add 'project-eshell :after #'evil-append-last-line)
+    (advice-add 'eshell :after #'evil-append-last-line)
     ;; Cat works with eshell other pagers does not
     (setenv "PAGER" "cat")
     ;; Eshell command
