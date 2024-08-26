@@ -1164,7 +1164,7 @@ Emacsen not launched from a shell.
      :states 'normal
      "C-p" 'eshell-previous-prompt
      "C-n" 'eshell-next-prompt
-     "q" 'bury-buffer
+     "q" 'kill-current-buffer
      (kbd "<return>") 'evil-append-last-line)
     :custom
     (eshell-hist-ignoredups t)
