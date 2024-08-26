@@ -900,16 +900,18 @@ region into minibuffer for certain commands.
     (toggle-window-dedicated-flag t)
     ;; Display buffer rules
     (display-buffer-alist
-     `(;; Pop-ups pop from below
-       ((or ;; Shells and REPLs
-         "\\*.*eshell.*\\*" ;; need this silly thing to match `project-eshell'
+     `(;; Popup pop from below
+       ((or
+         ;;"\\*.*eshell.*\\*" ;; need this silly thing to match `project-eshell'
+         ;; Output
          (derived-mode . shell-command-mode)
+         (derived-mode . messages-buffer-mode)
+         (derived-mode . backtrace-mode)
+         ;; REPLs
          (derived-mode . inferior-emacs-lisp-mode)
          (derived-mode . inferior-python-mode)
          ;; Special
          "\\(\\*Capture\\*\\|CAPTURE-.*\\)"
-         (derived-mode . backtrace-mode)
-         (derived-mode . messages-buffer-mode)
          ;; Result type buffers
          "\\*Embark Export: .*\\*"
          (derived-mode . embark-collect-mode)
@@ -921,8 +923,9 @@ region into minibuffer for certain commands.
          (derived-mode . flymake-diagnostics-buffer-mode))
         (display-buffer-reuse-window display-buffer-below-selected)
         (body-function . select-window)
+        (window-height . 0.4)
         (dedicated . t))
-       ;; Help pop from the right
+       ;; Help pop from right
        ((or (derived-mode . help-mode)
             (derived-mode . Man-mode)
             (derived-mode . devdocs-mode)
@@ -934,7 +937,7 @@ region into minibuffer for certain commands.
         (dedicated . t)
         (body-function . select-window ))
        ;; Compile
-       ((or (major-mode . compilation-mode))
+       ((major-mode . compilation-mode)
         (display-buffer-reuse-mode-window display-buffer-in-side-window)
         (side . right)
         (dedicated . t)
