@@ -367,8 +367,14 @@ Have always used Tims plugin.
        (which-key--show-keymap "Embark" map nil nil 'no-paging)
        #'which-key--hide-popup-ignore-command)
      embark-become-indicator embark-action-indicator)
-    :config
-    (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
+    ;; Remove C-u arg why would I want a new buffer?
+    (embark-pre-action-hooks
+     (thread-last embark-pre-action-hooks
+                  (assoc-delete-all 'shell)
+                  (assoc-delete-all 'eshell)))
+    ;; Make magit usable by file category
+    (embark-around-action-hooks
+     (add-to-list 'embark-around-action-hooks '(magit embark--cd))))
 #+end_src
 
 * Editing
@@ -1135,12 +1141,13 @@ Emacsen not launched from a shell.
       "Create an Eshell buffer here."
       (interactive)
       (eshell-load-modules eshell-modules-list)
-      (if (eq this-command 'project-eshell)
+      (if (not (called-interactively-p 'any))
           (apply eshell args)
         ;; If `eshell' called interactively used current directory as
         ;; basis for buffer name.
         (let* ((eshell-buffer-name (eshell-buffer-name))
-               (buffer (funcall eshell current-prefix-arg)))
+               (buffer (funcall eshell (or current-prefix-arg
+                                           (derived-mode-p 'eshell-mode)))))
           (with-current-buffer buffer
             (add-hook 'eshell-directory-change-hook
                       (lambda () (rename-buffer (eshell-buffer-name) t))
