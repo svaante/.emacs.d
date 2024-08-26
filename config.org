@@ -367,14 +367,14 @@ Have always used Tims plugin.
        (which-key--show-keymap "Embark" map nil nil 'no-paging)
        #'which-key--hide-popup-ignore-command)
      embark-become-indicator embark-action-indicator)
+    :config
     ;; Remove C-u arg why would I want a new buffer?
-    (embark-pre-action-hooks
+    (setq embark-pre-action-hooks
      (thread-last embark-pre-action-hooks
                   (assoc-delete-all 'shell)
                   (assoc-delete-all 'eshell)))
     ;; Make magit usable by file category
-    (embark-around-action-hooks
-     (add-to-list 'embark-around-action-hooks '(magit embark--cd))))
+    (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
 #+end_src
 
 * Editing
