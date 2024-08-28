@@ -215,6 +215,19 @@ Load last =consult-theme= loaded theme.
     (mac-right-option-modifier nil))
 #+end_src
 
+** Meta - History insertion
+Add non meta binding for history one of the most important Emacs
+mappings.
+#+begin_src emacs-lisp
+  (use-package emacs
+    :config
+    (define-key key-translation-map (kbd "C-.") (kbd "M-n"))
+    (define-key key-translation-map (kbd "C-,") (kbd "M-p"))
+    ;; Move cursor after inserted history
+    (advice-add 'goto-history-element :after
+                (lambda (&rest _) (end-of-buffer))))
+#+end_src
+
 ** Repeat - Ergonomic keymaps
 #+begin_src emacs-lisp
   (use-package repeat
@@ -376,7 +389,6 @@ Have always used Tims plugin.
     ;; Make magit usable by file category
     (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
 #+end_src
-
 * Editing
 ** Jinx - Spellchecker
 #+begin_src emacs-lisp
@@ -528,22 +540,11 @@ Not convinced that it's more better then =yasnippet=.
 #+end_src
 
 ** Minibuffer - Read and complete
-Add bindings for the history navigation and hook for inserting current
-region into minibuffer for certain commands.
+Hook for inserting current region into minibuffer for set of commands.
 #+begin_src emacs-lisp
   (use-package minibuffer
-    :general
-    (minibuffer-mode-map
-     :states '(normal insert)
-     ;; Navigate history keep ignoring Meta key
-     "C-." 'next-history-element
-     "C-," 'previous-history-element)
     :hook
     (minibuffer-setup . minibuffer-insert-selection)
-    :config
-    ;; Move cursor after inserted history
-    (advice-add 'goto-history-element :after
-                (lambda (&rest _) (end-of-buffer)))
     :preface
     (defvar minibuffer-insert-region-commands
      '(consult-line
