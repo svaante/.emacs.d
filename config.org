@@ -206,7 +206,7 @@ Load last =consult-theme= loaded theme.
 #+end_src
 
 * Keymaps
-** System
+** MacOS - System
 #+begin_src emacs-lisp
   (use-package ns-win
     :if (eq system-type 'darwin)
