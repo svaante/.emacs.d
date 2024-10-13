@@ -79,16 +79,20 @@ Load last =consult-theme= loaded theme.
   (let ((width (display-pixel-width)))
     (set-frame-font
      (format "Comic Code Ligatures %d"
-             (cond ((> width 1080) 13)
+             (cond ((> width 1080) 14)
                    (t 12)))
      nil t))
 #+end_src
 
 ** Themes
 #+begin_src emacs-lisp
-  (use-package no-clown-fiesta-theme :straight t)
   (use-package ef-themes :straight t)
   (use-package standard-themes :straight t)
+  (use-package zenburn-theme
+    :straight t
+    :custom
+    (zenburn-override-colors-alist
+     '(("zenburn-bg" . "#111111"))))
 #+end_src
 
 ** Simplify UI
@@ -195,6 +199,8 @@ Load last =consult-theme= loaded theme.
     :custom
     (dashboard-items '((recents  . 10)
                        (bookmarks . 10)))
+    (dashboard-startup-banner
+     (locate-user-emacs-file "xemacs_color.svg"))
     :config
     (dashboard-setup-startup-hook))
 #+end_src
@@ -898,9 +904,6 @@ Hook for inserting current region into minibuffer for set of commands.
 #+begin_src emacs-lisp
   (use-package window
     :custom
-    ;; Split rules (prefer vertically)
-    (split-height-threshold nil)
-    (split-width-threshold (* 2 70))
     ;; Use more space for right and left *side* windows
     (window-sides-vertical t)
     ;; Make dedicated windows strongly dedicated
