@@ -1530,8 +1530,11 @@ General bindings
     :disabled
     :after lsp-snippet-tempel
     :straight t
+    :general
+    (leader-map "lr" 'lsp-rename)
     :hook
     (c-mode . lsp)
+    (python-mode . lsp)
     (lsp-mode
      . (lambda ()
          (setq-local evil-lookup-func #'lsp-describe-thing-at-point)))
