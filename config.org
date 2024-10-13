@@ -696,6 +696,27 @@ Hook for inserting current region into minibuffer for set of commands.
                                 #'completion--in-region)
                               args)))))
     :config
+    ;; Easy access to replish buffers
+    (defvar consult-repl-buffer-alist
+      '(("*ielm*"       . ielm)
+        ("*Python*"     . run-python)
+        ("*nodejs*"     . nodejs-repl)
+        ("*eshell*"     . eshell)
+        ("*SQL: SQLite" . sql-sqlite)))
+    (add-to-list
+     'consult-buffer-sources
+     `( :name     "REPL"
+        :hidden   nil
+        :narrow   ?r
+        :category buffer
+        :state    consult--buffer-state
+        :history  buffer-name-history
+        :action   ,(lambda (key)
+                     (funcall (alist-get key consult-repl-buffer-alist)))
+        :items    ,(lambda ()
+                     (mapcar #'car consult-repl-buffer-alist)))
+     'append)
+
     ;; do not preview buffers in consult-buffer
     (consult-customize consult-buffer :preview-key nil))
 #+end_src
