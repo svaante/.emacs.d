@@ -1818,7 +1818,9 @@ Why is =rust-mode= not part Emacs?
     :custom
     ;; If two dired opened use other dired as target
     (dired-dwim-target t)
-    (dired-use-ls-dired (not (eq system-type 'darwin))))
+    (dired-use-ls-dired (not (eq system-type 'darwin)))
+    ;; Sort by date as default
+    (dired-listing-switches "-alt"))
 #+end_src
 
 *** Dired Subtree - Expand directory
