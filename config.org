@@ -1291,25 +1291,16 @@ Convert escape codes to color.
                 #'shell-command-sentinel-show-exit-code))
 #+end_src
 
-** Process history - Run things again
+** Recall - Run things again
 #+begin_src emacs-lisp
-  (use-package process-history
-    :straight (process-history :type git :host github
-                               :repo "svaante/process-history")
+  (use-package recall
+    :straight (recall :type git :host github :repo "svaante/recall")
     :general
-    (leader-map
-      "r" 'process-history-rerun)
+    (leader-map "r" 'recall-rerun)
     :custom
-    (process-history-mode +1)
+    (recall-mode +1)
     :config
-    (use-package process-history-embark
-      :straight nil)
-    (use-package process-history-consult
-      :straight nil
-      :custom
-      (process-history-completing-read-fn
-       'process-history-consult-completing-read))
-    (evil-make-overriding-map process-history-list-mode-map))
+    (evil-make-overriding-map recall-list-mode-map))
 #+end_src
 
 * Org
