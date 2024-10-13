@@ -221,6 +221,15 @@ Load last =consult-theme= loaded theme.
     (mac-right-option-modifier nil))
 #+end_src
 
+** Globla mappings
+#+begin_src emacs-lisp
+  (use-package emacs
+    :config
+    ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
+    (when (display-graphic-p)
+      (define-key input-decode-map (kbd "C-i") (kbd "H-i"))))
+#+end_src
+
 ** Meta - History insertion
 Add non meta binding for history one of the most important Emacs
 mappings.
@@ -999,7 +1008,7 @@ Hook for inserting current region into minibuffer for set of commands.
     (frame-resize-pixelwise t))
 #+end_src
 
-** Evil lazy window
+** Evil lazy window switching
 #+begin_src emacs-lisp
   (use-package evil-lazy-bindings
     :general
@@ -1058,9 +1067,6 @@ Hook for inserting current region into minibuffer for set of commands.
   (use-package better-jumper
     :straight t
     :general
-    ;; Old HACK to bind C-i globally without messing up \t, <tab>
-    ;; bindings there has to be something better?
-    (input-decode-map "C-i" "H-i")
     (:states 'motion
              "C-o" 'better-jumper-jump-backward
              "H-i" 'better-jumper-jump-forward)
