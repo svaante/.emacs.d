@@ -1716,6 +1716,7 @@ General bindings
 ** C
 #+begin_src emacs-lisp
   (use-package cc-mode
+    :hook (c-mode . (lambda () (setq-local tab-width 4)))
     :custom
     (c-basic-offset 4))
 #+end_src
