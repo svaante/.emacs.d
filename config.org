@@ -1748,6 +1748,7 @@ Why is =rust-mode= not part Emacs?
   (use-package protobuf-mode :straight t)
   (use-package yaml-mode :straight t)
   (use-package json-mode :straight t)
+  (use-package jenkinsfile-mode :straight t)
 #+end_src
 
 * Applications
