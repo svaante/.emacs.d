@@ -1813,6 +1813,7 @@ Why is =rust-mode= not part Emacs?
     :hook
     (dired-mode . auto-revert-mode)
     (dired-mode . dired-omit-mode)
+    (dired-mode . hl-line-mode)
     (dired-mode . (lambda () (recentf-push default-directory)))
     :custom
     ;; If two dired opened use other dired as target
