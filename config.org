@@ -1611,13 +1611,10 @@ General bindings
     (kill-emacs . dape-breakpoint-save)
     (after-init . dape-breakpoint-load)
     (dape-display-source . pulse-once)
-    (dape-active-mode
-     . (lambda ()
-         (unless dape-active-mode
-           (dape-info nil 'kill))))
     :custom
     (dape-debug t)
-    (dape-buffer-window-arrangment 'right)
+    (dape-buffer-window-arrangment 'gud)
+    (dape-info-hide-mode-line nil)
     (dape-inlay-hints t)
     ;; No trucation
     (dape-info-variable-table-row-config
@@ -1625,7 +1622,6 @@ General bindings
     (dape-breakpoint-global-mode +1)
     :config
     (add-hook 'dape-start-hook #'save-all-buffers)
-
     ;; java ughhh
     (require 'eglot)
     (let ((jar
