@@ -1300,7 +1300,9 @@ Convert escape codes to color.
     :custom
     (recall-mode +1)
     :config
-    (evil-make-overriding-map recall-list-mode-map))
+    (evil-make-overriding-map recall-list-mode-map)
+    (evil-make-overriding-map recall-log-mode-map))
+
 #+end_src
 
 * Org
