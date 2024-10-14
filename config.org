@@ -158,12 +158,11 @@ Load last =consult-theme= loaded theme.
     (mode-line-position-column-line-format '(" %l:%c"))
     (column-number-mode 1)
     (mode-line-format
-     '(""
-       mode-line-front-space
-       mode-line-mule-info
-       mode-line-client
-       mode-line-modified
-       mode-line-remote
+     '("%e" mode-line-front-space
+       (:propertize
+        ("" mode-line-mule-info mode-line-client mode-line-modified
+         mode-line-remote mode-line-window-dedicated)
+        display (min-width (5.0)))
        mode-line-frame-identification
        " "
        (:eval (mode-line-file-path))
@@ -176,9 +175,6 @@ Load last =consult-theme= loaded theme.
        "  "
        (vc-mode vc-mode)
        " "
-       (:eval (when (window-dedicated-p)
-                (propertize " Ded"
-                            'face 'font-lock-warning-face)))
        (:eval (when (buffer-narrowed-p)
                 (propertize " Nar"
                             'face 'font-lock-warning-face)))
