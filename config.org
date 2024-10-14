@@ -940,8 +940,6 @@ Hook for inserting current region into minibuffer for set of commands.
     :custom
     ;; Use more space for right and left *side* windows
     (window-sides-vertical t)
-    ;; Make dedicated windows strongly dedicated
-    (toggle-window-dedicated-flag t)
     ;; Display buffer rules
     (display-buffer-alist
      `(;; Popup pop from below
