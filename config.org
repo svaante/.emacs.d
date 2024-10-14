@@ -756,6 +756,7 @@ Hook for inserting current region into minibuffer for set of commands.
          (corfu-mode)))
     :custom
     (corfu-cycle t)
+    (corfu-preview-current nil)
     (corfu-auto t)
     (corfu-preselect 'first)
     (corfu-quit-no-match t)
