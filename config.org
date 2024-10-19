@@ -1835,13 +1835,6 @@ Why is =rust-mode= not part Emacs?
     (dired-subtree-line-prefix "    "))
 #+end_src
 
-*** Diredfl - Dired with colors
-#+begin_src emacs-lisp
-  (use-package diredfl
-    :straight t
-    :hook (dired-mode . diredfl-mode))
-#+end_src
-
 ** Email and Feeds
 *** Gnus - Reading mail, feeds and lists
 #+begin_src emacs-lisp
