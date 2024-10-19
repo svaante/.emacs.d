@@ -1403,7 +1403,7 @@ Convert escape codes to color.
         "* %?\n")
        ("p" "Pad" plain
         (file+olp+datetree "~/org/pad.org")
-        "\n%?\n" :unnarrowed t))))
+        "\n%?\n" :unnarrowed t :hook org-narrow-to-subtree))))
 #+end_src
 
 ** Evil Org - Org keybinds
