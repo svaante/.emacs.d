@@ -1615,6 +1615,7 @@ General bindings
     (kill-emacs . dape-breakpoint-save)
     (after-init . dape-breakpoint-load)
     (dape-display-source . pulse-once)
+    (dape-compile . kill-buffer)
     :custom
     (dape-debug t)
     (dape-buffer-window-arrangment 'gud)
