@@ -1023,9 +1023,8 @@ Hook for inserting current region into minibuffer for set of commands.
       "tk" 'tab-bar-close-tab)
     :custom
     (tab-bar-format
-     '( tab-bar-format-history tab-bar-format-tabs tab-bar-separator
-        tab-bar-format-add-tab tab-bar-format-align-right tab-bar-format-global))
-    (tab-bar-new-button-show nil)
+     '(tab-bar-format-tabs tab-bar-format-align-right tab-bar-format-global))
+    (tab-bar-tab-name-function 'tab-bar-tab-name-all)
     (tab-bar-close-button-show nil)
     (tab-bar-show t)
     (tab-bar-tab-hints t)
