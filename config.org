@@ -942,19 +942,15 @@ Hook for inserting current region into minibuffer for set of commands.
     (window-sides-vertical t)
     ;; Display buffer rules
     (display-buffer-alist
-     `(;; Popup pop from below
+     `(;; Pop from below
        ((or
-         "\\*.*eshell.*\\*" ;; need this silly thing to match `project-eshell'
          ;; Output
          (derived-mode . shell-command-mode)
          (derived-mode . messages-buffer-mode)
          (derived-mode . backtrace-mode)
-         ;; REPLs
-         (derived-mode . inferior-emacs-lisp-mode)
-         (derived-mode . inferior-python-mode)
-         ;; Special
+         ;; Org capture
          "\\(\\*Capture\\*\\|CAPTURE-.*\\)"
-         ;; Result type buffers
+         ;; Result buffers
          "\\*Embark Export: .*\\*"
          (derived-mode . embark-collect-mode)
          (derived-mode . occur-mode)
@@ -966,24 +962,20 @@ Hook for inserting current region into minibuffer for set of commands.
         (display-buffer-reuse-window display-buffer-below-selected)
         (body-function . select-window)
         (dedicated . t))
-       ;; Help pop from right
-       ((or (derived-mode . help-mode)
-            (derived-mode . Man-mode)
-            (derived-mode . devdocs-mode)
-            (derived-mode . shortdoc-mode)
-            "\\*eldoc.*\\*")
+       ;; Pop from right
+       ((or
+         ;; Help buffers
+         (derived-mode . help-mode)
+         (derived-mode . Man-mode)
+         (derived-mode . devdocs-mode)
+         (derived-mode . shortdoc-mode)
+         "\\*eldoc.*\\*")
         (display-buffer-in-direction)
         (direction . rightmost)
-        (window-width . 75)
+        (window-width . 80)
         (dedicated . t)
-        (body-function . select-window ))
-       ;; Compile
-       ((major-mode . compilation-mode)
-        (display-buffer-reuse-mode-window display-buffer-in-side-window)
-        (side . right)
-        (dedicated . t)
-        (window-width . 75))
-       ;; Org capture
+        (body-function . select-window))
+       ;; Org select
        ("\\*Org \\(Select\\|Note\\)\\*"
         (display-buffer-in-side-window)
         (dedicated . t)
@@ -1242,6 +1234,14 @@ Faces in =eshell= feels helpful.
     :straight t
     :config
     (eshell-syntax-highlighting-global-mode +1))
+#+end_src
+
+** EAT - Safe char based terminal apps
+#+begin_src emacs-lisp
+  (use-package eat
+    :straight t
+    :config
+    (add-hook 'eshell-load-hook #'eat-eshell-mode))
 #+end_src
 
 ** Compile - Run thing
