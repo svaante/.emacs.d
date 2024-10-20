@@ -706,7 +706,6 @@ Hook for inserting current region into minibuffer for set of commands.
       '(("*ielm*"       . ielm)
         ("*Python*"     . run-python)
         ("*nodejs*"     . nodejs-repl)
-        ("*eshell*"     . eshell)
         ("*SQL: SQLite" . sql-sqlite)))
     (add-to-list
      'consult-buffer-sources
