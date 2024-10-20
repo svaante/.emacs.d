@@ -1022,6 +1022,26 @@ Hook for inserting current region into minibuffer for set of commands.
       "C-l" 'evil-window-right))
 #+end_src
 
+** Tab-bar
+#+begin_src emacs-lisp
+  (use-package tab-bar
+    :general
+    (leader-map
+      "tr" 'tab-bar-rename-tab
+      "tn" 'tab-bar-new-tab
+      "tk" 'tab-bar-close-tab)
+    :custom
+    (tab-bar-format
+     '( tab-bar-format-history tab-bar-format-tabs tab-bar-separator
+        tab-bar-format-add-tab tab-bar-format-align-right tab-bar-format-global))
+    (tab-bar-new-button-show nil)
+    (tab-bar-close-button-show nil)
+    (tab-bar-show t)
+    (tab-bar-tab-hints t)
+    (tab-bar-mode +1)
+    (tab-bar-select-tab-modifiers '(super)))
+#+end_src
+
 ** Ace Window - Select window
 #+begin_src emacs-lisp
   (use-package ace-window
