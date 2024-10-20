@@ -1200,10 +1200,11 @@ Emacsen not launched from a shell.
      "q" 'kill-current-buffer
      (kbd "<return>") 'evil-append-last-line)
     :custom
+    (eshell-history-size 99999)
     (eshell-hist-ignoredups t)
     (eshell-save-history-on-exit t)
     :config
-    ;; Setup eshell `defualt-directory' naming stuff
+    ;; Setup eshell `default-directory' naming stuff
     (advice-add 'eshell :around #'eshell-advice)
     ;; Ensure that we are in insert mode
     (advice-add 'project-eshell :after #'evil-append-last-line)
