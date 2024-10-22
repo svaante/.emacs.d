@@ -104,7 +104,8 @@ Load last =consult-theme= loaded theme.
     ;; Remove the bars
     (tool-bar-mode nil)
     (scroll-bar-mode nil)
-    (menu-bar-mode nil))
+    (menu-bar-mode nil)
+    (frame-title-format nil))
 #+end_src
 
 ** Opacity
@@ -204,6 +205,7 @@ Load last =consult-theme= loaded theme.
 ** MacOS
 #+begin_src emacs-lisp
   (when (eq system-type 'darwin)
+    (setq ns-use-proxy-icon nil)
     (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t)))
 #+end_src
 
