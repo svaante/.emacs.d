@@ -1093,6 +1093,7 @@ Hook for inserting current region into minibuffer for set of commands.
   (use-package avy
     :straight t
     :general
+    ("C-s" #'avy-goto-char-timer)
     (leader-map
       "jj" #'evil-avy-goto-char-timer
       "jl" #'evil-avy-goto-line-keep-column)
