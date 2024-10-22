@@ -217,7 +217,7 @@ Load last =consult-theme= loaded theme.
     (mac-right-option-modifier nil))
 #+end_src
 
-** Globla mappings
+** Global mappings
 #+begin_src emacs-lisp
   (use-package emacs
     :config
