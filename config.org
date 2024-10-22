@@ -262,6 +262,12 @@ mappings.
 #+begin_src emacs-lisp
   (use-package general
     :straight t
+    :after evil
+    :hook (after-init
+           . (lambda ()
+               (dolist (buffer (buffer-list))
+                 (with-current-buffer buffer
+                   (evil-normalize-keymaps)))))
     :config
     (general-create-definer leader-map
       :prefix "SPC"
