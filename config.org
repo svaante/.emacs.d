@@ -260,7 +260,7 @@ mappings.
     (which-key-mode +1))
 #+end_src
 
-** General - Leader and =:general=
+** General - Leader and =general=
 #+begin_src emacs-lisp
   (use-package general
     :straight t
@@ -274,7 +274,13 @@ mappings.
     (general-create-definer leader-map
       :prefix "SPC"
       :states '(normal emacs motion visual)
-      :keymaps 'override))
+      :keymaps 'override)
+    (general-def general-override-mode-map
+      :states '(normal insert)
+      "C-j" 'evil-window-down
+      "C-k" 'evil-window-up
+      "C-h" 'evil-window-left
+      "C-l" 'evil-window-right))
 #+end_src
 
 ** Evil and Friends - Vi emulation
@@ -1007,18 +1013,6 @@ Hook for inserting current region into minibuffer for set of commands.
       "wm" 'toggle-frame-fullscreen)
     :custom
     (frame-resize-pixelwise t))
-#+end_src
-
-** Evil lazy window switching
-#+begin_src emacs-lisp
-  (use-package evil-lazy-bindings
-    :general
-    (general-def general-override-mode-map
-      :states '(normal insert)
-      "C-j" 'evil-window-down
-      "C-k" 'evil-window-up
-      "C-h" 'evil-window-left
-      "C-l" 'evil-window-right))
 #+end_src
 
 ** Tab-bar
