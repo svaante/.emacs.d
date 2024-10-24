@@ -394,6 +394,7 @@ Have always used Tims plugin.
      "g" 'magit
      "G" 'consult-ripgrep
      "!" 'async-shell-command
+     "h" 'hexl-find-file
      "e" 'eshell
      "." 'find-file-at
      "&" nil
