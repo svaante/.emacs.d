@@ -1998,40 +1998,30 @@ Why is =rust-mode= not part Emacs?
     (message-kill-buffer-on-exit t))
 #+end_src
 
-** IPython - Calculator
+** Literate Calc - Calc but sane
 #+begin_src emacs-lisp
-  (use-package ipython
-    :general
-    (leader-map "ac" #'run-ipython)
-    (inferior-python-mode-map
-     :states 'normal
-     "q" 'bury-buffer)
-    :preface
-    (defun run-ipython ()
-      "Run an inferior iPython process."
-      (interactive)
-      (require 'python)
-      (let* ((python-shell-buffer-name "IPython")
-             (python-shell-interpreter "ipython")
-             (python-shell-interpreter-args "-i --simple-prompt")
-             (process (run-python nil nil t)))
-        ;; There should not be anything interesting in this IPython process
-        (set-process-query-on-exit-flag process nil)
-        ;; Maybe this should be part of the `display-buffer-alist'
-        ;; `body-function' for TERM/REPL like things.
-        (with-current-buffer (process-buffer process)
-          (goto-char (point-max))
-          (evil-insert-state)))))
+    (use-package literate-calc-mode
+      :straight t
+      :general
+      (leader-map "ac" #'literate-calc-scratch)
+      (literate-calc-mode-map :states 'normal "q" 'bury-buffer)
+      (literate-calc-mode-map "C-c C-e" 'literate-calc-kill-result
+                              "C-c C-c" 'literate-calc-set-radix)
+      :custom
+      (literate-calc-mode-idle-time 0)
+      :preface
+      (defun literate-calc-scratch ()
+        "Open `literate-calc-mode' scratch buffer."
+        (interactive)
+        (with-current-buffer (get-buffer-create "*literate-calc*")
+          (unless (eq major-mode 'literate-calc-mode)
+            (literate-calc-mode)
+            (insert "Welcome to literate-calc-mode!\n= ")
+            (evil-insert-state))
+          (pop-to-buffer (current-buffer)))))
 #+end_src
 
-** Proced - Task manager
-#+begin_src emacs-lisp
-  (use-package proced
-    :general
-    (leader-map "ap" 'proced))
-#+end_src
-
-** define-word - Thesaurus
+** Define Word - Thesaurus
 #+begin_src emacs-lisp
   (use-package define-word
     :straight t
