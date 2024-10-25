@@ -1079,6 +1079,7 @@ Hook for inserting current region into minibuffer for set of commands.
 #+begin_src emacs-lisp
   (use-package recentf
     :custom
+    (recentf-max-saved-items 500)
     (recentf-mode +1))
 #+end_src
 
