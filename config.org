@@ -1779,7 +1779,6 @@ Why is =rust-mode= not part Emacs?
 #+end_src
 
 * Applications
-** General
 #+begin_src emacs-lisp
   (leader-map "a" '(:which-key "applications"))
 #+end_src
@@ -1812,10 +1811,7 @@ Why is =rust-mode= not part Emacs?
     :config
     (advice-add 'magit-status-here :after
                 (defun magit-recenter (&rest _) (recenter))))
-#+end_src
 
-** Ediff - Diff
-#+begin_src emacs-lisp
   (use-package ediff
     :custom
     (ediff-window-setup-function 'ediff-setup-windows-plain))
