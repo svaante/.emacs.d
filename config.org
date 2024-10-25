@@ -1205,11 +1205,6 @@ Emacsen not launched from a shell.
                       (lambda () (rename-buffer (eshell-buffer-name) t))
                       nil t))
           buffer)))
-    :hook
-    (eshell-mode
-     . (lambda ()
-         ;; Add imenu support
-         (setq-local imenu-generic-expression '(("$ " " $ \\(.*\\)" 1)))))
     :general
     (leader-map "e" 'eshell)
     (eshell-mode-map
