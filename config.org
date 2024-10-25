@@ -386,9 +386,9 @@ Have always used Tims plugin.
      (kbd "C-SPC") 'embark-act
      (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
      (kbd "C-<return>") 'embark-export)
-    (:states
-     'normal
-     (kbd "C-SPC") 'embark-act)
+    (:states 'normal
+             (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
+             (kbd "C-SPC") 'embark-act)
     (embark-file-map
      "SPC" 'project-find-file-at
      "g" 'magit
