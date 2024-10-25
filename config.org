@@ -1969,9 +1969,9 @@ Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package time
     :custom
+    (display-time-24hr-format t)
+    (display-time-default-load-average nil)
     (display-time-mail-directory "~/Mail/dpettersson/Inbox/new/")
-    (display-time-string-forms
-     '((when mail (propertize " Mail" 'face 'mode-line-emphasis))))
     (display-time-mode +1))
 #+end_src
 
