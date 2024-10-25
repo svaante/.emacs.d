@@ -1641,8 +1641,8 @@ General bindings
     (dape-compile . kill-buffer)
     :custom
     (dape-debug t)
-    (dape-buffer-window-arrangment 'gud)
-    (dape-info-hide-mode-line nil)
+    ;; (dape-buffer-window-arrangment 'gud)
+    ;; (dape-info-hide-mode-line nil)
     (dape-inlay-hints t)
     ;; No trucation
     (dape-info-variable-table-row-config
