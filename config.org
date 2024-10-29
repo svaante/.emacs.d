@@ -1239,14 +1239,6 @@ Faces in =eshell= feels helpful.
     (eshell-syntax-highlighting-global-mode +1))
 #+end_src
 
-** EAT - Safe char based terminal apps
-#+begin_src emacs-lisp
-  (use-package eat
-    :straight t
-    :config
-    (add-hook 'eshell-load-hook #'eat-eshell-mode))
-#+end_src
-
 ** Compile - Run thing
 #+begin_src emacs-lisp
   (use-package compile
