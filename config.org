@@ -1300,10 +1300,8 @@ Convert escape codes to color.
     ;; Bolt on char based input on evil insert mode,
     ;; `comint-send-input' breaks to often.
     (require 'term)
-    (evil-set-auxiliary-keymap shell-command-mode-map
-                               'insert (map-copy term-raw-map))
+    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map))
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
-
     (advice-add 'shell-command-sentinel :after
                 #'shell-command-sentinel-show-exit-code))
 #+end_src
