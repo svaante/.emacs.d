@@ -189,17 +189,11 @@ Load last =consult-theme= loaded theme.
        mode-line-format-right-align)))
 #+end_src
 
-** Dashboard - Splash screen
+** Startup - Splash screen
 #+begin_src emacs-lisp
-  (use-package dashboard
-    :straight t
+  (use-package emacs
     :custom
-    (dashboard-items '((recents  . 10)
-                       (bookmarks . 10)))
-    (dashboard-startup-banner
-     (locate-user-emacs-file "xemacs_color.svg"))
-    :config
-    (dashboard-setup-startup-hook))
+    (inhibit-startup-screen t))
 #+end_src
 
 ** MacOS
