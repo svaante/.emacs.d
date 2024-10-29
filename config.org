@@ -989,6 +989,12 @@ Hook for inserting current region into minibuffer for set of commands.
         (window-width . 80)
         (dedicated . t)
         (body-function . select-window))
+       ;; Compile
+       ((or (major-mode . compilation-mode))
+        (display-buffer-reuse-mode-window display-buffer-in-side-window)
+        (side . right)
+        (dedicated . t)
+        (window-width . 75))
        ;; Org select
        ("\\*Org \\(Select\\|Note\\)\\*"
         (display-buffer-in-side-window)
