@@ -403,12 +403,11 @@ Have always used Tims plugin.
     :config
     ;; Remove C-u arg why would I want a new buffer?
     (setq embark-pre-action-hooks
-     (thread-last embark-pre-action-hooks
-                  (assoc-delete-all 'shell)
-                  (assoc-delete-all 'eshell)))
+     (assoc-delete-all 'eshell embark-pre-action-hooks))
     ;; Make magit usable by file category
     (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
 #+end_src
+
 * Editing
 ** Jinx - Spellchecker
 #+begin_src emacs-lisp
