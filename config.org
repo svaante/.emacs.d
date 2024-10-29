@@ -566,7 +566,7 @@ Not convinced that it's more better then =yasnippet=.
 #+end_src
 
 ** Minibuffer - Read and complete
-Hook for inserting current region into minibuffer for set of commands.
+Hook for inserting current region into minibuffer.
 #+begin_src emacs-lisp
   (use-package minibuffer
     :hook
@@ -1168,7 +1168,7 @@ Hook for inserting current region into minibuffer for set of commands.
       (xref-pulse-momentarily)))
 #+end_src
 
-* Shell and Commands
+* Shell and Shell Commands
 ** Exec path from shell - Infer PATH
 =exec-path-from-shell= is a hack to set `exec-path' shellishly for
 Emacsen not launched from a shell.
@@ -1232,7 +1232,7 @@ Emacsen not launched from a shell.
     (advice-add 'eshell :after #'evil-append-last-line)
     ;; Cat works with eshell other pagers does not
     (setenv "PAGER" "cat")
-    ;; Eshell command
+    ;; Eshell commands
     (defun eshell/ff (&rest args)
       (apply #'find-file args)))
 #+end_src
