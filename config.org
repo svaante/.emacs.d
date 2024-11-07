@@ -201,35 +201,40 @@ Load last =consult-theme= loaded theme.
 #+end_src
 
 * Keymaps
-** MacOS - System
+** General - Leader and keymap
 #+begin_src emacs-lisp
-  (use-package ns-win
-    :if (eq system-type 'darwin)
-    :custom
-    (mac-option-key-is-meta t)
-    (mac-right-option-modifier nil))
+  (use-package general
+    :straight t
+    :after evil
+    :hook (after-init
+           . (lambda ()
+               (dolist (buffer (buffer-list))
+                 (with-current-buffer buffer
+                   (evil-normalize-keymaps)))))
+    :config
+    (general-create-definer leader-map
+      :prefix "SPC"
+      :states '(normal emacs motion visual)
+      :keymaps 'override))
 #+end_src
 
 ** Global mappings
 #+begin_src emacs-lisp
   (use-package emacs
+    :general
+    ;; Have never got around to using M- bindings
+    (key-translation-map "C-." "M-n"
+                         "C-," "M-p")
+    (general-override-mode-map
+     :states '(normal insert)
+     "C-j" 'evil-window-down
+     "C-k" 'evil-window-up
+     "C-h" 'evil-window-left
+     "C-l" 'evil-window-right)
     :config
     ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
     (when (display-graphic-p)
       (define-key input-decode-map (kbd "C-i") (kbd "H-i"))))
-#+end_src
-
-** Meta - History insertion
-Add non meta binding for history one of the most important Emacs
-mappings.
-#+begin_src emacs-lisp
-  (use-package emacs
-    :config
-    (define-key key-translation-map (kbd "C-.") (kbd "M-n"))
-    (define-key key-translation-map (kbd "C-,") (kbd "M-p"))
-    ;; Move cursor after inserted history
-    (advice-add 'goto-history-element :after
-                (lambda (&rest _) (end-of-buffer))))
 #+end_src
 
 ** Repeat - Ergonomic keymaps
@@ -249,29 +254,6 @@ mappings.
     (which-key-sort-order 'which-key-key-order-alpha)
     ;; On
     (which-key-mode +1))
-#+end_src
-
-** General - Leader and =general=
-#+begin_src emacs-lisp
-  (use-package general
-    :straight t
-    :after evil
-    :hook (after-init
-           . (lambda ()
-               (dolist (buffer (buffer-list))
-                 (with-current-buffer buffer
-                   (evil-normalize-keymaps)))))
-    :config
-    (general-create-definer leader-map
-      :prefix "SPC"
-      :states '(normal emacs motion visual)
-      :keymaps 'override)
-    (general-def general-override-mode-map
-      :states '(normal insert)
-      "C-j" 'evil-window-down
-      "C-k" 'evil-window-up
-      "C-h" 'evil-window-left
-      "C-l" 'evil-window-right))
 #+end_src
 
 ** Evil and Friends - Vi emulation
@@ -403,6 +385,15 @@ Have always used Tims plugin.
      (assoc-delete-all 'eshell embark-pre-action-hooks))
     ;; Make magit usable by file category
     (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
+#+end_src
+
+** MacOS - System
+#+begin_src emacs-lisp
+  (use-package ns-win
+    :if (eq system-type 'darwin)
+    :custom
+    (mac-option-key-is-meta t)
+    (mac-right-option-modifier nil))
 #+end_src
 
 * Editing
