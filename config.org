@@ -1833,14 +1833,6 @@ Why is =rust-mode= not part Emacs?
     (dired-listing-switches "-alt"))
 #+end_src
 
-*** Dired Subtree - Expand directory
-#+begin_src emacs-lisp
-  (use-package dired-subtree
-    :straight t
-    :custom
-    (dired-subtree-line-prefix "    "))
-#+end_src
-
 ** Email and Feeds
 *** Gnus - Reading mail, feeds and lists
 #+begin_src emacs-lisp
