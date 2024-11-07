@@ -728,10 +728,7 @@ Hook for inserting current region into minibuffer.
                      (funcall (alist-get key consult-repl-buffer-alist)))
         :items    ,(lambda ()
                      (mapcar #'car consult-repl-buffer-alist)))
-     'append)
-
-    ;; do not preview buffers in consult-buffer
-    (consult-customize consult-buffer :preview-key nil))
+     'append))
 #+end_src
 
 ** Marginalia - Minibuffer annotations
