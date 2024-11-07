@@ -88,11 +88,6 @@ Load last =consult-theme= loaded theme.
 #+begin_src emacs-lisp
   (use-package ef-themes :straight t)
   (use-package standard-themes :straight t)
-  (use-package zenburn-theme
-    :straight t
-    :custom
-    (zenburn-override-colors-alist
-     '(("zenburn-bg" . "#111111"))))
 #+end_src
 
 ** Simplify UI
