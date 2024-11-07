@@ -561,6 +561,10 @@ Hook for inserting current region into minibuffer.
   (use-package minibuffer
     :hook
     (minibuffer-setup . minibuffer-insert-selection)
+    :custom
+    ;; Move cursor after inserting history
+    (advice-add 'goto-history-element
+                :after (lambda (&rest _) (end-of-buffer)))
     :preface
     (defvar minibuffer-insert-region-commands
      '(consult-line
