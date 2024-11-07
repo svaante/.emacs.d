@@ -1554,9 +1554,7 @@ General bindings
     :custom
     (lsp-headerline-breadcrumb-enable nil)
     (lsp-modeline-code-actions-enable nil)
-    (lsp-modeline-diagnostics-enable nil)
-    :config
-    (lsp-snippet-tempel-lsp-mode-init))
+    (lsp-modeline-diagnostics-enable nil))
 
   (use-package consult-lsp
     :after lsp-mode
