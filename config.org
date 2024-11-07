@@ -62,7 +62,7 @@ choice.
 ** Load theme
 Load last =consult-theme= loaded theme.
 #+begin_src emacs-lisp
-  (use-package theme-load-last
+  (use-package emacs
     :after savehist
     :preface
     (defun load-last-theme ()
@@ -478,7 +478,7 @@ Have always used Tims plugin.
 ** Narrowing
 #+begin_src emacs-lisp
   ;; Stolen from someplace
-  (use-package narrow-or-widen
+  (use-package emacs
     :preface
     (defun narrow-or-widen-dwim ()
       "Widen if buffer is narrowed, narrow-dwim otherwise.
