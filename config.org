@@ -258,7 +258,7 @@ Load last =consult-theme= loaded theme.
 
 ** Evil and Friends - Vi emulation
 #+begin_src emacs-lisp
-  ;; Last known good commit 30ebe6d:
+  ;; Last known good commit 3d4102c:
   ;; - evil-escape macro bug (inserts "jK")
   ;; - minibuffer bug does not enter in insert mode
   (use-package evil
