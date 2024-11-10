@@ -1857,7 +1857,7 @@ Why is =rust-mode= not part Emacs?
     (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date))
     ;; Show all(ish) groups and articles
     (gnus-permanently-visible-groups ".*")
-    (gnus-large-newsgroup 5000)
+    (gnus-large-newsgroup 500)
     ;; Show more MIME-stuff
     (gnus-mime-display-multipart-related-as-mixed t)
     ;; Don't select the first automatically
