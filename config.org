@@ -960,6 +960,7 @@ Hook for inserting current region into minibuffer.
          (derived-mode . flymake-project-diagnostics-mode)
          (derived-mode . flymake-diagnostics-buffer-mode))
         (display-buffer-reuse-window display-buffer-below-selected)
+        (reusable-frames . t)
         (body-function . select-window)
         (dedicated . t))
        ;; Pop from right
@@ -979,6 +980,7 @@ Hook for inserting current region into minibuffer.
        ((or (major-mode . compilation-mode))
         (display-buffer-reuse-mode-window display-buffer-in-side-window)
         (side . right)
+        (reusable-frames . t)
         (dedicated . t)
         (window-width . 75))
        ;; Org select
