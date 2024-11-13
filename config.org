@@ -680,7 +680,7 @@ Hook for inserting current region into minibuffer.
       "!" 'async-shell-command
       "j" '(:which-key "jump")
       "jc" 'consult-compile-error
-      "je" 'consult-flymake
+      "jf" 'consult-flymake
       "jm" 'consult-mark
       "h" '(:which-key "help")
       "hh" 'describe-function
