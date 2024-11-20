@@ -1015,16 +1015,26 @@ Hook for inserting current region into minibuffer.
   (use-package tab-bar
     :general
     (leader-map
-      "t" 'tab-bar-new-tab
-      "1" 'tab-bar-select-tab
-      "2" 'tab-bar-select-tab
-      "3" 'tab-bar-select-tab
-      "4" 'tab-bar-select-tab
-      "5" 'tab-bar-select-tab
-      "0" 'tab-bar-select-tab)
+      "wt" 'tab-bar-new-tab
+      "wk" 'tab-bar-close-tab
+      "1"  'tab-bar-select-tab
+      "2"  'tab-bar-select-tab
+      "3"  'tab-bar-select-tab
+      "4"  'tab-bar-select-tab
+      "5"  'tab-bar-select-tab
+      "0"  'tab-bar-select-tab)
     :custom
-    (tab-bar-show 1)
-    (tab-bar-new-tab-choice "*scratch*"))
+    (tab-bar-format
+     '(tab-bar-format-tabs tab-bar-format-align-right tab-bar-format-global))
+    (tab-bar-auto-width nil)
+    (tab-bar-close-button-show nil)
+    (tab-bar-mode +1)
+    (tab-bar-new-tab-choice "*scratch*")
+    :config
+    (face-spec-set 'tab-bar '((t :inherit fringe)) 'face-defface-spec)
+    (face-spec-set 'tab-bar-tab '((t :inherit mode-line)) 'face-defface-spec)
+    (face-spec-set 'tab-bar-tab-inactive '((t :inherit mode-line-inactive))
+                   'face-defface-spec))
 #+end_src
 
 ** Ace Window - Select window
