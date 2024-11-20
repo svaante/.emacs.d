@@ -155,7 +155,6 @@ Load last =consult-theme= loaded theme.
     :custom
     (mode-line-position-column-line-format '(" %l:%c"))
     (column-number-mode 1)
-    (mode-line-misc-info nil) ;; Remove global-mode-string
     (mode-line-format
      '("%e" mode-line-front-space
        (:propertize
@@ -184,10 +183,7 @@ Load last =consult-theme= loaded theme.
        (defining-kbd-macro mode-line-defining-kbd-macro)
        " "
        mode-line-misc-info
-       mode-line-format-right-align
-       (:eval (when (mode-line-window-selected-p)
-                global-mode-string))
-       " ")))
+       mode-line-format-right-align)))
 #+end_src
 
 ** Startup - Splash screen
