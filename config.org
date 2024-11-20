@@ -991,7 +991,17 @@ Hook for inserting current region into minibuffer.
             (derived-mode . magit-process-mode))
         (display-buffer-pop-up-window))
        ((derived-mode . magit-status-mode)
-        (display-buffer-same-window)))))
+        (display-buffer-same-window))
+       ;; Tabs
+       ;; Gnus
+       ((or "\\*Group\\*"
+            (derived-mode . gnus-mode))
+        (display-buffer-in-tab)
+        (tab-name . "Gnus"))
+       ;; ERC
+       ((derived-mode . erc-mode)
+        (display-buffer-in-tab)
+        (tab-name . "IRC")))))
 #+end_src
 
 ** Frame
