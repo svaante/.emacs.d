@@ -1903,7 +1903,7 @@ Why is =rust-mode= not part Emacs?
              (nntp-port-number 563))
        ;; Mailing lists
        (nntp "news.gmane.io")))
-  ;; use correct email
+    ;; use correct email
     (gnus-posting-styles
      '((".*" ; Matches all groups of messages
         (address "Daniel Pettersson <daniel@dpettersson.net>"))
@@ -1921,7 +1921,15 @@ Why is =rust-mode= not part Emacs?
         (gnus-auto-select-first t)
         (gnus-summary-line-format "%U%R%z%d %I%(%s %)\n"))
        ("news.gmane.io"
-        (display . 1000)))))
+        (display . 1000))))
+    :config
+    ;; Gnus should use display-buffer
+    (advice-add 'gnus :before
+                (defun gnus--display-buffer-advice (&rest _)
+                  (thread-first gnus-group-buffer
+                                gnus-get-buffer-create
+                                display-buffer
+                                select-window))))
 #+end_src
 
 *** Mbsync - Get mail
