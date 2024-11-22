@@ -558,13 +558,13 @@ Hook for inserting current region into minibuffer.
                 :after (lambda (&rest _) (end-of-buffer)))
     :preface
     (defvar minibuffer-insert-region-commands
-     '(consult-line
-       consult-grep
-       consult-ripgrep
-       consult-lsp-symbols
-       consult-eglot-symbols
-       async-shell-command
-       project-async-shell-command))
+      '(consult-line
+        consult-grep
+        consult-ripgrep
+        consult-lsp-symbols
+        consult-eglot-symbols
+        async-shell-command
+        project-async-shell-command))
     (defun minibuffer-insert-selection ()
       "If region is active insert region into minibuffer."
       (when-let* ((_ (member this-command minibuffer-insert-region-commands))
@@ -575,10 +575,17 @@ Hook for inserting current region into minibuffer.
           (when (use-region-p)
             (let ((selection
                    (buffer-substring-no-properties
-                (region-beginning) (region-end))))
+                    (region-beginning) (region-end))))
               (setq mark-active nil)
               (with-current-buffer minibuffer-buffer
-                (insert selection))))))))
+                (insert selection)))))))
+
+    (defun goto-history-element-advice-goto-eob (&rest _)
+      (goto-char (point-max)))
+    :config
+    ;; Move point to end of buffer after `next-history-element' and
+    ;; `previous-history-element'.
+    (advice-add 'goto-history-element :after #'goto-history-element-advice-goto-eob))
 #+end_src
 
 ** Vertico - Vertical minibuffer completion
