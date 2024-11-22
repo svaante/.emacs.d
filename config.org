@@ -1559,7 +1559,10 @@ General bindings
     :after lsp-snippet-tempel
     :straight t
     :general
-    (leader-map "lr" 'lsp-rename)
+    (leader-map
+      "lr" 'lsp-rename
+      "la" 'lsp-execute-code-action
+      "lf" 'lsp-format-buffer)
     :hook
     (c-mode . lsp)
     (python-mode . lsp)
@@ -1569,7 +1572,8 @@ General bindings
     :custom
     (lsp-headerline-breadcrumb-enable nil)
     (lsp-modeline-code-actions-enable nil)
-    (lsp-modeline-diagnostics-enable nil))
+    (lsp-modeline-diagnostics-enable nil)
+    (lsp-semantic-tokens-enable t))
 
   (use-package consult-lsp
     :after lsp-mode
