@@ -939,6 +939,10 @@ Hook for inserting current region into minibuffer.
     :custom
     ;; Use more space for right and left *side* windows
     (window-sides-vertical t)
+    ;; Never horizontally unless specifically asked
+    (split-height-threshold nil)
+    ;; Need at least 80 colums
+    (split-width-threshold (* 80 2))
     ;; Display buffer rules
     (display-buffer-alist
      `(;; Pop from below
