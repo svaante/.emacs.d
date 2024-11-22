@@ -1725,13 +1725,6 @@ General bindings
     (eros-mode))
 #+end_src
 
-*** Debug - It's more convinent then edebug
-#+begin_src emacs-lisp
-  (use-package debug
-    :custom
-    (debugger-stack-frame-as-list t))
-#+end_src
-
 ** C
 #+begin_src emacs-lisp
   (use-package cc-mode
