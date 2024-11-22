@@ -1177,6 +1177,88 @@ Emacsen not launched from a shell.
     (exec-path-from-shell-initialize))
 #+end_src
 
+** Async Shell Command - Run things
+#+begin_src emacs-lisp
+  (use-package shell
+    :preface
+    ;; Show exit code in mode line
+    (defun shell-command-sentinel-show-exit-code (process status)
+      (when-let* ((buffer (process-buffer process))
+                  ((buffer-live-p buffer)))
+        (let ((dead-p (memq (process-status process) '(exit signal)))
+              (status (process-exit-status process)))
+          (with-current-buffer buffer
+            (setq mode-line-process
+                  (propertize
+                   (concat
+                    ":"
+                    (format "%s" (process-status process))
+                    (when dead-p
+                      (format " [%s]" status)))
+                   'face (if (zerop status) 'success 'warning)))
+            (force-mode-line-update t)))))
+    :general
+    (leader-map "!" 'async-shell-command)
+    (shell-command-mode-map
+     :states 'normal
+     "q" 'kill-current-buffer
+     "gr" 'revert-buffer ;; reruns buffer
+     "p" 'term-paste)
+    :custom
+    (async-shell-command-buffer 'rename-buffer)
+    (shell-command-prompt-show-cwd t)
+    :config
+    ;; Bolt on char based input on evil insert mode,
+    ;; `comint-send-input' breaks to often.
+    (require 'term)
+    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map))
+    (add-to-list 'evil-normal-state-modes 'shell-command-mode)
+    (advice-add 'shell-command-sentinel :after
+                #'shell-command-sentinel-show-exit-code))
+#+end_src
+
+** Compile - Run thing
+#+begin_src emacs-lisp
+  (use-package compile
+    :custom
+    ;; Use last history as the compile command
+    (compile-command (or (car-safe compile-history) ""))
+    ;; Always scroll
+    (compilation-scroll-output t)
+    ;; Just save me the keystrokes
+    (compilation-ask-about-save nil)
+    :config
+    ;; Not compile specific, but strip ^M in comint buffers
+    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
+#+end_src
+
+Convert escape codes to color.
+#+begin_src emacs-lisp
+  (use-package xterm-color
+    :straight t
+    :preface
+    (defun xterm-color-advice-compilation-filter (f proc string)
+      (funcall f proc (xterm-color-filter string)))
+    :custom
+    (compilation-environment '("TERM=xterm-256color"))
+    :config
+    (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
+#+end_src
+
+** Recall - Run things again
+#+begin_src emacs-lisp
+  (use-package recall
+    :straight (recall :type git :host github :repo "svaante/recall")
+    :general
+    (leader-map "r" 'recall-rerun)
+    :custom
+    (recall-completing-read-fn #'recall-consult-completing-read)
+    (recall-mode +1)
+    :config
+    (evil-make-overriding-map recall-list-mode-map)
+    (evil-make-overriding-map recall-log-mode-map))
+#+end_src
+
 ** Eshell - The preferred non standard shell
 #+begin_src emacs-lisp
   (use-package eshell
@@ -1240,87 +1322,6 @@ Faces in =eshell= feels helpful.
     :straight t
     :config
     (eshell-syntax-highlighting-global-mode +1))
-#+end_src
-
-** Compile - Run thing
-#+begin_src emacs-lisp
-  (use-package compile
-    :custom
-    ;; Use last history as the compile command
-    (compile-command (or (car-safe compile-history) ""))
-    ;; Always scroll
-    (compilation-scroll-output t)
-    ;; Just save me the keystrokes
-    (compilation-ask-about-save nil)
-    :config
-    ;; Not compile specific, but strip ^M in comint buffers
-    (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
-#+end_src
-
-Convert escape codes to color.
-#+begin_src emacs-lisp
-  (use-package xterm-color
-    :straight t
-    :preface
-    (defun xterm-color-advice-compilation-filter (f proc string)
-      (funcall f proc (xterm-color-filter string)))
-    :custom
-    (compilation-environment '("TERM=xterm-256color"))
-    :config
-    (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
-#+end_src
-
-** Async Shell Command - Run things
-#+begin_src emacs-lisp
-  (use-package shell
-    :preface
-    ;; Show exit code in mode line
-    (defun shell-command-sentinel-show-exit-code (process status)
-      (when-let* ((buffer (process-buffer process))
-                  ((buffer-live-p buffer)))
-        (let ((dead-p (memq (process-status process) '(exit signal)))
-              (status (process-exit-status process)))
-          (with-current-buffer buffer
-            (setq mode-line-process
-                  (propertize
-                   (concat
-                    ":"
-                    (format "%s" (process-status process))
-                    (when dead-p
-                      (format " [%s]" status)))
-                   'face (if (zerop status) 'success 'warning)))
-            (force-mode-line-update t)))))
-    :general
-    (leader-map "!" 'async-shell-command)
-    (shell-command-mode-map
-     :states 'normal
-     "q" 'kill-current-buffer
-     "gr" 'revert-buffer ;; reruns buffer
-     "p" 'term-paste)
-    :custom
-    (async-shell-command-buffer 'rename-buffer)
-    (shell-command-prompt-show-cwd t)
-    :config
-    ;; Bolt on char based input on evil insert mode,
-    ;; `comint-send-input' breaks to often.
-    (require 'term)
-    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map))
-    (add-to-list 'evil-normal-state-modes 'shell-command-mode)
-    (advice-add 'shell-command-sentinel :after
-                #'shell-command-sentinel-show-exit-code))
-#+end_src
-
-** Recall - Run things again
-#+begin_src emacs-lisp
-  (use-package recall
-    :straight (recall :type git :host github :repo "svaante/recall")
-    :general
-    (leader-map "r" 'recall-rerun)
-    :custom
-    (recall-mode +1)
-    :config
-    (evil-make-overriding-map recall-list-mode-map)
-    (evil-make-overriding-map recall-log-mode-map))
 #+end_src
 
 * Org
