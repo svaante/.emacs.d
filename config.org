@@ -230,11 +230,7 @@ Load last =consult-theme= loaded theme.
      "C-j" 'evil-window-down
      "C-k" 'evil-window-up
      "C-h" 'evil-window-left
-     "C-l" 'evil-window-right)
-    :config
-    ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
-    (when (display-graphic-p)
-      (define-key input-decode-map (kbd "C-i") (kbd "H-i"))))
+     "C-l" 'evil-window-right))
 #+end_src
 
 ** Repeat - Ergonomic keymaps
@@ -266,7 +262,7 @@ Load last =consult-theme= loaded theme.
     :custom
     (evil-want-integration t)
     (evil-want-keybinding nil)
-    (evil-want-C-i-jump nil)
+    (evil-want-C-i-jump t)
     (evil-want-C-u-scroll t)
     (evil-want-minibuffer t)
     ;; Cursor type is enough for evil state
@@ -1093,18 +1089,6 @@ Hook for inserting current region into minibuffer.
     (recentf-mode +1))
 #+end_src
 
-** Better Jumper - Move forwards/backwards in point history
-#+begin_src emacs-lisp
-  (use-package better-jumper
-    :straight t
-    :general
-    (:states 'motion
-             "C-o" 'better-jumper-jump-backward
-             "H-i" 'better-jumper-jump-forward)
-    :custom
-    (better-jumper-mode +1))
-#+end_src
-
 ** Avy - In buffer navigation
 #+begin_src emacs-lisp
   (use-package avy
@@ -1634,7 +1618,7 @@ General bindings
       (save-some-buffers t t))
     :general
     (dape-global-map
-     (kbd "H-i") #'dape-stack-select-down
+     (kbd "C-i") #'dape-stack-select-down
      (kbd "C-o") #'dape-stack-select-up)
     (leader-map
       "d" '(:keymap dape-global-map :which-key "dape"))
