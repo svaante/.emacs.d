@@ -1016,7 +1016,7 @@ Hook for inserting current region into minibuffer.
   (use-package frame
     :general
     (leader-map
-      "w" '(:ignore t :which-key "windows and frames")
+      "w" '(:ignore t :which-key "windows, tabs and frames")
       "wt" 'toggle-frame-maximized
       "wm" 'toggle-frame-fullscreen)
     :custom
