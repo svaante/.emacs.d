@@ -1605,6 +1605,7 @@ General bindings
     :custom
     ;; I find the fringe bang's distracting
     (flymake-fringe-indicator-position nil)
+    (flymake-show-diagnostics-at-end-of-line t)
     :hook
     (emacs-lisp-mode . flymake-mode))
 #+end_src
