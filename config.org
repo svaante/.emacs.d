@@ -1488,10 +1488,10 @@ General bindings
 #+begin_src emacs-lisp
   (use-package jsonrpc :straight t)
 
-  (use-package lsp-snippet-tempel
-    :straight (lsp-snippet-tempel :type git
-                                  :host github
-                                  :repo "svaante/lsp-snippet")
+  (use-package lsp-snippet
+    :straight (lsp-snippet :type git
+                           :host github
+                           :repo "svaante/lsp-snippet")
     :config
     (lsp-snippet-tempel-lsp-mode-init)
     (lsp-snippet-tempel-eglot-init))
@@ -1552,7 +1552,7 @@ General bindings
 #+begin_src emacs-lisp
   (use-package lsp-mode
     :disabled
-    :after lsp-snippet-tempel
+    :after lsp-snippet
     :straight t
     :general
     (leader-map
