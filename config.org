@@ -1011,8 +1011,8 @@ Hook for inserting current region into minibuffer.
             (derived-mode . gnus-mode))
         (display-buffer-in-tab)
         (tab-name . "Gnus"))
-       ;; ERC
-       ((derived-mode . erc-mode)
+       ;; Irc
+       ((derived-mode . rcirc-mode)
         (display-buffer-in-tab)
         (tab-name . "IRC")))))
 #+end_src
@@ -2018,6 +2018,16 @@ Why is =rust-mode= not part Emacs?
      . (lambda ()
            (setq-local evil-lookup-func
                        #'define-word-at-point))))
+#+end_src
+
+** Rcirc - Irc
+#+begin_src emacs-lisp
+  (use-package rcirc
+    :straight t
+    :general
+    (leader-map "ai" 'rcirc)
+    :config
+    (evil-set-initial-state 'rcirc-mode 'normal))
 #+end_src
 
 * Misc commands
