@@ -230,7 +230,11 @@ Load last =consult-theme= loaded theme.
      "C-j" 'evil-window-down
      "C-k" 'evil-window-up
      "C-h" 'evil-window-left
-     "C-l" 'evil-window-right))
+     "C-l" 'evil-window-right)
+    :config
+    ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
+    (when (display-graphic-p)
+      (define-key input-decode-map (kbd "C-i") (kbd "H-i"))))
 #+end_src
 
 ** Repeat - Ergonomic keymaps
@@ -259,10 +263,12 @@ Load last =consult-theme= loaded theme.
   ;; - minibuffer bug does not enter in insert mode
   (use-package evil
     :straight t
+    :general
+    (:states 'motion "H-i" 'evil-jump-forward)
     :custom
     (evil-want-integration t)
     (evil-want-keybinding nil)
-    (evil-want-C-i-jump t)
+    (evil-want-C-i-jump nil)
     (evil-want-C-u-scroll t)
     (evil-want-minibuffer t)
     ;; Cursor type is enough for evil state
@@ -1624,7 +1630,7 @@ General bindings
       (save-some-buffers t t))
     :general
     (dape-global-map
-     (kbd "C-i") #'dape-stack-select-down
+     (kbd "H-i") #'dape-stack-select-down
      (kbd "C-o") #'dape-stack-select-up)
     (leader-map
       "d" '(:keymap dape-global-map :which-key "dape"))
