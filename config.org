@@ -1919,11 +1919,8 @@ Why is =rust-mode= not part Emacs?
     :config
     ;; Gnus should use display-buffer
     (advice-add 'gnus :before
-                (defun gnus--display-buffer-advice (&rest _)
-                  (thread-first gnus-group-buffer
-                                gnus-get-buffer-create
-                                display-buffer
-                                select-window))))
+                (defun gnus--in-tag (&rest _)
+                  (tab-bar-select-tab-by-name "Gnus"))))
 #+end_src
 
 *** Mbsync - Get mail
