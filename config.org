@@ -1016,7 +1016,7 @@ Hook for inserting current region into minibuffer.
   (use-package frame
     :general
     (leader-map
-      "w" '(:ignore t :which-key "windows, tabs and frames")
+      "w" '(:ignore t :which-key "windows and frames")
       "wt" 'toggle-frame-maximized
       "wm" 'toggle-frame-fullscreen)
     :custom
@@ -1028,8 +1028,10 @@ Hook for inserting current region into minibuffer.
   (use-package tab-bar
     :general
     (leader-map
-      "wt" 'tab-bar-new-tab
-      "wk" 'tab-bar-close-tab
+      "t" '(:ignore t :which-key "tabs")
+      "tt" 'tab-bar-new-tab
+      "tk" 'tab-bar-close-tab
+      "tr" 'tab-bar-rename-tab
       "1"  'tab-bar-select-tab
       "2"  'tab-bar-select-tab
       "3"  'tab-bar-select-tab
