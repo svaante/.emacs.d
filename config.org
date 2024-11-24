@@ -1915,13 +1915,13 @@ Why is =rust-mode= not part Emacs?
     (gnus-parameters
      `(("nnmaildir"
         (gcc-self . t) ;; Let me see my own emails
-        ;; (display . 500)
         )
        (,(rx (or "nnrss"
                  "feedbase.org"
                  "news.gwene.org"))
         (gnus-auto-select-first t)
-        (gnus-summary-line-format "%U%R%z%d %I%(%s %)\n"))
+        (gnus-summary-line-format "%U%R%z%d %I%(%s %)\n")
+        (display . 300))
        ("news.gmane.io"
         (display . 1000))))
     :config
