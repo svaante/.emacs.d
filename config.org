@@ -76,12 +76,7 @@ Load last =consult-theme= loaded theme.
 
 ** Font
 #+begin_src emacs-lisp
-  (let ((width (display-pixel-width)))
-    (set-frame-font
-     (format "Comic Code Ligatures %d"
-             (cond ((> width 1080) 14)
-                   (t 12)))
-     nil t))
+  (set-frame-font "Comic Code Ligatures 14" nil t)
 #+end_src
 
 ** Themes
