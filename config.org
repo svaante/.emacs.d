@@ -1896,6 +1896,7 @@ Why is =rust-mode= not part Emacs?
        (nntp "feedbase.org"
              (nntp-open-connection-function nntp-open-tls-stream)
              (nntp-port-number 563))
+       (nntp "news.gwene.org")
        ;; Mailing lists
        (nntp "news.gmane.io")))
     ;; use correct email
