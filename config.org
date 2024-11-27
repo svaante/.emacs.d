@@ -81,7 +81,6 @@ Load last =consult-theme= loaded theme.
 
 ** Themes
 #+begin_src emacs-lisp
-  (use-package ef-themes :straight t)
   (use-package standard-themes :straight t)
 #+end_src
 
