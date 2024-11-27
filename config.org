@@ -1029,7 +1029,7 @@ Hook for inserting current region into minibuffer.
     :general
     (leader-map
       "t" '(:ignore t :which-key "tabs")
-      "tt" 'tab-bar-new-tab
+      "tn" 'tab-bar-new-tab
       "tk" 'tab-bar-close-tab
       "tr" 'tab-bar-rename-tab
       "1"  'tab-bar-select-tab
