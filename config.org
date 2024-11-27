@@ -1045,10 +1045,10 @@ Hook for inserting current region into minibuffer.
     (tab-bar-mode +1)
     (tab-bar-new-tab-choice "*scratch*")
     :config
-    (face-spec-set 'tab-bar '((t :inherit fringe)) 'face-defface-spec)
-    (face-spec-set 'tab-bar-tab '((t :inherit mode-line)) 'face-defface-spec)
-    (face-spec-set 'tab-bar-tab-inactive '((t :inherit mode-line-inactive))
-                   'face-defface-spec))
+    (custom-set-faces
+     '(tab-bar ((t (:inherit 'fringe))))
+     '(tab-bar-tab ((t (:inherit 'mode-line))))
+     '(tab-bar-tab-inactive ((t (:inherit 'mode-line-inactive))))))
 #+end_src
 
 ** Ace Window - Select window
