@@ -7,37 +7,14 @@
 #+end_src
 
 * Package
-Bootstrap =straight= and setup =use-package=.
 #+begin_src emacs-lisp
-  (require 'use-package)
-  (use-package straight
+  (use-package use-package
     :custom
-    ;; `straight' and `package' is not compatible
-    (package-enable-at-startup nil)
-    :init
-    (defvar bootstrap-version)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage))
-    (straight-use-package 'use-package)
-    (straight-use-package 'el-patch))
+    (use-package-vc-prefer-newest t)
+    :config
+    (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+    (package-initialize))
 #+end_src
-
-=straight= does not respect package dependencies and their versions,
-which is somewhat painful so I would like to replace it.
-
-Unfortunately the now builtin =package-vc-install=, does not keep
-"installed" packages under vc which makes version management and local
-development a pain.  Other alternatives like =borg= might be a better
-choice.
 
 * General
 #+begin_src emacs-lisp
@@ -76,12 +53,16 @@ Load last =consult-theme= loaded theme.
 
 ** Font
 #+begin_src emacs-lisp
-  (set-frame-font "Comic Code Ligatures 13" nil t)
+  (set-frame-font
+   ;; "Comic Code Ligatures 13"
+   "Iosevka 14"
+   nil t)
 #+end_src
 
 ** Themes
 #+begin_src emacs-lisp
-  (use-package standard-themes :straight t)
+  (use-package standard-themes :ensure t)
+  (use-package ef-themes :ensure t)
 #+end_src
 
 ** Simplify UI
@@ -99,18 +80,9 @@ Load last =consult-theme= loaded theme.
     (bookmark-fringe-mark nil))
 #+end_src
 
-** Opacity
-#+begin_src emacs-lisp
-  ;; Set current frames opacity
-  (set-frame-parameter (selected-frame) 'alpha '95)
-  ;; Set future frames
-  (add-to-list 'default-frame-alist '(alpha 95))
-#+end_src
-
 ** Mode-line
 #+begin_src emacs-lisp
   (use-package emacs
-    :straight nil
     :preface
     (defvar-local mode-line-file-path-cache nil)
     (defun mode-line-file-path-1 (file-name)
@@ -168,7 +140,7 @@ Load last =consult-theme= loaded theme.
        (vc-mode vc-mode)
        " "
        (:eval (when (buffer-narrowed-p)
-                (propertize " Nar"
+                (propertize " Narrow"
                             'face 'font-lock-warning-face)))
        (:eval (when (region-active-p)
                 (format " Lines %d"
@@ -187,18 +159,11 @@ Load last =consult-theme= loaded theme.
     (inhibit-startup-screen t))
 #+end_src
 
-** MacOS
-#+begin_src emacs-lisp
-  (when (eq system-type 'darwin)
-    (setq ns-use-proxy-icon nil)
-    (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t)))
-#+end_src
-
 * Keymaps
 ** General - Leader and keymap
 #+begin_src emacs-lisp
   (use-package general
-    :straight t
+    :ensure t
     :after evil
     :hook (after-init
            . (lambda ()
@@ -243,11 +208,11 @@ Load last =consult-theme= loaded theme.
   (use-package which-key
     :custom
     ;; Why wait?
-    (which-key-idle-delay 1.)
+    (which-key-idle-delay .2)
     ;; Easier to see unbound keys
     (which-key-sort-order 'which-key-key-order-alpha)
     ;; On
-    (which-key-mode +1))
+    (which-key-mode 1))
 #+end_src
 
 ** Evil and Friends - Vi emulation
@@ -256,7 +221,7 @@ Load last =consult-theme= loaded theme.
   ;; - evil-escape macro bug (inserts "jK")
   ;; - minibuffer bug does not enter in insert mode
   (use-package evil
-    :straight t
+    :vc (evil :url "https://github.com/emacs-evil/evil" :rev "3d4102c")
     :general
     (:states 'motion "H-i" 'evil-jump-forward)
     :custom
@@ -283,31 +248,18 @@ Load last =consult-theme= loaded theme.
     ;; Run the macro in the q register
     (evil-define-key 'normal 'global "Q" "@q")
 
-    ;; Keep eldoc on mode change
-    (eldoc-add-command 'evil-insert)
-    (eldoc-add-command 'evil-change)
-    (eldoc-add-command 'evil-normal-state)
-    (setq evil-insert-state-message nil
-          evil-normal-state-message nil)
-
     ;; Common EX misspellings
-    (evil-ex-define-cmd "E[dit]" 'evil-edit)
     (evil-ex-define-cmd "W[rite]" 'evil-write)
     (evil-ex-define-cmd "Wq" 'evil-save-and-close)
     (evil-ex-define-cmd "WQ" 'evil-save-and-close)
 
-    ;; Fix bindings in messages buffer
-    (with-current-buffer "*Messages*"
-      (evil-normalize-keymaps))
-
-    ;; Go
-    (evil-mode t))
+    (evil-mode 1))
 #+end_src
 
 Almost as important as =evil= itself.
 #+begin_src emacs-lisp
   (use-package evil-escape
-    :straight t
+    :ensure t
     :custom
     (evil-escape-delay 0.1)
     (evil-escape-key-sequence "jk")
@@ -319,7 +271,7 @@ Almost as important as =evil= itself.
 This makes =evil= almost feel like the default bindings.
 #+begin_src emacs-lisp
   (use-package evil-collection
-    :straight t
+    :ensure t
     :config
     ;; Setup `eshell' and `corfu' on there own
     (dolist (mode '(eshell corfu))
@@ -328,18 +280,10 @@ This makes =evil= almost feel like the default bindings.
     (evil-collection-init))
 #+end_src
 
-Have always used Tims plugin.
-#+begin_src emacs-lisp
-  (use-package evil-surround
-    :straight t
-    :custom
-    (global-evil-surround-mode +1))
-#+end_src
-
 ** Embark - At "thing" mappings
 #+begin_src emacs-lisp
   (use-package embark
-    :straight t
+    :ensure t
     :preface
     (defun project-find-file-at (directory)
       "Visit a file in the current project."
@@ -397,7 +341,7 @@ Have always used Tims plugin.
 #+begin_src emacs-lisp
   (use-package jinx
     :after vertico
-    :straight t
+    :ensure t
     :general
     (:states '(normal visual) "z=" #'jinx-correct)
     :hook
@@ -427,7 +371,8 @@ Have always used Tims plugin.
 #+begin_src emacs-lisp
   (use-package simple
     :hook
-    (text-mode . auto-fill-mode)
+    (org-mode . auto-fill-mode)
+    (git-commit-mode . auto-fill-mode)
     (mail-mode . auto-fill-mode)
     (message-mode . auto-fill-mode)
     (prog-mode . auto-fill-mode)
@@ -457,7 +402,7 @@ Have always used Tims plugin.
 ** Whitespace Cleanup - Remove whitespace on save-buffer
 #+begin_src emacs-lisp
   (use-package whitespace-cleanup-mode
-    :straight t
+    :ensure t
     :hook
     (prog-mode . whitespace-cleanup-mode))
 #+end_src
@@ -492,14 +437,14 @@ Have always used Tims plugin.
 
 ** Wgrep - Editing in "search" buffers
 #+begin_src emacs-lisp
-  (use-package wgrep :straight t)
+  (use-package wgrep :ensure t)
 #+end_src
 
 ** Tempel - Templates
 Not convinced that it's more better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package tempel
-    :straight t
+    :ensure t
     :general
     (tempel-map
      "TAB" 'tempel-or-corfu-complete-next
@@ -524,6 +469,14 @@ Not convinced that it's more better then =yasnippet=.
         (call-interactively 'tempel-next)))
     :custom
     (tempel-trigger-prefix "!"))
+
+  (use-package lsp-snippet-tempel
+    :vc (lsp-snippet-tempel :url "https://github.com/svaante/lsp-snippet"
+                            :main-file "lsp-snippet-tempel.el"
+                            :rev :newest)
+    :config
+    (lsp-snippet-tempel-lsp-mode-init)
+    (lsp-snippet-tempel-eglot-init))
 #+end_src
 
 * Completion
@@ -539,7 +492,7 @@ Not convinced that it's more better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package savehist
     :custom
-    (savehist-mode +1))
+    (savehist-mode 1))
 #+end_src
 
 ** Minibuffer - Read and complete
@@ -587,7 +540,7 @@ Hook for inserting current region into minibuffer.
 ** Vertico - Vertical minibuffer completion
 #+begin_src emacs-lisp
   (use-package vertico
-    :straight t
+    :ensure t
     :general
     (vertico-map
      :states '(insert normal)
@@ -605,7 +558,6 @@ Hook for inserting current region into minibuffer.
 
   (use-package vertico-directory
     :after vertico
-    :straight nil
     :general
     (vertico-map "DEL" 'vertico-directory-delete-char
                  "M-DEL" 'vertico-directory-delete-word)
@@ -614,7 +566,6 @@ Hook for inserting current region into minibuffer.
 
   (use-package vertico-multiform
     :after vertico
-    :straight nil
     :custom
     (vertico-multiform-commands
      '((consult-ripgrep buffer)))
@@ -625,7 +576,7 @@ Hook for inserting current region into minibuffer.
 ** Orderless - Completion style
 #+begin_src emacs-lisp
   (use-package orderless
-    :straight t
+    :ensure t
     :hook
     (minibuffer-setup . orderless-minibuffer-setup)
     :custom
@@ -655,11 +606,10 @@ Hook for inserting current region into minibuffer.
 
 ** Consult - Improved candidate completion functions
 #+begin_src emacs-lisp
-  (use-package embark-consult
-    :straight t)
+  (use-package embark-consult :ensure t)
 
   (use-package consult
-    :straight t
+    :ensure t
     :preface
     (defun consult-kill-line-insert-history ()
       (interactive)
@@ -728,15 +678,15 @@ Hook for inserting current region into minibuffer.
 ** Marginalia - Minibuffer annotations
 #+begin_src emacs-lisp
   (use-package marginalia
-    :straight t
+    :ensure t
     :custom
-    (marginalia-mode +1))
+    (marginalia-mode 1))
 #+end_src
 
 ** Corfu - Completion in region function
 #+begin_src emacs-lisp
   (use-package corfu
-    :straight t
+    :ensure t
     :general
     (corfu-map "RET" nil)
     (corfu-map :states 'insert
@@ -792,15 +742,15 @@ Hook for inserting current region into minibuffer.
 
   (use-package corfu-terminal
     :if (not (display-graphic-p))
-    :straight t
+    :ensure t
     :custom
-    (corfu-terminal-mode +1))
+    (corfu-terminal-mode 1))
 #+end_src
 
 ** Cape - Completion at point functions
 #+begin_src emacs-lisp
   (use-package cape
-    :straight t
+    :ensure t
     :hook
     (lsp-mode
      . (lambda ()
@@ -951,8 +901,9 @@ Hook for inserting current region into minibuffer.
          (derived-mode . shell-command-mode)
          (derived-mode . messages-buffer-mode)
          (derived-mode . backtrace-mode)
-         ;; Org capture
+         ;; Capture
          "\\(\\*Capture\\*\\|CAPTURE-.*\\)"
+         (derived-mode . literate-calc-mode)
          ;; Result buffers
          "\\*Embark Export: .*\\*"
          (derived-mode . embark-collect-mode)
@@ -1041,7 +992,7 @@ Hook for inserting current region into minibuffer.
      '(tab-bar-format-tabs tab-bar-format-align-right tab-bar-format-global))
     (tab-bar-auto-width nil)
     (tab-bar-close-button-show nil)
-    (tab-bar-mode +1)
+    (tab-bar-mode 1)
     (tab-bar-new-tab-choice "*scratch*")
     :config
     (custom-set-faces
@@ -1053,7 +1004,7 @@ Hook for inserting current region into minibuffer.
 ** Ace Window - Select window
 #+begin_src emacs-lisp
   (use-package ace-window
-    :straight t
+    :ensure t
     :general
     (leader-map "jw" 'ace-window)
     :custom
@@ -1090,13 +1041,13 @@ Hook for inserting current region into minibuffer.
   (use-package recentf
     :custom
     (recentf-max-saved-items 500)
-    (recentf-mode +1))
+    (recentf-mode 1))
 #+end_src
 
 ** Avy - In buffer navigation
 #+begin_src emacs-lisp
   (use-package avy
-    :straight t
+    :ensure t
     :general
     ("C-s" #'evil-avy-goto-char-timer)
     (leader-map
@@ -1167,7 +1118,7 @@ Emacsen not launched from a shell.
 
 #+begin_src emacs-lisp
   (use-package exec-path-from-shell
-    :straight t
+    :ensure t
     :config
     (exec-path-from-shell-initialize))
 #+end_src
@@ -1201,7 +1152,6 @@ Emacsen not launched from a shell.
      "p" 'term-paste)
     :custom
     (async-shell-command-buffer 'rename-buffer)
-    (async-shell-command-display-buffer nil)
     (shell-command-prompt-show-cwd t)
     :config
     ;; Bolt on char based input on evil insert mode,
@@ -1231,7 +1181,7 @@ Emacsen not launched from a shell.
 Convert escape codes to color.
 #+begin_src emacs-lisp
   (use-package xterm-color
-    :straight t
+    :ensure t
     :preface
     (defun xterm-color-advice-compilation-filter (f proc string)
       (funcall f proc (xterm-color-filter string)))
@@ -1244,12 +1194,12 @@ Convert escape codes to color.
 ** Recall - Run things again
 #+begin_src emacs-lisp
   (use-package recall
-    :straight (recall :type git :host github :repo "svaante/recall")
+    :ensure t
     :general
     (leader-map "r" 'recall-rerun)
     :custom
     (recall-completing-read-fn #'recall-consult-completing-read)
-    (recall-mode +1)
+    (recall-mode 1)
     :config
     (evil-make-overriding-map recall-list-mode-map)
     (evil-make-overriding-map recall-log-mode-map))
@@ -1315,9 +1265,9 @@ Convert escape codes to color.
 Faces in =eshell= feels helpful.
 #+begin_src emacs-lisp
   (use-package eshell-syntax-highlighting
-    :straight t
+    :ensure t
     :config
-    (eshell-syntax-highlighting-global-mode +1))
+    (eshell-syntax-highlighting-global-mode 1))
 #+end_src
 
 * Org
@@ -1327,13 +1277,6 @@ Faces in =eshell= feels helpful.
     :hook
     (org-mode . org-indent-mode)
     (org-mode . visual-line-mode)
-    ;; Looks
-    (org-mode
-     . (lambda ()
-         (set-face-attribute 'org-level-1 nil :height 1.4)
-         (set-face-attribute 'org-level-2 nil :height 1.2)
-         (set-face-attribute 'org-level-3 nil :height 1.1)
-         (set-face-attribute 'org-document-title nil :height 2.0)))
     :general
     (org-mode-map :states 'normal
                   (kbd "<RET>") 'org-return)
@@ -1344,7 +1287,12 @@ Faces in =eshell= feels helpful.
     (org-imenu-depth 3)
     (org-src-window-setup 'current-window)
     (org-return-follows-link t)
-    (org-startup-with-inline-images t))
+    (org-startup-with-inline-images t)
+    :config
+    (set-face-attribute 'org-level-1 nil :height 1.4)
+    (set-face-attribute 'org-level-2 nil :height 1.2)
+    (set-face-attribute 'org-level-3 nil :height 1.1)
+    (set-face-attribute 'org-document-title nil :height 2.0))
 #+end_src
 
 ** Org Agenda
@@ -1422,7 +1370,7 @@ Faces in =eshell= feels helpful.
 ** Evil Org - Org keybinds
 #+begin_src emacs-lisp
   (use-package evil-org
-    :straight t
+    :ensure t
     :hook (org-mode . evil-org-mode)
     :custom
     (evil-org-key-theme
@@ -1437,15 +1385,13 @@ Faces in =eshell= feels helpful.
 ** Org Mono - Search and index Org headlines
 #+begin_src emacs-lisp
   (use-package org-mono
-    :straight (org-mono :type git :host github
-                        :repo "svaante/org-mono")
+    :vc (org-mono :url "https://github.com/svaante/org-mono")
     :general
     (leader-map "oo" 'org-mono-goto)
     :custom
-    (org-mono-files (append org-agenda-files
-                            '("~/.emacs.d/config.org")))
+    (org-mono-files (append org-agenda-files '("~/.emacs.d/config.org")))
     (org-mono-advice-org-refile t)
-    (global-org-mono-mode +1)
+    (global-org-mono-mode 1)
     :config
     (defvar-keymap embark-org-mono-actions-map
       :doc "Keymap for actions for org-mono."
@@ -1472,25 +1418,17 @@ Faces in =eshell= feels helpful.
 *** Prog Mode - Basic keybinds
 General bindings
 #+begin_src emacs-lisp
-  (use-package prog-mode
-    :general
-    (prog-mode-map :states 'visual (kbd "C-;") 'comment-dwim))
+    (use-package prog-mode
+      :general
+      (prog-mode-map :states 'visual (kbd "C-;") 'comment-dwim))
 #+end_src
 
 *** Eglot - Completions and stuff
 #+begin_src emacs-lisp
-  (use-package jsonrpc :straight t)
-
-  (use-package lsp-snippet
-    :straight (lsp-snippet :type git
-                           :host github
-                           :repo "svaante/lsp-snippet")
-    :config
-    (lsp-snippet-tempel-lsp-mode-init)
-    (lsp-snippet-tempel-eglot-init))
+  (use-package jsonrpc :ensure t)
 
   (use-package eglot
-    :straight t
+    :ensure t
     :hook
     (c-mode . eglot-ensure)
     (c++-mode . eglot-ensure)
@@ -1507,6 +1445,8 @@ General bindings
       "lf" 'eglot-format-buffer
       "lq" 'eglot-code-action-quickfix
       "la" 'eglot-code-actions)
+    :custom
+    (eglot-ignored-server-capabilities '(:inlayHintProvider))
     :preface
     (defun eglot-imenu-keep-parent (alist)
       "Extract `eglot-imenu' keys as items from the imenu ALIST."
@@ -1536,7 +1476,7 @@ General bindings
 
   (use-package consult-eglot
     :after eglot
-    :straight t
+    :ensure t
     :general
     (leader-map "ls" 'consult-eglot-symbols))
 #+end_src
@@ -1546,7 +1486,7 @@ General bindings
   (use-package lsp-mode
     :disabled
     :after lsp-snippet
-    :straight t
+    :ensure t
     :general
     (leader-map
       "lr" 'lsp-rename
@@ -1566,7 +1506,7 @@ General bindings
 
   (use-package consult-lsp
     :after lsp-mode
-    :straight t
+    :ensure t
     :general
     (leader-map "ls" 'consult-lsp-symbols))
 #+end_src
@@ -1607,63 +1547,54 @@ General bindings
     (show-paren-when-point-in-periphery nil)
     (show-paren-when-point-inside-paren nil)
     (show-paren-delay 0)
-    (show-paren-mode +1))
+    (show-paren-mode 1))
 #+end_src
 
 *** Dape - Debug
 #+begin_src emacs-lisp
   (use-package dape
-    :straight (dape :type git :host github
-                    :repo "svaante/dape")
+    :vc (dape :url "https://github.com/svaante/dape")
     :preface
     (defun pulse-once ()
       (let ((pulse-iterations 1))
         (pulse-momentary-highlight-one-line)))
     (defun save-all-buffers ()
       (save-some-buffers t t))
+    (defun bury-window-by-buffer (buffer)
+      (when-let ((window (get-buffer-window buffer)))
+        (quit-window nil window)))
     :general
-    (dape-global-map
-     (kbd "H-i") #'dape-stack-select-down
-     (kbd "C-o") #'dape-stack-select-up)
-    (leader-map
-      "d" '(:keymap dape-global-map :which-key "dape"))
+    (dape-global-map (kbd "H-i") #'dape-stack-select-down
+                     (kbd "C-o") #'dape-stack-select-up)
+    (leader-map "d" '(:keymap dape-global-map :which-key "dape"))
     :hook
     (kill-emacs . dape-breakpoint-save)
     (after-init . dape-breakpoint-load)
-    (dape-display-source . pulse-once)
-    (dape-compile . kill-buffer)
     :custom
     (dape-debug t)
-    ;; (dape-buffer-window-arrangment 'gud)
-    ;; (dape-info-hide-mode-line nil)
     (dape-inlay-hints t)
-    ;; No trucation
-    (dape-info-variable-table-row-config
-     '((name . 0) (value . 0) (type . 0)))
-    (dape-breakpoint-global-mode +1)
+    (dape-repl-echo-shell-output t)
+    (dape-breakpoint-global-mode 1)
     :config
     (add-hook 'dape-start-hook #'save-all-buffers)
+    (add-hook 'dape-display-source-hook #'pulse-once)
+    (add-hook 'dape-compile-hook #'bury-window-by-buffer)
     ;; java ughhh
     (require 'eglot)
-    (let ((jar
-           (car
-            (file-expand-wildcards
-             (file-name-concat dape-adapter-dir
-                               "java-debug"
-                               "com.microsoft.java.debug.plugin"
-                               "target"
-                               "com.microsoft.java.debug.plugin-*.jar")
-             t))))
-      (add-to-list 'eglot-server-programs
-                   `((java-mode java-ts-mode) .
-                     ("jdtls"
-                      :initializationOptions
-                      (:bundles [,jar]))))))
+    (add-to-list 'eglot-server-programs
+                 `((java-mode java-ts-mode) .
+                   ("jdtls"
+                    :initializationOptions
+                    (:bundles [,(thread-first (file-name-concat dape-adapter-dir
+                                                                "java-debug"
+                                                                "com.microsoft.java.debug.plugin"
+                                                                "target"
+                                                                "com.microsoft.java.debug.plugin-*.jar")
+                                              (file-expand-wildcards t) car)])))))
 
   (use-package dape-cortex-debug
     :after dape
-    :straight (dape-cortex-debug :type git :host github
-                                 :repo "svaante/dape-cortex-debug")
+    :vc (:url "https://github.com/svaante/dape-cortex-debug" :rev :latest)
     :config
     (require 'dape-cortex-debug))
 #+end_src
@@ -1671,9 +1602,9 @@ General bindings
 *** Devdocs - Documentation
 #+begin_src emacs-lisp
   (use-package devdocs
+    :ensure t
     :general
-    (leader-map "k" 'devdocs-lookup)
-    :straight t)
+    (leader-map "k" 'devdocs-lookup))
 #+end_src
 
 ** Elisp
@@ -1721,7 +1652,7 @@ General bindings
 *** Eros - Inlay eval
 #+begin_src emacs-lisp
   (use-package eros
-    :straight t
+    :ensure t
     :config
     (eros-mode))
 #+end_src
@@ -1738,30 +1669,30 @@ General bindings
 Manage environment with =pyenv=
 #+begin_src emacs-lisp
   (use-package pyvenv
-    :straight t
+    :ensure t
     :custom
-    (pyvenv-mode +1))
+    (pyvenv-mode 1))
 #+end_src
 
 ** Rust
 Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package rust-mode
-    :straight t)
+    :ensure t)
 #+end_src
 
 ** Typescript
 #+begin_src emacs-lisp
   (use-package typescript-mode
-    :straight t)
+    :ensure t)
 #+end_src
 
 * Data files
 #+begin_src emacs-lisp
-  (use-package protobuf-mode :straight t)
-  (use-package yaml-mode :straight t)
-  (use-package json-mode :straight t)
-  (use-package jenkinsfile-mode :straight t)
+  (use-package protobuf-mode :ensure t)
+  (use-package yaml-mode :ensure t)
+  (use-package json-mode :ensure t)
+  (use-package jenkinsfile-mode :ensure t)
 #+end_src
 
 * Applications
@@ -1772,7 +1703,7 @@ Why is =rust-mode= not part Emacs?
 ** Magit - Version Control
 #+begin_src emacs-lisp
   (use-package magit
-    :straight t
+    :ensure t
     :general
     (leader-map
       "g" '(:which-key "magit")
@@ -1788,6 +1719,7 @@ Why is =rust-mode= not part Emacs?
     ;; sort branches by checkout (completion)
     (magit-list-refs-sortby "-creatordate")
     ;; don't let magit close windows
+    ;; FIXME: BURY-BUFFER DOES IS NOT A VALID CHOICE.
     (magit-bury-buffer-function 'bury-buffer)
     ;; wrangle magits and its transient buffer to not create pop-up
     (magit-display-buffer-function 'display-buffer)
@@ -1806,15 +1738,8 @@ Why is =rust-mode= not part Emacs?
 ** Dired - Directory browser
 #+begin_src emacs-lisp
   (use-package dired
-    :preface
-    (defun dired-here ()
-      "Open `dired' here."
-      (interactive)
-      (funcall (if current-prefix-arg 'dired-other-window
-                 'dired)
-               default-directory))
     :general
-    (leader-map "ad" 'dired-here)
+    (leader-map "ad" 'dired-jump)
     ;; Lets pretend shell-command does not exist
     (dired-mode-map
      :states 'normal
@@ -1952,7 +1877,7 @@ Why is =rust-mode= not part Emacs?
     (display-time-24hr-format t)
     (display-time-default-load-average nil)
     (display-time-mail-directory "~/Mail/dpettersson/Inbox/new/")
-    (display-time-mode +1))
+    (display-time-mode 1))
 #+end_src
 
 *** SMTPmail - Sending mail
@@ -1981,7 +1906,7 @@ Why is =rust-mode= not part Emacs?
 ** Literate Calc - Calc but sane
 #+begin_src emacs-lisp
     (use-package literate-calc-mode
-      :straight t
+      :ensure t
       :general
       (leader-map "ac" #'literate-calc-scratch)
       (literate-calc-mode-map :states 'normal "q" 'bury-buffer)
@@ -2004,7 +1929,7 @@ Why is =rust-mode= not part Emacs?
 ** Define Word - Thesaurus
 #+begin_src emacs-lisp
   (use-package define-word
-    :straight t
+    :ensure t
     :general
     (leader-map "at" 'define-word-at-point)
     :hook
@@ -2017,7 +1942,7 @@ Why is =rust-mode= not part Emacs?
 ** Rcirc - Irc
 #+begin_src emacs-lisp
   (use-package rcirc
-    :straight t
+    :ensure t
     :general
     (leader-map "ai" 'rcirc)
     :config
