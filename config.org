@@ -1755,6 +1755,8 @@ Why is =rust-mode= not part Emacs?
     :custom
     ;; If two dired opened use other dired as target
     (dired-dwim-target t)
+    ;; Reduce the amount of buffers created
+    (dired-kill-when-opening-new-dired-buffer t)
     (dired-use-ls-dired (not (eq system-type 'darwin)))
     ;; Sort by date as default
     (dired-listing-switches "-alt"))
