@@ -818,10 +818,8 @@ Hook for inserting current region into minibuffer.
 #+begin_src emacs-lisp
   (use-package consult-dir
     :general
-    ;; Insert directory into minibuffer
-    (minibuffer-mode-map
-     :states '(normal insert)
-     (kbd "C-f") #'consult-insert-directory)
+    ;; Insert directory
+    (:states '(normal insert) (kbd "C-f") #'consult-insert-directory)
     ;; Dispatch on directory
     (leader-map "f" #'consult-dir)
     :preface
@@ -835,12 +833,10 @@ Hook for inserting current region into minibuffer.
                            collect path)))
                ("Open" ?o
                 (lambda ()
-                  (cl-loop
-                   with folder-modes = '(dired-mode eshell-mode)
-                   for buffer in (buffer-list)
-                   for mode = (with-current-buffer buffer major-mode)
-                   when (provided-mode-derived-p mode folder-modes)
-                   collect (with-current-buffer buffer default-directory))))
+                  (consult--buffer-query
+                   :mode 'dired-mode
+                   :as (lambda (buffer)
+                         (buffer-local-value 'default-directory buffer)))))
                ("Bookmarks" ?m
                 (lambda ()
                   (cl-loop for (_ . params) in bookmark-alist
@@ -851,15 +847,14 @@ Hook for inserting current region into minibuffer.
                 (lambda ()
                   (cl-loop for filename in recentf-list
                            collect (file-name-directory filename)))))))
-        (car
-         (consult--multi
-          (cl-loop for (name narrow fn) in sources
-                   collect (list
-                            :name name
-                            :narrow narrow
-                            :items fn
-                            :category 'file))
-          :prompt prompt))))
+        (car (consult--multi
+              (cl-loop for (name narrow fn) in sources
+                       collect (list
+                                :name name
+                                :narrow narrow
+                                :items fn
+                                :category 'file))
+              :prompt prompt))))
 
     (defun consult-dir (directory)
       "Dispatch on DIRECTORY."
@@ -870,7 +865,7 @@ Hook for inserting current region into minibuffer.
         (cond
          ((ignore-errors (project-current))
           (funcall-interactively 'project-find-file))
-         (t (dired directory)))))
+         ((dired directory)))))
 
     (defun consult-insert-directory (directory)
       "Insert DIRECTORY."
@@ -879,7 +874,6 @@ Hook for inserting current region into minibuffer.
         (let ((enable-recursive-minibuffers t))
           (consult-read-directory "Insert directory: "))))
       (insert (expand-file-name directory))))
-
 #+end_src
 
 * Window and frames
