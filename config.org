@@ -1128,39 +1128,33 @@ Emacsen not launched from a shell.
   (use-package shell
     :preface
     ;; Show exit code in mode line
-    (defun shell-command-sentinel-show-exit-code (process status)
+    (defun async-command-sentinel-show-exit-code (process status)
       (when-let* ((buffer (process-buffer process))
-                  ((buffer-live-p buffer)))
-        (let ((dead-p (memq (process-status process) '(exit signal)))
-              (status (process-exit-status process)))
-          (with-current-buffer buffer
+                  ((buffer-live-p buffer))
+                  (status (process-status process)))
+        (with-current-buffer buffer
             (setq mode-line-process
-                  (propertize
-                   (concat
-                    ":"
-                    (format "%s" (process-status process))
-                    (when dead-p
-                      (format " [%s]" status)))
-                   'face (if (zerop status) 'success 'warning)))
-            (force-mode-line-update t)))))
+                  `(,(format ":%s" status)
+                    ,(when (memq status '(exit signal))
+                       (format " [%s]" (process-exit-status process))))))))
     :general
     (leader-map "!" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
-     "q" 'kill-current-buffer
+     "q" 'quit-window
      "gr" 'revert-buffer ;; reruns buffer
      "p" 'term-paste)
     :custom
     (async-shell-command-buffer 'rename-buffer)
     (shell-command-prompt-show-cwd t)
+    (shell-command-dont-erase-buffer 'end-last-out)
     :config
+    (add-to-list 'evil-normal-state-modes 'shell-command-mode)
+    (advice-add 'shell-command-sentinel :after #'async-command-sentinel-show-exit-code)
     ;; Bolt on char based input on evil insert mode,
     ;; `comint-send-input' breaks to often.
     (require 'term)
-    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map))
-    (add-to-list 'evil-normal-state-modes 'shell-command-mode)
-    (advice-add 'shell-command-sentinel :after
-                #'shell-command-sentinel-show-exit-code))
+    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map)))
 #+end_src
 
 ** Compile - Run thing
