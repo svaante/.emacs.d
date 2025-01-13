@@ -1625,6 +1625,8 @@ General bindings
      '(emacs-lisp-mode-map lisp-interaction-mode-map)
      :states 'visual
      (kbd "C-c C-c") 'eval-region)
+    :custom
+    (debugger-stack-frame-as-list t) ;; Format backtrace as lisp
     :preface
     ;; Stolen from http://www.sugarshark.com/elisp/init/lisp.el.html
     (defun describe-elisp-thing-at-point ()
