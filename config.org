@@ -1709,8 +1709,7 @@ Why is =rust-mode= not part Emacs?
     ;; sort branches by checkout (completion)
     (magit-list-refs-sortby "-creatordate")
     ;; don't let magit close windows
-    ;; FIXME: BURY-BUFFER DOES IS NOT A VALID CHOICE.
-    (magit-bury-buffer-function 'bury-buffer)
+    (magit-bury-buffer-function 'quit-window)
     ;; wrangle magits and its transient buffer to not create pop-up
     (magit-display-buffer-function 'display-buffer)
     (transient-display-buffer-action '(display-buffer-below-selected))
