@@ -208,7 +208,7 @@ Load last =consult-theme= loaded theme.
   (use-package which-key
     :custom
     ;; Why wait?
-    (which-key-idle-delay .2)
+    (which-key-idle-delay .3)
     ;; Easier to see unbound keys
     (which-key-sort-order 'which-key-key-order-alpha)
     ;; On
@@ -409,7 +409,6 @@ This makes =evil= almost feel like the default bindings.
 
 ** Narrowing
 #+begin_src emacs-lisp
-  ;; Stolen from someplace
   (use-package emacs
     :preface
     (defun narrow-or-widen-dwim ()
@@ -433,11 +432,6 @@ This makes =evil= almost feel like the default bindings.
             (t (narrow-to-defun))))
     :general
     (leader-map "z" 'narrow-or-widen-dwim))
-#+end_src
-
-** Wgrep - Editing in "search" buffers
-#+begin_src emacs-lisp
-  (use-package wgrep :ensure t)
 #+end_src
 
 ** Tempel - Templates
@@ -482,16 +476,20 @@ Not convinced that it's more better then =yasnippet=.
 * Completion
 ** General
 #+begin_src emacs-lisp
-  ;; Let bin be...
-  (delete ".bin" completion-ignored-extensions)
-  ;; Don't for case
-  (setq completion-ignore-case t)
+  (use-package emacs
+    :custom
+    ;; Let bin be...
+    (completion-ignored-extensions
+     (delete ".bin" completion-ignored-extensions))
+    ;; Don't for case
+    (completion-ignore-case t))
 #+end_src
 
 ** Savehist - Save completion history
 #+begin_src emacs-lisp
   (use-package savehist
     :custom
+    (history-length 5000)
     (savehist-mode 1))
 #+end_src
 
@@ -1090,6 +1088,7 @@ Hook for inserting current region into minibuffer.
     (evil-define-avy-motion avy-goto-line-keep-column line))
 #+end_src
 
+* Search and Find
 ** Find-file - Find other (file)buffer
 #+begin_src emacs-lisp
   (use-package find-file
@@ -1103,6 +1102,39 @@ Hook for inserting current region into minibuffer.
       (interactive)
       (ff-find-other-file 'other-window)
       (xref-pulse-momentarily)))
+#+end_src
+
+** Wgrep - Editing in "search" buffers
+#+begin_src emacs-lisp
+  (use-package wgrep :ensure t)
+#+end_src
+
+** Xref - Goto code thing
+#+begin_src emacs-lisp
+  (use-package xref
+    :general
+    (prog-mode-map
+     :states 'normal
+     "gr" 'xref-find-references
+     "gD" 'xref-find-definitions-other-window)
+    :custom
+    ;; Do not prompt, just search
+    (xref-prompt-for-identifier
+     '(not xref-find-definitions
+           xref-find-definitions-other-window
+           xref-find-definitions-other-frame
+           xref-find-references)))
+#+end_src
+
+** Occur - List places
+#+begin_src emacs-lisp
+  (use-package replace
+    :general
+    (occur-mode-map
+     :states 'normal
+     "J" 'next-error-no-select
+     "K" 'previous-error-no-select
+     "q" 'kill-buffer-and-window))
 #+end_src
 
 * Shell and Shell Commands
@@ -1499,23 +1531,6 @@ General bindings
     (leader-map "ls" 'consult-lsp-symbols))
 #+end_src
 
-*** Xref - Goto code thing
-#+begin_src emacs-lisp
-  (use-package xref
-    :general
-    (prog-mode-map
-     :states 'normal
-     "gr" 'xref-find-references
-     "gD" 'xref-find-definitions-other-window)
-    :custom
-    ;; Do not prompt, just search
-    (xref-prompt-for-identifier
-     '(not xref-find-definitions
-           xref-find-definitions-other-window
-           xref-find-definitions-other-frame
-           xref-find-references)))
-#+end_src
-
 *** Flymake - Show errors
 #+begin_src emacs-lisp
   (use-package flymake
@@ -1733,7 +1748,8 @@ Why is =rust-mode= not part Emacs?
     (dired-mode-map
      :states 'normal
      "!" 'dired-do-async-shell-command
-     "&" nil)
+     "&" nil
+     "q" 'kill-buffer-and-window)
     :hook
     (dired-mode . auto-revert-mode)
     (dired-mode . dired-omit-mode)
