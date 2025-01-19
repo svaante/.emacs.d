@@ -270,10 +270,8 @@ This makes =evil= almost feel like the default bindings.
   (use-package evil-collection
     :ensure t
     :config
-    ;; Setup `eshell' and `corfu' on there own
-    (dolist (mode '(eshell corfu))
-      (setq evil-collection-mode-list
-            (delete mode evil-collection-mode-list)))
+    (setq evil-collection-mode-list
+          (delete 'corfu evil-collection-mode-list))
     (evil-collection-init))
 #+end_src
 
@@ -303,9 +301,7 @@ This makes =evil= almost feel like the default bindings.
      "SPC" 'project-find-file-at
      "g" 'magit
      "G" 'consult-ripgrep
-     "!" 'async-shell-command
      "h" 'hexl-find-file
-     "e" 'eshell
      "." 'find-file-at
      "&" nil
      "$" nil)
@@ -317,10 +313,7 @@ This makes =evil= almost feel like the default bindings.
        #'which-key--hide-popup-ignore-command)
      embark-become-indicator embark-action-indicator)
     :config
-    ;; Remove C-u arg why would I want a new buffer?
-    (setq embark-pre-action-hooks
-     (assoc-delete-all 'eshell embark-pre-action-hooks))
-    ;; Make magit usable by file category
+    ;; Make `magit' usable by file category
     (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
 #+end_src
 
@@ -444,7 +437,6 @@ Not convinced that it's more better then =yasnippet=.
      "S-TAB" 'tempel-previous)
     :hook
     (evil-insert-state-exit . tempel-done)
-    (eshell-mode . tempel-setup-capf)
     (prog-mode . tempel-setup-capf)
     (text-mode . tempel-setup-capf)
     :preface
@@ -563,10 +555,9 @@ Not convinced that it's more better then =yasnippet=.
       (setq-local completion-styles '(orderless basic)))
 
     (defun orderless-bang-filter (pattern _index _total)
-      (cond
-       ((equal "!" pattern) '(orderless-literal . ""))
-       ((string-prefix-p "!" pattern)
-        `(orderless-without-literal . ,(substring pattern 1))))))
+      (cond ((equal "!" pattern) '(orderless-literal . ""))
+            ((string-prefix-p "!" pattern)
+             `(orderless-without-literal . ,(substring pattern 1))))))
 #+end_src
 
 ** Consult - Improved candidate completion functions
@@ -591,7 +582,6 @@ Not convinced that it's more better then =yasnippet=.
       "i" 'consult-imenu
       "b" 'consult-buffer
       "y" 'consult-yank-pop
-      "!" 'async-shell-command
       "j" '(:which-key "jump")
       "jc" 'consult-compile-error
       "jf" 'consult-flymake
@@ -602,7 +592,7 @@ Not convinced that it's more better then =yasnippet=.
     (minibuffer-local-map
      :states '(insert normal)
      (kbd "C-r") 'consult-history)
-    (:keymaps '(comint-mode-map eshell-mode-map)
+    (:keymaps '(comint-mode-map)
               :states '(insert normal)
               (kbd "C-r") 'consult-kill-line-insert-history)
     :custom
@@ -660,10 +650,6 @@ Not convinced that it's more better then =yasnippet=.
                (kbd "C-SPC") #'corfu-move-to-minibuffer)
     :hook
     (evil-insert-state-exit . corfu-quit)
-    (eshell-mode
-     . (lambda ()
-         (setq-local corfu-auto nil)
-         (corfu-mode)))
     :custom
     (corfu-cycle t)
     (corfu-preview-current nil)
@@ -675,8 +661,6 @@ Not convinced that it's more better then =yasnippet=.
     ;; Orderless completion
     (corfu-separator ?s)
     (corfu-quit-at-boundary nil)
-    ;; In eshell use tab to open corfu
-    (corfu-excluded-modes '(eshell-mode))
     ;; Stay out of minibuffer
     (global-corfu-minibuffer nil)
     (global-corfu-mode 1)
@@ -748,9 +732,8 @@ Not convinced that it's more better then =yasnippet=.
       "pp" 'project-switch-project
       "pc" 'project-compile
       "pC" 'project-recompile
-      "p!" 'project-async-shell-command
+      "pr" 'project-async-shell-command
       "pd" 'project-dired
-      "pe" 'project-eshell
       "pg" 'consult-ripgrep)
     :custom
     (project-vc-extra-root-markers '(".projectile" ".project"))
@@ -857,7 +840,6 @@ Not convinced that it's more better then =yasnippet=.
      `(;; Pop from below
        ((or
          ;; Output
-         (derived-mode . shell-command-mode)
          (derived-mode . messages-buffer-mode)
          (derived-mode . backtrace-mode)
          ;; Capture
@@ -890,7 +872,7 @@ Not convinced that it's more better then =yasnippet=.
         (dedicated . t)
         (body-function . select-window))
        ;; Compile
-       ((or (major-mode . compilation-mode))
+       ((major-mode . compilation-mode)
         (display-buffer-reuse-mode-window display-buffer-in-side-window)
         (side . right)
         (reusable-frames . t)
@@ -903,6 +885,10 @@ Not convinced that it's more better then =yasnippet=.
         (side . bottom)
         (slot . 0)
         (window-parameters . ((mode-line-format . none))))
+       ;; Shell Command
+       ((derived-mode . shell-command-mode)
+        nil
+        (body-function . select-window))
        ;; Magit
        ((or (derived-mode . magit-diff-mode)
             (derived-mode . magit-process-mode))
@@ -1104,11 +1090,10 @@ Not convinced that it's more better then =yasnippet=.
      "q" 'kill-buffer-and-window))
 #+end_src
 
-* Shell and Shell Commands
-** Exec path from shell - Infer PATH
-=exec-path-from-shell= is a hack to set `exec-path' shellishly for
-Emacsen not launched from a shell.
 
+* Shell Commands
+** Exec path from shell - Infer PATH
+Hack to set =exec-path= Emacsen not launched from a shell.
 #+begin_src emacs-lisp
   (use-package exec-path-from-shell
     :ensure t
@@ -1116,22 +1101,13 @@ Emacsen not launched from a shell.
     (exec-path-from-shell-initialize))
 #+end_src
 
-** Async Shell Command - Run things
+** Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
     :preface
-    ;; Show exit code in mode line
-    (defun async-command-sentinel-show-exit-code (process status)
-      (when-let* ((buffer (process-buffer process))
-                  ((buffer-live-p buffer))
-                  (status (process-status process)))
-        (with-current-buffer buffer
-            (setq mode-line-process
-                  `(,(format ":%s" status)
-                    ,(when (memq status '(exit signal))
-                       (format " [%s]" (process-exit-status process))))))))
     :general
-    (leader-map "!" 'async-shell-command)
+    (leader-map
+      "r" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
      "q" 'quit-window
@@ -1140,14 +1116,19 @@ Emacsen not launched from a shell.
     :custom
     (async-shell-command-buffer 'rename-buffer)
     (shell-command-prompt-show-cwd t)
-    (shell-command-dont-erase-buffer 'end-last-out)
     :config
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
-    (advice-add 'shell-command-sentinel :after #'async-command-sentinel-show-exit-code)
-    ;; Bolt on char based input on evil insert mode,
-    ;; `comint-send-input' breaks to often.
-    (require 'term)
-    (evil-set-auxiliary-keymap shell-command-mode-map 'insert (map-copy term-raw-map)))
+    ;; Install exit code `mode-line-process' mode line
+    (advice-add 'shell-command-sentinel :after
+                (defun async-command-sentinel-show-exit-code (process status)
+                  (when-let* ((buffer (process-buffer process))
+                              ((buffer-live-p buffer))
+                              (status (process-status process)))
+                    (with-current-buffer buffer
+                      (setq mode-line-process
+                            `(,(format ":%s" status)
+                              ,(when (memq status '(exit signal))
+                                 (format " [%s]" (process-exit-status process))))))))))
 #+end_src
 
 ** Compile - Run thing
@@ -1176,85 +1157,6 @@ Convert escape codes to color.
     (compilation-environment '("TERM=xterm-256color"))
     :config
     (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
-#+end_src
-
-** Recall - Run things again
-#+begin_src emacs-lisp
-  (use-package recall
-    :ensure t
-    :general
-    (leader-map "r" 'recall-rerun)
-    :custom
-    (recall-completing-read-fn #'recall-consult-completing-read)
-    (recall-mode 1)
-    :config
-    (evil-make-overriding-map recall-list-mode-map)
-    (evil-make-overriding-map recall-log-mode-map))
-#+end_src
-
-** Eshell - The preferred non standard shell
-#+begin_src emacs-lisp
-  (use-package eshell
-    :preface
-    (defun evil-append-last-line (&rest _)
-      "Set point to max and enter `evil-insert'."
-      (interactive)
-      (goto-char (point-max))
-      (evil-append 1))
-
-    (defun eshell-buffer-name ()
-      (format "*eshell %s*" (abbreviate-file-name default-directory)))
-
-    ;; Eshells prefix arg interface has never stuck.
-    ;; `default-directory' instead and use `prefix-argument' / dwim
-    ;; (current buffer `eshell-mode') to create a new buffer.
-    (defun eshell-advice (eshell &rest args)
-      "Create an Eshell buffer here."
-      (interactive)
-      (eshell-load-modules eshell-modules-list)
-      (if (not (called-interactively-p 'any))
-          (apply eshell args)
-        ;; If `eshell' called interactively used current directory as
-        ;; basis for buffer name.
-        (let* ((eshell-buffer-name (eshell-buffer-name))
-               (buffer (funcall eshell (or current-prefix-arg
-                                           (derived-mode-p 'eshell-mode)))))
-          (with-current-buffer buffer
-            (add-hook 'eshell-directory-change-hook
-                      (lambda () (rename-buffer (eshell-buffer-name) t))
-                      nil t))
-          buffer)))
-    :general
-    (leader-map "e" 'eshell)
-    (eshell-mode-map
-     :states 'normal
-     "C-p" 'eshell-previous-prompt
-     "C-n" 'eshell-next-prompt
-     "q" 'kill-current-buffer
-     (kbd "<return>") 'evil-append-last-line)
-    :custom
-    (eshell-history-size 99999)
-    (eshell-hist-ignoredups t)
-    (eshell-save-history-on-exit t)
-    :config
-    ;; Setup eshell `default-directory' naming stuff
-    (advice-add 'eshell :around #'eshell-advice)
-    ;; Ensure that we are in insert mode
-    (advice-add 'project-eshell :after #'evil-append-last-line)
-    (advice-add 'eshell :after #'evil-append-last-line)
-    ;; Cat works with eshell other pagers does not
-    (setenv "PAGER" "cat")
-    ;; Eshell commands
-    (defun eshell/ff (&rest args)
-      (apply #'find-file args)))
-#+end_src
-
-Faces in =eshell= feels helpful.
-#+begin_src emacs-lisp
-  (use-package eshell-syntax-highlighting
-    :ensure t
-    :config
-    (eshell-syntax-highlighting-global-mode 1))
 #+end_src
 
 * Org
