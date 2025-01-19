@@ -1715,8 +1715,7 @@ Why is =rust-mode= not part Emacs?
     (dired-mode-map
      :states 'normal
      "!" 'dired-do-async-shell-command
-     "&" nil
-     "q" 'kill-buffer-and-window)
+     "q" 'kill-current-buffer)
     :hook
     (dired-mode . auto-revert-mode)
     (dired-mode . dired-omit-mode)
