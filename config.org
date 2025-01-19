@@ -181,9 +181,6 @@ Load last =consult-theme= loaded theme.
 #+begin_src emacs-lisp
   (use-package emacs
     :general
-    ;; Have never got around to using M- bindings
-    (key-translation-map "C-." "M-n"
-                         "C-," "M-p")
     (general-override-mode-map
      :states '(normal insert)
      "C-j" 'evil-window-down
@@ -477,62 +474,32 @@ Not convinced that it's more better then =yasnippet=.
 ** General
 #+begin_src emacs-lisp
   (use-package emacs
+    :general
+    ;; Have never got around to using M- bindings for the extremely
+    ;; useful `*-history-element' bindings
+    (key-translation-map "C-." "M-n"
+                         "C-," "M-p")
     :custom
     ;; Let bin be...
     (completion-ignored-extensions
      (delete ".bin" completion-ignored-extensions))
-    ;; Don't for case
-    (completion-ignore-case t))
+    ;; Default to ignore case
+    (completion-ignore-case t)
+    ;; We can manage
+    (history-length 99999)
+    :config
+    ;; Move point to end of buffer after `next-history-element' and
+    ;; `previous-history-element'.
+    (advice-add 'goto-history-element :after
+                (defun goto-history-element-after-advice (&rest _)
+                  (goto-char (point-max)))))
 #+end_src
 
 ** Savehist - Save completion history
 #+begin_src emacs-lisp
   (use-package savehist
     :custom
-    (history-length 5000)
     (savehist-mode 1))
-#+end_src
-
-** Minibuffer - Read and complete
-Hook for inserting current region into minibuffer.
-#+begin_src emacs-lisp
-  (use-package minibuffer
-    :hook
-    (minibuffer-setup . minibuffer-insert-selection)
-    :custom
-    ;; Move cursor after inserting history
-    (advice-add 'goto-history-element
-                :after (lambda (&rest _) (end-of-buffer)))
-    :preface
-    (defvar minibuffer-insert-region-commands
-      '(consult-line
-        consult-grep
-        consult-ripgrep
-        consult-lsp-symbols
-        consult-eglot-symbols
-        async-shell-command
-        project-async-shell-command))
-    (defun minibuffer-insert-selection ()
-      "If region is active insert region into minibuffer."
-      (when-let* ((_ (member this-command minibuffer-insert-region-commands))
-                  (minibuffer-buffer (current-buffer))
-                  (buffers (buffer-list))
-                  (last-used-buffer (cadr buffers)))
-        (with-current-buffer last-used-buffer
-          (when (use-region-p)
-            (let ((selection
-                   (buffer-substring-no-properties
-                    (region-beginning) (region-end))))
-              (setq mark-active nil)
-              (with-current-buffer minibuffer-buffer
-                (insert selection)))))))
-
-    (defun goto-history-element-advice-goto-eob (&rest _)
-      (goto-char (point-max)))
-    :config
-    ;; Move point to end of buffer after `next-history-element' and
-    ;; `previous-history-element'.
-    (advice-add 'goto-history-element :after #'goto-history-element-advice-goto-eob))
 #+end_src
 
 ** Vertico - Vertical minibuffer completion
@@ -1132,8 +1099,8 @@ Hook for inserting current region into minibuffer.
     :general
     (occur-mode-map
      :states 'normal
-     "J" 'next-error-no-select
-     "K" 'previous-error-no-select
+     "C-n" 'next-error-no-select
+     "C-p" 'previous-error-no-select
      "q" 'kill-buffer-and-window))
 #+end_src
 
