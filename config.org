@@ -187,6 +187,9 @@ Load last =consult-theme= loaded theme.
      "C-k" 'evil-window-up
      "C-h" 'evil-window-left
      "C-l" 'evil-window-right)
+    (special-mode-map
+     :states 'normal
+     "q" 'kill-current-buffer)
     :config
     ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
     (when (display-graphic-p)
@@ -271,7 +274,9 @@ This makes =evil= almost feel like the default bindings.
     :ensure t
     :config
     (setq evil-collection-mode-list
-          (delete 'corfu evil-collection-mode-list))
+          (thread-last evil-collection-mode-list
+                       (delete 'corfu)
+                       (delete 'simpel)))
     (evil-collection-init))
 #+end_src
 
@@ -732,7 +737,7 @@ Not convinced that it's more better then =yasnippet=.
       "pp" 'project-switch-project
       "pc" 'project-compile
       "pC" 'project-recompile
-      "pr" 'project-async-shell-command
+      "p!" 'project-async-shell-command
       "pd" 'project-dired
       "pg" 'consult-ripgrep)
     :custom
@@ -766,10 +771,8 @@ Not convinced that it's more better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package consult-dir
     :general
-    ;; Insert directory
-    (:states '(normal insert) (kbd "C-f") #'consult-insert-directory)
     ;; Dispatch on directory
-    (leader-map "f" #'consult-dir)
+    (leader-map "f" 'consult-dir)
     :preface
     (defun consult-read-directory (prompt)
       "Read consult directory."
@@ -797,31 +800,17 @@ Not convinced that it's more better then =yasnippet=.
                            collect (file-name-directory filename)))))))
         (car (consult--multi
               (cl-loop for (name narrow fn) in sources
-                       collect (list
-                                :name name
-                                :narrow narrow
-                                :items fn
-                                :category 'file))
+                       collect (list :name name
+                                     :narrow narrow
+                                     :items fn
+                                     :category 'file))
               :prompt prompt))))
 
     (defun consult-dir (directory)
-      "Dispatch on DIRECTORY."
+      "Run `dired' in DIRECTORY."
       (interactive
        (list (consult-read-directory "Dispatch on directory: ")))
-      (let* ((directory (expand-file-name directory))
-             (default-directory directory))
-        (cond
-         ((ignore-errors (project-current))
-          (funcall-interactively 'project-find-file))
-         ((dired directory)))))
-
-    (defun consult-insert-directory (directory)
-      "Insert DIRECTORY."
-      (interactive
-       (list
-        (let ((enable-recursive-minibuffers t))
-          (consult-read-directory "Insert directory: "))))
-      (insert (expand-file-name directory))))
+      (dired (expand-file-name directory))))
 #+end_src
 
 * Window and frames
@@ -1087,9 +1076,8 @@ Not convinced that it's more better then =yasnippet=.
      :states 'normal
      "C-n" 'next-error-no-select
      "C-p" 'previous-error-no-select
-     "q" 'kill-buffer-and-window))
+     "q" 'kill-current-buffer))
 #+end_src
-
 
 * Shell Commands
 ** Exec path from shell - Infer PATH
@@ -1101,20 +1089,34 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (exec-path-from-shell-initialize))
 #+end_src
 
+** Recall - Run things again
+#+begin_src emacs-lisp
+  (use-package recall
+    :ensure t
+    :general
+    (leader-map "r" 'recall-rerun)
+    :custom
+    (recall-completing-read-fn #'recall-consult-completing-read)
+    (recall-mode 1)
+    :config
+    (evil-make-overriding-map recall-list-mode-map)
+    (evil-make-overriding-map recall-log-mode-map))
+#+end_src
+
 ** Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
     :preface
     :general
     (leader-map
-      "r" 'async-shell-command)
+      "!" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
-     "q" 'quit-window
      "gr" 'revert-buffer ;; reruns buffer
-     "p" 'term-paste)
+     "q" 'kill-current-buffer
+     )
     :custom
-    (async-shell-command-buffer 'rename-buffer)
+    (async-shell-command-buffer 'new-buffer)
     (shell-command-prompt-show-cwd t)
     :config
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
@@ -1427,17 +1429,7 @@ General bindings
   (use-package dape
     :vc (dape :url "https://github.com/svaante/dape")
     :preface
-    (defun pulse-once ()
-      (let ((pulse-iterations 1))
-        (pulse-momentary-highlight-one-line)))
-    (defun save-all-buffers ()
-      (save-some-buffers t t))
-    (defun bury-window-by-buffer (buffer)
-      (when-let ((window (get-buffer-window buffer)))
-        (quit-window nil window)))
     :general
-    (dape-global-map (kbd "H-i") #'dape-stack-select-down
-                     (kbd "C-o") #'dape-stack-select-up)
     (leader-map "d" '(:keymap dape-global-map :which-key "dape"))
     :hook
     (kill-emacs . dape-breakpoint-save)
@@ -1448,9 +1440,14 @@ General bindings
     (dape-repl-echo-shell-output t)
     (dape-breakpoint-global-mode 1)
     :config
-    (add-hook 'dape-start-hook #'save-all-buffers)
-    (add-hook 'dape-display-source-hook #'pulse-once)
-    (add-hook 'dape-compile-hook #'bury-window-by-buffer)
+    (add-hook 'dape-display-source-hook
+              (defun pulse-once ()
+                (let ((pulse-iterations 1))
+                  (pulse-momentary-highlight-one-line))))
+    (add-hook 'dape-start-hook
+              (defun save-all-buffers ()
+                (save-some-buffers t t)))
+    (add-hook 'dape-compile-hook #'bury-buffer)
     ;; java ughhh
     (require 'eglot)
     (add-to-list 'eglot-server-programs
