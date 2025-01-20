@@ -1092,7 +1092,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 ** Recall - Run things again
 #+begin_src emacs-lisp
   (use-package recall
-    :ensure t
+    :vc (recall :url "https://github.com/svaante/recall")
     :general
     (leader-map "r" 'recall-rerun)
     :custom
