@@ -530,7 +530,8 @@ Not convinced that it's more better then =yasnippet=.
     :after vertico
     :custom
     (vertico-multiform-commands
-     '((consult-ripgrep buffer)))
+     '((consult-ripgrep buffer)
+       (consult-grep buffer)))
     :config
     (vertico-multiform-mode))
 #+end_src
@@ -1068,12 +1069,18 @@ Not convinced that it's more better then =yasnippet=.
            xref-find-references)))
 #+end_src
 
-** Occur - List places
+** Occur and Grep - List places
 #+begin_src emacs-lisp
   (use-package replace
     :general
-    (occur-mode-map
-     :states 'normal
+    (occur-mode-map :states 'normal
+     "C-n" 'next-error-no-select
+     "C-p" 'previous-error-no-select
+     "q" 'kill-current-buffer))
+
+  (use-package grep
+    :general
+    (grep-mode-map :states 'normal
      "C-n" 'next-error-no-select
      "C-p" 'previous-error-no-select
      "q" 'kill-current-buffer))
@@ -1113,8 +1120,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (shell-command-mode-map
      :states 'normal
      "gr" 'revert-buffer ;; reruns buffer
-     "q" 'kill-current-buffer
-     )
+     "q" 'quit-window)
     :custom
     (async-shell-command-buffer 'new-buffer)
     (shell-command-prompt-show-cwd t)
@@ -1534,6 +1540,12 @@ General bindings
     :hook (c-mode . (lambda () (setq-local tab-width 4)))
     :custom
     (c-basic-offset 4))
+#+end_src
+
+** Go
+#+begin_src emacs-lisp
+  (use-package go-mode
+    :ensure t)
 #+end_src
 
 ** Python
