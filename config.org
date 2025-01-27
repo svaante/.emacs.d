@@ -1833,6 +1833,25 @@ Why is =rust-mode= not part Emacs?
     (evil-set-initial-state 'rcirc-mode 'normal))
 #+end_src
 
+** Calendar
+#+begin_src emacs-lisp
+  (use-package calendar
+    :custom
+    (calendar-month-header
+     '(propertize (format "#%d %s %d" month (calendar-month-name month) year)
+                  'font-lock-face 'calendar-month-header))
+    (calendar-week-start-day 1)
+    (calendar-intermonth-text
+     '(propertize (thread-last (list month day year)
+                               calendar-absolute-from-gregorian
+                               calendar-iso-from-absolute
+                               car
+                               (format "%2d"))
+                  'font-lock-face 'font-lock-function-name-face))
+    :general
+    (leader-map "ad" 'calendar))
+#+end_src
+
 * Misc commands
 #+begin_src emacs-lisp
   ;; source: http://steve.yegge.googlepages.com/my-dot-emacs-file
