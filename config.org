@@ -1847,9 +1847,7 @@ Why is =rust-mode= not part Emacs?
                                calendar-iso-from-absolute
                                car
                                (format "%2d"))
-                  'font-lock-face 'font-lock-function-name-face))
-    :general
-    (leader-map "ad" 'calendar))
+                  'font-lock-face 'font-lock-function-name-face)))
 #+end_src
 
 * Misc commands
