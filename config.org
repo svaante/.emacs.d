@@ -1474,6 +1474,13 @@ General bindings
     (require 'dape-cortex-debug))
 #+end_src
 
+*** GDB - Until =gdb-multiarch= moves into DAP compatibility
+#+begin_src emacs-lisp
+  (use-package gdb-mi
+    :custom
+    (gdb-debuginfod-enable-setting nil))
+#+end_src
+
 *** Devdocs - Documentation
 #+begin_src emacs-lisp
   (use-package devdocs
