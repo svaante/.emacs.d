@@ -31,8 +31,8 @@
     (use-short-answers t)
     ;; Keep buffers fresh with `revert-buffer'
     (global-auto-revert-mode 1)
-    ;; Ensure home is $HOME
-    (default-directory "~/"))
+    ;; Follow the mouse
+    (mouse-autoselect-window t))
 #+end_src
 
 * Looks
