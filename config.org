@@ -863,7 +863,7 @@ Not convinced that it's more better then =yasnippet=.
         (body-function . select-window))
        ;; Compile
        ((major-mode . compilation-mode)
-        (display-buffer-reuse-mode-window display-buffer-in-side-window)
+        (display-buffer-in-side-window)
         (side . right)
         (reusable-frames . t)
         (dedicated . t)
