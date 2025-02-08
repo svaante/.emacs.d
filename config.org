@@ -1195,46 +1195,41 @@ Convert escape codes to color.
 #+begin_src emacs-lisp
   (use-package org-agenda
     :general
-    (leader-map
-      "oa" 'org-agenda-current
-      "ob" 'org-agenda-backlog)
+    (leader-map "oa" 'org-agenda-custom)
     (org-agenda-mode-map
      :states 'normal
      "q" 'org-agenda-quit
      (kbd "<RET>") 'org-agenda-goto
      "s" 'org-agenda-filter
      "t" 'org-agenda-todo
+     "T" 'org-agenda-set-tags
      "j" 'org-agenda-next-line
-     "k" 'org-agenda-previous-line
-     "n" 'org-agenda-later
-     "p" 'org-agenda-earlier)
+     "k" 'org-agenda-previous-line)
     :preface
-    (defun org-agenda-current ()
+    (defun org-agenda-custom ()
       (interactive)
       (org-agenda nil "A"))
-    (defun org-agenda-backlog ()
-      (interactive)
-      (org-agenda nil "B"))
     :custom
+    (org-todo-keywords
+     '((sequence "TODO" "NEXT" "|" "DONE")))
+    (org-log-done 'time)
+    (org-agenda-persistent-filter t)
     ;; Don't make any assumption on how I want my windows
     (org-agenda-window-setup 'other-window)
+    ;; No prefix is fine
     (org-agenda-prefix-format
      '((agenda . " ") (todo   . " ") (tags   . " ")))
-    (org-todo-keywords
-     '((sequence "TODO" "NEXT" "DONE")))
-    (org-log-done 'time)
     ;; Replace the original agenda
     (org-agenda-custom-commands
      '(("A" "Agenda"
-        ((agenda)
-         (todo "NEXT"
+        ((todo "NEXT"
                ((org-agenda-overriding-header "Next")))
          (tags "CLOSED>=\"<week>\""
-               ((org-agenda-overriding-header "Completed this week")))))
-       ("B" "Backlog"
-        ((todo "TODO"
-               ((org-agenda-sorting-strategy '(tag-up alpha-up))
-                (org-agenda-overriding-header "Backlog")))))))
+               ((org-agenda-overriding-header "Completed this week")))
+         (tags-todo "-{.*}-"
+                    ((org-agenda-overriding-header "Inbox")))
+         (todo "TODO"
+               ((org-agenda-overriding-header "Backlog")))))))
     (org-agenda-files '("~/org/notes.org"
                         "~/org/pad.org"
                         "~/org/todo.org"))
