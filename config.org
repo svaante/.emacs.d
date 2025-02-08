@@ -1213,7 +1213,6 @@ Convert escape codes to color.
     (org-todo-keywords
      '((sequence "TODO" "NEXT" "|" "DONE")))
     (org-log-done 'time)
-    (org-agenda-persistent-filter t)
     ;; Don't make any assumption on how I want my windows
     (org-agenda-window-setup 'other-window)
     ;; No prefix is fine
