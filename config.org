@@ -1197,12 +1197,12 @@ Convert escape codes to color.
     :general
     (leader-map
       "oa" 'org-agenda-custom
-      "ot" 'org-todo-list
-      "ow" 'org-agenda-list)
+      "ob" 'org-todo-list)
     (org-agenda-mode-map
      :states 'normal
-     (kbd "<RET>") 'org-agenda-goto
      "q" 'org-agenda-quit
+     (kbd "<RET>") 'org-agenda-goto
+     "s" 'org-agenda-filter
      "t" 'org-agenda-todo
      "j" 'org-agenda-next-line
      "k" 'org-agenda-previous-line
@@ -1216,28 +1216,24 @@ Convert escape codes to color.
     :custom
     ;; Don't make any assumption on how I want my windows
     (org-agenda-window-setup 'other-window)
-    (org-agenda-breadcrumbs-separator " ")
     (org-agenda-prefix-format
-     '((agenda .  "  %?-40 b")
-       (todo .    "  %?-40 b")
-       (tags .    "  %?-40 b")
-       (search .  "  %?-40 b")))
+     '((agenda . " ") (todo   . " ") (tags   . " ")))
     (org-todo-keywords
-     '((sequence "TODO" "DONE")))
+     '((sequence "TODO" "NEXT" "DONE")))
+    (org-log-done 'time)
     ;; Replace the original agenda
     (org-agenda-custom-commands
      '(("A" "Agenda"
         ((agenda)
-         (tags "+LEVEL=1-SCHEDULED={.+}-DEADLINE={.+}/TODO"
-               ((org-agenda-overriding-header "Todos:")))
-         (tags "-hide+LEVEL>1-SCHEDULED={.+}/TODO"
-               ((org-agenda-overriding-header "Projects:")))))))
+         (todo "NEXT"
+               ((org-agenda-overriding-header "Next\n")))
+         (tags "CLOSED>=\"<week>\""
+               ((org-agenda-overriding-header "Completed this week\n")))))))
     (org-agenda-files '("~/org/notes.org"
                         "~/org/pad.org"
                         "~/org/todo.org"))
     :config
     (evil-set-initial-state 'org-agenda-mode 'normal))
-
 #+end_src
 
 ** Org Capture
@@ -1248,9 +1244,6 @@ Convert escape codes to color.
     :hook
     (org-capture-mode . evil-insert-state)
     :custom
-    (org-refile-use-outline-path 'file)
-    (org-refile-targets '((org-agenda-files :maxlevel . 3)))
-    (org-outline-path-complete-in-steps nil)
     (org-capture-templates
      '(("t" "Todo" entry
         (file "~/org/todo.org")
@@ -1273,8 +1266,6 @@ Convert escape codes to color.
      '(textobjects insert return return
                    additional shift todo))
     :config
-    ;; Seams off but `evil-org-set-key-theme' needs to be called if
-    ;; themes change
     (evil-org-set-key-theme))
 #+end_src
 
