@@ -1866,12 +1866,13 @@ Why is =rust-mode= not part Emacs?
             (set-visited-file-name new-name)
             (set-buffer-modified-p nil))))))
 
+  (defvar scratch-from-mode-history nil)
   (defun scratch-from-mode (mode)
     "Create scratch buffer for major MODE."
     (interactive
      (list
       (intern (completing-read "Mode: " (mapcar 'cdr auto-mode-alist)
-                               nil t))))
+                               nil t nil 'scratch-from-mode-history))))
     (let ((buffer
            (get-buffer-create (format "*scratch: %s*"
                                       (symbol-name mode)))))
