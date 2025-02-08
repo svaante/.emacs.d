@@ -1196,8 +1196,8 @@ Convert escape codes to color.
   (use-package org-agenda
     :general
     (leader-map
-      "oa" 'org-agenda-custom
-      "ob" 'org-todo-list)
+      "oa" 'org-agenda-current
+      "ob" 'org-agenda-backlog)
     (org-agenda-mode-map
      :states 'normal
      "q" 'org-agenda-quit
@@ -1209,10 +1209,12 @@ Convert escape codes to color.
      "n" 'org-agenda-later
      "p" 'org-agenda-earlier)
     :preface
-    (defun org-agenda-custom ()
-      "Org agenda custom view."
+    (defun org-agenda-current ()
       (interactive)
       (org-agenda nil "A"))
+    (defun org-agenda-backlog ()
+      (interactive)
+      (org-agenda nil "B"))
     :custom
     ;; Don't make any assumption on how I want my windows
     (org-agenda-window-setup 'other-window)
@@ -1226,9 +1228,13 @@ Convert escape codes to color.
      '(("A" "Agenda"
         ((agenda)
          (todo "NEXT"
-               ((org-agenda-overriding-header "Next\n")))
+               ((org-agenda-overriding-header "Next")))
          (tags "CLOSED>=\"<week>\""
-               ((org-agenda-overriding-header "Completed this week\n")))))))
+               ((org-agenda-overriding-header "Completed this week")))))
+       ("B" "Backlog"
+        ((todo "TODO"
+               ((org-agenda-sorting-strategy '(tag-up alpha-up))
+                (org-agenda-overriding-header "Backlog")))))))
     (org-agenda-files '("~/org/notes.org"
                         "~/org/pad.org"
                         "~/org/todo.org"))
