@@ -1867,22 +1867,24 @@ Why is =rust-mode= not part Emacs?
             (set-visited-file-name new-name)
             (set-buffer-modified-p nil))))))
 
-  (defvar scratch-from-mode-history nil)
-  (defun scratch-from-mode (mode)
-    "Create scratch buffer for major MODE."
-    (interactive
-     (list
-      (intern (completing-read "Mode: " (mapcar 'cdr auto-mode-alist)
-                               nil t nil 'scratch-from-mode-history))))
-    (let ((buffer
-           (get-buffer-create (format "*scratch: %s*"
-                                      (symbol-name mode)))))
-      (with-current-buffer buffer
-        (funcall-interactively mode)
-        (setq-local buffer-offer-save nil)
-        (evil-insert 0))
-      (pop-to-buffer-same-window buffer)))
-
-  (leader-map "as" 'scratch-from-mode)
+  (use-package emacs
+    :preface
+    (defvar scratch-from-mode-history nil)
+    (defun scratch-from-mode (mode)
+      "Create scratch buffer for major MODE."
+      (interactive
+       (list
+        (intern (completing-read "Mode: " (mapcar 'cdr auto-mode-alist)
+                                 nil t nil 'scratch-from-mode-history))))
+      (let ((buffer
+             (get-buffer-create (format "*scratch: %s*"
+                                        (symbol-name mode)))))
+        (with-current-buffer buffer
+          (funcall-interactively mode)
+          (setq-local buffer-offer-save nil)
+          (evil-insert 0))
+        (pop-to-buffer-same-window buffer)))
+    :general
+    (leader-map "as" 'scratch-from-mode))
 #+end_src
 
