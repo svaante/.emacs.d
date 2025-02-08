@@ -619,7 +619,6 @@ Not convinced that it's more better then =yasnippet=.
     (defvar consult-repl-buffer-alist
       '(("*ielm*"       . ielm)
         ("*Python*"     . run-python)
-        ("*nodejs*"     . nodejs-repl)
         ("*SQL: SQLite" . sql-sqlite)))
     (add-to-list
      'consult-buffer-sources
