@@ -1878,7 +1878,10 @@ Why is =rust-mode= not part Emacs?
                                       (symbol-name mode)))))
       (with-current-buffer buffer
         (funcall-interactively mode)
-        (setq-local buffer-offer-save nil))
+        (setq-local buffer-offer-save nil)
+        (evil-insert 0))
       (pop-to-buffer-same-window buffer)))
+
+  (leader-map "as" 'scratch-from-mode)
 #+end_src
 
