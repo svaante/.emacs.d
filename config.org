@@ -1387,31 +1387,25 @@ General bindings
     (after-init . dape-breakpoint-load)
     :custom
     (dape-debug t)
+    (dape-inlay-hints t)
     (dape-repl-echo-shell-output t)
     (dape-breakpoint-global-mode 1)
-    (dape-info-buffer-window-groups
-     '((dape-info-scope-mode)
-       (dape-info-watch-mode)
-       (dape-info-stack-mode dape-info-modules-mode dape-info-sources-mode)
-       (dape-info-breakpoints-mode dape-info-threads-mode)))
-    :custom-face
-    (dape-source-line-face ((t :inherit highlight :extend t)))
     :config
     (add-hook 'dape-start-hook
-              (defun save-all-buffers ()
-                (save-some-buffers t t)))
+              (defun save-all-buffers () (save-some-buffers t t)))
     ;; java ughhh
     (require 'eglot)
     (add-to-list 'eglot-server-programs
                  `((java-mode java-ts-mode) .
                    ("jdtls"
                     :initializationOptions
-                    (:bundles [,(thread-first (file-name-concat dape-adapter-dir
-                                                                "java-debug"
-                                                                "com.microsoft.java.debug.plugin"
-                                                                "target"
-                                                                "com.microsoft.java.debug.plugin-*.jar")
-                                              (file-expand-wildcards t) car)])))))
+                    (:bundles [,(thread-first
+                                  (file-name-concat dape-adapter-dir
+                                                    "java-debug"
+                                                    "com.microsoft.java.debug.plugin"
+                                                    "target"
+                                                    "com.microsoft.java.debug.plugin-*.jar")
+                                  (file-expand-wildcards t) car)])))))
 
   (use-package dape-cortex-debug
     :after dape
