@@ -591,7 +591,6 @@ Not convinced that it's more better then =yasnippet=.
       "j" '(:which-key "jump")
       "jc" 'consult-compile-error
       "jf" 'consult-flymake
-      "jm" 'consult-mark
       "h" '(:which-key "help")
       "hh" 'describe-function
       "hv" 'describe-variable)
@@ -613,26 +612,7 @@ Not convinced that it's more better then =yasnippet=.
                        (apply (if vertico-mode
                                   #'consult-completion-in-region
                                 #'completion--in-region)
-                              args)))))
-    :config
-    ;; Easy access to replish buffers
-    (defvar consult-repl-buffer-alist
-      '(("*ielm*"       . ielm)
-        ("*Python*"     . run-python)
-        ("*SQL: SQLite" . sql-sqlite)))
-    (add-to-list
-     'consult-buffer-sources
-     `( :name     "REPL"
-        :hidden   nil
-        :narrow   ?r
-        :category buffer
-        :state    consult--buffer-state
-        :history  buffer-name-history
-        :action   ,(lambda (key)
-                     (funcall (alist-get key consult-repl-buffer-alist)))
-        :items    ,(lambda ()
-                     (mapcar #'car consult-repl-buffer-alist)))
-     'append))
+                              args))))))
 #+end_src
 
 ** Marginalia - Minibuffer annotations
@@ -990,14 +970,6 @@ Not convinced that it's more better then =yasnippet=.
     :custom
     (avy-timeout-seconds 0.3)
     (avy-style 'de-bruijn)
-    (avy-line-insert-style 'below)
-    (avy-dispatch-alist '((?x . avy-action-kill-move)
-                          (?X . avy-action-kill-stay)
-                          (?v . avy-action-visual)
-                          (?w . avy-action-copy)
-                          (?p . avy-action-paste)
-                          (?P . avy-action-paste-line)
-                          (?z . avy-action-ispell)))
     (avy-all-windows 'all-frames)
     :preface
     (defun avy-goto-line-keep-column (&optional arg)
@@ -1008,24 +980,7 @@ Not convinced that it's more better then =yasnippet=.
         (avy-goto-line arg)
         (when (equal window (selected-window))
           (move-to-column column))))
-
-    (defun avy-action-visual (pt)
-      (let (beg end)
-        (goto-char pt)
-        (setq beg (point))
-        (avy-forward-item)
-        (backward-char)
-        (setq end (point))
-        (evil-visual-select beg end)))
-
-    (defun avy-action-paste-line (pt)
-      (avy-action-yank-line pt))
-
-    (defun avy-action-paste (pt)
-      (avy-action-yank pt))
     :config
-    (advice-add 'avy-read :before (lambda (&rest _) (avy-show-dispatch-help)))
-    (advice-add 'avy-read-de-bruijn :before (lambda (&rest _) (avy-show-dispatch-help)))
     ;; Recognize goto line as an evil motion
     (evil-define-avy-motion avy-goto-line-keep-column line))
 #+end_src
