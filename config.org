@@ -1559,7 +1559,7 @@ Why is =rust-mode= not part Emacs?
     ;; Lets pretend shell-command does not exist
     (dired-mode-map
      :states 'normal
-     "!" 'dired-do-async-shell-command
+     "E" 'dired-do-async-shell-command
      "q" 'kill-current-buffer)
     :hook
     (dired-mode . auto-revert-mode)
@@ -1801,6 +1801,17 @@ Why is =rust-mode= not part Emacs?
             (rename-buffer new-name)
             (set-visited-file-name new-name)
             (set-buffer-modified-p nil))))))
+
+  (defun shell-command-auto-rename ()
+    "Rename current buffer to current command."
+    (interactive)
+    (let* ((command
+            (process-command (get-buffer-process (current-buffer))))
+           (command
+            (if (equal (nth 1 command) shell-command-switch)
+                (nthcdr 2 command)
+              command)))
+      (rename-buffer (format "*%s*" (string-join command " ")) t)))
 
   (use-package emacs
     :preface
