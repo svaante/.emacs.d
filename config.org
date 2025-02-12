@@ -1166,7 +1166,7 @@ Convert escape codes to color.
       (org-agenda nil "A"))
     :custom
     (org-todo-keywords
-     '((sequence "TODO" "NEXT" "|" "DONE")))
+     '((sequence "TODO" "DONE")))
     (org-log-done 'time)
     ;; Don't make any assumption on how I want my windows
     (org-agenda-window-setup 'other-window)
@@ -1176,14 +1176,12 @@ Convert escape codes to color.
     ;; Replace the original agenda
     (org-agenda-custom-commands
      '(("A" "Agenda"
-        ((todo "NEXT"
-               ((org-agenda-overriding-header "Next")))
-         (tags "CLOSED>=\"<week>\""
+        ((tags "CLOSED>=\"<-1w>\""
                ((org-agenda-overriding-header "Completed this week")))
          (tags-todo "-{.*}-"
-                    ((org-agenda-overriding-header "Inbox")))
-         (todo "TODO"
-               ((org-agenda-overriding-header "Backlog")))))))
+                    ((org-agenda-overriding-header "Untagged")))
+         (tags-todo "{.*}"
+                    ((org-agenda-overriding-header "Backlog")))))))
     (org-agenda-files '("~/org/notes.org"
                         "~/org/pad.org"
                         "~/org/todo.org"))
