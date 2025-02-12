@@ -1076,7 +1076,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
      "gr" 'revert-buffer ;; reruns buffer
      "q" 'quit-window)
     :custom
-    (async-shell-command-buffer 'new-buffer)
+    (async-shell-command-buffer 'rename-buffer)
     (shell-command-prompt-show-cwd t)
     :config
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
