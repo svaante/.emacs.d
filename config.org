@@ -718,6 +718,7 @@ Not convinced that it's more better then =yasnippet=.
       "pc" 'project-compile
       "pC" 'project-recompile
       "p!" 'project-async-shell-command
+      "pe" 'project-async-shell-command
       "pd" 'project-dired
       "pg" 'consult-ripgrep)
     :custom
@@ -1070,7 +1071,8 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     :preface
     :general
     (leader-map
-      "!" 'async-shell-command)
+      "!" 'async-shell-command
+      "e" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
      "gr" 'revert-buffer ;; reruns buffer
