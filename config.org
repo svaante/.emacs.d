@@ -752,7 +752,7 @@ Not convinced that it's more better then =yasnippet=.
   (use-package consult-dir
     :general
     ;; Dispatch on directory
-    (leader-map "f" 'consult-dir)
+    (leader-map "f" 'consult-dired)
     :preface
     (defun consult-read-directory (prompt)
       "Read consult directory."
@@ -786,10 +786,10 @@ Not convinced that it's more better then =yasnippet=.
                                      :category 'file))
               :prompt prompt))))
 
-    (defun consult-dir (directory)
+    (defun consult-dired (directory)
       "Run `dired' in DIRECTORY."
       (interactive
-       (list (consult-read-directory "Dispatch on directory: ")))
+       (list (consult-read-directory "Dired: ")))
       (dired (expand-file-name directory))))
 #+end_src
 
