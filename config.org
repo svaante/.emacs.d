@@ -1209,19 +1209,6 @@ Convert escape codes to color.
         "\n%?\n" :unnarrowed t :hook org-narrow-to-subtree))))
 #+end_src
 
-** Evil Org - Org keybinds
-#+begin_src emacs-lisp
-  (use-package evil-org
-    :ensure t
-    :hook (org-mode . evil-org-mode)
-    :custom
-    (evil-org-key-theme
-     '(textobjects insert return return
-                   additional shift todo))
-    :config
-    (evil-org-set-key-theme))
-#+end_src
-
 ** Org Mono - Search and index Org headlines
 #+begin_src emacs-lisp
   (use-package org-mono
