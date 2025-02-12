@@ -1202,7 +1202,7 @@ Convert escape codes to color.
     (org-capture-templates
      '(("t" "Todo" entry
         (file "~/org/todo.org")
-        "* TODO %?\n%a")
+        "* TODO %?\n%a" :prepend t)
        ("n" "Note" entry
         (file "~/org/notes.org")
         "* %?\n")
