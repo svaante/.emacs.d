@@ -553,13 +553,11 @@ Not convinced that it's more better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package orderless
     :ensure t
-    :hook
-    (minibuffer-setup . orderless-minibuffer-setup)
     :custom
     ;; use bang(!) to filter out candidates
     (orderless-style-dispatchers '(orderless-bang-filter))
     ;; default styles
-    (completion-styles '(basic orderless))
+    (completion-styles '(orderless))
     (completion-category-defaults nil)
     ;; setup style based on category
     (completion-category-overrides
@@ -570,9 +568,6 @@ Not convinced that it's more better then =yasnippet=.
        (eglot (styles flex orderless))
        (eglot-capf (styles flex orderless))))
     :preface
-    (defun orderless-minibuffer-setup ()
-      (setq-local completion-styles '(orderless basic)))
-
     (defun orderless-bang-filter (pattern _index _total)
       (cond ((equal "!" pattern) '(orderless-literal . ""))
             ((string-prefix-p "!" pattern)
