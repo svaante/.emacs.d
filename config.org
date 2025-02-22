@@ -580,14 +580,6 @@ Not convinced that it's more better then =yasnippet=.
 
   (use-package consult
     :ensure t
-    :preface
-    (defun consult-kill-line-insert-history ()
-      (interactive)
-      (goto-char (point-max))
-      (ignore-errors (call-interactively 'move-beginning-of-line) t)
-      (ignore-errors (call-interactively 'kill-line) t)
-      (call-interactively 'consult-history)
-      (evil-insert-state))
     :general
     (leader-map
       "." 'find-file
@@ -602,12 +594,9 @@ Not convinced that it's more better then =yasnippet=.
       "h" '(:which-key "help")
       "hh" 'describe-function
       "hv" 'describe-variable)
-    (minibuffer-local-map
-     :states '(insert normal)
-     (kbd "C-r") 'consult-history)
-    (:keymaps '(comint-mode-map)
-              :states '(insert normal)
-              (kbd "C-r") 'consult-kill-line-insert-history)
+    ( :keymaps '(comint-mode-map minibuffer-local-map)
+      :states '(insert normal)
+      (kbd "C-r") 'consult-history)
     :custom
     (xref-show-xrefs-function 'consult-xref)
     (xref-show-definitions-function 'consult-xref)
