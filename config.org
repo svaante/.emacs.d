@@ -1059,7 +1059,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (exec-path-from-shell-initialize))
 #+end_src
 
-** Consult Shell Command - Run things again
+** Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package consult-shell-command
     :vc (consult-shell-command :url "https://github.com/svaante/consult-shell-command")
@@ -1069,7 +1069,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (consult-shell-command-mode 1))
 #+end_src
 
-** Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
     :general
