@@ -1051,24 +1051,19 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (exec-path-from-shell-initialize))
 #+end_src
 
-** Recall - Run things again
+** Consult Shell Command - Run things again
 #+begin_src emacs-lisp
-  (use-package recall
-    :vc (recall :url "https://github.com/svaante/recall")
+  (use-package consult-shell-command
+    :vc (consult-shell-command :url "https://github.com/svaante/consult-shell-command")
     :general
-    (leader-map "r" 'recall-rerun)
+    (leader-map "r" 'consult-shell-command-re)
     :custom
-    (recall-completing-read-fn #'recall-consult-completing-read)
-    (recall-mode 1)
-    :config
-    (evil-make-overriding-map recall-list-mode-map)
-    (evil-make-overriding-map recall-log-mode-map))
+    (consult-shell-command-mode 1))
 #+end_src
 
 ** Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
-    :preface
     :general
     (leader-map
       "!" 'async-shell-command
