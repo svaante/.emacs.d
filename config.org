@@ -862,6 +862,9 @@ Not convinced that it's more better then =yasnippet=.
         (display-buffer-pop-up-window))
        ((derived-mode . magit-status-mode)
         (display-buffer-same-window))
+       ("\\*dape-repl\\*"
+        (display-buffer-pop-up-window)
+        (body-function . (lambda (w) (set-window-dedicated-p w t))))
        ;; Tabs
        ;; Gnus
        ((or "\\*Group\\*"
