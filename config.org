@@ -1053,7 +1053,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
   (use-package consult-shell-command
     :vc (consult-shell-command :url "https://github.com/svaante/consult-shell-command")
     :general
-    (leader-map "r" 'consult-shell-command-re)
+    (leader-map "r" 'consult-shell-command)
     :custom
     (consult-shell-command-mode 1))
 #+end_src
