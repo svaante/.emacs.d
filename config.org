@@ -863,9 +863,6 @@ Not convinced that it's more better then =yasnippet=.
         (display-buffer-pop-up-window))
        ((derived-mode . magit-status-mode)
         (display-buffer-same-window))
-       ("\\*dape-repl\\*"
-        (display-buffer-pop-up-window)
-        (body-function . (lambda (w) (set-window-dedicated-p w t))))
        ;; Tabs
        ;; Gnus
        ((or "\\*Group\\*"
@@ -1370,7 +1367,6 @@ General bindings
     :custom
     (dape-debug t)
     (dape-inlay-hints t)
-    (dape-repl-echo-shell-output t)
     (dape-breakpoint-global-mode 1)
     :config
     (add-hook 'dape-start-hook
