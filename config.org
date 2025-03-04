@@ -61,6 +61,7 @@ Load last =consult-theme= loaded theme.
 
 ** Themes
 #+begin_src emacs-lisp
+  (use-package nimbus :ensure t)
   (use-package standard-themes :ensure t)
   (use-package ef-themes :ensure t)
 #+end_src
