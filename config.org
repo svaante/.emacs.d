@@ -1710,7 +1710,7 @@ Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package calc
     :general
-    (leader-map "ac" #'calc-dispatch))
+    (leader-map "ac" #'calc))
 #+end_src
 
 ** Define Word - Thesaurus
