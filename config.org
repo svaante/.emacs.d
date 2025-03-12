@@ -1365,9 +1365,8 @@ General bindings
     (kill-emacs . dape-breakpoint-save)
     (after-init . dape-breakpoint-load)
     :custom
-    (dape-debug t)
-    (dape-inlay-hints t)
     (dape-breakpoint-global-mode 1)
+    (dape-debug t)
     :config
     (add-hook 'dape-start-hook
               (defun save-all-buffers () (save-some-buffers t t)))
@@ -1392,7 +1391,7 @@ General bindings
     (require 'dape-cortex-debug))
 #+end_src
 
-*** GDB - Until =gdb-multiarch= moves into DAP compatibility
+*** GDB - Until DAP moves into =gdb-multiarch=
 #+begin_src emacs-lisp
   (use-package gdb-mi
     :custom
@@ -1469,8 +1468,7 @@ General bindings
 
 ** Go
 #+begin_src emacs-lisp
-  (use-package go-mode
-    :ensure t)
+  (use-package go-mode :ensure t)
 #+end_src
 
 ** Python
@@ -1478,24 +1476,21 @@ Manage environment with =pyenv=
 #+begin_src emacs-lisp
   (use-package pyvenv
     :ensure t
-    :custom
-    (pyvenv-mode 1))
+    :custom (pyvenv-mode 1))
 #+end_src
 
 ** Rust
 Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
-  (use-package rust-mode
-    :ensure t)
+  (use-package rust-mode :ensure t)
 #+end_src
 
 ** Typescript
 #+begin_src emacs-lisp
-  (use-package typescript-mode
-    :ensure t)
+  (use-package typescript-mode :ensure t)
 #+end_src
 
-* Data files
+* Misc files
 #+begin_src emacs-lisp
   (use-package protobuf-mode :ensure t)
   (use-package yaml-mode :ensure t)
@@ -1740,12 +1735,7 @@ Why is =rust-mode= not part Emacs?
   (use-package define-word
     :ensure t
     :general
-    (leader-map "at" 'define-word-at-point)
-    :hook
-    (text-mode
-     . (lambda ()
-           (setq-local evil-lookup-func
-                       #'define-word-at-point))))
+    (leader-map "at" 'define-word-at-point))
 #+end_src
 
 ** Rcirc - Irc
@@ -1767,12 +1757,11 @@ Why is =rust-mode= not part Emacs?
                   'font-lock-face 'calendar-month-header))
     (calendar-week-start-day 1)
     (calendar-intermonth-text
-     '(propertize (thread-last (list month day year)
-                               calendar-absolute-from-gregorian
-                               calendar-iso-from-absolute
-                               car
-                               (format "%2d"))
-                  'font-lock-face 'font-lock-function-name-face)))
+     '((thread-last (list month day year)
+                    calendar-absolute-from-gregorian
+                    calendar-iso-from-absolute
+                    car
+                    (format "%2d")))))
 #+end_src
 
 * Misc commands
