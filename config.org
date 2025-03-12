@@ -812,7 +812,6 @@ Not convinced that it's more better then =yasnippet=.
          (derived-mode . backtrace-mode)
          ;; Capture
          "\\(\\*Capture\\*\\|CAPTURE-.*\\)"
-         (derived-mode . literate-calc-mode)
          ;; Result buffers
          "\\*Embark Export: .*\\*"
          (derived-mode . embark-collect-mode)
@@ -1707,27 +1706,11 @@ Why is =rust-mode= not part Emacs?
     (message-kill-buffer-on-exit t))
 #+end_src
 
-** Literate Calc - Calc but sane
+** Calc
 #+begin_src emacs-lisp
-    (use-package literate-calc-mode
-      :ensure t
-      :general
-      (leader-map "ac" #'literate-calc-scratch)
-      (literate-calc-mode-map :states 'normal "q" 'bury-buffer)
-      (literate-calc-mode-map "C-c C-e" 'literate-calc-kill-result
-                              "C-c C-c" 'literate-calc-set-radix)
-      :custom
-      (literate-calc-mode-idle-time 0)
-      :preface
-      (defun literate-calc-scratch ()
-        "Open `literate-calc-mode' scratch buffer."
-        (interactive)
-        (with-current-buffer (get-buffer-create "*literate-calc*")
-          (unless (eq major-mode 'literate-calc-mode)
-            (literate-calc-mode)
-            (insert "Welcome to literate-calc-mode!\n= ")
-            (evil-insert-state))
-          (pop-to-buffer (current-buffer)))))
+  (use-package calc
+    :general
+    (leader-map "ac" #'calc-dispatch))
 #+end_src
 
 ** Define Word - Thesaurus
