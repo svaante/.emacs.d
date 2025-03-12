@@ -323,12 +323,10 @@ Org keybinds
              (kbd "C-SPC") 'embark-act)
     (embark-file-map
      "SPC" 'project-find-file-at
-     "g" 'magit
-     "G" 'consult-ripgrep
-     "h" 'hexl-find-file
-     "." 'find-file-at
-     "&" nil
-     "$" nil)
+     "g"   'magit
+     "G"   'consult-ripgrep
+     "h"   'hexl-find-file
+     "."   'find-file-at)
     :custom
     ;; Show Embark actions via which-key
     (embark-action-indicator
