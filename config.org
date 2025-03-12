@@ -81,6 +81,14 @@ Load last =consult-theme= loaded theme.
     (bookmark-fringe-mark nil))
 #+end_src
 
+** Fringes
+#+begin_src emacs-lisp
+  (use-package emacs
+    :hook
+    (prog-mode . (lambda () (setq indicate-buffer-boundaries 'left)))
+    (text-mode . (lambda () (setq indicate-buffer-boundaries 'left))))
+#+end_src
+
 ** Mode-line
 #+begin_src emacs-lisp
   (use-package emacs
