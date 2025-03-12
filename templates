@@ -18,7 +18,7 @@ lisp-mode emacs-lisp-mode ;; Specify multiple modes
 
 emacs-lisp-mode
 
-(use-package "(use-package " p n> ":straight " (p "t") ")")
+(use-package "(use-package " p n> ":ensure " (p "t") ")")
 (ert "(ert-deftest " p "-test" " ()" n> "(should" n> "(equal " p ")))")
 (autoload ";;;###autoload")
 (pt "(point)")
