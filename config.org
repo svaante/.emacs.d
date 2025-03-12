@@ -447,7 +447,7 @@ Org keybinds
 #+end_src
 
 ** Tempel - Templates
-Not convinced that it's more better then =yasnippet=.
+Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package tempel
     :ensure t
