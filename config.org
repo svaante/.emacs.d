@@ -109,12 +109,9 @@ Load last =consult-theme= loaded theme.
                                        project-parent)))
             (if (length< relative-path 40)
                 relative-path
-              (cl-loop with (root . rest) =
-                       (file-name-split relative-path)
-                       for p in rest
-                       unless (string-empty-p p) collect
-                       (substring p 0 1) into rest-short
-                       finally return
+              (cl-loop with (root . rest) = (file-name-split relative-path)
+                       for p in rest unless (string-empty-p p) collect
+                       (substring p 0 1) into rest-short finally return
                        (file-name-as-directory
                         (apply 'file-name-concat root rest-short))))
           default-directory))
