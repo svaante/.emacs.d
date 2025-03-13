@@ -1050,7 +1050,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
   (use-package shell
     :general
     (leader-map
-      "!" 'async-shell-command
       "e" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
