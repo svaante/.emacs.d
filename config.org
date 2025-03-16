@@ -1135,19 +1135,17 @@ Convert escape codes to color.
      :states 'normal
      "q" 'org-agenda-quit
      (kbd "<RET>") 'org-agenda-goto
+     "d" 'org-agenda-kill
      "s" 'org-agenda-filter
      "t" 'org-agenda-todo
-     "T" 'org-agenda-set-tags
-     "j" 'org-agenda-next-line
-     "k" 'org-agenda-previous-line)
+     "T" 'org-agenda-set-tags)
     :preface
     (defun org-agenda-custom ()
       (interactive)
       (org-agenda nil "A"))
     :custom
-    (org-todo-keywords
-     '((sequence "TODO" "DONE")))
     (org-log-done 'time)
+    (org-todo-keywords '((sequence "TODO" "DONE")))
     ;; Don't make any assumption on how I want my windows
     (org-agenda-window-setup 'other-window)
     ;; No prefix is fine
@@ -1158,10 +1156,7 @@ Convert escape codes to color.
      '(("A" "Agenda"
         ((tags "CLOSED>=\"<-1w>\""
                ((org-agenda-overriding-header "Completed this week")))
-         (tags-todo "-{.*}-"
-                    ((org-agenda-overriding-header "Untagged")))
-         (tags-todo "{.*}"
-                    ((org-agenda-overriding-header "Backlog")))))))
+         (todo "TODO" ((org-agenda-overriding-header "Backlog")))))))
     (org-agenda-files '("~/org/notes.org"
                         "~/org/pad.org"
                         "~/org/todo.org"))
@@ -1178,15 +1173,11 @@ Convert escape codes to color.
     (org-capture-mode . evil-insert-state)
     :custom
     (org-capture-templates
-     '(("t" "Todo" entry
-        (file "~/org/todo.org")
-        "* TODO %?\n%a" :prepend t)
-       ("n" "Note" entry
-        (file "~/org/notes.org")
-        "* %?\n")
-       ("p" "Pad" plain
-        (file+olp+datetree "~/org/pad.org")
-        "\n%?\n" :unnarrowed t :hook org-narrow-to-subtree))))
+     '(("t" "Todo" entry (file "~/org/todo.org") "* TODO %?\n%a"
+        :prepend t)
+       ("n" "Note" entry (file "~/org/notes.org") "* %?\n")
+       ("p" "Pad" plain (file+olp+datetree "~/org/pad.org") "\n%?\n"
+        :unnarrowed t :hook org-narrow-to-subtree))))
 #+end_src
 
 ** Org Mono - Search and index Org headlines
@@ -1783,4 +1774,3 @@ Why is =rust-mode= not part Emacs?
     :general
     (leader-map "as" 'scratch-from-mode))
 #+end_src
-
