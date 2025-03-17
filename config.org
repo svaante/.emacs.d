@@ -989,7 +989,10 @@ Not convinced that it's better then =yasnippet=.
 
 ** Wgrep - Editing in "search" buffers
 #+begin_src emacs-lisp
-  (use-package wgrep :ensure t)
+  (use-package wgrep
+    :ensure t
+    :custom
+    (wgrep-auto-save-buffer t))
 #+end_src
 
 ** Xref - Goto code thing
