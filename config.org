@@ -600,7 +600,7 @@ Not convinced that it's better then =yasnippet=.
       "hv" 'describe-variable)
     ( :keymaps '(comint-mode-map minibuffer-local-map)
       :states '(insert normal)
-      (kbd "C-r") 'consult-history)
+      (kbd "M-r") 'consult-history)
     :custom
     (xref-show-xrefs-function 'consult-xref)
     (xref-show-definitions-function 'consult-xref)
