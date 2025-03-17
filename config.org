@@ -577,7 +577,9 @@ Not convinced that it's better then =yasnippet=.
       "hv" 'describe-variable)
     ( :keymaps '(comint-mode-map minibuffer-local-map)
       :states '(insert normal)
-      (kbd "M-r") 'consult-history)
+      (kbd "M-r") 'consult-history
+      (kbd "C-r") 'consult-history ;; Until my fingers catch up
+      )
     :custom
     (xref-show-xrefs-function 'consult-xref)
     (xref-show-definitions-function 'consult-xref)
