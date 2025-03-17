@@ -888,18 +888,6 @@ Not convinced that it's better then =yasnippet=.
      '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive))))))
 #+end_src
 
-** Dedicated windows
-#+begin_src emacs-lisp
-  (use-package dedicated-window
-    :preface
-    (defun kill-dedicated-windows ()
-      "Kill all dedicated windows."
-      (interactive)
-      (cl-loop for window in (window-list)
-               when (window-dedicated-p window) do
-               (quit-window nil window))))
-#+end_src
-
 * Buffer and navigation
 ** Recentf - Save buffer history
 #+begin_src emacs-lisp
