@@ -36,21 +36,6 @@
 #+end_src
 
 * Looks
-** Load theme
-Load last =consult-theme= loaded theme.
-#+begin_src emacs-lisp
-  (use-package emacs
-    :after savehist
-    :preface
-    (defun load-last-theme ()
-      (when (and consult--theme-history)
-        (dolist (theme custom-enabled-themes)
-          (disable-theme theme))
-        (load-theme (intern (car consult--theme-history)) t)))
-    :hook
-    (savehist-mode . load-last-theme))
-#+end_src
-
 ** Font
 #+begin_src emacs-lisp
   (set-frame-font
