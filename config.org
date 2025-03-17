@@ -873,15 +873,7 @@ Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package tab-bar
     :general
-    (leader-map
-      "t" '(:ignore t :which-key "tabs")
-      "tn" 'tab-bar-new-tab
-      "tk" 'tab-bar-close-tab
-      "tr" 'tab-bar-rename-tab
-      "1"  'tab-bar-select-tab
-      "2"  'tab-bar-select-tab
-      "3"  'tab-bar-select-tab
-      "4"  'tab-bar-select-tab)
+    (leader-map "t" '(:keymap tab-prefix-map :which-key "tabs"))
     :custom
     (tab-bar-format
      '(tab-bar-format-tabs tab-bar-format-align-right tab-bar-format-global))
@@ -899,10 +891,6 @@ Not convinced that it's better then =yasnippet=.
 ** Dedicated windows
 #+begin_src emacs-lisp
   (use-package dedicated-window
-    :general
-    (leader-map
-       
-      "wq" 'kill-dedicated-windows)
     :preface
     (defun kill-dedicated-windows ()
       "Kill all dedicated windows."
