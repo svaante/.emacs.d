@@ -39,16 +39,9 @@
 ** Font
 #+begin_src emacs-lisp
   (set-frame-font
-   ;; "Comic Code Ligatures 13"
-   "Iosevka 14"
-   nil t)
-#+end_src
-
-** Themes
-#+begin_src emacs-lisp
-  (use-package nimbus :ensure t)
-  (use-package standard-themes :ensure t)
-  (use-package ef-themes :ensure t)
+    "Comic Code Ligatures 13"
+    ;;"Iosevka 14"
+    nil t)
 #+end_src
 
 ** Simplify UI
