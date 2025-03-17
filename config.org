@@ -76,7 +76,6 @@ Load last =consult-theme= loaded theme.
     (tool-bar-mode nil)
     (scroll-bar-mode nil)
     (menu-bar-mode nil)
-    (frame-title-format nil)
     ;; Unessary fringe noise
     (bookmark-fringe-mark nil))
 #+end_src
