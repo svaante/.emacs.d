@@ -875,7 +875,11 @@ Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package tab-bar
     :general
-    (leader-map "t" '(:keymap tab-prefix-map :which-key "tabs"))
+    (leader-map "t" '(:keymap tab-prefix-map :which-key "tabs")
+      "1" 'tab-bar-select-tab
+      "2" 'tab-bar-select-tab
+      "3" 'tab-bar-select-tab
+      "4" 'tab-bar-select-tab)
     :custom
     (tab-bar-format
      '(tab-bar-format-tabs tab-bar-format-align-right tab-bar-format-global))
