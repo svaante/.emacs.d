@@ -144,11 +144,10 @@
 
 ** Themes
 #+begin_src emacs-lisp
-  (use-package consult--theme-history :ensure t)
-
-  ;; Avoiding customize at all cost?
-  (eval-after-load "consult.el"
-    (load-theme (intern (car consult--theme-history)) t))
+  (use-package color-theme-modern
+    :ensure t
+    :config
+    (load-theme 'xemacs t))
 #+end_src
 
 * Keymaps
