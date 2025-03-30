@@ -135,11 +135,20 @@
        mode-line-format-right-align)))
 #+end_src
 
-** Startup - Splash screen
+** Startup
 #+begin_src emacs-lisp
   (use-package emacs
     :custom
     (inhibit-startup-screen t))
+#+end_src
+
+** Themes
+#+begin_src emacs-lisp
+  (use-package consult--theme-history :ensure t)
+
+  ;; Avoiding customize at all cost?
+  (eval-after-load "consult.el"
+    (load-theme (intern (car consult--theme-history)) t))
 #+end_src
 
 * Keymaps
