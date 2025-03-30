@@ -1041,10 +1041,11 @@ Hack to set =exec-path= Emacsen not launched from a shell.
   (use-package compile
     :preface
     (defun compilation-notify (_buffer message)
-      (require 'notifications)
-      (notifications-notify
-       :title "Compilation"
-       :body (format "Status `%s'" message)))
+      (when (eq system 'gnu)
+        (require 'notifications)
+        (notifications-notify
+         :title "Compilation"
+         :body (format "Status `%s'" message))))
     :hook
     (compilation-finish-functions . compilation-notify)
     :custom
