@@ -876,10 +876,11 @@ Not convinced that it's better then =yasnippet=.
   (use-package tab-bar
     :general
     (leader-map "t" '(:keymap tab-prefix-map :which-key "tabs")
-      "1" 'tab-bar-select-tab
-      "2" 'tab-bar-select-tab
-      "3" 'tab-bar-select-tab
-      "4" 'tab-bar-select-tab)
+      "tn" 'tab-new
+      "1"  'tab-bar-select-tab
+      "2"  'tab-bar-select-tab
+      "3"  'tab-bar-select-tab
+      "4"  'tab-bar-select-tab)
     :custom
     (tab-bar-format
      '(tab-bar-format-tabs tab-bar-format-align-right tab-bar-format-global))
@@ -889,7 +890,7 @@ Not convinced that it's better then =yasnippet=.
     (tab-bar-new-tab-choice "*scratch*")
     :config
     (custom-set-faces
-     '(tab-bar ((t (:inherit fringe))))
+     '(tab-bar ((t (:inherit background))))
      '(tab-bar-tab ((t (:inherit mode-line))))
      '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive))))))
 #+end_src
@@ -1038,6 +1039,14 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 ** Compile - Run thing
 #+begin_src emacs-lisp
   (use-package compile
+    :preface
+    (defun compilation-notify (_buffer message)
+      (require 'notifications)
+      (notifications-notify
+       :title "Compilation"
+       :body (format "Status `%s'" message)))
+    :hook
+    (compilation-finish-functions . compilation-notify)
     :custom
     ;; Use last history as the compile command
     (compile-command (or (car-safe compile-history) ""))
@@ -1101,6 +1110,8 @@ Convert escape codes to color.
      "s" 'org-agenda-filter
      "t" 'org-agenda-todo
      "T" 'org-agenda-set-tags)
+    :hook
+    (org-agenda-mode . hl-line-mode)
     :preface
     (defun org-agenda-custom ()
       (interactive)
@@ -1116,9 +1127,9 @@ Convert escape codes to color.
     ;; Replace the original agenda
     (org-agenda-custom-commands
      '(("A" "Agenda"
-        ((tags "CLOSED>=\"<-1w>\""
-               ((org-agenda-overriding-header "Completed this week")))
-         (todo "TODO" ((org-agenda-overriding-header "Backlog")))))))
+        ((todo "TODO" ((org-agenda-overriding-header "Backlog")))
+         (tags "CLOSED>=\"<-1w>\""
+               ((org-agenda-overriding-header "Completed this week")))))))
     (org-agenda-files '("~/org/notes.org"
                         "~/org/pad.org"
                         "~/org/todo.org"))
@@ -1650,7 +1661,9 @@ Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package calc
     :general
-    (leader-map "ac" #'calc))
+    (leader-map
+      "ac" #'calc
+      "aC" #'quick-calc))
 #+end_src
 
 ** Define Word - Thesaurus
@@ -1658,7 +1671,9 @@ Why is =rust-mode= not part Emacs?
   (use-package define-word
     :ensure t
     :general
-    (leader-map "at" 'define-word-at-point))
+    (leader-map
+      "at" 'define-word-at-point
+      "aT" 'define-word))
 #+end_src
 
 ** Rcirc - Irc
