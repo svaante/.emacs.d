@@ -105,23 +105,20 @@
     (mode-line-position-column-line-format '(" %l:%c"))
     (column-number-mode 1)
     (mode-line-format
-     '("%e" mode-line-front-space
+     '("%e"
        (:propertize
         ("" mode-line-mule-info mode-line-client mode-line-modified
          mode-line-remote mode-line-window-dedicated)
         display (min-width (5.0)))
        mode-line-frame-identification
-       " "
        (:eval (mode-line-file-path))
        mode-line-buffer-identification
-       "  "
+       " "
        mode-line-position
        " "
        (:propertize mode-name face bold)
        mode-line-process
-       "  "
-       (vc-mode vc-mode)
-       " "
+       (vc-mode (" " vc-mode))
        (:eval (when (buffer-narrowed-p)
                 (propertize " Narrow"
                             'face 'font-lock-warning-face)))
@@ -129,10 +126,9 @@
                 (format " Lines %d"
                         (1+ (evil-count-lines (region-beginning)
                                               (region-end))))))
-       (defining-kbd-macro mode-line-defining-kbd-macro)
-       " "
-       mode-line-misc-info
-       mode-line-format-right-align)))
+       (defining-kbd-macro (" " mode-line-defining-kbd-macro))
+       (mode-line-misc-info (" " mode-line-misc-info))
+       "%-")))
 #+end_src
 
 ** Startup
