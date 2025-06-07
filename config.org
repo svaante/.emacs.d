@@ -1682,11 +1682,12 @@ Why is =rust-mode= not part Emacs?
                   'font-lock-face 'calendar-month-header))
     (calendar-week-start-day 1)
     (calendar-intermonth-text
-     '((thread-last (list month day year)
-                    calendar-absolute-from-gregorian
-                    calendar-iso-from-absolute
-                    car
-                    (format "%2d")))))
+     '(propertize
+       (format "%2d"
+               (car
+                (calendar-iso-from-absolute
+                 (calendar-absolute-from-gregorian (list month day year)))))
+       'font-lock-face 'font-lock-keyword-face)))
 #+end_src
 
 * Misc commands
