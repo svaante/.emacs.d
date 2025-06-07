@@ -1337,10 +1337,12 @@ General bindings
     (require 'dape-cortex-debug))
 #+end_src
 
-*** GDB - Until DAP moves into =gdb-multiarch=
+*** GDB - Coredumps
 #+begin_src emacs-lisp
   (use-package gdb-mi
     :custom
+    (gdb-many-windows t)
+    (gdb-show-threads-by-default t)
     (gdb-debuginfod-enable-setting nil))
 #+end_src
 
