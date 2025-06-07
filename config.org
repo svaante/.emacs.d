@@ -734,17 +734,17 @@ Not convinced that it's better then =yasnippet=.
     (defun consult-read-directory (prompt)
       "Read consult directory."
       (let ((sources
-             '(("Projects" ?p
+             '(("Open" ?o
+                  (lambda ()
+                    (consult--buffer-query
+                     :mode 'dired-mode
+                     :as (lambda (buffer)
+                           (buffer-local-value 'default-directory buffer)))))
+               ("Projects" ?p
                 (lambda ()
                   (project--ensure-read-project-list)
                   (cl-loop for (path) in project--list
                            collect path)))
-               ("Open" ?o
-                (lambda ()
-                  (consult--buffer-query
-                   :mode 'dired-mode
-                   :as (lambda (buffer)
-                         (buffer-local-value 'default-directory buffer)))))
                ("Bookmarks" ?m
                 (lambda ()
                   (cl-loop for (_ . params) in bookmark-alist
@@ -765,8 +765,7 @@ Not convinced that it's better then =yasnippet=.
 
     (defun consult-dired (directory)
       "Run `dired' in DIRECTORY."
-      (interactive
-       (list (consult-read-directory "Dired: ")))
+      (interactive (list (consult-read-directory "Find directory: ")))
       (dired (expand-file-name directory))))
 #+end_src
 
