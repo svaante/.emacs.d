@@ -32,7 +32,9 @@
     ;; Keep buffers fresh with `revert-buffer'
     (global-auto-revert-mode 1)
     ;; Follow the mouse
-    (mouse-autoselect-window t))
+    (mouse-autoselect-window t)
+    ;; Scratch buffer is fine
+    (inhibit-startup-screen t))
 #+end_src
 
 * Looks
@@ -131,19 +133,9 @@
        "%-")))
 #+end_src
 
-** Startup
-#+begin_src emacs-lisp
-  (use-package emacs
-    :custom
-    (inhibit-startup-screen t))
-#+end_src
-
 ** Themes
 #+begin_src emacs-lisp
-  (use-package color-theme-modern
-    :ensure t
-    :config
-    (load-theme 'xemacs t))
+  (use-package color-theme-modern :ensure t)
 #+end_src
 
 * Keymaps
