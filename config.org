@@ -1511,6 +1511,20 @@ Why is =rust-mode= not part Emacs?
     (dired-listing-switches "-alt"))
 #+end_src
 
+** LLM - chat
+#+begin_src emacs-lisp
+  (use-package gptel
+    :ensure t
+    :general
+    (leader-map "aa" 'gptel-menu)
+    :custom
+    (transient-display-buffer-action
+     '(display-buffer-below-selected
+       (dedicated . t)
+       (inhibit-same-window . t)))
+    :config
+    (add-hook 'gptel-post-response-functions 'gptel-end-of-response))
+
 ** Email and Feeds
 *** Gnus - Reading mail, feeds and lists
 #+begin_src emacs-lisp
