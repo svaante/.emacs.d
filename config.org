@@ -906,7 +906,6 @@ Not convinced that it's better then =yasnippet=.
     :general
     ("C-s" #'evil-avy-goto-char-timer)
     (leader-map
-      "jj" #'evil-avy-goto-char-timer
       "jl" #'evil-avy-goto-line-keep-column)
     :custom
     (avy-timeout-seconds 0.3)
