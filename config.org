@@ -1524,6 +1524,7 @@ Why is =rust-mode= not part Emacs?
        (inhibit-same-window . t)))
     :config
     (add-hook 'gptel-post-response-functions 'gptel-end-of-response))
+#+end_src
 
 ** Email and Feeds
 *** Gnus - Reading mail, feeds and lists
