@@ -1058,6 +1058,16 @@ Convert escape codes to color.
     (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
 #+end_src
 
+** Consult Shell Command - Run things again
+#+begin_src emacs-lisp
+  (use-package consult-shell-command
+    :vc (consult-shell-command :url "https://github.com/svaante/consult-shell-command")
+    :general
+    (leader-map "r" 'consult-shell-command)
+    :custom
+    (consult-shell-command-mode 1))
+#+end_src
+
 * Org
 ** General
 #+begin_src emacs-lisp
