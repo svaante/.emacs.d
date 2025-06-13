@@ -358,12 +358,12 @@ Org keybinds
     (git-commit-mode . auto-fill-mode)
     (mail-mode . auto-fill-mode)
     (message-mode . auto-fill-mode)
-    (prog-mode . auto-fill-mode)
     (prog-mode
      ;; Comments are re-used some mode which leads to `auto-fill' being
      ;; disabled where it should not `prog-mode'.
      . (lambda ()
-         (setq-local comment-auto-fill-only-comments t)))
+         (setq-local comment-auto-fill-only-comments t)
+         (auto-fill-mode)))
     :custom
     ;; No tabs please
     (indent-tabs-mode nil))
