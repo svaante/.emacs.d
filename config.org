@@ -196,11 +196,8 @@
 
 ** Evil and Friends - Vi emulation
 #+begin_src emacs-lisp
-  ;; Last known good commit 3d4102c:
-  ;; - evil-escape macro bug (inserts "jK")
-  ;; - minibuffer bug does not enter in insert mode
   (use-package evil
-    :vc (evil :url "https://github.com/emacs-evil/evil" :rev "3d4102c")
+    :ensure t
     :general
     (:states 'motion "H-i" 'evil-jump-forward)
     :custom
@@ -216,13 +213,15 @@
     ;; Follow windows on split)
     (evil-split-window-below t)
     (evil-vsplit-window-right t)
+    ;; */# use symbols
+    (evil-symbol-word-search t)
     :init
     ;; For some reason cannot be set with `:custom'
     (setq evil-search-module 'evil-search)
     :config
-    ;; Use symbols instead of words when using the vim subject "word"
+    ;; Use symbols instead of words as vi subject
     (defalias #'forward-evil-word #'forward-evil-symbol)
-    (setq-default evil-symbol-word-search t)
+    (defalias #'forward-evil-word-object #'forward-evil-symbol)
 
     ;; Run the macro in the q register
     (evil-define-key 'normal 'global "Q" "@q")
@@ -243,8 +242,7 @@ Almost as important as =evil= itself.
     (evil-escape-delay 0.1)
     (evil-escape-key-sequence "jk")
     (evil-escape-unordered-key-sequence t)
-    :config
-    (evil-escape-mode))
+    (evil-escape-mode +1))
 #+end_src
 
 This makes =evil= almost feel like the default bindings.
