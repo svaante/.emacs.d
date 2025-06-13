@@ -1471,7 +1471,6 @@ Why is =rust-mode= not part Emacs?
     (magit-bury-buffer-function 'quit-window)
     ;; wrangle magits and its transient buffer to not create pop-up
     (magit-display-buffer-function 'display-buffer)
-    (transient-display-buffer-action '(display-buffer-below-selected))
     (transient-mode-line-format '("%e" mode-line-front-space
                                   mode-line-buffer-identification))
     :config
