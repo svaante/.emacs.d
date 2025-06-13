@@ -559,16 +559,15 @@ Not convinced that it's better then =yasnippet=.
     (leader-map
       "." 'find-file
       ":" 'execute-extended-command
+      "hh" 'describe-function
+      "hm" 'describe-mode
+      "hv" 'describe-variable
       "s" 'consult-line
       "i" 'consult-imenu
       "b" 'consult-buffer
       "y" 'consult-yank-pop
-      "j" '(:which-key "jump")
       "jc" 'consult-compile-error
-      "jf" 'consult-flymake
-      "h" '(:which-key "help")
-      "hh" 'describe-function
-      "hv" 'describe-variable)
+      "jf" 'consult-flymake)
     ( :keymaps '(comint-mode-map minibuffer-local-map)
       :states '(insert normal)
       (kbd "M-r") 'consult-history
@@ -1445,10 +1444,6 @@ Why is =rust-mode= not part Emacs?
 #+end_src
 
 * Applications
-#+begin_src emacs-lisp
-  (leader-map "a" '(:which-key "applications"))
-#+end_src
-
 ** Magit - Version Control
 #+begin_src emacs-lisp
   (use-package magit
