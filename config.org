@@ -197,7 +197,7 @@
 ** Evil and Friends - Vi emulation
 #+begin_src emacs-lisp
   (use-package evil
-    :ensure t
+    :vc (evil :url "https://github.com/emacs-evil/evil" :rev "682e87f")
     :general
     (:states 'motion "H-i" 'evil-jump-forward)
     :custom
