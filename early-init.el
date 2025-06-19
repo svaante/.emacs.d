@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (require 'org)
 
 (org-babel-tangle-file
