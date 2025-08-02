@@ -1073,7 +1073,7 @@ Convert escape codes to color.
                   (kbd "<RET>") 'org-return)
     (leader-map
       "o" '(:which-key "org")
-      "os" 'org-store-link)
+      "ol" 'org-store-link)
     :custom
     (org-imenu-depth 3)
     (org-src-window-setup 'current-window)
@@ -1081,10 +1081,9 @@ Convert escape codes to color.
     (org-startup-with-inline-images t)
     (org-priority-start-cycle-with-default nil)
     :config
-    (set-face-attribute 'org-level-1 nil :height 1.4)
+    (set-face-attribute 'org-level-1 nil :height 1.3)
     (set-face-attribute 'org-level-2 nil :height 1.2)
-    (set-face-attribute 'org-level-3 nil :height 1.1)
-    (set-face-attribute 'org-document-title nil :height 2.0))
+    (set-face-attribute 'org-document-title nil :height 1.5))
 #+end_src
 
 ** Org Agenda
