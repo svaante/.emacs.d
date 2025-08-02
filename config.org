@@ -1146,37 +1146,6 @@ Convert escape codes to color.
         :unnarrowed t :hook org-narrow-to-subtree))))
 #+end_src
 
-** Org Mono - Search and index Org headlines
-#+begin_src emacs-lisp
-  (use-package org-mono
-    :vc (org-mono :url "https://github.com/svaante/org-mono")
-    :general
-    (leader-map "oo" 'org-mono-goto)
-    :custom
-    (org-mono-files (append org-agenda-files '("~/.emacs.d/config.org")))
-    (org-mono-advice-org-refile t)
-    (global-org-mono-mode 1)
-    :config
-    (defvar-keymap embark-org-mono-actions-map
-      :doc "Keymap for actions for org-mono."
-      :parent embark-general-map
-      "o" #'org-mono-goto-other-window
-      "t" #'org-mono-todo
-      "r" #'org-mono-rename
-      "w" #'org-mono-refile-from
-      "a" #'org-mono-archive
-      "k" #'org-mono-delete-headline
-      "c" #'org-mono-goto-headline-child
-      "d" #'org-mono-time-stamp
-      "b" #'org-mono-goto-backlinks)
-    (add-to-list 'embark-keymap-alist '(org-mono . embark-org-mono-actions-map)))
-
-  (use-package org-mono-consult
-    :after org-mono
-    :custom
-    (org-mono-completing-read-fn 'org-mono-consult-completing-read))
-#+end_src
-
 * Programming
 ** General
 *** Prog Mode - Basic keybinds
