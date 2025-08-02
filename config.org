@@ -1655,7 +1655,6 @@ Why is =rust-mode= not part Emacs?
 ** Rcirc - Irc
 #+begin_src emacs-lisp
   (use-package rcirc
-    :ensure t
     :general
     (leader-map "ai" 'rcirc)
     :config
