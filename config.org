@@ -107,7 +107,7 @@
     (mode-line-position-column-line-format '(" %l:%c"))
     (column-number-mode 1)
     (mode-line-format
-     '("%e"
+     '(" %e"
        (:propertize
         ("" mode-line-mule-info mode-line-client mode-line-modified
          mode-line-remote mode-line-window-dedicated)
@@ -248,7 +248,7 @@ Almost as important as =evil= itself.
 This makes =evil= almost feel like the default bindings.
 #+begin_src emacs-lisp
   (use-package evil-collection
-    :ensure t
+    :vc (evil-collection :url "https://github.com/svaante/evil-collection")
     :config
     (setq evil-collection-mode-list
           (thread-last evil-collection-mode-list
@@ -298,13 +298,6 @@ Org keybinds
      "G"   'consult-ripgrep
      "h"   'hexl-find-file
      "."   'find-file-at)
-    :custom
-    ;; Show Embark actions via which-key
-    (embark-action-indicator
-     (lambda (map)
-       (which-key--show-keymap "Embark" map nil nil 'no-paging)
-       #'which-key--hide-popup-ignore-command)
-     embark-become-indicator embark-action-indicator)
     :config
     ;; Make `magit' usable by file category
     (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
@@ -872,7 +865,8 @@ Not convinced that it's better then =yasnippet=.
       "1"  'tab-bar-select-tab
       "2"  'tab-bar-select-tab
       "3"  'tab-bar-select-tab
-      "4"  'tab-bar-select-tab)
+      "4"  'tab-bar-select-tab
+      "5"  'tab-bar-select-tab)
     :custom
     (tab-bar-format
      '(tab-bar-format-tabs tab-bar-format-align-right tab-bar-format-global))
@@ -1023,7 +1017,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
   (use-package compile
     :preface
     (defun compilation-notify (_buffer message)
-      (when (eq system 'gnu)
+      (when (eq system-type 'gnu)
         (require 'notifications)
         (notifications-notify
          :title "Compilation"
@@ -1083,6 +1077,7 @@ Convert escape codes to color.
     (org-src-window-setup 'current-window)
     (org-return-follows-link t)
     (org-startup-with-inline-images t)
+    (org-priority-start-cycle-with-default nil)
     :config
     (set-face-attribute 'org-level-1 nil :height 1.4)
     (set-face-attribute 'org-level-2 nil :height 1.2)
@@ -1099,10 +1094,13 @@ Convert escape codes to color.
      :states 'normal
      "q" 'org-agenda-quit
      (kbd "<RET>") 'org-agenda-goto
-     "d" 'org-agenda-kill
-     "s" 'org-agenda-filter
-     "t" 'org-agenda-todo
-     "T" 'org-agenda-set-tags)
+     "D" #'org-agenda-kill
+     "s" #'org-agenda-filter
+     "t" #'org-agenda-todo
+     "T" #'org-agenda-set-tags
+     "K" #'org-agenda-priority-up
+     "J" #'org-agenda-priority-down
+     )
     :hook
     (org-agenda-mode . hl-line-mode)
     :preface
@@ -1280,7 +1278,9 @@ General bindings
   (use-package flymake
     :custom
     (flymake-indicator-type nil)
-    (flymake-show-diagnostics-at-end-of-line t)
+    (flymake-fringe-indicator-position nil)
+    (flymake-margin-indicator-position nil)
+    (flymake-show-diagnostics-at-end-of-line 'fancy)
     :hook
     (emacs-lisp-mode . flymake-mode))
 #+end_src
@@ -1310,6 +1310,8 @@ General bindings
     (dape-breakpoint-global-mode 1)
     (dape-debug t)
     :config
+    (add-hook 'dape-display-source-hook
+              #'pulse-momentary-highlight-one-line)
     (add-hook 'dape-start-hook
               (defun save-all-buffers () (save-some-buffers t t)))
     ;; java ughhh
@@ -1569,8 +1571,7 @@ Why is =rust-mode= not part Emacs?
     ;; Methods
     (gnus-select-method '(nnnil ""))
     (gnus-secondary-select-methods
-     '(
-       ;; Mail
+     '(;; Mail
        (nnmaildir "dpettersson"
                   (directory "~/Mail/dpettersson/"))
        (nnmaildir "svaante"
