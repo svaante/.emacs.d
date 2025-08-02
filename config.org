@@ -40,10 +40,12 @@
 * Looks
 ** Font
 #+begin_src emacs-lisp
-  (set-frame-font
-    "Comic Code Ligatures 13"
-    ;;"Iosevka 14"
-    nil t)
+  ;; (set-frame-font
+  ;;  ;; "Unifont 13"
+  ;;  ;; "Comic Code Ligatures 13"
+  ;;  ;; "Iosevka 14"
+  ;;  ;; "Kelmscott Mono 12"
+  ;;  nil t)
 #+end_src
 
 ** Simplify UI
