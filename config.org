@@ -202,6 +202,10 @@
     :vc (evil :url "https://github.com/emacs-evil/evil" :rev "682e87f")
     :general
     (:states 'motion "H-i" 'evil-jump-forward)
+    (:states 'insert
+             "j" (general-key-dispatch 'self-insert-command
+                   :timeout 0.1
+                   "k" 'evil-normal-state))
     :custom
     (evil-want-integration t)
     (evil-want-keybinding nil)
@@ -234,17 +238,6 @@
     (evil-ex-define-cmd "WQ" 'evil-save-and-close)
 
     (evil-mode 1))
-#+end_src
-
-Almost as important as =evil= itself.
-#+begin_src emacs-lisp
-  (use-package evil-escape
-    :ensure t
-    :custom
-    (evil-escape-delay 0.1)
-    (evil-escape-key-sequence "jk")
-    (evil-escape-unordered-key-sequence t)
-    (evil-escape-mode +1))
 #+end_src
 
 This makes =evil= almost feel like the default bindings.
