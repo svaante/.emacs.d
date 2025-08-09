@@ -240,7 +240,7 @@
     (evil-mode 1))
 #+end_src
 
-This makes =evil= almost feel like the default bindings.
+Make =evil= feel like default.
 #+begin_src emacs-lisp
   (use-package evil-collection
     :vc (evil-collection :url "https://github.com/svaante/evil-collection")
@@ -669,11 +669,10 @@ Not convinced that it's better then =yasnippet=.
     :general
     (leader-map
       "SPC" 'project-find-file
-      "p" '(:which-key "project")
+      "p" '(:which-key "project" :keymap project-prefix-map)
       "pp" 'project-switch-project
       "pc" 'project-compile
       "pC" 'project-recompile
-      "p!" 'project-async-shell-command
       "pe" 'project-async-shell-command
       "pd" 'project-dired
       "pg" 'consult-ripgrep)
