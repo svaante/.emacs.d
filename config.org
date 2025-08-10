@@ -1265,7 +1265,6 @@ General bindings
     (after-init . dape-breakpoint-load)
     :custom
     (dape-breakpoint-global-mode 1)
-    (dape-debug t)
     :config
     (add-hook 'dape-display-source-hook
               #'pulse-momentary-highlight-one-line)
