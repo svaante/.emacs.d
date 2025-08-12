@@ -201,11 +201,15 @@
   (use-package evil
     :vc (evil :url "https://github.com/emacs-evil/evil" :rev "682e87f")
     :general
-    (:states 'motion "H-i" 'evil-jump-forward)
-    (:states 'insert
-             "j" (general-key-dispatch 'self-insert-command
-                   :timeout 0.1
-                   "k" 'evil-normal-state))
+    ( :states 'motion
+      "H-i" 'evil-jump-forward)
+    ( :states 'insert
+      "j" (general-key-dispatch 'self-insert-command
+            :timeout 0.15
+            "k" 'evil-normal-state)
+      "k" (general-key-dispatch 'self-insert-command
+            :timeout 0.15
+            "j" 'evil-normal-state))
     :custom
     (evil-want-integration t)
     (evil-want-keybinding nil)
@@ -487,12 +491,9 @@ Not convinced that it's better then =yasnippet=.
      (kbd "C-p") 'vertico-previous)
     :custom
     (vertico-cycle t)
-    (enable-recursive-minibuffers nil)
-    (vertico-mode 1)
-    :config
-    (defun crm-indicator (args)
-      (cons (concat "[CRM] " (car args)) (cdr args)))
-    (advice-add #'completing-read-multiple :filter-args #'crm-indicator))
+    (minibuffer-depth-indicate-mode +1)
+    (enable-recursive-minibuffers t)
+    (vertico-mode 1))
 
   (use-package vertico-directory
     :after vertico
