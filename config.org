@@ -40,12 +40,9 @@
 * Looks
 ** Font
 #+begin_src emacs-lisp
-  ;; (set-frame-font
-  ;;  ;; "Unifont 13"
-  ;;  ;; "Comic Code Ligatures 13"
-  ;;  ;; "Iosevka 14"
-  ;;  ;; "Kelmscott Mono 12"
-  ;;  nil t)
+  (set-face-attribute 'default nil :family "Aporetic Sans Mono" :height 125)
+  (set-face-attribute 'variable-pitch nil :family "Aporetic Sans" :height 1.0)
+  (set-face-attribute 'fixed-pitch nil :family "Aporetic Sans Mono" :height 1.0)
 #+end_src
 
 ** Simplify UI
@@ -137,7 +134,7 @@
 
 ** Themes
 #+begin_src emacs-lisp
-  (use-package color-theme-modern :ensure t)
+  (use-package doric-themes :ensure t)
 #+end_src
 
 * Keymaps
@@ -146,36 +143,23 @@
   (use-package general
     :ensure t
     :after evil
-    :hook (after-init
-           . (lambda ()
-               (dolist (buffer (buffer-list))
-                 (with-current-buffer buffer
-                   (evil-normalize-keymaps)))))
+    :hook (after-init . (lambda ()
+                          (dolist (buffer (buffer-list))
+                            (with-current-buffer buffer
+                              (evil-normalize-keymaps)))))
     :config
     (general-create-definer leader-map
       :prefix "SPC"
       :states '(normal emacs motion visual)
-      :keymaps 'override))
+      :keymaps 'override)
+    (leader-map
+      "."  'find-file
+      ":"  'execute-extended-command
+      "hh" 'describe-function
+      "hm" 'describe-mode
+      "hv" 'describe-variable))
 #+end_src
 
-** Global mappings
-#+begin_src emacs-lisp
-  (use-package emacs
-    :general
-    (general-override-mode-map
-     :states '(normal insert)
-     "C-j" 'evil-window-down
-     "C-k" 'evil-window-up
-     "C-h" 'evil-window-left
-     "C-l" 'evil-window-right)
-    (special-mode-map
-     :states 'normal
-     "q" 'kill-current-buffer)
-    :config
-    ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
-    (when (display-graphic-p)
-      (define-key input-decode-map (kbd "C-i") (kbd "H-i"))))
-#+end_src
 
 ** Repeat - Ergonomic keymaps
 #+begin_src emacs-lisp
@@ -210,6 +194,15 @@
       "k" (general-key-dispatch 'self-insert-command
             :timeout 0.15
             "j" 'evil-normal-state))
+    (general-override-mode-map
+     :states '(normal insert)
+     "C-j" 'evil-window-down
+     "C-k" 'evil-window-up
+     "C-h" 'evil-window-left
+     "C-l" 'evil-window-right)
+    (special-mode-map
+     :states 'normal
+     "q" 'kill-current-buffer)
     :custom
     (evil-want-integration t)
     (evil-want-keybinding nil)
@@ -241,6 +234,10 @@
     (evil-ex-define-cmd "Wq" 'evil-save-and-close)
     (evil-ex-define-cmd "WQ" 'evil-save-and-close)
 
+    ;; HACK: To seperate C-i with <tab> in terminal <Tab> is more important then C-i
+    (when (display-graphic-p)
+      (define-key input-decode-map (kbd "C-i") (kbd "H-i")))
+
     (evil-mode 1))
 #+end_src
 
@@ -263,8 +260,7 @@ Org keybinds
     :hook (org-mode . evil-org-mode)
     :custom
     (evil-org-key-theme
-     '(textobjects insert return return
-                   additional shift todo))
+     '(textobjects insert return return additional shift todo))
     :config
     (evil-org-set-key-theme))
 #+end_src
@@ -285,12 +281,12 @@ Org keybinds
     :general
     (minibuffer-local-map
      :states '(insert normal)
-     (kbd "C-SPC") 'embark-act
-     (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
+     (kbd "C-SPC")      'embark-act
+     (kbd "C-@")        'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
      (kbd "C-<return>") 'embark-export)
-    (:states 'normal
-             (kbd "C-@") 'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
-             (kbd "C-SPC") 'embark-act)
+    ( :states 'normal
+      (kbd "C-@")   'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
+      (kbd "C-SPC") 'embark-act)
     (embark-file-map
      "SPC" 'project-find-file-at
      "g"   'magit
@@ -540,17 +536,12 @@ Not convinced that it's better then =yasnippet=.
 
 ** Consult - Improved candidate completion functions
 #+begin_src emacs-lisp
-  (use-package embark-consult :ensure t)
+  (use-package embark-consult :ensure t :after consult)
 
   (use-package consult
     :ensure t
     :general
     (leader-map
-      "." 'find-file
-      ":" 'execute-extended-command
-      "hh" 'describe-function
-      "hm" 'describe-mode
-      "hv" 'describe-variable
       "s" 'consult-line
       "i" 'consult-imenu
       "b" 'consult-buffer
@@ -628,6 +619,7 @@ Not convinced that it's better then =yasnippet=.
                 (lambda (&rest _) (evil-normalize-keymaps))))
 
   (use-package corfu-popupinfo ;; packaged with corfu
+    :after corfu
     :custom
     (corfu-popupinfo-delay '(0.5 . 0.0))
     (corfu-popupinfo-mode 1))
@@ -799,7 +791,7 @@ Not convinced that it's better then =yasnippet=.
         (body-function . select-window))
        ;; Compile
        ((major-mode . compilation-mode)
-        (display-buffer-in-side-window)
+        (display-buffer-reuse-window display-buffer-in-side-window)
         (side . right)
         (reusable-frames . t)
         (dedicated . t)
@@ -978,8 +970,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 #+begin_src emacs-lisp
   (use-package shell
     :general
-    (leader-map
-      "e" 'async-shell-command)
+    (leader-map "e" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
      "gr" 'revert-buffer ;; reruns buffer
@@ -1007,7 +998,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
   (use-package compile
     :preface
     (defun compilation-notify (_buffer message)
-      (when (eq system-type 'gnu)
+      (when (eq system-type 'gnu/linux)
         (require 'notifications)
         (notifications-notify
          :title "Compilation"
