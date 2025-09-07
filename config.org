@@ -195,7 +195,7 @@
             :timeout 0.15
             "j" 'evil-normal-state))
     (general-override-mode-map
-     :states '(normal insert)
+     :states '(normal insert emacs)
      "C-j" 'evil-window-down
      "C-k" 'evil-window-up
      "C-h" 'evil-window-left
@@ -807,6 +807,10 @@ Not convinced that it's better then =yasnippet=.
        ((derived-mode . shell-command-mode)
         nil
         (body-function . select-window))
+       ;; Proceed
+       ((derived-mode . proced-mode)
+        (display-buffer-in-side-window)
+        (side . top))
        ;; Magit
        ((or (derived-mode . magit-diff-mode)
             (derived-mode . magit-process-mode))
@@ -1654,6 +1658,20 @@ Why is =rust-mode= not part Emacs?
                 (calendar-iso-from-absolute
                  (calendar-absolute-from-gregorian (list month day year)))))
        'font-lock-face 'font-lock-keyword-face)))
+#+end_src
+
+** Proceed
+#+begin_src emacs-lisp
+  (use-package proced
+    :general
+    (leader-map "ap" 'proced)
+    :hook
+    (proced-mode . hl-line-mode)
+    :custom
+    (proced-show-remote-processes t)
+    (proced-sort 'pmem)
+    (proced-enable-color-flag t)
+    (proced-tree-flag t))
 #+end_src
 
 * Misc commands
