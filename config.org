@@ -1615,13 +1615,15 @@ Why is =rust-mode= not part Emacs?
     (message-kill-buffer-on-exit t))
 #+end_src
 
-** Calc
+** Calculator
 #+begin_src emacs-lisp
-  (use-package calc
+  (use-package calculator
     :general
-    (leader-map
-      "ac" #'calc
-      "aC" #'quick-calc))
+    (leader-map "ac" #'calculator)
+    (calculator-mode-map "y" 'calculator-copy
+                         "p" 'calculator-paste)
+    :config
+    (add-to-list 'evil-emacs-state-modes 'calculator-mode))
 #+end_src
 
 ** Define Word - Thesaurus
