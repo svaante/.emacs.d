@@ -1062,11 +1062,7 @@ Convert escape codes to color.
     (org-src-window-setup 'current-window)
     (org-return-follows-link t)
     (org-startup-with-inline-images t)
-    (org-priority-start-cycle-with-default nil)
-    :config
-    (set-face-attribute 'org-level-1 nil :height 1.3)
-    (set-face-attribute 'org-level-2 nil :height 1.2)
-    (set-face-attribute 'org-document-title nil :height 1.5))
+    (org-priority-start-cycle-with-default nil))
 #+end_src
 
 ** Org Agenda
@@ -1082,8 +1078,6 @@ Convert escape codes to color.
      "s" #'org-agenda-filter
      "t" #'org-agenda-todo
      "T" #'org-agenda-set-tags
-     "K" #'org-agenda-priority-up
-     "J" #'org-agenda-priority-down
      )
     :hook
     (org-agenda-mode . hl-line-mode)
@@ -1094,7 +1088,6 @@ Convert escape codes to color.
     :custom
     (org-log-done 'time)
     (org-todo-keywords '((sequence "TODO" "DONE")))
-    ;; Don't make any assumption on how I want my windows
     (org-agenda-window-setup 'other-window)
     ;; No prefix is fine
     (org-agenda-prefix-format
