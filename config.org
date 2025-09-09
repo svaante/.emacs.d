@@ -40,7 +40,7 @@
 * Looks
 ** Font
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil :family "Aporetic Sans Mono" :height 125)
+  (set-face-attribute 'default nil :family "Aporetic Sans Mono" :height 120)
   (set-face-attribute 'variable-pitch nil :family "Aporetic Sans" :height 1.0)
   (set-face-attribute 'fixed-pitch nil :family "Aporetic Sans Mono" :height 1.0)
 #+end_src
@@ -160,7 +160,6 @@
       "hv" 'describe-variable))
 #+end_src
 
-
 ** Repeat - Ergonomic keymaps
 #+begin_src emacs-lisp
   (use-package repeat
@@ -200,6 +199,11 @@
      "C-k" 'evil-window-up
      "C-h" 'evil-window-left
      "C-l" 'evil-window-right)
+    ;; This is Emacs after all?
+    (general-override-mode-map
+     :states 'insert
+     "C-a" 'beginning-of-line
+     "C-e" 'end-of-line)
     (special-mode-map
      :states 'normal
      "q" 'kill-current-buffer)
@@ -809,8 +813,7 @@ Not convinced that it's better then =yasnippet=.
         (body-function . select-window))
        ;; Proceed
        ((derived-mode . proced-mode)
-        (display-buffer-in-side-window)
-        (side . top))
+        (display-buffer-same-window))
        ;; Magit
        ((or (derived-mode . magit-diff-mode)
             (derived-mode . magit-process-mode))
