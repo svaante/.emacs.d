@@ -1359,7 +1359,10 @@ General bindings
 
 ** Go
 #+begin_src emacs-lisp
-  (use-package go-mode :ensure t)
+  (use-package go-mode
+    :ensure t
+    ;; Jesus this is lazy having this a global save hook...
+    :hook (before-save-hook . gofmt-before-save))
 #+end_src
 
 ** Python
@@ -1467,6 +1470,9 @@ Why is =rust-mode= not part Emacs?
     :hook
     (gnus-group-mode . gnus-topic-mode)
     (gnus-summary-mode . hl-line-mode)
+    (gnus-article-mode
+     . (lambda ()
+         (setq-local browse-url-browser-function 'eww-browse-url)))
     :custom
     ;; Startup
     (gnus-check-new-newsgroups nil)
@@ -1599,7 +1605,8 @@ Why is =rust-mode= not part Emacs?
     :general
     (leader-map "ac" #'calculator)
     (calculator-mode-map "y" 'calculator-copy
-                         "p" 'calculator-paste)
+                         "p" 'calculator-paste
+                         "d" 'calculator-clear)
     :config
     (add-to-list 'evil-emacs-state-modes 'calculator-mode))
 #+end_src
