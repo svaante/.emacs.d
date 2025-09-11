@@ -175,6 +175,8 @@
     (which-key-idle-delay .3)
     ;; Easier to see unbound keys
     (which-key-sort-order 'which-key-key-order-alpha)
+    ;; Stop resizeing sidewindows in terminal
+    (which-key-popup-type 'minibuffer)
     ;; On
     (which-key-mode 1))
 #+end_src
@@ -451,11 +453,6 @@ Not convinced that it's better then =yasnippet=.
 ** General
 #+begin_src emacs-lisp
   (use-package emacs
-    :general
-    ;; Have never got around to using M- bindings for the extremely
-    ;; useful `*-history-element' bindings
-    (key-translation-map "C-." "M-n"
-                         "C-," "M-p")
     :custom
     ;; Let bin be...
     (completion-ignored-extensions
