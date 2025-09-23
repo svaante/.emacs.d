@@ -132,11 +132,6 @@
        "%-")))
 #+end_src
 
-** Themes
-#+begin_src emacs-lisp
-  (use-package doric-themes :ensure t)
-#+end_src
-
 * Keymaps
 ** General - Leader and keymap
 #+begin_src emacs-lisp
