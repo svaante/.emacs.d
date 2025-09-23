@@ -980,21 +980,37 @@ Hack to set =exec-path= Emacsen not launched from a shell.
      "gr" 'revert-buffer ;; reruns buffer
      "q" 'quit-window)
     :custom
-    (async-shell-command-buffer 'rename-buffer)
     (shell-command-prompt-show-cwd t)
     :config
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
-    ;; Install exit code `mode-line-process' mode line
-    (advice-add 'shell-command-sentinel :after
-                (defun async-command-sentinel-show-exit-code (process status)
-                  (when-let* ((buffer (process-buffer process))
-                              ((buffer-live-p buffer))
-                              (status (process-status process)))
-                    (with-current-buffer buffer
-                      (setq mode-line-process
-                            `(,(format ":%s" status)
-                              ,(when (memq status '(exit signal))
-                                 (format " [%s]" (process-exit-status process))))))))))
+    ;; Custom `async-shell-command-buffer' does not do the adequately
+    ;; minimizing buffers by reuse.  Both new-buffer and rename-buffer
+    ;; does it's quirky attempt but ultimately fails.
+    (advice-add
+     'async-shell-command :around
+     (defun async-shell-command-reuse-buffers (async-shell-command &rest args)
+       ;; Do what `async-shell-command-buffer' new-buffer should do
+       (cl-loop for i upfrom 0
+                for name = (if (zerop i)
+                               shell-command-buffer-name-async
+                             (format "%s<%d>" shell-command-buffer-name-async i))
+                unless (and-let* ((buffer (get-buffer name))
+                                  ((bufferp buffer))
+                                  ((get-buffer-process buffer))))
+                return (let ((shell-command-buffer-name-async name))
+                         (apply async-shell-command args)))))
+    ;; Install exit code in `mode-line-process'.
+    (advice-add
+     'shell-command-sentinel :after
+     (defun async-command-sentinel-show-exit-code (process status)
+       (when-let* ((buffer (process-buffer process))
+                   ((buffer-live-p buffer))
+                   (status (process-status process)))
+         (with-current-buffer buffer
+           (setq mode-line-process
+                 `(,(format ":%s" status)
+                   ,(when (memq status '(exit signal))
+                      (format " [%s]" (process-exit-status process))))))))))
 #+end_src
 
 ** Compile - Run thing
