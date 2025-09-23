@@ -1002,7 +1002,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     ;; Install exit code in `mode-line-process'.
     (advice-add
      'shell-command-sentinel :after
-     (defun async-command-sentinel-show-exit-code (process status)
+     (defun shell-command-sentinel-show-exit-code (process status)
        (when-let* ((buffer (process-buffer process))
                    ((buffer-live-p buffer))
                    (status (process-status process)))
