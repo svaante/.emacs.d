@@ -1677,6 +1677,14 @@ Why is =rust-mode= not part Emacs?
     (proced-tree-flag t))
 #+end_src
 
+** Bluetooth
+#+begin_src emacs-lisp
+  (use-package bluetooth
+    :ensure t
+    :general
+    (leader-map "ab" 'bluetooth-list-devices))
+#+end_src
+
 * Misc commands
 #+begin_src emacs-lisp
   ;; source: http://steve.yegge.googlepages.com/my-dot-emacs-file
