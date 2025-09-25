@@ -730,7 +730,7 @@ Not convinced that it's better then =yasnippet=.
               :prompt prompt))))
 
     (defun consult-dired (directory)
-      "Run `dired' in DIRECTORY."
+      "Jump to `dired' buffer corresponding DIRECTORY."
       (interactive (list (consult-read-directory "Find directory: ")))
       (dired (expand-file-name directory))))
 #+end_src
