@@ -675,24 +675,7 @@ Not convinced that it's better then =yasnippet=.
     :custom
     (project-vc-extra-root-markers '(".projectile" ".project"))
     (project-switch-commands #'project-find-file)
-    (project-read-file-name-function #'project-read-file-relative-w/o-current)
-    :config
-    (advice-add
-     #'project-current :around
-     (defun project-current-ensure-tab (project-current &optional maybe-prompt directory)
-       (when-let* ((project (funcall project-current maybe-prompt directory))
-                   (tab-name (format "[%s]" (project-name project))))
-         (prog1 project
-           (when maybe-prompt
-             (if-let* ((tab
-                        (cl-find tab-name
-                                 (funcall tab-bar-tabs-function nil)
-                                 :key (lambda (alist) (alist-get 'name alist))
-                                 :test #'equal)))
-                 (tab-bar-select-tab tab)
-               (let ((tab-bar-new-tab-choice t))
-                 (tab-bar-new-tab 1 1))
-               (tab-bar-rename-tab tab-name))))))))
+    (project-read-file-name-function #'project-read-file-relative-w/o-current))
 #+end_src
 
 ** Change directory - Consult dir
