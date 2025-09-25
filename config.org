@@ -653,6 +653,15 @@ Not convinced that it's better then =yasnippet=.
   ;; Last working commit bf4c3cf after that the history is broken
   (use-package project
     :after consult ;; ripgrep
+    :preface
+    (defun project-read-file-relative-w/o-current (prompt all-files &rest args)
+      (apply #'project--read-file-cpd-relative prompt
+             (delete
+              (when buffer-file-name
+                       (file-relative-name buffer-file-name
+                                           (project-name (project-current))))
+                     all-files)
+             args))
     :general
     (leader-map
       "SPC" 'project-find-file
@@ -665,29 +674,25 @@ Not convinced that it's better then =yasnippet=.
       "pg" 'consult-ripgrep)
     :custom
     (project-vc-extra-root-markers '(".projectile" ".project"))
-    (project-switch-commands 'project-find-file)
+    (project-switch-commands #'project-find-file)
+    (project-read-file-name-function #'project-read-file-relative-w/o-current)
     :config
-    ;; Remove current visited file from list
-    (cl-defun project-advice-read-file-filter
-        ((prompt all-files . args))
-      (when buffer-file-name
-        (setq all-files
-              (delete
-               (thread-last (project-current)
-                            (project-root)
-                            (file-relative-name buffer-file-name))
-               all-files)))
-      `(,prompt ,all-files ,@args))
-    (advice-add 'project--read-file-cpd-relative :filter-args
-                #'project-advice-read-file-filter)
-
-    ;; Ensure that embark works (embark--cd)
-    (defun project-switch-project-advice (project-switch-project dir)
-      (minibuffer-with-setup-hook
-          (lambda () (setq default-directory dir))
-        (funcall project-switch-project dir)))
-    (advice-add 'project-switch-project :around
-                #'project-switch-project-advice))
+    (advice-add
+     #'project-current :around
+     (defun project-current-ensure-tab (project-current &optional maybe-prompt directory)
+       (when-let* ((project (funcall project-current maybe-prompt directory))
+                   (tab-name (format "[%s]" (project-name project))))
+         (prog1 project
+           (when maybe-prompt
+             (if-let* ((tab
+                        (cl-find tab-name
+                                 (funcall tab-bar-tabs-function nil)
+                                 :key (lambda (alist) (alist-get 'name alist))
+                                 :test #'equal)))
+                 (tab-bar-select-tab tab)
+               (let ((tab-bar-new-tab-choice t))
+                 (tab-bar-new-tab 1 1))
+               (tab-bar-rename-tab tab-name))))))))
 #+end_src
 
 ** Change directory - Consult dir
