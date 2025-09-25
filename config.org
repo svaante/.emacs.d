@@ -54,9 +54,7 @@
     ;; Remove the bars
     (tool-bar-mode nil)
     (scroll-bar-mode nil)
-    (menu-bar-mode nil)
-    ;; Unessary fringe noise
-    (bookmark-fringe-mark nil))
+    (menu-bar-mode nil))
 #+end_src
 
 ** Fringes
