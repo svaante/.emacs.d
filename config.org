@@ -61,8 +61,8 @@
 #+begin_src emacs-lisp
   (use-package emacs
     :hook
-    (prog-mode . (lambda () (setq indicate-buffer-boundaries 'left)))
-    (text-mode . (lambda () (setq indicate-buffer-boundaries 'left))))
+    (prog-mode . (lambda () (setq indicate-buffer-boundaries t)))
+    (text-mode . (lambda () (setq indicate-buffer-boundaries t))))
 #+end_src
 
 ** Mode-line
@@ -452,6 +452,10 @@ Not convinced that it's better then =yasnippet=.
      (delete ".bin" completion-ignored-extensions))
     ;; Default to ignore case
     (completion-ignore-case t)
+    ;; Minibuffer
+    (minibuffer-depth-indicate-mode +1)
+    (minibuffer-electric-default-mode +1)
+    (enable-recursive-minibuffers t)
     ;; We can manage
     (history-length 99999)
     :config
@@ -481,8 +485,6 @@ Not convinced that it's better then =yasnippet=.
      (kbd "C-p") 'vertico-previous)
     :custom
     (vertico-cycle t)
-    (minibuffer-depth-indicate-mode +1)
-    (enable-recursive-minibuffers t)
     (vertico-mode 1))
 
   (use-package vertico-directory
