@@ -62,7 +62,8 @@
   (use-package emacs
     :hook
     (prog-mode . (lambda () (setq indicate-buffer-boundaries t)))
-    (text-mode . (lambda () (setq indicate-buffer-boundaries t))))
+    (text-mode . (lambda () (setq indicate-buffer-boundaries t)))
+    (conf-mode . (lambda () (setq indicate-buffer-boundaries t))))
 #+end_src
 
 ** Mode-line
@@ -133,6 +134,8 @@
 * Keymaps
 ** General - Leader and keymap
 #+begin_src emacs-lisp
+  (global-set-key (kbd "C-x k") #'kill-current-buffer)
+
   (use-package general
     :ensure t
     :after evil
@@ -168,8 +171,6 @@
     (which-key-idle-delay .3)
     ;; Easier to see unbound keys
     (which-key-sort-order 'which-key-key-order-alpha)
-    ;; Stop resizeing sidewindows in terminal
-    (which-key-popup-type 'minibuffer)
     ;; On
     (which-key-mode 1))
 #+end_src
