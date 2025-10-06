@@ -551,6 +551,7 @@ Not convinced that it's better then =yasnippet=.
     (xref-show-xrefs-function 'consult-xref)
     (xref-show-definitions-function 'consult-xref)
     (consult-async-split-style 'semicolon)
+    (consult-buffer-list-function 'consult--frame-buffer-list)
     :hook
     (minibuffer-mode
      . (lambda (&rest _)
@@ -1435,6 +1436,15 @@ Why is =rust-mode= not part Emacs?
 ** Dired - Directory browser
 #+begin_src emacs-lisp
   (use-package dired
+    :preface
+    (defun project-ensure-tab (directory)
+      (when-let* ((project (project-current nil directory))
+                  (name (format "[%s]" (project-name project))))
+        (if (cl-find name (tab-bar-tabs)
+                     :key (apply-partially #'alist-get 'name))
+            (tab-bar-select-tab-by-name name)
+          (tab-new)
+          (tab-rename name))))
     :general
     (leader-map "ad" 'dired-jump)
     ;; Lets pretend shell-command does not exist
@@ -1454,7 +1464,9 @@ Why is =rust-mode= not part Emacs?
     (dired-kill-when-opening-new-dired-buffer t)
     (dired-use-ls-dired (not (eq system-type 'darwin)))
     ;; Sort by date as default
-    (dired-listing-switches "-alt"))
+    (dired-listing-switches "-alt")
+    :config
+    (advice-add #'dired :before #'project-ensure-tab))
 #+end_src
 
 ** Email and Feeds
