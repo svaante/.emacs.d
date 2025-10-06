@@ -969,6 +969,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
      "q" 'quit-window)
     :custom
     (shell-command-prompt-show-cwd t)
+    (async-shell-command-buffer 'new-buffer)
     :config
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
     ;; Custom `async-shell-command-buffer' does not do the adequately
