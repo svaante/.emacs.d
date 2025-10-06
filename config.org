@@ -61,9 +61,8 @@
 #+begin_src emacs-lisp
   (use-package emacs
     :hook
-    (prog-mode . (lambda () (setq indicate-buffer-boundaries t)))
-    (text-mode . (lambda () (setq indicate-buffer-boundaries t)))
-    (conf-mode . (lambda () (setq indicate-buffer-boundaries t))))
+    ((prog-mode text-mode conf-mode) .
+     (lambda () (setq indicate-buffer-boundaries t))))
 #+end_src
 
 ** Mode-line
@@ -347,8 +346,6 @@ Org keybinds
     (mail-mode . auto-fill-mode)
     (message-mode . auto-fill-mode)
     (prog-mode
-     ;; Comments are re-used some mode which leads to `auto-fill' being
-     ;; disabled where it should not `prog-mode'.
      . (lambda ()
          (setq-local comment-auto-fill-only-comments t)
          (auto-fill-mode)))
