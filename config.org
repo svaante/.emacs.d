@@ -853,7 +853,13 @@ Not convinced that it's better then =yasnippet=.
     (custom-set-faces
      '(tab-bar ((t (:inherit background))))
      '(tab-bar-tab ((t (:inherit mode-line))))
-     '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive))))))
+     '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive)))))
+    ;; XXX For some reason `buffer-list' and `buried-buffer-list' is
+    ;; is copied from the current tab on creation.
+    (add-hook 'tab-bar-tab-post-open-functions
+            (defun reset-frame-buffer-list (&rest _)
+              (set-frame-parameter nil 'buffer-list nil)
+              (set-frame-parameter nil 'buried-buffer-list nil))))
 #+end_src
 
 * Buffer and navigation
@@ -1693,7 +1699,7 @@ Why is =rust-mode= not part Emacs?
             (set-visited-file-name new-name)
             (set-buffer-modified-p nil))))))
 
-  (defun shell-command-auto-rename ()
+  (defun shell-command-rename-uniquely ()
     "Rename current buffer to current command."
     (interactive)
     (let* ((command
