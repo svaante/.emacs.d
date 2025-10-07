@@ -551,7 +551,6 @@ Not convinced that it's better then =yasnippet=.
     (xref-show-xrefs-function 'consult-xref)
     (xref-show-definitions-function 'consult-xref)
     (consult-async-split-style 'semicolon)
-    (consult-buffer-list-function 'consult--frame-buffer-list)
     :hook
     (minibuffer-mode
      . (lambda (&rest _)
@@ -853,13 +852,7 @@ Not convinced that it's better then =yasnippet=.
     (custom-set-faces
      '(tab-bar ((t (:inherit background))))
      '(tab-bar-tab ((t (:inherit mode-line))))
-     '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive)))))
-    ;; XXX For some reason `buffer-list' and `buried-buffer-list' is
-    ;; is copied from the current tab on creation.
-    (add-hook 'tab-bar-tab-post-open-functions
-            (defun reset-frame-buffer-list (&rest _)
-              (set-frame-parameter nil 'buffer-list nil)
-              (set-frame-parameter nil 'buried-buffer-list nil))))
+     '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive))))))
 #+end_src
 
 * Buffer and navigation
