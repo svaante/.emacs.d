@@ -45,6 +45,17 @@
   (set-face-attribute 'fixed-pitch nil :family "Comic Code" :height 1.0)
 #+end_src
 
+** Theme
+#+begin_src emacs-lisp
+  (load-theme 'tango-dark t)
+#+end_src
+
+** Opacity
+#+begin_src emacs-lisp
+  (when (eq system-type 'darwin)
+    (add-to-list 'default-frame-alist '(alpha 97)))
+#+end_src
+
 ** Simplify UI
 #+begin_src emacs-lisp
   (use-package emacs
@@ -582,6 +593,7 @@ Not convinced that it's better then =yasnippet=.
                (kbd "C-SPC") #'corfu-move-to-minibuffer)
     :hook
     (evil-insert-state-exit . corfu-quit)
+    (shell-mode . (lambda () (setq-local corfu-auto nil)))
     :custom
     (corfu-cycle t)
     (corfu-preview-current nil)
