@@ -975,7 +975,8 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 #+begin_src emacs-lisp
   (use-package shell
     :general
-    (leader-map "e" 'async-shell-command)
+    (leader-map "s" 'shell)
+    (leader-map "r" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
      "gr" 'revert-buffer ;; reruns buffer
@@ -1051,16 +1052,6 @@ Convert escape codes to color.
     (compilation-environment '("TERM=xterm-256color"))
     :config
     (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
-#+end_src
-
-** Consult Shell Command - Run things again
-#+begin_src emacs-lisp
-  (use-package consult-shell-command
-    :vc (consult-shell-command :url "https://github.com/svaante/consult-shell-command")
-    :general
-    (leader-map "r" 'consult-shell-command)
-    :custom
-    (consult-shell-command-mode 1))
 #+end_src
 
 * Org
