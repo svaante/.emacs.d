@@ -975,7 +975,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 #+begin_src emacs-lisp
   (use-package shell
     :general
-    (leader-map "s" 'shell)
+    (leader-map "e" 'shell)
     (leader-map "r" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
