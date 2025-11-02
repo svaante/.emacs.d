@@ -802,10 +802,9 @@ Not convinced that it's better then =yasnippet=.
        ((derived-mode . shell-command-mode)
         nil
         (body-function . select-window))
-       ;; Full width tabulations
-       ((or (derived-mode . shell-command-menu-mode)
-            (derived-mode . proced-mode)
-            (display-buffer-at-bottom)))
+       ;; Proceed
+       ((derived-mode . proced-mode)
+        (display-buffer-same-window))
        ;; Magit
        ((or (derived-mode . magit-diff-mode)
             (derived-mode . magit-process-mode))
@@ -1058,16 +1057,14 @@ Convert escape codes to color.
     (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
 #+end_src
 
-** Shell Command - Run things again
+** Consult Shell Command - Run things again
 #+begin_src emacs-lisp
-  (use-package shell-command-menu
-    :vc (shell-command-menu :url "https://github.com/svaante/shell-command-menu")
+  (use-package consult-shell-command
+    :vc (consult-shell-command :url "https://github.com/svaante/consult-shell-command")
     :general
-    (leader-map "r" 'shell-command-menu)
-    :hook
-    (shell-command-menu-mode . hl-line-mode)
+    (leader-map "r" 'consult-shell-command)
     :custom
-    (shell-command-menu-monitor-mode 1))
+    (consult-shell-command-mode 1))
 #+end_src
 
 * Org
