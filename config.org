@@ -731,7 +731,8 @@ Not convinced that it's better then =yasnippet=.
 
     (defun consult-dired (directory)
       "Jump to `dired' buffer corresponding DIRECTORY."
-      (interactive (list (consult-read-directory "Find directory: ")))
+      (interactive (list (progn (require 'consult)
+                                (consult-read-directory "Find directory: "))))
       (dired (expand-file-name directory))))
 #+end_src
 
@@ -801,9 +802,10 @@ Not convinced that it's better then =yasnippet=.
        ((derived-mode . shell-command-mode)
         nil
         (body-function . select-window))
-       ;; Proceed
-       ((derived-mode . proced-mode)
-        (display-buffer-same-window))
+       ;; Full width tabulations
+       ((or (derived-mode . shell-command-menu-mode)
+            (derived-mode . proced-mode)
+            (display-buffer-at-bottom)))
        ;; Magit
        ((or (derived-mode . magit-diff-mode)
             (derived-mode . magit-process-mode))
@@ -1056,14 +1058,16 @@ Convert escape codes to color.
     (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
 #+end_src
 
-** Consult Shell Command - Run things again
+** Shell Command - Run things again
 #+begin_src emacs-lisp
-  (use-package consult-shell-command
-    :vc (consult-shell-command :url "https://github.com/svaante/consult-shell-command")
+  (use-package shell-command-menu
+    :vc (shell-command-menu :url "https://github.com/svaante/shell-command-menu")
     :general
-    (leader-map "r" 'consult-shell-command)
+    (leader-map "r" 'shell-command-menu)
+    :hook
+    (shell-command-menu-mode . hl-line-mode)
     :custom
-    (consult-shell-command-mode 1))
+    (shell-command-menu-monitor-mode 1))
 #+end_src
 
 * Org
