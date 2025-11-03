@@ -976,7 +976,14 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 ** Shell Command - Run things
 #+begin_src emacs-lisp
   (use-package shell
+    :preface
+    (defun shell-quick (&optional arg)
+      "Create or switch to a shell buffer named *shell*<ARG>."
+      (interactive "P")
+      (shell (get-buffer-create
+              (concat "*shell*" (when (numberp arg) (format "<%s>" arg))))))
     :general
+    (leader-map "r" 'shell-quick)
     (leader-map "e" 'async-shell-command)
     (shell-mode-map
      :states 'normal
