@@ -1045,17 +1045,12 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
 #+end_src
 
-Convert escape codes to color.
+** Coterm - Magic
 #+begin_src emacs-lisp
-  (use-package xterm-color
+  (use-package coterm
     :ensure t
-    :preface
-    (defun xterm-color-advice-compilation-filter (f proc string)
-      (funcall f proc (xterm-color-filter string)))
     :custom
-    (compilation-environment '("TERM=xterm-256color"))
-    :config
-    (advice-add 'compilation-filter :around #'xterm-color-advice-compilation-filter))
+    (coterm-mode 1))
 #+end_src
 
 ** Shell Command - Run things again
