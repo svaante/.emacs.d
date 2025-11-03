@@ -1060,18 +1060,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (coterm-mode 1))
 #+end_src
 
-** Shell Command - Run things again
-#+begin_src emacs-lisp
-  (use-package shell-command-menu
-    :vc (shell-command-menu :url "https://github.com/svaante/shell-command-menu")
-    :general
-    (leader-map "r" 'shell-command-menu)
-    :hook
-    (shell-command-menu-mode . hl-line-mode)
-    :custom
-    (shell-command-menu-monitor-mode 1))
-#+end_src
-
 * Org
 ** General
 #+begin_src emacs-lisp
