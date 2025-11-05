@@ -983,7 +983,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
       (shell (get-buffer-create
               (concat "*shell*" (when (numberp arg) (format "<%s>" arg))))))
     :general
-    (leader-map "r" 'shell-quick)
+    ;; (leader-map "r" 'shell-quick)
     (leader-map "e" 'async-shell-command)
     (shell-mode-map
      :states 'normal
@@ -1052,12 +1052,15 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (add-hook 'comint-output-filter-functions 'comint-strip-ctrl-m))
 #+end_src
 
-** Coterm - Magic
+
+** Shell Command Menu - Run things again
 #+begin_src emacs-lisp
-  (use-package coterm
-    :ensure t
+  (use-package shell-command-menu
+    :vc (shell-command-menu :url "https://github.com/svaante/shell-command-menu")
+    :general
+    (leader-map "r" #'shell-command-menu)
     :custom
-    (coterm-mode 1))
+    (shell-command-menu-monitor-mode 1))
 #+end_src
 
 * Org
