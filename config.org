@@ -112,7 +112,6 @@
                   mode-line-file-path-cache `(,default-directory ,path)))
           path)))
     :custom
-    (mode-line-position-column-line-format '(" %l:%c"))
     (column-number-mode 1)
     (mode-line-format
      '(" %e"
@@ -1545,7 +1544,7 @@ Why is =rust-mode= not part Emacs?
     (gnus-parameters
      `(("nnmaildir"
         (gcc-self . t) ;; Let me see my own emails
-        )
+        (display . 10000))
        (,(rx (or "nnrss"
                  "feedbase.org"
                  "news.gwene.org"))
