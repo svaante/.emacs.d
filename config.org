@@ -994,12 +994,16 @@ Hack to set =exec-path= Emacsen not launched from a shell.
       (interactive "P")
       (shell (get-buffer-create
               (concat "*shell*" (when (numberp arg) (format "<%s>" arg))))))
+    (defun shell-bang-bang-revert ()
+      "Send !! to rerun last command."
+      (interactive)
+      (goto-char (point-max))
+      (insert "!!")
+      (comint-send-input))
     :general
     ;; (leader-map "r" 'shell-quick)
+    (shell-mode-map :states 'normal "gr" 'shell-bang-bang-revert)
     (leader-map "e" 'async-shell-command)
-    (shell-mode-map
-     :states 'normal
-     "gr" 'shell-bang-bang-revert)
     (shell-command-mode-map
      :states 'normal
      "gr" 'revert-buffer ;; reruns buffer
