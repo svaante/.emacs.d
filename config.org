@@ -989,11 +989,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 #+begin_src emacs-lisp
   (use-package shell
     :preface
-    (defun shell-quick (&optional arg)
-      "Create or switch to a shell buffer named *shell*<ARG>."
-      (interactive "P")
-      (shell (get-buffer-create
-              (concat "*shell*" (when (numberp arg) (format "<%s>" arg))))))
     (defun shell-bang-bang-revert ()
       "Send !! to rerun last command."
       (interactive)
@@ -1001,7 +996,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
       (insert "!!")
       (comint-send-input))
     :general
-    ;; (leader-map "r" 'shell-quick)
     (shell-mode-map :states 'normal "gr" 'shell-bang-bang-revert)
     (leader-map "e" 'async-shell-command)
     (shell-command-mode-map
@@ -1014,23 +1008,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (shell-kill-buffer-on-exit t)
     :config
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
-    ;; Custom `async-shell-command-buffer' does not do the adequately
-    ;; minimizing buffers by reuse.  Both new-buffer and rename-buffer
-    ;; does it's quirky attempt but ultimately fails.
-    (advice-add
-     'async-shell-command :around
-     (defun async-shell-command-reuse-buffers (async-shell-command &rest args)
-       ;; Do what `async-shell-command-buffer' new-buffer should do
-       (cl-loop for i upfrom 0
-                for name = (if (zerop i)
-                               shell-command-buffer-name-async
-                             (format "%s<%d>" shell-command-buffer-name-async i))
-                unless (and-let* ((buffer (get-buffer name))
-                                  ((bufferp buffer))
-                                  ((get-buffer-process buffer))))
-                return (let ((shell-command-buffer-name-async name))
-                         (apply async-shell-command args)))))
-    ;; Install exit code in `mode-line-process'.
+    ;; Install exit code on `mode-line-process'.
     (advice-add
      'shell-command-sentinel :after
      (defun shell-command-sentinel-show-exit-code (process status)
@@ -1077,16 +1055,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     :config
     (advice-add #'compilation-filter
                 :around #'xterm-color-advice-compilation-filter))
-#+end_src
-
-** Shell Command Menu - Run things again
-#+begin_src emacs-lisp
-  (use-package shell-command-menu
-    :vc (shell-command-menu :url "https://github.com/svaante/shell-command-menu")
-    :general
-    (leader-map "r" #'shell-command-menu)
-    :custom
-    (shell-command-menu-monitor-mode 1))
 #+end_src
 
 * Org
