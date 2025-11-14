@@ -814,10 +814,9 @@ Not convinced that it's better then =yasnippet=.
        ((derived-mode . shell-command-mode)
         nil
         (body-function . select-window))
-       ;; Full width tabulations
-       ((or (derived-mode . shell-command-menu-mode)
-            (derived-mode . proced-mode)
-            (display-buffer-at-bottom)))
+       ;; Full width tabulations (Trials and tabulations)
+       ((derived-mode . tabulated-list-mode)
+        (display-buffer-at-bottom))
        ;; Magit
        ((or (derived-mode . magit-diff-mode)
             (derived-mode . magit-process-mode))
@@ -987,16 +986,8 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 
 ** Shell Command - Run things
 #+begin_src emacs-lisp
-  (use-package shell
-    :preface
-    (defun shell-bang-bang-revert ()
-      "Send !! to rerun last command."
-      (interactive)
-      (goto-char (point-max))
-      (insert "!!")
-      (comint-send-input))
+  (use-package simple
     :general
-    (shell-mode-map :states 'normal "gr" 'shell-bang-bang-revert)
     (leader-map "e" 'async-shell-command)
     (shell-command-mode-map
      :states 'normal
@@ -1055,6 +1046,16 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     :config
     (advice-add #'compilation-filter
                 :around #'xterm-color-advice-compilation-filter))
+#+end_src
+
+** Shell Command Menu - Run things again
+#+begin_src emacs-lisp
+  (use-package shell-command-menu
+    :vc (shell-command-menu :url "https://github.com/svaante/shell-command-menu")
+    :general
+    (leader-map "r" #'shell-command-menu)
+    :custom
+    (shell-command-menu-monitor-mode 1))
 #+end_src
 
 * Org
