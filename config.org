@@ -983,7 +983,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     :custom
     (shell-command-prompt-show-cwd t)
     (async-shell-command-buffer 'new-buffer)
-    (shell-kill-buffer-on-exit t)
     :config
     (add-to-list 'evil-normal-state-modes 'shell-command-mode)
     ;; Install exit code on `mode-line-process'.
@@ -998,6 +997,15 @@ Hack to set =exec-path= Emacsen not launched from a shell.
                  `(,(format ":%s" status)
                    ,(when (memq status '(exit signal))
                       (format " [%s]" (process-exit-status process))))))))))
+#+end_src
+
+** Shell - Also run things
+#+begin_src emacs-lisp
+  (use-package shell
+    :general
+    (leader-map "r" 'shell)
+    :custom
+    (shell-kill-buffer-on-exit t))
 #+end_src
 
 ** Compile - Run thing
