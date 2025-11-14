@@ -569,20 +569,7 @@ Not convinced that it's better then =yasnippet=.
                        (apply (if vertico-mode
                                   #'consult-completion-in-region
                                 #'completion--in-region)
-                              args)))))
-    :config
-    (defvar consult-sub-process-buffer-source
-      `( :name     "Sub Processes"
-         :hidden   t
-         :narrow   ?s
-         :category buffer
-         :state    ,#'consult--buffer-state
-         :items    ,(lambda ()
-                      (cl-loop for p in (process-list)
-                               for b = (process-buffer p)
-                               when (and b (process-query-on-exit-flag p))
-                               collect (buffer-name b)))))
-    (add-to-list 'consult-buffer-sources 'consult-sub-process-buffer-source 'append))
+                              args))))))
 #+end_src
 
 ** Marginalia - Minibuffer annotations
