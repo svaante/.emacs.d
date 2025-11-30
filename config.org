@@ -293,7 +293,7 @@ Org keybinds
      (kbd "C-SPC")      'embark-act
      (kbd "C-@")        'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
      (kbd "C-<return>") 'embark-export)
-    ( :states 'normal
+    ( :states '(normal emacs)
       (kbd "C-@")   'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
       (kbd "C-SPC") 'embark-act)
     (embark-file-map
@@ -655,7 +655,13 @@ Not convinced that it's better then =yasnippet=.
     :config
     ;; Default completion at point additions
     (add-to-list 'completion-at-point-functions #'cape-history)
-    (add-to-list 'completion-at-point-functions #'cape-file))
+    (add-to-list 'completion-at-point-functions #'cape-file)
+
+    ;; Add history to shell completion
+    (advice-add #'shell-completion-vars :after
+                (defun cape-shell-completion-vars (&rest _)
+                  (setq-local completion-at-point-functions
+                              `(,(cape-capf-super #'comint-completion-at-point #'cape-history))))))
 #+end_src
 
 * Default directory
@@ -1041,16 +1047,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     :config
     (advice-add #'compilation-filter
                 :around #'xterm-color-advice-compilation-filter))
-#+end_src
-
-** Shell Command Menu - Run things again
-#+begin_src emacs-lisp
-  (use-package shell-command-menu
-    :vc (shell-command-menu :url "https://github.com/svaante/shell-command-menu")
-    :general
-    (leader-map "r" #'shell-command-menu)
-    :custom
-    (shell-command-menu-monitor-mode 1))
 #+end_src
 
 * Org
