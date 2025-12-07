@@ -591,13 +591,7 @@ Not convinced that it's better then =yasnippet=.
     :config
     ;; Default completion at point additions
     (add-to-list 'completion-at-point-functions #'cape-history)
-    (add-to-list 'completion-at-point-functions #'cape-file)
-
-    ;; Add history to shell completion
-    (advice-add #'shell-completion-vars :after
-                (defun cape-shell-completion-vars (&rest _)
-                  (setq-local completion-at-point-functions
-                              `(,(cape-capf-super #'comint-completion-at-point #'cape-history))))))
+    (add-to-list 'completion-at-point-functions #'cape-file))
 #+end_src
 
 * Default directory
