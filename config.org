@@ -447,15 +447,6 @@ Not convinced that it's better then =yasnippet=.
                  "M-DEL" 'vertico-directory-delete-word)
     :hook
     (rfn-eshadow-update-overlay . vertico-directory-tidy))
-
-  (use-package vertico-multiform
-    :after vertico
-    :custom
-    (vertico-multiform-commands
-     '((consult-ripgrep buffer)
-       (consult-grep buffer)))
-    :config
-    (vertico-multiform-mode))
 #+end_src
 
 ** Orderless - Completion style
