@@ -997,6 +997,46 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (org-priority-start-cycle-with-default nil))
 #+end_src
 
+** Org Agenda
+#+begin_src emacs-lisp
+  (use-package org-agenda
+    :general
+    (leader-map "oa" 'org-agenda-custom)
+    (org-agenda-mode-map
+     :states 'normal
+     "q" 'org-agenda-quit
+     (kbd "<RET>") 'org-agenda-goto
+     "D" #'org-agenda-kill
+     "s" #'org-agenda-filter
+     "t" #'org-agenda-todo
+     "T" #'org-agenda-set-tags
+     )
+    :hook
+    (org-agenda-mode . hl-line-mode)
+    :preface
+    (defun org-agenda-custom ()
+      (interactive)
+      (org-agenda nil "A"))
+    :custom
+    (org-log-done 'time)
+    (org-todo-keywords '((sequence "TODO" "DONE")))
+    (org-agenda-window-setup 'other-window)
+    ;; No prefix is fine
+    (org-agenda-prefix-format
+     '((agenda . " ") (todo   . " ") (tags   . " ")))
+    ;; Replace the original agenda
+    (org-agenda-custom-commands
+     '(("A" "Agenda"
+        ((todo "TODO" ((org-agenda-overriding-header "Backlog")))
+         (tags "CLOSED>=\"<-1w>\""
+               ((org-agenda-overriding-header "Completed this week")))))))
+    (org-agenda-files '("~/org/notes.org"
+                        "~/org/pad.org"
+                        "~/org/todo.org"))
+    :config
+    (evil-set-initial-state 'org-agenda-mode 'normal))
+#+end_src
+
 ** Org Capture
 #+begin_src emacs-lisp
   (use-package org-capture
@@ -1006,7 +1046,9 @@ Hack to set =exec-path= Emacsen not launched from a shell.
     (org-capture-mode . evil-insert-state)
     :custom
     (org-capture-templates
-     '(("n" "Note" entry (file "~/org/notes.org") "* %?\n")
+     '(("t" "Todo" entry (file "~/org/todo.org") "* TODO %?\n%a"
+        :prepend t)
+       ("n" "Note" entry (file "~/org/notes.org") "* %?\n")
        ("p" "Pad" plain (file+olp+datetree "~/org/pad.org") "\n%?\n"
         :unnarrowed t :hook org-narrow-to-subtree))))
 #+end_src
