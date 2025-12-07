@@ -50,12 +50,6 @@
   (load-theme 'tango-dark t)
 #+end_src
 
-** Opacity
-#+begin_src emacs-lisp
-  (when (eq system-type 'darwin)
-    (add-to-list 'default-frame-alist '(alpha 97)))
-#+end_src
-
 ** Simplify UI
 #+begin_src emacs-lisp
   (use-package emacs
@@ -79,65 +73,16 @@
 ** Mode-line
 #+begin_src emacs-lisp
   (use-package emacs
-    :preface
-    (defvar-local mode-line-file-path-cache nil)
-    (defun mode-line-file-path-1 (file-name)
-      (propertize
-       (abbreviate-file-name
-        (if-let* ((project-current (project-current))
-                  (project (project-root project-current))
-                  (project-parent
-                   (thread-first project
-                                 expand-file-name
-                                 directory-file-name
-                                 file-name-directory))
-                  (relative-path
-                   (file-relative-name (file-name-directory buffer-file-truename)
-                                       project-parent)))
-            (if (length< relative-path 40)
-                relative-path
-              (cl-loop with (root . rest) = (file-name-split relative-path)
-                       for p in rest unless (string-empty-p p) collect
-                       (substring p 0 1) into rest-short finally return
-                       (file-name-as-directory
-                        (apply 'file-name-concat root rest-short))))
-          default-directory))
-       'help-echo (file-name-directory file-name)))
-
-    (defun mode-line-file-path ()
-      (when-let ((file-name (buffer-file-name)))
-        (pcase-let ((`(,key ,path) mode-line-file-path-cache))
-          (unless (eq default-directory key)
-            (setq path (mode-line-file-path-1 file-name)
-                  mode-line-file-path-cache `(,default-directory ,path)))
-          path)))
     :custom
     (column-number-mode 1)
-    (mode-line-format
-     '(" %e"
-       (:propertize
-        ("" mode-line-mule-info mode-line-client mode-line-modified
-         mode-line-remote mode-line-window-dedicated)
-        display (min-width (5.0)))
-       mode-line-frame-identification
-       (:eval (mode-line-file-path))
-       mode-line-buffer-identification
-       " "
-       mode-line-position
-       " "
-       (:propertize mode-name face bold)
-       mode-line-process
-       (vc-mode (" " vc-mode))
-       (:eval (when (buffer-narrowed-p)
-                (propertize " Narrow"
-                            'face 'font-lock-warning-face)))
-       (:eval (when (region-active-p)
-                (format " Lines %d"
-                        (1+ (evil-count-lines (region-beginning)
-                                              (region-end))))))
-       (defining-kbd-macro (" " mode-line-defining-kbd-macro))
-       (mode-line-misc-info (" " mode-line-misc-info))
-       "%-")))
+    (mode-line-collapse-minor-modes t))
+#+end_src
+
+** Frame
+#+begin_src emacs-lisp
+  (use-package emacs
+    :custom
+    (frame-title-format '(:eval (or buffer-file-name (buffer-name)))))
 #+end_src
 
 * Keymaps
@@ -527,7 +472,7 @@ Not convinced that it's better then =yasnippet=.
     (completion-category-overrides
      '(;; basic/partial makes more sense for files
        (file (styles basic partial-completion))
-       (lsp-capf (styles basic))
+       (lsp-capf (styles basic flex))
        ;; for code completion use flex for sensible order
        (eglot (styles flex orderless))
        (eglot-capf (styles flex orderless))))
@@ -554,7 +499,7 @@ Not convinced that it's better then =yasnippet=.
       "jf" 'consult-flymake)
     ( :keymaps '(comint-mode-map minibuffer-local-map)
       :states '(insert normal)
-      (kbd "M-r") 'consult-history
+      ;(kbd "M-r") 'consult-history
       (kbd "C-r") 'consult-history ;; Until my fingers catch up
       )
     :custom
@@ -683,11 +628,8 @@ Not convinced that it's better then =yasnippet=.
     (leader-map
       "SPC" 'project-find-file
       "p" '(:which-key "project" :keymap project-prefix-map)
-      "pp" 'project-switch-project
-      "pc" 'project-compile
       "pC" 'project-recompile
       "pe" 'project-async-shell-command
-      "pd" 'project-dired
       "pg" 'consult-ripgrep)
     :custom
     (project-vc-extra-root-markers '(".projectile" ".project"))
@@ -845,19 +787,8 @@ Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package tab-bar
     :general
-    (leader-map "t" '(:keymap tab-prefix-map :which-key "tabs")
-      "tn" 'tab-new
-      "1"  'tab-bar-select-tab
-      "2"  'tab-bar-select-tab
-      "3"  'tab-bar-select-tab
-      "4"  'tab-bar-select-tab
-      "5"  'tab-bar-select-tab
-      "6"  'tab-bar-select-tab
-      "7"  'tab-bar-select-tab
-      "8"  'tab-bar-select-tab
-      "9"  'tab-bar-select-tab)
+    (leader-map "t" 'tab-switch)
     :custom
-    (tab-bar-tab-hints t)
     (tab-bar-format '(tab-bar-format-tabs
                       tab-bar-format-align-right
                       tab-bar-format-global))
@@ -866,12 +797,7 @@ Not convinced that it's better then =yasnippet=.
     (tab-bar-close-button-show nil)
     (tab-bar-new-tab-choice "*scratch*")
     (tab-bar-mode 1)
-    (tab-bar-history-mode 1)
-    :config
-    (custom-set-faces
-     '(tab-bar ((t (:inherit background))))
-     '(tab-bar-tab ((t (:inherit mode-line))))
-     '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive))))))
+    (tab-bar-history-mode 1))
 #+end_src
 
 * Buffer and navigation
