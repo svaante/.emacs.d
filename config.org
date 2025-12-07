@@ -778,8 +778,19 @@ Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package tab-bar
     :general
-    (leader-map "t" 'tab-switch)
+    (leader-map "t" '(:keymap tab-prefix-map :which-key "tabs")
+      "tn" 'tab-new
+      "1"  'tab-bar-select-tab
+      "2"  'tab-bar-select-tab
+      "3"  'tab-bar-select-tab
+      "4"  'tab-bar-select-tab
+      "5"  'tab-bar-select-tab
+      "6"  'tab-bar-select-tab
+      "7"  'tab-bar-select-tab
+      "8"  'tab-bar-select-tab
+      "9"  'tab-bar-select-tab)
     :custom
+    (tab-bar-tab-hints t)
     (tab-bar-format '(tab-bar-format-tabs
                       tab-bar-format-align-right
                       tab-bar-format-global))
@@ -788,7 +799,12 @@ Not convinced that it's better then =yasnippet=.
     (tab-bar-close-button-show nil)
     (tab-bar-new-tab-choice "*scratch*")
     (tab-bar-mode 1)
-    (tab-bar-history-mode 1))
+    (tab-bar-history-mode 1)
+    :config
+    (custom-set-faces
+     '(tab-bar ((t (:inherit background))))
+     '(tab-bar-tab ((t (:inherit mode-line))))
+     '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive))))))
 #+end_src
 
 * Buffer and navigation
