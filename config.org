@@ -241,7 +241,7 @@ Org keybinds
     (embark-file-map
      "SPC" 'project-find-file-at
      "g"   'magit
-     "G"   'consult-ripgrep
+     "S"   'consult-ripgrep
      "h"   'hexl-find-file
      "."   'find-file-at)
     :config
@@ -477,6 +477,7 @@ Not convinced that it's better then =yasnippet=.
     :general
     (leader-map
       "s" 'consult-line
+      "S" 'consult-ripgrep
       "i" 'consult-imenu
       "b" 'consult-buffer
       "y" 'consult-yank-pop
@@ -593,7 +594,6 @@ Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   ;; Last working commit bf4c3cf after that the history is broken
   (use-package project
-    :after consult ;; ripgrep
     :preface
     (defun project-read-file-relative-w/o-current (prompt all-files &rest args)
       (apply #'project--read-file-cpd-relative prompt
