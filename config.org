@@ -589,6 +589,7 @@ Not convinced that it's better then =yasnippet=.
       "pe" 'project-async-shell-command
       "pg" 'consult-ripgrep)
     :custom
+    (project-compilation-buffer-name-function #'project-prefixed-buffer-name)
     (project-vc-extra-root-markers '(".projectile" ".project"))
     (project-switch-commands #'project-dired)
     (project-read-file-name-function #'project-read-file-relative-w/o-current))
