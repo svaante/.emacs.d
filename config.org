@@ -1345,6 +1345,8 @@ Why is =rust-mode= not part Emacs?
     (magit-display-buffer-function 'display-buffer)
     (transient-mode-line-format '("%e" mode-line-front-space
                                   mode-line-buffer-identification))
+    ;; Visit editable files rather then read only buffers
+    (magit-diff-visit-prefer-worktree t)
     :config
     (advice-add 'magit-status-here :after
                 (defun magit-recenter (&rest _) (recenter))))
