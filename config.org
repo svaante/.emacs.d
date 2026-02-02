@@ -456,12 +456,14 @@ Not convinced that it's better then =yasnippet=.
   (use-package consult
     :ensure t
     :general
+    ("C-x b" 'consult-buffer)
+    ("C-s"   'consult-line)
     (leader-map
       "s" 'consult-line
-      "S" 'consult-ripgrep
       "i" 'consult-imenu
       "b" 'consult-buffer
       "y" 'consult-yank-pop
+      "r" 'consult-ripgrep
       "jc" 'consult-compile-error
       "jf" 'consult-flymake)
     ( :keymaps '(comint-mode-map minibuffer-local-map)
