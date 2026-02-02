@@ -913,7 +913,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
         (require 'notifications)
         (notifications-notify
          :title "Compilation"
-         :body (format "Status `%s'" message))))
+         :body (format "Status `%s'" (string-trim-right message)))))
     :hook
     (compilation-finish-functions . compilation-notify)
     :custom
