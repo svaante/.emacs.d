@@ -843,6 +843,7 @@ Not convinced that it's better then =yasnippet=.
 
   (use-package grep
     :general
+    (leader-map "g" 'rgrep)
     (grep-mode-map :states 'normal
      "C-n" 'next-error-no-select
      "C-p" 'previous-error-no-select
