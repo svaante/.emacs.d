@@ -75,6 +75,7 @@
   (use-package emacs
     :custom
     (column-number-mode 1)
+    (mode-line-modes-delimiters nil)
     (mode-line-collapse-minor-modes t))
 #+end_src
 
