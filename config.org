@@ -921,8 +921,18 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 ** Shell - Also run things
 #+begin_src emacs-lisp
   (use-package shell
+    :preface
+    (defun shell-revert-buffer ()
+      (interactive)
+      (goto-char (max-char))
+      (insert "!!")
+      (comint-send-input))
     :general
     (leader-map "r" 'shell)
+    (shell-mode-map
+     :states '(normal)
+     "gr"
+     #'shell-revert-buffer)
     :custom
     (shell-kill-buffer-on-exit t))
 #+end_src
