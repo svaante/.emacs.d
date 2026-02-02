@@ -492,12 +492,7 @@ Not convinced that it's better then =yasnippet=.
     :hook
     (minibuffer-mode
      . (lambda (&rest _)
-         (setq-local completion-in-region-function
-                     (lambda (&rest args)
-                       (apply (if vertico-mode
-                                  #'consult-completion-in-region
-                                #'completion--in-region)
-                              args))))))
+         (setq-local completion-in-region-function #'consult-completion-in-region))))
 #+end_src
 
 ** Marginalia - Minibuffer annotations
