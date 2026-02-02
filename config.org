@@ -348,6 +348,7 @@ Org keybinds
              (cond ((ignore-errors (org-edit-src-code) t))
                    ((ignore-errors (org-narrow-to-block) t))
                    (t (org-narrow-to-subtree))))
+            ((derived-mode-p 'shell-mode) (shell-narrow-to-prompt))
             ((not (thing-at-point 'defun)) (narrow-to-page))
             (t (narrow-to-defun))))
     :general
