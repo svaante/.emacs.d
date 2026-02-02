@@ -784,12 +784,7 @@ Not convinced that it's better then =yasnippet=.
     (tab-bar-close-button-show nil)
     (tab-bar-new-tab-choice "*scratch*")
     (tab-bar-mode 1)
-    (tab-bar-history-mode 1)
-    :config
-    (custom-set-faces
-     '(tab-bar ((t (:inherit background))))
-     '(tab-bar-tab ((t (:inherit mode-line))))
-     '(tab-bar-tab-inactive ((t (:inherit mode-line-inactive))))))
+    (tab-bar-history-mode 1))
 #+end_src
 
 * Buffer and navigation
