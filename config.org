@@ -452,10 +452,8 @@ Not convinced that it's better then =yasnippet=.
   (use-package orderless
     :ensure t
     :custom
-    ;; use bang(!) to filter out candidates
-    (orderless-style-dispatchers '(orderless-bang-filter))
     ;; default styles
-    (completion-styles '(orderless))
+    (completion-styles '(orderless basic))
     (completion-category-defaults nil)
     ;; setup style based on category
     (completion-category-overrides
@@ -464,12 +462,7 @@ Not convinced that it's better then =yasnippet=.
        (lsp-capf (styles basic flex))
        ;; for code completion use flex for sensible order
        (eglot (styles flex orderless))
-       (eglot-capf (styles flex orderless))))
-    :preface
-    (defun orderless-bang-filter (pattern _index _total)
-      (cond ((equal "!" pattern) '(orderless-literal . ""))
-            ((string-prefix-p "!" pattern)
-             `(orderless-without-literal . ,(substring pattern 1))))))
+       (eglot-capf (styles flex orderless)))))
 #+end_src
 
 ** Consult - Improved candidate completion functions
