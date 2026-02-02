@@ -224,15 +224,6 @@ Org keybinds
 #+begin_src emacs-lisp
   (use-package embark
     :ensure t
-    :preface
-    (defun project-find-file-at (directory)
-      "Visit a file in the current project."
-      (let ((default-directory directory))
-        (call-interactively 'project-find-file)))
-    (defun find-file-at (directory)
-      "Visit a file."
-      (let ((default-directory directory))
-        (call-interactively 'find-file)))
     :general
     (minibuffer-local-map
      :states '(insert normal)
@@ -242,15 +233,7 @@ Org keybinds
     ( :states '(normal emacs)
       (kbd "C-@")   'embark-act ;; In terminal C-@ -> {C-SPC,C-S-SPC}
       (kbd "C-SPC") 'embark-act)
-    (embark-file-map
-     "SPC" 'project-find-file-at
-     "g"   'magit
-     "S"   'consult-ripgrep
-     "h"   'hexl-find-file
-     "."   'find-file-at)
-    :config
-    ;; Make `magit' usable by file category
-    (add-to-list 'embark-around-action-hooks '(magit embark--cd)))
+    (embark-file-map "h" 'hexl-find-file))
 #+end_src
 
 ** MacOS - System
