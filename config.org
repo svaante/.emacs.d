@@ -771,7 +771,6 @@ Not convinced that it's better then =yasnippet=.
   (use-package avy
     :ensure t
     :general
-    ("C-s" #'evil-avy-goto-char-timer)
     (leader-map
       "jl" #'evil-avy-goto-line-keep-column)
     :custom
@@ -898,11 +897,7 @@ Hack to set =exec-path= Emacsen not launched from a shell.
       (insert "!!")
       (comint-send-input))
     :general
-    (leader-map "r" 'shell)
-    (shell-mode-map
-     :states '(normal)
-     "gr"
-     #'shell-revert-buffer)
+    (shell-mode-map :states '(normal) "gr" #'shell-revert-buffer)
     :custom
     (shell-kill-buffer-on-exit t))
 #+end_src
