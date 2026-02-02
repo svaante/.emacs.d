@@ -172,6 +172,9 @@
     (evil-vsplit-window-right t)
     ;; */# use symbols
     (evil-symbol-word-search t)
+    :init
+    ;; For some reason cannot be set with `:custom'
+    (setq evil-search-module 'evil-search)
     :config
     ;; Use symbols instead of words as vi subject
     (defalias #'forward-evil-word #'forward-evil-symbol)
