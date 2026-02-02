@@ -1142,7 +1142,6 @@ General bindings
 #+begin_src emacs-lisp
   (use-package dape
     :vc (dape :url "https://github.com/svaante/dape")
-    :preface
     :general
     (leader-map "d" '(:keymap dape-global-map :which-key "dape"))
     :hook
@@ -1295,15 +1294,13 @@ Why is =rust-mode= not part Emacs?
     :ensure t
     :general
     (leader-map
-      "g" '(:which-key "magit")
-      "gg" 'magit-status-here
-      "g." 'magit-find-file
-      "gd" 'magit-diff
-      "gb" 'magit-blame
-      "gl" 'magit-log
-      "gc" 'magit-checkout
-      "gf" 'magit-fetch-all
-      "gf" 'magit-log-buffer-file)
+      "m" '(:which-key "magit")
+      "mm" 'magit-status-here
+      "mf" 'magit-find-file
+      "md" 'magit-diff
+      "mb" 'magit-blame
+      "ml" 'magit-log
+      "mc" 'magit-checkout)
     :custom
     ;; sort branches by checkout (completion)
     (magit-list-refs-sortby "-creatordate")
