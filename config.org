@@ -769,8 +769,10 @@ Not convinced that it's better then =yasnippet=.
 ** Recentf - Save buffer history
 #+begin_src emacs-lisp
   (use-package recentf
+    :general
+    ("C-x f" 'recentf)
     :custom
-    (recentf-max-saved-items 500)
+    (recentf-max-saved-items 1000)
     (recentf-mode 1))
 #+end_src
 
