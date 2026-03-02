@@ -1126,10 +1126,8 @@ General bindings
 #+begin_src emacs-lisp
   (use-package flymake
     :custom
-    (flymake-indicator-type nil)
-    (flymake-fringe-indicator-position nil)
-    (flymake-margin-indicator-position nil)
-    (flymake-show-diagnostics-at-end-of-line 'fancy)
+    (flymake-fringe-indicator-positionx 'right-fringe)
+    (flymake-show-diagnostics-at-end-of-line 'short)
     :hook
     (emacs-lisp-mode . flymake-mode))
 #+end_src
