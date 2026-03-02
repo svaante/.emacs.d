@@ -458,6 +458,7 @@ Not convinced that it's better then =yasnippet=.
     :general
     ("C-x b" 'consult-buffer)
     ("C-s"   'consult-line)
+    ("C-x f" 'consult-recent-file)
     (leader-map
       "s" 'consult-line
       "i" 'consult-imenu
@@ -769,8 +770,6 @@ Not convinced that it's better then =yasnippet=.
 ** Recentf - Save buffer history
 #+begin_src emacs-lisp
   (use-package recentf
-    :general
-    ("C-x f" 'recentf)
     :custom
     (recentf-max-saved-items 1000)
     (recentf-mode 1))
