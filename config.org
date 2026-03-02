@@ -1298,14 +1298,13 @@ Why is =rust-mode= not part Emacs?
   (use-package magit
     :ensure t
     :general
-    (leader-map
-      "m" '(:which-key "magit")
-      "mm" 'magit-status-here
-      "mf" 'magit-find-file
-      "md" 'magit-diff
-      "mb" 'magit-blame
-      "ml" 'magit-log
-      "mc" 'magit-checkout)
+    ("M-m" '(:which-key "magit")
+     "M-m m" 'magit-status-here
+     "M-m f" 'magit-find-file
+     "M-m d" 'magit-diff
+     "M-m b" 'magit-blame
+     "M-m l" 'magit-log
+     "M-m c" 'magit-checkout)
     :custom
     ;; sort branches by checkout (completion)
     (magit-list-refs-sortby "-creatordate")
