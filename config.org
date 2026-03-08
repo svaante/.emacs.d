@@ -40,14 +40,9 @@
 * Looks
 ** Font
 #+begin_src emacs-lisp
-  (set-face-attribute 'default nil :family "Comic Code" :height 110)
+  (set-face-attribute 'default nil :family "Comic Code" :height 100)
   (set-face-attribute 'variable-pitch nil :family "Comic Code" :height 1.0)
   (set-face-attribute 'fixed-pitch nil :family "Comic Code" :height 1.0)
-#+end_src
-
-** Theme
-#+begin_src emacs-lisp
-  (load-theme 'tango-dark t)
 #+end_src
 
 ** Simplify UI
@@ -419,6 +414,7 @@ Not convinced that it's better then =yasnippet=.
      (kbd "C-n") 'vertico-next
      (kbd "C-p") 'vertico-previous)
     :custom
+    (vertico-group-format nil)
     (vertico-cycle t)
     (vertico-mode 1))
 
@@ -433,7 +429,7 @@ Not convinced that it's better then =yasnippet=.
 
 ** Orderless - Completion style
 #+begin_src emacs-lisp
-  (use-package orderless
+ (use-package orderless
     :ensure t
     :custom
     ;; default styles
@@ -457,6 +453,9 @@ Not convinced that it's better then =yasnippet=.
     :ensure t
     :general
     ("C-x b" 'consult-buffer)
+    ("M-g r" 'consult-ripgrep)
+    ("M-g i" 'consult-imenu)
+    ("M-g f" 'consult-flymake)
     ("C-s"   'consult-line)
     ("C-x f" 'consult-recent-file)
     (leader-map
@@ -596,65 +595,21 @@ Not convinced that it's better then =yasnippet=.
     (project-read-file-name-function #'project-read-file-relative-w/o-current))
 #+end_src
 
-** Change directory - Consult dir
-#+begin_src emacs-lisp
-  (use-package consult-dir
-    :general
-    ;; Dispatch on directory
-    (leader-map "f" 'consult-dired)
-    :preface
-    (defun consult-read-directory (prompt)
-      "Read consult directory."
-      (let ((sources
-             '(("Open" ?o
-                  (lambda ()
-                    (consult--buffer-query
-                     :mode 'dired-mode
-                     :as (lambda (buffer)
-                           (buffer-local-value 'default-directory buffer)))))
-               ("Projects" ?p
-                (lambda ()
-                  (project--ensure-read-project-list)
-                  (cl-loop for (path) in project--list
-                           collect path)))
-               ("Bookmarks" ?m
-                (lambda ()
-                  (cl-loop for (_ . params) in bookmark-alist
-                           for path = (alist-get 'filename params)
-                           when (and (stringp path) (directory-name-p path))
-                           collect path)))
-               ("Recentf" ?f
-                (lambda ()
-                  (cl-loop for filename in recentf-list
-                           collect (file-name-directory filename)))))))
-        (car (consult--multi
-              (cl-loop for (name narrow fn) in sources
-                       collect (list :name name
-                                     :narrow narrow
-                                     :items fn
-                                     :category 'file))
-              :prompt prompt))))
-
-    (defun consult-dired (directory)
-      "Jump to `dired' buffer corresponding DIRECTORY."
-      (interactive (list (progn (require 'consult)
-                                (consult-read-directory "Find directory: "))))
-      (dired (expand-file-name directory))))
-#+end_src
-
 * Window and frames
 ** Window
 #+begin_src emacs-lisp
   (use-package window
     :general
-    (leader-map "w" '(:keymap window-prefix-map))
+    (leader-map "w" '(:keymap window-prefix-map)
+      "wo" 'other-window
+      "wO" 'other-window-backward)
     :custom
     ;; Use more space for right and left *side* windows
     (window-sides-vertical t)
     ;; Never horizontally unless specifically asked
     (split-height-threshold nil)
     ;; Need at least 80 colums
-    (split-width-threshold (* 80 2))
+    (split-width-threshold (* 100 2))
     ;; Display buffer rules
     (display-buffer-alist
      `(;; Pop from below
@@ -708,9 +663,6 @@ Not convinced that it's better then =yasnippet=.
        ((derived-mode . shell-command-mode)
         nil
         (body-function . select-window))
-       ;; Full width tabulations (Trials and tabulations)
-       ((derived-mode . tabulated-list-mode)
-        (display-buffer-at-bottom))
        ;; Magit
        ((or (derived-mode . magit-diff-mode)
             (derived-mode . magit-process-mode))
@@ -733,13 +685,13 @@ Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package frame
     :general
-    (leader-map
-      "w" '(:ignore t :which-key "windows and frames")
-      "wf" 'tear-off-window
-      "wt" 'toggle-frame-maximized
-      "wm" 'toggle-frame-fullscreen)
-    :custom
-    (frame-resize-pixelwise t))
+    (leader-map "w" '(:keymap window-prefix-map :which-key "windows and frames"))
+    (window-prefix-map
+     "f" 'tear-off-window
+     "t" 'toggle-frame-maximized
+     "m" 'toggle-frame-fullscreen)
+  :custom
+  (frame-resize-pixelwise t))
 #+end_src
 
 ** Tab-bar
@@ -844,17 +796,17 @@ Not convinced that it's better then =yasnippet=.
 #+begin_src emacs-lisp
   (use-package replace
     :general
-    (occur-mode-map :states 'normal
+    (occur-mode-map
+     :states 'normal
      "C-n" 'next-error-no-select
      "C-p" 'previous-error-no-select
      "q" 'kill-current-buffer))
 
   (use-package grep
     :general
-    (leader-map "g" 'rgrep)
-    (grep-mode-map :states 'normal
-     "C-n" 'next-error-no-select
-     "C-p" 'previous-error-no-select
+    ("M-g g" 'rgrep)
+    (grep-mode-map
+     :states 'normal
      "q" 'kill-current-buffer))
 #+end_src
 
@@ -1103,8 +1055,11 @@ General bindings
       "la" 'lsp-execute-code-action
       "lf" 'lsp-format-buffer)
     :hook
-    (c-mode . lsp)
+    (c-ts-mode . lsp)
     (python-mode . lsp)
+    (python-ts-mode . lsp)
+    (go-mode . lsp)
+    (go-ts-mode . lsp)
     (lsp-mode
      . (lambda ()
          (setq-local evil-lookup-func #'lsp-describe-thing-at-point)))
@@ -1125,7 +1080,7 @@ General bindings
 #+begin_src emacs-lisp
   (use-package flymake
     :custom
-    (flymake-fringe-indicator-positionx 'right-fringe)
+    (flymake-fringe-indicator-position 'right-fringe)
     (flymake-show-diagnostics-at-end-of-line 'short)
     :hook
     (emacs-lisp-mode . flymake-mode))
@@ -1254,6 +1209,11 @@ General bindings
     :hook (c-mode . (lambda () (setq-local tab-width 4)))
     :custom
     (c-basic-offset 4))
+  (use-package c-ts-mode
+    :custom
+    (c-ts-mode-indent-offset 4))
+  (use-package bear-cache
+    :vc (:url "https://github.com/svaante/bear-cache"))
 #+end_src
 
 ** Go
@@ -1335,6 +1295,8 @@ Why is =rust-mode= not part Emacs?
      :states 'normal
      "E" 'dired-do-async-shell-command
      "q" 'kill-current-buffer)
+    ;; Repeat Mode map clashing with evil
+    (dired-jump-map "j" nil)
     :hook
     (dired-mode . auto-revert-mode)
     (dired-mode . dired-omit-mode)
