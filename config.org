@@ -159,8 +159,6 @@
     (evil-want-C-i-jump nil)
     (evil-want-C-u-scroll t)
     (evil-want-minibuffer t)
-    ;; Cursor type is enough for evil state
-    (evil-mode-line-format nil)
     ;; Integrations
     (evil-undo-system 'undo-redo)
     ;; Follow windows on split)
@@ -414,7 +412,6 @@ Not convinced that it's better then =yasnippet=.
      (kbd "C-n") 'vertico-next
      (kbd "C-p") 'vertico-previous)
     :custom
-    (vertico-group-format nil)
     (vertico-cycle t)
     (vertico-mode 1))
 
