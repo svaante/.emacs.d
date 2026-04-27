@@ -585,6 +585,9 @@ Not convinced that it's better then =yasnippet=.
           (not index)
           (tab-bar-switch-to-tab name)
           (project-switch-project dir))
+         (;; Current tab is project tab, DWIM
+          (equal index (tab-bar--current-tab-index))
+          (project-switch-project dir))
          (;; Otherwise *just* switch
           t (tab-bar-select-tab (1+ index))))))
 
