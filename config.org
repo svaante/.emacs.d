@@ -570,21 +570,38 @@ Not convinced that it's better then =yasnippet=.
   ;; Last working commit bf4c3cf after that the history is broken
   (use-package project
     :preface
+    (defun project-switch-project-tab (dir)
+      "Switch to project and it's tab."
+      (interactive (list (funcall project-prompter)))
+      (let* ((name
+              (format "[%s]"
+                      (file-name-nondirectory
+                       (directory-file-name dir))))
+             (index (tab-bar--tab-index-by-name name)))
+        (cond
+         (;; Switch on prefix arg
+          current-prefix-arg (project-switch-project dir))
+         (;; No project tab, create it
+          (not index)
+          (tab-bar-switch-to-tab name)
+          (project-switch-project dir))
+         (;; Otherwise *just* switch
+          t (tab-bar-select-tab (1+ index))))))
+
     (defun project-read-file-relative-w/o-current (prompt all-files &rest args)
       (apply #'project--read-file-cpd-relative prompt
              (delete
               (when buffer-file-name
-                       (file-relative-name buffer-file-name
-                                           (project-name (project-current))))
-                     all-files)
+                (file-relative-name buffer-file-name
+                                    (project-name (project-current))))
+              all-files)
              args))
     :general
-    (leader-map
-      "SPC" 'project-find-file
-      "p" '(:which-key "project" :keymap project-prefix-map)
-      "pC" 'project-recompile
-      "pe" 'project-async-shell-command
-      "pg" 'consult-ripgrep)
+    (project-prefix-map
+     "p" 'project-switch-project-tab
+     "C" 'project-recompile
+     "e" 'project-async-shell-command
+     "g" 'consult-ripgrep)
     :custom
     (project-compilation-buffer-name-function #'project-prefixed-buffer-name)
     (project-vc-extra-root-markers '(".projectile" ".project"))
