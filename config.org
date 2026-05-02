@@ -579,14 +579,9 @@ Not convinced that it's better then =yasnippet=.
                        (directory-file-name dir))))
              (index (tab-bar--tab-index-by-name name)))
         (cond
-         (;; Switch on prefix arg
-          current-prefix-arg (project-switch-project dir))
          (;; No project tab, create it
           (not index)
           (tab-bar-switch-to-tab name)
-          (project-switch-project dir))
-         (;; Current tab is project tab, DWIM
-          (equal index (tab-bar--current-tab-index))
           (project-switch-project dir))
          (;; Otherwise *just* switch
           t (tab-bar-select-tab (1+ index))))))
@@ -600,8 +595,9 @@ Not convinced that it's better then =yasnippet=.
               all-files)
              args))
     :general
+    (leader-map "SPC" 'project-find-file)
     (project-prefix-map
-     "p" 'project-switch-project-tab
+     "t" 'project-switch-project-tab
      "C" 'project-recompile
      "e" 'project-async-shell-command
      "g" 'consult-ripgrep)
