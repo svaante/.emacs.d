@@ -1256,6 +1256,15 @@ Why is =rust-mode= not part Emacs?
   (use-package typescript-mode :ensure t)
 #+end_src
 
+* LLM
+#+begin_src emacs-lisp
+  (use-package acpe
+    :vc (:url "https://github.com/svaante/acpe")
+    :general
+    (ctl-x-map
+     "C-r" 'acpe
+     "@" 'acpe-insert))
+#+end_src
 * Misc files
 #+begin_src emacs-lisp
   (use-package protobuf-mode :ensure t)
