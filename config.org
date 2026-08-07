@@ -606,6 +606,12 @@ Not convinced that it's better then =yasnippet=.
     (project-vc-extra-root-markers '(".projectile" ".project"))
     (project-switch-commands #'project-dired)
     (project-read-file-name-function #'project-read-file-relative-w/o-current))
+
+  (use-package project-watch
+    :after project
+    :vc (:url "https://github.com/svaante/project-watch.el")
+    :init
+    (require 'project-watch))
 #+end_src
 
 * Window and frames
@@ -872,6 +878,9 @@ Hack to set =exec-path= Emacsen not launched from a shell.
       (comint-send-input))
     :general
     (shell-mode-map :states '(normal) "gr" #'shell-revert-buffer)
+    (shell-mode-map :states '(insert)
+                    "C-p" #'comint-previous-input
+                    "C-n" #'comint-next-input)
     :custom
     (shell-kill-buffer-on-exit t))
 #+end_src
@@ -1084,6 +1093,7 @@ General bindings
 
   (use-package consult-lsp
     :after lsp-mode
+    :vc (:url "https://github.com/svaante/bear-cache")
     :ensure t
     :general
     (leader-map "ls" 'consult-lsp-symbols))
