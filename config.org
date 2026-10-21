@@ -1270,10 +1270,15 @@ Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package acpe
     :vc (:url "https://github.com/svaante/acpe")
-    :general
-    (ctl-x-map
-     "C-r" 'acpe
-     "@" 'acpe-insert))
+    :custom
+    (acpe-command "claude-agent-acp")
+    :bind
+    (("C-c a a" . acpe)
+     ("C-c a l" . acpe-list)
+     ("C-c a s" . acpe-scratch)
+     ("C-c a i" . acpe-insert))
+    :config
+    (evil-make-overriding-map acpe-list-mode-map))
 #+end_src
 * Misc files
 #+begin_src emacs-lisp
