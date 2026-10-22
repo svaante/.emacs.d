@@ -198,6 +198,12 @@ Make =evil= feel like default.
           (thread-last evil-collection-mode-list
                        (delete 'corfu)
                        (delete 'simpel)))
+    ;; Bind gr to `revert-buffer' in all `tabulated-list-mode' derived modes
+    (add-hook 'evil-collection-setup-hook
+              (lambda (mode _keymaps)
+                (when (eq mode 'tabulated-list)
+                  (evil-collection-define-key 'normal 'tabulated-list-mode-map
+                    "gr" #'revert-buffer))))
     (evil-collection-init))
 #+end_src
 
