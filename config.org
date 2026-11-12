@@ -100,8 +100,6 @@
       :states '(normal emacs motion visual)
       :keymaps 'override)
     (leader-map
-      "."  'find-file
-      ":"  'execute-extended-command
       "hh" 'describe-function
       "hm" 'describe-mode
       "hv" 'describe-variable))
@@ -359,10 +357,15 @@ Not convinced that it's better then =yasnippet=.
      "<backtab>" 'tempel-previous
      "S-TAB" 'tempel-previous)
     :hook
-    (evil-insert-state-exit . tempel-done)
+    (evil-insert-state-exit . tempel-done-all)
     (prog-mode . tempel-setup-capf)
     (text-mode . tempel-setup-capf)
     :preface
+    ;; `tempel-done' signals when no template is active
+    (defun tempel-done-all ()
+      (when tempel--active
+        (tempel-done t)))
+
     (defun tempel-setup-capf ()
       (setq-local completion-at-point-functions
                   (cons #'tempel-complete
@@ -468,14 +471,6 @@ Not convinced that it's better then =yasnippet=.
     ("M-g f" 'consult-flymake)
     ("C-s"   'consult-line)
     ("C-x f" 'consult-recent-file)
-    (leader-map
-      "s" 'consult-line
-      "i" 'consult-imenu
-      "b" 'consult-buffer
-      "y" 'consult-yank-pop
-      "r" 'consult-ripgrep
-      "jc" 'consult-compile-error
-      "jf" 'consult-flymake)
     ( :keymaps '(comint-mode-map minibuffer-local-map)
       :states '(insert normal)
       ;(kbd "M-r") 'consult-history
@@ -608,7 +603,6 @@ Not convinced that it's better then =yasnippet=.
               all-files)
              args))
     :general
-    (leader-map "SPC" 'project-find-file)
     (project-prefix-map
      "t" 'project-switch-project-tab
      "C" 'project-recompile
@@ -631,10 +625,6 @@ Not convinced that it's better then =yasnippet=.
 ** Window
 #+begin_src emacs-lisp
   (use-package window
-    :general
-    (leader-map "w" '(:keymap window-prefix-map)
-      "wo" 'other-window
-      "wO" 'other-window-backward)
     :custom
     ;; Use more space for right and left *side* windows
     (window-sides-vertical t)
@@ -716,12 +706,6 @@ Not convinced that it's better then =yasnippet=.
 ** Frame
 #+begin_src emacs-lisp
   (use-package frame
-    :general
-    (leader-map "w" '(:keymap window-prefix-map :which-key "windows and frames"))
-    (window-prefix-map
-     "f" 'tear-off-window
-     "t" 'toggle-frame-maximized
-     "m" 'toggle-frame-fullscreen)
   :custom
   (frame-resize-pixelwise t))
 #+end_src
@@ -756,30 +740,6 @@ Not convinced that it's better then =yasnippet=.
     :custom
     (recentf-max-saved-items 1000)
     (recentf-mode 1))
-#+end_src
-
-** Avy - In buffer navigation
-#+begin_src emacs-lisp
-  (use-package avy
-    :ensure t
-    :general
-    (leader-map
-      "jl" #'evil-avy-goto-line-keep-column)
-    :custom
-    (avy-single-candidate-jump nil)
-    (avy-all-windows 'all-frames)
-    :preface
-    (defun avy-goto-line-keep-column (&optional arg)
-      "Jump to a line at the current column."
-      (interactive "p")
-      (let ((window (selected-window))
-            (column (current-column)))
-        (avy-goto-line arg)
-        (when (equal window (selected-window))
-          (move-to-column column))))
-    :config
-    ;; Recognize goto line as an evil motion
-    (evil-define-avy-motion avy-goto-line-keep-column line))
 #+end_src
 
 * Search and Find
@@ -1578,26 +1538,6 @@ Why is =rust-mode= not part Emacs?
                 (nthcdr 2 command)
               command)))
       (rename-buffer (format "*%s*" (string-join command " ")) t)))
-
-  (use-package emacs
-    :preface
-    (defvar scratch-from-mode-history nil)
-    (defun scratch-from-mode (mode)
-      "Create scratch buffer for major MODE."
-      (interactive
-       (list
-        (intern (completing-read "Mode: " (mapcar 'cdr auto-mode-alist)
-                                 nil t nil 'scratch-from-mode-history))))
-      (let ((buffer
-             (get-buffer-create (format "*scratch: %s*"
-                                        (symbol-name mode)))))
-        (with-current-buffer buffer
-          (funcall-interactively mode)
-          (setq-local buffer-offer-save nil)
-          (evil-insert 0))
-        (select-window (display-buffer buffer))))
-    :general
-    (leader-map "as" 'scratch-from-mode))
 #+end_src
 
 * Local config
