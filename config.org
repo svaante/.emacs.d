@@ -187,6 +187,10 @@
     (when (display-graphic-p)
       (define-key input-decode-map (kbd "C-i") (kbd "H-i")))
 
+    ;; HACK: Minibuffer keeps its previous state (e.g. normal after ESC)
+    ;; on Emacs 31, always start in insert
+    (add-hook 'minibuffer-setup-hook #'evil-insert-state 90)
+
     (evil-mode 1))
 #+end_src
 
