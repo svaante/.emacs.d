@@ -1374,10 +1374,18 @@ Why is =rust-mode= not part Emacs?
     :hook
     (gnus-group-mode . gnus-topic-mode)
     (gnus-summary-mode . hl-line-mode)
+    :init
+    ;; Load the heavy libraries while idle to make `gnus' start faster
+    (run-with-idle-timer 5 nil
+                         (lambda ()
+                           (mapc #'require '(gnus gnus-agent gnus-topic nnmaildir))))
     :custom
     ;; Startup
     (gnus-check-new-newsgroups nil)
     (gnus-check-bogus-newsgroups nil)
+    ;; Only activate mail (level <= 2) on startup and `g'; nntp groups
+    ;; (level 3) are fetched on demand with `3 g' or by entering them
+    (gnus-activate-level 2)
     ;; Sensible date format
     (gnus-user-date-format-alist '((t . "%Y-%m-%d %H:%M")))
     ;; Looks
