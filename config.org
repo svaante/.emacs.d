@@ -1420,13 +1420,6 @@ Why is =rust-mode= not part Emacs?
        (nntp "news.gwene.org")
        ;; Mailing lists
        (nntp "news.gmane.io")))
-    ;; use correct email
-    (gnus-posting-styles
-     '((".*" ; Matches all groups of messages
-        (address "Daniel Pettersson <daniel@dpettersson.net>"))
-       ("svaante"
-        (address "Daniel Pettersson <svaante@gmail.com>")
-        ("X-Message-SMTP-Method" "smtp smtp.gmail.com 587 svaante@gmail.com"))))
     (gnus-parameters
      `(("nnmaildir"
         (gcc-self . t) ;; Let me see my own emails
@@ -1481,8 +1474,6 @@ Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package smtpmail
     :custom
-    (user-mail-address "daniel@dpettersson.net")
-    (user-full-name "Daniel Pettersson")
     ;; use smtpmail
     (send-mail-function 'smtpmail-send-it)
     ;; use gnus?
@@ -1598,4 +1589,10 @@ Why is =rust-mode= not part Emacs?
         (select-window (display-buffer buffer))))
     :general
     (leader-map "as" 'scratch-from-mode))
+#+end_src
+
+* Local config
+#+begin_src emacs-lisp
+  (setq custom-file (locate-user-emacs-file "custom.el"))
+  (load custom-file t)
 #+end_src
