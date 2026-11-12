@@ -12,6 +12,7 @@
     :custom
     (use-package-vc-prefer-newest t)
     :config
+    (require 'package)
     (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
     (package-initialize))
 #+end_src
@@ -127,6 +128,8 @@
 
 ** Evil and Friends - Vi emulation
 #+begin_src emacs-lisp
+  ;; Must be set before `:vc' installs (and loads) evil on first start
+  (setq evil-want-keybinding nil)
   (use-package evil
     :vc (evil :url "https://github.com/emacs-evil/evil" :rev "682e87f")
     :general
@@ -224,6 +227,9 @@ Org keybinds
 
 ** Embark - At "thing" mappings
 #+begin_src emacs-lisp
+  ;; Install before embark loads, else embark warns when consult loads
+  (use-package embark-consult :ensure t :after consult)
+
   (use-package embark
     :ensure t
     :general
@@ -453,8 +459,6 @@ Not convinced that it's better then =yasnippet=.
 
 ** Consult - Improved candidate completion functions
 #+begin_src emacs-lisp
-  (use-package embark-consult :ensure t :after consult)
-
   (use-package consult
     :ensure t
     :general
@@ -1101,7 +1105,6 @@ General bindings
 
   (use-package consult-lsp
     :after lsp-mode
-    :vc (:url "https://github.com/svaante/bear-cache")
     :ensure t
     :general
     (leader-map "ls" 'consult-lsp-symbols))
@@ -1137,8 +1140,6 @@ General bindings
     :hook
     (kill-emacs . dape-breakpoint-save)
     (after-init . dape-breakpoint-load)
-    :custom
-    (dape-breakpoint-global-mode 1)
     :config
     (add-hook 'dape-display-source-hook
               #'pulse-momentary-highlight-one-line)
@@ -1251,8 +1252,8 @@ General bindings
 #+begin_src emacs-lisp
   (use-package go-mode
     :ensure t
-    ;; Jesus this is lazy having this a global save hook...
-    :hook (before-save-hook . gofmt-before-save))
+    :hook (go-mode . (lambda ()
+                       (add-hook 'before-save-hook #'gofmt-before-save nil t))))
 #+end_src
 
 ** Python
