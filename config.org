@@ -198,6 +198,9 @@ Make =evil= feel like default.
           (thread-last evil-collection-mode-list
                        (delete 'corfu)
                        (delete 'simpel)))
+    ;; Keep RET sending input in insert state in REPLs (comint, eshell, ...)
+    (setq evil-collection-binding-overrides
+          '((repl-newline :enabled nil)))
     ;; Bind gr to `revert-buffer' in all `tabulated-list-mode' derived modes
     (add-hook 'evil-collection-setup-hook
               (lambda (mode _keymaps)
@@ -726,8 +729,7 @@ Not convinced that it's better then =yasnippet=.
     (leader-map "t" '(:keymap tab-prefix-map :which-key "tabs")
       "tn" 'tab-new)
     :custom
-    (tab-bar-format '(tab-bar-format-history
-                      tab-bar-format-tabs
+    (tab-bar-format '(tab-bar-format-tabs
                       tab-bar-format-align-right
                       tab-bar-format-global))
     (tab-bar-auto-width nil)
@@ -951,7 +953,6 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 #+begin_src emacs-lisp
   (use-package org-agenda
     :general
-    (leader-map "oa" 'org-agenda-custom)
     (org-agenda-mode-map
      :states 'normal
      "q" 'org-agenda-quit
@@ -959,8 +960,9 @@ Hack to set =exec-path= Emacsen not launched from a shell.
      "D" #'org-agenda-kill
      "s" #'org-agenda-filter
      "t" #'org-agenda-todo
-     "T" #'org-agenda-set-tags
-     )
+     "T" #'org-agenda-set-tags)
+    :bind
+    ("C-c o o" . org-todo-list)
     :hook
     (org-agenda-mode . hl-line-mode)
     :preface
@@ -990,8 +992,8 @@ Hack to set =exec-path= Emacsen not launched from a shell.
 ** Org Capture
 #+begin_src emacs-lisp
   (use-package org-capture
-    :general
-    (leader-map "oc" 'org-capture)
+    :bind
+    ("C-c o c" . org-capture)
     :hook
     (org-capture-mode . evil-insert-state)
     :custom
@@ -1332,7 +1334,6 @@ Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package dired
     :general
-    (leader-map "ad" 'dired-jump)
     ;; Lets pretend shell-command does not exist
     (dired-mode-map
      :states 'normal
@@ -1388,7 +1389,7 @@ Why is =rust-mode= not part Emacs?
     (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date))
     ;; Show all(ish) groups and articles
     (gnus-permanently-visible-groups ".*")
-    (gnus-large-newsgroup 500)
+    (gnus-large-newsgroup 50)
     ;; Show more MIME-stuff
     (gnus-mime-display-multipart-related-as-mixed t)
     ;; Don't select the first automatically
@@ -1441,7 +1442,7 @@ Why is =rust-mode= not part Emacs?
     :config
     ;; Gnus should use display-buffer
     (advice-add 'gnus :before
-                (defun gnus--in-tag (&rest _)
+                (defun gnus--advice (&rest _)
                   (tab-bar-select-tab-by-name "Gnus"))))
 #+end_src
 
@@ -1503,7 +1504,6 @@ Why is =rust-mode= not part Emacs?
 #+begin_src emacs-lisp
   (use-package calculator
     :general
-    (leader-map "ac" #'calculator)
     (calculator-mode-map "y" 'calculator-copy
                          "p" 'calculator-paste
                          "d" 'calculator-clear)
@@ -1524,8 +1524,6 @@ Why is =rust-mode= not part Emacs?
 ** Rcirc - Irc
 #+begin_src emacs-lisp
   (use-package rcirc
-    :general
-    (leader-map "ai" 'rcirc)
     :config
     (evil-set-initial-state 'rcirc-mode 'normal))
 #+end_src
@@ -1547,26 +1545,9 @@ Why is =rust-mode= not part Emacs?
        'font-lock-face 'font-lock-keyword-face)))
 #+end_src
 
-** Proceed
-#+begin_src emacs-lisp
-  (use-package proced
-    :general
-    (leader-map "ap" 'proced)
-    :hook
-    (proced-mode . hl-line-mode)
-    :custom
-    (proced-show-remote-processes t)
-    (proced-sort 'pmem)
-    (proced-enable-color-flag t)
-    (proced-tree-flag t))
-#+end_src
-
 ** Bluetooth
 #+begin_src emacs-lisp
-  (use-package bluetooth
-    :ensure t
-    :general
-    (leader-map "ab" 'bluetooth-list-devices))
+  (use-package bluetooth :ensure t)
 #+end_src
 
 * Misc commands
