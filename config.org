@@ -727,6 +727,7 @@ Not convinced that it's better then =yasnippet=.
     (tab-bar-auto-width nil)
     (tab-bar-new-button-show nil)
     (tab-bar-close-button-show nil)
+    (tab-bar-separator " ")
     (tab-bar-new-tab-choice "*scratch*")
     (tab-bar-mode 1)
     (tab-bar-history-mode 1)
