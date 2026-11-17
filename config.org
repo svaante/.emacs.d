@@ -1271,7 +1271,7 @@ Why is =rust-mode= not part Emacs?
     ("M-m" '(:which-key "magit")
      "M-m m" 'magit-status-here
      "M-m f" 'magit-find-file
-     "M-m d" 'magit-diff
+     "M-m d" 'magit-diff-range
      "M-m b" 'magit-blame
      "M-m l" 'magit-log
      "M-m c" 'magit-checkout)
