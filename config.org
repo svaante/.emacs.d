@@ -1251,6 +1251,8 @@ Why is =rust-mode= not part Emacs?
      ("C-c a l" . acpe-list)
      ("C-c a s" . acpe-scratch)
      ("C-c a i" . acpe-insert))
+    :hook
+    (acpe-list-mode . hl-line-mode)
     :config
     (evil-make-overriding-map acpe-list-mode-map))
 #+end_src
@@ -1361,6 +1363,8 @@ Why is =rust-mode= not part Emacs?
     (gnus-use-full-window nil)
     ;; Sensible article order
     (gnus-thread-sort-functions '(gnus-thread-sort-by-most-recent-date))
+    ;; Only thread real replies, not mails that share a subject
+    (gnus-summary-thread-gathering-function 'gnus-gather-threads-by-references)
     ;; Show all(ish) groups and articles
     (gnus-permanently-visible-groups ".*")
     (gnus-large-newsgroup 50)
