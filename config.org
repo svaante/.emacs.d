@@ -1273,7 +1273,7 @@ Why is =rust-mode= not part Emacs?
     ("M-m" '(:which-key "magit")
      "M-m m" 'magit-status-here
      "M-m f" 'magit-find-file
-     "M-m d" 'magit-diff-range
+     "M-m d" 'magit-diff-current-branch
      "M-m b" 'magit-blame
      "M-m l" 'magit-log
      "M-m c" 'magit-checkout)
@@ -1290,7 +1290,38 @@ Why is =rust-mode= not part Emacs?
     (magit-diff-visit-prefer-worktree t)
     :config
     (advice-add 'magit-status-here :after
-                (defun magit-recenter (&rest _) (recenter))))
+                (defun magit-recenter (&rest _) (recenter)))
+    (defun magit-diff-current-branch (&optional base)
+      "Show changes on the current branch, including uncommitted ones.
+  The branch's changes are the commits no other branch has or, on the
+  main branch, the commits not yet pushed.  With a prefix argument,
+  prompt for a BASE to diff against instead."
+      (interactive
+       (list (and current-prefix-arg
+                  (magit-read-branch-or-commit "Diff branch against"))))
+      (pcase-let
+          ((rev
+            (if base
+                (magit-git-string "merge-base" base "HEAD")
+              (let* ((branch (magit-get-current-branch))
+                     (main (equal branch (magit-main-branch)))
+                     (copy (format "\\`refs/\\(heads\\|remotes/[^/]+\\)/%s\\'"
+                                   (regexp-quote (or branch ""))))
+                     (others (funcall (if main #'seq-filter #'seq-remove)
+                                      (lambda (ref) (string-match-p copy ref))
+                                      (magit-git-lines
+                                       "for-each-ref" "--format=%(refname)"
+                                       (unless main "--no-contains=HEAD")
+                                       (unless main "refs/heads")
+                                       "refs/remotes")))
+                     (oldest (car (last (apply #'magit-git-lines "rev-list"
+                                               "HEAD" "--not" others)))))
+                (if oldest (concat oldest "^") "HEAD"))))
+           (`(,args ,files) (magit-diff-arguments)))
+        ;; Against HEAD this is a plain working tree diff, so let Magit
+        ;; allow staging from it.
+        (magit-diff-setup-buffer rev nil args files
+                                 (if (magit-rev-eq rev "HEAD") 'unstaged 'committed)))))
 
   (use-package ediff
     :custom
